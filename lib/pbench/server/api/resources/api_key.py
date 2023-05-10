@@ -67,7 +67,8 @@ class APIKeyManage(ApiBase):
         GET /api/v1/key
 
         Returns:
-            Success: 200 with response containing the list of api_key
+            Success: 200 with response containing the requested api_key
+                or list of api_key
 
         Raises:
             APIAbort, reporting "UNAUTHORIZED" or "NOT_FOUND"
