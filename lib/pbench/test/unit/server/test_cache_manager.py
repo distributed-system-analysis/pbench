@@ -542,7 +542,7 @@ class TestCacheManager:
             tb.cache_map(tar_dir)
 
             file_path = "/dir_name/subdir1/f11.txt"
-            expected_msg = f"The directory path {file_path!r} is not valid"
+            expected_msg = f"The directory path {file_path!r} is an absolute path, we expect relative path to the root directory."
             with pytest.raises(BadDirpath) as exc:
                 tb.get_info(Path(file_path))
             assert str(exc.value) == expected_msg

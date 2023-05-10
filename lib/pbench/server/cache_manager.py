@@ -27,7 +27,10 @@ class BadDirpath(CacheManagerError):
         self.path = str(path)
 
     def __str__(self) -> str:
-        return f"The directory path {self.path!r} is not valid"
+        return (
+            f"The directory path {self.path!r} is an absolute path,"
+            " we expect relative path to the root directory."
+        )
 
 
 class BadFilename(CacheManagerError):
@@ -94,19 +97,16 @@ class TarballModeChangeError(CacheManagerError):
 
 
 class FileInfo:
-    def __init__(self, dir_name: str, path: Path):
+    def __init__(self, dir_path: Path, path: Path):
         """Collects the file info
 
         Args:
+            dir_path: root directory parent path
             path: path to a file/directory
 
         """
         self.name = path.name
-        if self.name == dir_name:
-            self.location = dir_name
-        else:
-            self.location = Path(dir_name) / str(path).split(f"{dir_name}/")[1]
-
+        self.location = path.relative_to(dir_path)
         self.resolve_path = None
         self.resolve_type = None
         self.size = None
@@ -119,19 +119,14 @@ class FileInfo:
                 resolve_path = path.readlink()
                 self.resolve_type = "symlink"
 
-            if resolve_path.name == dir_name:
-                self.resolve_path = dir_name
-            else:
-                self.resolve_path = (
-                    Path(dir_name) / str(resolve_path).split(f"{dir_name}/")[1]
-                )
+            self.resolve_path = resolve_path.relative_to(dir_path)
         elif path.is_file():
             self.type = "file"
             self.size = path.stat().st_size
         elif path.is_dir():
             self.type = "directory"
         else:
-            self.type = "other"
+            self.type = "UNSUPPORTED_MEDIA_TYPE"
 
 
 class Tarball:
@@ -288,7 +283,8 @@ class Tarball:
         Args:
             dir_path: root directory
         """
-        cmap = {dir_path.name: {"details": FileInfo(self.name, dir_path)}}
+        root_dir_path = dir_path.parent
+        cmap = {dir_path.name: {"details": FileInfo(root_dir_path, dir_path)}}
         dir_queue = deque([(dir_path, cmap)])
         while dir_queue:
             dir_path, parent_map = dir_queue.popleft()
@@ -301,7 +297,7 @@ class Tarball:
                 curr = curr["children"]
 
             for l_path in dir_list:
-                dir_info = FileInfo(self.name, l_path)
+                dir_info = FileInfo(root_dir_path, l_path)
                 curr[l_path.name] = {"details": dir_info}
                 if l_path.is_dir():
                     dir_queue.append((l_path, curr))
@@ -343,7 +339,6 @@ class Tarball:
         Returns:
             Dictionary with Details of the file/directory
         """
-        # FixMe: Handle a Symlink
         if str(path).startswith("/"):
             raise BadDirpath(path)
 
@@ -351,7 +346,7 @@ class Tarball:
         children = c_map["children"] if "children" in c_map else {}
         fd_info = c_map["details"].__dict__.copy()
 
-        if c_map["details"].type == "directory":
+        if fd_info["type"] == "directory":
             fd_info["directories"] = []
             fd_info["files"] = []
 
