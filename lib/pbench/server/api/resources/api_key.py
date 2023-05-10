@@ -32,6 +32,9 @@ class APIKeyManage(ApiBase):
                 query_schema=Schema(
                     Parameter("label", ParamType.STRING, required=False),
                 ),
+                uri_schema=Schema(
+                    Parameter("key", ParamType.STRING, required=False),
+                ),
                 audit_type=AuditType.API_KEY,
                 audit_name="apikey",
                 authorization=ApiAuthorizationType.NONE,
@@ -109,7 +112,11 @@ class APIKeyManage(ApiBase):
         """
         user = Auth.token_auth.current_user()
         label = params.query.get("label")
-
+        uri_params = params.uri.get("key")
+        if uri_params:
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST, "Key cannot be specified by the user"
+            )
         if not user:
             raise APIAbort(
                 HTTPStatus.UNAUTHORIZED,

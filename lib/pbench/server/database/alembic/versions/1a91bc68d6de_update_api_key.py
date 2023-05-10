@@ -21,7 +21,7 @@ def upgrade() -> None:
     op.execute("ALTER TABLE api_keys ADD COLUMN id SERIAL PRIMARY KEY")
     op.add_column("api_keys", sa.Column("label", sa.String(length=128), nullable=True))
     op.add_column("api_keys", sa.Column("key", sa.String(length=500), nullable=False))
-    op.create_unique_constraint(None, "api_keys", ["key"])
+    op.create_unique_constraint("api_keys_key_unique", "api_keys", ["key"])
     op.drop_column("api_keys", "api_key")
 
 

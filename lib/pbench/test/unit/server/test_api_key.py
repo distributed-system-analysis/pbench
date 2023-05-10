@@ -111,6 +111,17 @@ class TestPostAPIKey:
         assert audit[1].attributes["id"] == response.json["id"]
         assert audit[1].attributes["label"] is None
 
+    def test_unsuccessful_api_key_generation_with_key(
+        self, client, server_config, query_post_as, pbench_drb_token
+    ):
+        response = client.post(
+            f"{server_config.rest_uri}/key/5",
+            headers={"authorization": f"bearer {pbench_drb_token}"},
+            query_string={"label": "new_key"},
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json == {"message": "Key cannot be specified by the user"}
+
 
 class TestAPIKeyGet:
     @pytest.fixture()
