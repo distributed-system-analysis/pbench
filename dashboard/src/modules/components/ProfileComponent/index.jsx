@@ -1,4 +1,5 @@
-import React from "react";
+import "./index.less";
+
 import {
   Card,
   CardBody,
@@ -12,7 +13,9 @@ import {
   isValidDate,
 } from "@patternfly/react-core";
 import { KeyIcon, UserAltIcon } from "@patternfly/react-icons";
-import "./index.less";
+
+import KeyManagementComponent from "./KeyManagement";
+import React from "react";
 import avatar from "assets/images/avatar.jpg";
 import { useKeycloak } from "@react-keycloak/web";
 
@@ -104,6 +107,9 @@ const ProfileComponent = () => {
                 </div>
               </CardBody>
             </Card>
+            <GridItem span={8}>
+              <KeyManagementComponent />
+            </GridItem>
           </GridItem>
           <GridItem span={4}>
             <Card className="card">
