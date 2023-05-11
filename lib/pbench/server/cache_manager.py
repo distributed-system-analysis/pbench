@@ -23,14 +23,11 @@ class CacheManagerError(Exception):
 class BadDirpath(CacheManagerError):
     """A bad directory path was given."""
 
-    def __init__(self, path: Union[str, Path]):
-        self.path = str(path)
+    def __init__(self, error_msg: str):
+        self.error_msg = error_msg
 
     def __str__(self) -> str:
-        return (
-            f"The directory path {self.path!r} is an absolute path,"
-            " we expect relative path to the root directory."
-        )
+        return self.error_msg
 
 
 class BadFilename(CacheManagerError):
@@ -291,16 +288,15 @@ class Tarball:
             tar_n = dir_path.name
             curr = parent_map[tar_n]
 
-            dir_list = list(dir_path.glob("*"))
-            if dir_list:
-                curr["children"] = {}
-                curr = curr["children"]
-
-            for l_path in dir_list:
-                dir_info = FileInfo(root_dir_path, l_path)
-                curr[l_path.name] = {"details": dir_info}
+            curr = {}
+            for l_path in dir_path.glob("*"):
+                tar_info = FileInfo(root_dir_path, l_path)
+                curr[l_path.name] = {"details": tar_info}
                 if l_path.is_dir():
                     dir_queue.append((l_path, curr))
+            if curr:
+                parent_map[tar_n]["children"] = curr
+
         self.cachemap = cmap
 
     @staticmethod
@@ -315,17 +311,22 @@ class Tarball:
         Returns:
             Dictionary with directory/file details or children if present
         """
-        name = path.name
-        file_list = path.parts
-        c_map = cachemap
+        file_list = path.parts[:-1]
+        f_entries = cachemap
 
-        for file_l in file_list:
-            c_map = c_map[file_l]
-            if c_map["details"].type == "directory":
-                if "children" in c_map and file_l != name:
-                    c_map = c_map["children"]
+        try:
+            for file_l in file_list:
+                info = f_entries[file_l]
+                if info["details"].type == "directory":
+                    f_entries = info["children"]
+                else:
+                    raise BadDirpath(
+                        f"Found a file {file_l!r} where a directory was expected in path {path}"
+                    )
 
-        return c_map
+            return f_entries[path.name]
+        except KeyError as exc:
+            raise BadDirpath(f"File/directory {exc} in path {path} not found in cache.")
 
     def get_info(self, path: Path) -> dict[str, dict]:
         """Returns the details of the given file/directory in dict format
@@ -340,7 +341,10 @@ class Tarball:
             Dictionary with Details of the file/directory
         """
         if str(path).startswith("/"):
-            raise BadDirpath(path)
+            raise BadDirpath(
+                f"The directory path '{str(path)}' is an absolute path,"
+                " we expect relative path to the root directory."
+            )
 
         c_map = self.traverse_cmap(path, self.cachemap)
         children = c_map["children"] if "children" in c_map else {}
