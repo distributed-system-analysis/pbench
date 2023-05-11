@@ -211,7 +211,7 @@ class TestPut:
                     undone = []
                     for name, op in operations.items():
                         if op["state"] != "OK":
-                            undone.append(f"{name}={op['state']}({op['message']})")
+                            undone.append(f"{name}={op['state']}(msg={op['message']})")
                     status = ",".join(undone)
                     print(f"\t\tfinished {done!r}, awaiting {status!r}")
                     not_indexed.append(dataset)
@@ -532,6 +532,9 @@ class TestDelete:
 
         Requires that test_upload_all has been run successfully.
         """
+        if os.environ.get("KEEP_DATASETS"):
+            pytest.skip(msg="Skipping dataset deletion on request")
+
         print(" ... reporting behaviors ...")
 
         datasets = server_client.get_list()
