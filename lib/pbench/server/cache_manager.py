@@ -100,7 +100,6 @@ class FileInfo:
         Args:
             dir_path: root directory parent path
             path: path to a file/directory
-
         """
         self.name = path.name
         self.location = path.relative_to(dir_path)
@@ -286,7 +285,6 @@ class Tarball:
         while dir_queue:
             dir_path, parent_map = dir_queue.popleft()
             tar_n = dir_path.name
-            curr = parent_map[tar_n]
 
             curr = {}
             for l_path in dir_path.glob("*"):
@@ -307,6 +305,9 @@ class Tarball:
         Args:
             path: relative path of the sub-directory/file
             cachemap: dictionary mapping of the root Dicrectory
+
+        Raises:
+            BadDirpath if the directory/file path is not valid
 
         Returns:
             Dictionary with directory/file details or children if present

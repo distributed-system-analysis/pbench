@@ -505,7 +505,7 @@ class TestCacheManager:
             assert tb.unpacked == cache / "ABC" / tb.name
 
     def test_cache_map_success(self, monkeypatch, tmp_path):
-        """Test to build the cache map of the unpacked tarball"""
+        """Test to build the cache map of the root directory"""
         tar = Path("/mock/dir_name.tar.xz")
         cache = Path("/mock/.cache")
 
@@ -528,7 +528,47 @@ class TestCacheManager:
                 == "symlink"
             )
 
-    def test_cache_map_bad_dir_path(self, monkeypatch, tmp_path):
+    @pytest.mark.parametrize(
+        "file_path, expected_msg",
+        [
+            (
+                "/dir_name/subdir1/f11.txt",
+                "The directory path '/dir_name/subdir1/f11.txt' is an absolute path, we expect relative path to the root directory.",
+            ),
+            (
+                "dir_name/subdir1/subdir11/../f11.txt",
+                "File/directory 'children' in path dir_name/subdir1/subdir11/../f11.txt not found in cache.",
+            ),
+            (
+                "dir_name/subdir1/subdir13/subdir1",
+                "File/directory 'subdir1' in path dir_name/subdir1/subdir13/subdir1 not found in cache.",
+            ),
+            (
+                "dir_name/ne_dir",
+                "File/directory 'ne_dir' in path dir_name/ne_dir not found in cache.",
+            ),
+            (
+                "dir_name/subdir1/ne_file",
+                "File/directory 'ne_file' in path dir_name/subdir1/ne_file not found in cache.",
+            ),
+            (
+                "dir_name/ne_dir/ne_file",
+                "File/directory 'ne_dir' in path dir_name/ne_dir/ne_file not found in cache.",
+            ),
+            (
+                "dir_name/subdir1/f11.txt/ne_subdir",
+                "Found a file 'f11.txt' where a directory was expected in path dir_name/subdir1/f11.txt/ne_subdir",
+            ),
+            (
+                "dir_name/subdir1/subdir13/subdir111/f1112_sym/ne_file",
+                "Found a file 'f1112_sym' where a directory was expected in path dir_name/subdir1/subdir13/subdir111/f1112_sym/ne_file",
+            ),
+        ],
+    )
+    def test_cache_map_bad_dir_path(
+        self, monkeypatch, tmp_path, file_path, expected_msg
+    ):
+        """Test to check bad directory or file path"""
         tar = Path("/mock/dir_name.tar.xz")
         cache = Path("/mock/.cache")
 
@@ -540,15 +580,78 @@ class TestCacheManager:
                 tmp_path, "dir_name"
             )
             tb.cache_map(tar_dir)
-
-            file_path = "/dir_name/subdir1/f11.txt"
-            expected_msg = f"The directory path {file_path!r} is an absolute path, we expect relative path to the root directory."
             with pytest.raises(BadDirpath) as exc:
                 tb.get_info(Path(file_path))
             assert str(exc.value) == expected_msg
 
-    def test_cache_map_traverse_get_info_cmap(self, monkeypatch, tmp_path):
-        """Test to build the cache map of the unpacked tarball"""
+    @pytest.mark.parametrize(
+        "file_path, expected_msg",
+        [
+            ("dir_name/subdir1/./f11.txt", "f11.txt"),
+            ("dir_name/subdir1//f11.txt", "f11.txt"),
+        ],
+    )
+    def test_cache_map_irregular_path(
+        self, monkeypatch, tmp_path, file_path, expected_msg
+    ):
+        """Test to check irreguraties in file/directory path"""
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
+
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+                tmp_path, "dir_name"
+            )
+            tb.cache_map(tar_dir)
+            tb.get_info(Path(file_path))
+            assert (
+                tb.cachemap["dir_name"]["children"]["subdir1"]["children"]["f11.txt"][
+                    "details"
+                ].name
+                == expected_msg
+            )
+
+    @pytest.mark.parametrize(
+        "file_path, location, name, resolve_path, resolve_type, size, file_type",
+        [
+            ("dir_name", "dir_name", "dir_name", None, None, None, "directory"),
+            (
+                "dir_name/subdir1",
+                "dir_name/subdir1",
+                "subdir1",
+                None,
+                None,
+                None,
+                "directory",
+            ),
+            ("dir_name/f1.json", "dir_name/f1.json", "f1.json", None, None, 0, "file"),
+            (
+                "dir_name/subdir1/subdir13/subdir111/f1112_sym",
+                "dir_name/subdir1/subdir13/subdir111/f1112_sym",
+                "f1112_sym",
+                Path("dir_name/subdir1/f11.txt"),
+                "file",
+                None,
+                "symlink",
+            ),
+        ],
+    )
+    def test_cache_map_traverse_cmap(
+        self,
+        monkeypatch,
+        tmp_path,
+        file_path,
+        location,
+        name,
+        resolve_path,
+        resolve_type,
+        size,
+        file_type,
+    ):
+        """Test to check the sanity of details of the cachemap"""
         tar = Path("/mock/dir_name.tar.xz")
         cache = Path("/mock/.cache")
 
@@ -562,91 +665,88 @@ class TestCacheManager:
             tb.cache_map(tar_dir)
             assert tb.cachemap["dir_name"]["details"].type == "directory"
 
-            # test traverse with file path
-            file_path = Path("dir_name/f1.json")
-            c_map = Tarball.traverse_cmap(file_path, tb.cachemap)
-            assert c_map["details"].location == file_path
-            assert c_map["details"].name == "f1.json"
-            assert c_map["details"].resolve_path is None
-            assert c_map["details"].resolve_type is None
-            assert c_map["details"].size == 0
-            assert c_map["details"].type == "file"
+            # test traverse with random path
+            c_map = Tarball.traverse_cmap(Path(file_path), tb.cachemap)
+            assert c_map["details"].location == Path(location)
+            assert c_map["details"].name == name
+            assert c_map["details"].resolve_path == resolve_path
+            assert c_map["details"].resolve_type == resolve_type
+            assert c_map["details"].size == size
+            assert c_map["details"].type == file_type
 
-            # test traverse_cmap with an empty directory path
-            dir_path = Path("dir_name/subdir1/subdir11")
-            c_map = Tarball.traverse_cmap(dir_path, tb.cachemap)
-            assert c_map["details"].location == dir_path
-            assert c_map["details"].name == "subdir11"
-            assert c_map["details"].resolve_path is None
-            assert c_map["details"].resolve_type is None
-            assert c_map["details"].size is None
-            assert c_map["details"].type == "directory"
+    @pytest.mark.parametrize(
+        "file_path, expected_msg",
+        [
+            (
+                "dir_name/subdir1/f11.txt",
+                {
+                    "location": Path("dir_name/subdir1/f11.txt"),
+                    "name": "f11.txt",
+                    "resolve_path": None,
+                    "resolve_type": None,
+                    "size": 0,
+                    "type": "file",
+                },
+            ),
+            (
+                "dir_name/subdir1",
+                {
+                    "directories": ["subdir11", "subdir12", "subdir13"],
+                    "files": ["f11.txt"],
+                    "location": Path("dir_name/subdir1"),
+                    "name": "subdir1",
+                    "resolve_path": None,
+                    "resolve_type": None,
+                    "size": None,
+                    "type": "directory",
+                },
+            ),
+            (
+                "dir_name/subdir1/subdir11",
+                {
+                    "directories": [],
+                    "files": [],
+                    "location": Path("dir_name/subdir1/subdir11"),
+                    "name": "subdir11",
+                    "resolve_path": None,
+                    "resolve_type": None,
+                    "size": None,
+                    "type": "directory",
+                },
+            ),
+            (
+                "dir_name/subdir1/subdir13/subdir111/f1112_sym",
+                {
+                    "location": Path("dir_name/subdir1/subdir13/subdir111/f1112_sym"),
+                    "name": "f1112_sym",
+                    "resolve_path": Path("dir_name/subdir1/f11.txt"),
+                    "resolve_type": "file",
+                    "size": None,
+                    "type": "symlink",
+                },
+            ),
+        ],
+    )
+    def test_cache_map_get_info_cmap(
+        self, monkeypatch, tmp_path, file_path, expected_msg
+    ):
+        """Test to check if the info returned by the cachemap is correct"""
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
 
-            # test traverse_cmap with a symlink path
-            link_path = Path("dir_name/subdir1/subdir13/subdir111/f1112_sym")
-            c_map = Tarball.traverse_cmap(link_path, tb.cachemap)
-            assert c_map["details"].location == link_path
-            assert c_map["details"].name == "f1112_sym"
-            assert c_map["details"].resolve_path == Path("dir_name/subdir1/f11.txt")
-            assert c_map["details"].resolve_type == "file"
-            assert c_map["details"].size is None
-            assert c_map["details"].type == "symlink"
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+                tmp_path, "dir_name"
+            )
+            tb.cache_map(tar_dir)
+            assert tb.cachemap["dir_name"]["details"].type == "directory"
 
-            # test get_info with a file path
-            file_path = Path("dir_name/subdir1/f11.txt")
-            file_info = tb.get_info(file_path)
-            expected_info = {
-                "location": file_path,
-                "name": "f11.txt",
-                "resolve_path": None,
-                "resolve_type": None,
-                "size": 0,
-                "type": "file",
-            }
-            assert file_info == expected_info
-
-            # test get_info with a directory path
-            dir_path = Path("dir_name/subdir1")
-            dir_info = tb.get_info(dir_path)
-            expected_info = {
-                "directories": ["subdir11", "subdir12", "subdir13"],
-                "files": ["f11.txt"],
-                "location": dir_path,
-                "name": "subdir1",
-                "resolve_path": None,
-                "resolve_type": None,
-                "size": None,
-                "type": "directory",
-            }
-            assert dir_info == expected_info
-
-            # test get_info with an empty directory path
-            dir_path = Path("dir_name/subdir1/subdir11")
-            dir_info = tb.get_info(dir_path)
-            expected_info = {
-                "directories": [],
-                "files": [],
-                "location": dir_path,
-                "name": "subdir11",
-                "resolve_path": None,
-                "resolve_type": None,
-                "size": None,
-                "type": "directory",
-            }
-            assert dir_info == expected_info
-
-            # test get_info with a symlink path
-            link_path = Path("dir_name/subdir1/subdir13/subdir111/f1112_sym")
-            link_info = tb.get_info(link_path)
-            expected_info = {
-                "location": link_path,
-                "name": "f1112_sym",
-                "resolve_path": Path("dir_name/subdir1/f11.txt"),
-                "resolve_type": "file",
-                "size": None,
-                "type": "symlink",
-            }
-            assert link_info == expected_info
+            # test get_info with random path
+            file_info = tb.get_info(Path(file_path))
+            assert file_info == expected_msg
 
     def test_find(
         self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
