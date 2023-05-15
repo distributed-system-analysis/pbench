@@ -16,46 +16,46 @@ keep_flag=0
 exit_status=0
 
 function usage {
-	printf "Spin up the necessary containers for the Pbench Server on the local"
+    printf "Spin up the necessary containers for the Pbench Server on the local"
     printf "host and run the server functional tests.\n"
     printf "\nThe following options are available:\n"
-	printf "\n"
-	printf -- "\t-c|--cleanup\n"
-	printf "\t\tRemote the containers when tests complete.\n"
-	printf -- "\t-k|--keep\n"
-	printf "\t\tDon't delete test datasets\n"
+    printf "\n"
+    printf -- "\t-c|--cleanup\n"
+    printf "\t\tRemove the containers when tests complete.\n"
+    printf -- "\t-k|--keep\n"
+    printf "\t\tDon't delete test datasets\n"
 }
 
 opts=$(getopt -q -o ckh --longoptions "cleanup,keep,help" -n "run-server-func-tests" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
-	printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${0}" "${*}" >&2
-	usage >&2
-	exit 1
+    printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${0}" "${*}" >&2
+    usage >&2
+    exit 1
 fi
 eval set -- "${opts}"
 while true; do
-	arg=${1}
-	shift
-	case "${arg}" in
-	-c|--cleanup)
+    arg=${1}
+    shift
+    case "${arg}" in
+    -c|--cleanup)
         cleanup_flag=1
-		;;
-	-k|--keep)
-		keep_flag=1
-		;;
-	-h|--help)
-		usage
-		exit 0
-		;;
-	--)
-		break
-		;;
-	*)
-		printf -- "${0}: unrecognized command line argument, '${arg}'\n" >&2
-		usage >&2
-		exit 1
-		;;
-	esac
+        ;;
+    -k|--keep)
+        keep_flag=1
+        ;;
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    --)
+        break
+        ;;
+    *)
+        printf -- "${0}: unrecognized command line argument, '${arg}'\n" >&2
+        usage >&2
+        exit 1
+        ;;
+    esac
 done
 
 if (( ${keep_flag} && ${cleanup_flag} )); then
@@ -70,7 +70,7 @@ function dump_journal {
 }
 
 function cleanup {
-    if (( "${cleanup_flag}" )); then
+    if (( ${cleanup_flag} )); then
         # Remove the Pbench Server container and the dependencies pod which we
         # just created and ran; remove any dangling containers; and then remove
         # any dangling images.
@@ -141,7 +141,7 @@ if [[ ${exit_status} -ne 0 ]]; then
     printf -- "\nFunctional tests exited with code %s\n" ${exit_status} >&2
 fi
 
-if (( ! "${cleanup_flag}" )); then
+if (( ! ${cleanup_flag} )); then
     echo "No clean up requested -- the Pbench Server container and support services pod are running!"
     trap - $(trap -p | sed -e 's/.* //')
     exit ${exit_status}

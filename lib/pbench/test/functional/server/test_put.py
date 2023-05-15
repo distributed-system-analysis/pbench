@@ -533,7 +533,7 @@ class TestDelete:
         Requires that test_upload_all has been run successfully.
         """
         if os.environ.get("KEEP_DATASETS"):
-            pytest.skip(msg="Skipping dataset deletion on request")
+            pytest.skip(reason="Skipping dataset deletion on request")
 
         print(" ... reporting behaviors ...")
 
