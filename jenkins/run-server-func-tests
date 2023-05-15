@@ -131,7 +131,6 @@ else
         KEEP_DATASETS="keep"
     fi
     EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" \
-    WORKSPACE_TMP=${WORKSPACE_TMP:-${HOME}} \
         jenkins/run tox -e py39 -- server functional ${SERVER_URL} ${KEEP_DATASETS}
     exit_status=${?}
 fi
