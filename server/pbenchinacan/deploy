@@ -42,6 +42,8 @@ GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PB_DASHBOARD_DIR=${PB_DASHBOARD_DIR:-${GITTOP}/dashboard/build}
 PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${HOME}/Deploy}
 SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
+PB_SSL_CERT_FILE=${PB_SSL_CERT_FILE:-${PB_DEPLOY_FILES}/pbench-server.crt}
+PB_SSL_KEY_FILE=${PB_SSL_KEY_FILE:-${PB_DEPLOY_FILES}/pbench-server.key}
 
 # Locations inside the container
 #
@@ -49,7 +51,7 @@ SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
 # found inside the container and is used to create a symbolic link; by default,
 # it refers to a file in the Dashboard deployment relative to
 # /srv/pbench/public_html.
-NGINX_FAVICON=${NGINX_FAVICON:-"./dashboard/src/assets/logo/color-square.16x16.ico"}
+NGINX_FAVICON=${NGINX_FAVICON:-./dashboard/$(realpath --relative-to "${PB_DASHBOARD_DIR}" "${PB_DASHBOARD_DIR}"/static/media/color-square.256x256*.ico)}
 
 #+
 # Deployment
@@ -110,6 +112,8 @@ podman run \
     --rm \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.conf:/etc/rsyslog.conf:Z \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.d:/etc/rsyslog.d:Z \
+    --volume ${PB_SSL_CERT_FILE}:/etc/pki/tls/certs/pbench-server.crt:Z \
+    --volume ${PB_SSL_KEY_FILE}:/etc/pki/tls/private/pbench-server.key:Z \
     --volume ${PB_DEPLOY_FILES}/pbench-server.cfg:/opt/pbench-server/lib/config/pbench-server.cfg:Z \
     --volume ${SRV_PBENCH}:/srv/pbench:Z \
     ${PB_SERVER_PODMAN_SWITCHES} \

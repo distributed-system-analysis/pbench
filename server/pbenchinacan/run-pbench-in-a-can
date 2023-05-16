@@ -1,4 +1,5 @@
 #!/bin/bash -e
+# shellcheck disable=SC2086,2174
 
 #
 # Run a local containerized deployment of the Pbench Server, together with its
@@ -26,6 +27,10 @@ export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
 export KEYCLOAK_REALM=${KEYCLOAK_REALM:-"pbench-server"}
 export KEYCLOAK_CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
 
+host_name=${PB_HOST_NAME:-$(hostname --fqdn)}
+host_ip_list=${PB_HOST_IP:-$(hostname -I)}
+host_ip=${host_ip_list%% *}
+
 # Set up TMP_DIR, if it's not already defined, to point to WORKSPACE_TMP, if it
 # is defined (e.g., by the CI), or to `/var/tmp/pbench` as a fallback.
 #
@@ -45,7 +50,7 @@ export PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 
 # Copy the deployment files to the deployment files directory
 pbiac_etc=server/pbenchinacan/etc
-rm -rf ${PB_DEPLOY_FILES}/etc ${PB_DEPLOY_FILES}/pbench-server.cfg
+rm -rf ${PB_DEPLOY_FILES:?}/etc ${PB_DEPLOY_FILES}/pbench-server.cfg
 mkdir -p -m 755 ${PB_DEPLOY_FILES}/etc
 cp -r ${pbiac_etc}/rsyslog.d ${pbiac_etc}/rsyslog.conf ${PB_DEPLOY_FILES}/etc/
 cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
@@ -90,6 +95,30 @@ podman run \
     --entrypoint bash \
     ${PB_SERVER_IMAGE} \
     -c "chown -R pbench:pbench /srv/pbench/*"
+
+# Create a private key and certificate, signed by our own, private CA, for the
+# Pbench Server to use to provide SSL connections.  The certificate has to
+# match the host that the container is running on, so we generate it on the fly
+# and place it in the deployment files directory.
+#
+# We do this in the Pbench Server container so that we get a known version of
+# openssl (the native one on the Jenkins executors appears to be ancient).
+podman run \
+    --rm \
+    --volume ${PB_DEPLOY_FILES}:/data:Z \
+    --volume ${PWD}/${pbiac_etc}/pki/tls:/pki_tls:Z \
+    --entrypoint /usr/bin/openssl \
+    ${PB_SERVER_IMAGE} \
+    req -batch -new -noenc -sha256 -days 365 -newkey rsa:2048 \
+    -out /data/pbench-server.crt \
+    -keyout /data/pbench-server.key \
+    -subj "/C=US/ST=Massachusetts/L=Westford/O=Red Hat/OU=Performance & Scale/CN=${host_name}" \
+    -CA /pki_tls/certs/pbench_CA.crt \
+    -CAkey /pki_tls/private/pbench_CA.key \
+    -addext "authorityKeyIdentifier = keyid,issuer" \
+    -addext "basicConstraints=CA:FALSE" \
+    -addext "keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment" \
+    -addext "subjectAltName = IP.2:${host_ip}"
 
 #+
 # Start the services which the Pbench Server depends upon and then start the
