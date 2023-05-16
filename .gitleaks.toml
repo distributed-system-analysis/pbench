@@ -8,6 +8,10 @@
     # instance inside the created ephemeral container.
     '''server\/pbenchinacan\/etc\/pbench-server\/pbench-server\.cfg$''',
 
+    # Ignore the CA private key which is used only to generate ephemeral certs
+    # for SSL access to the containerized Server for functional testing.
+    '''server\/pbenchinacan\/etc\/pki\/tls\/private\/pbench_CA\.key$''',
+
     # Ignore the .gitleaks.toml (this file).
     '''\.gitleaks\.toml$''',
   ]
