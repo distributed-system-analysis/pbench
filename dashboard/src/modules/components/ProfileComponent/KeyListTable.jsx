@@ -1,8 +1,4 @@
-import {
-  Button,
-  ClipboardCopy,
-  ClipboardCopyButton,
-} from "@patternfly/react-core";
+import { Button, ClipboardCopy } from "@patternfly/react-core";
 import {
   TableComposable,
   Tbody,
