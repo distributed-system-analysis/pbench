@@ -115,7 +115,10 @@ class FileInfo:
                 resolve_path = path.readlink()
                 self.resolve_type = "symlink"
 
-            self.resolve_path = resolve_path.relative_to(dir_path)
+            try:
+                self.resolve_path = resolve_path.relative_to(dir_path)
+            except ValueError:
+                self.resolve_path = resolve_path
         elif path.is_file():
             self.type = "file"
             self.size = path.stat().st_size
@@ -292,8 +295,7 @@ class Tarball:
                 curr[l_path.name] = {"details": tar_info}
                 if l_path.is_dir():
                     dir_queue.append((l_path, curr))
-            if curr:
-                parent_map[tar_n]["children"] = curr
+            parent_map[tar_n]["children"] = curr
 
         self.cachemap = cmap
 
@@ -343,7 +345,7 @@ class Tarball:
         """
         if str(path).startswith("/"):
             raise BadDirpath(
-                f"The directory path '{str(path)}' is an absolute path,"
+                f"The directory path {str(path)!r} is an absolute path,"
                 " we expect relative path to the root directory."
             )
 

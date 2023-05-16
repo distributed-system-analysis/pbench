@@ -379,8 +379,12 @@ class TestCacheManager:
                                                 'f1112_sym': { 'details': <cache_manager.FileInfo object>}
                                                 'f1111.txt': { 'details': <cache_manager.FileInfo object>}
                                             }}}},
-                                'subdir12': {'details': <cache_manager.FileInfo object>},
-                                'subdir11': {'details': <cache_manager.FileInfo object at>
+                                'subdir12': {
+                                    'details': <cache_manager.FileInfo object>,
+                                    'children': {
+                                        'f111_sym': {'details': <cache_manager.FileInfo object> }
+                                    }},
+                                'subdir11': {'details': <cache_manager.FileInfo object>, 'children': {}
                                 }}}}}}
             """
             # create some directories and files inside the temp directory
@@ -396,6 +400,8 @@ class TestCacheManager:
             (sub_dir / "subdir1" / "subdir13" / "subdir111" / "f1111.txt").touch()
             sym_file = sub_dir / "subdir1" / "subdir13" / "subdir111" / "f1112_sym"
             os.symlink((sub_dir / "subdir1" / "f11.txt"), sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir12" / "f111_sym"
+            os.symlink((sub_dir / "subdir1" / "subdir14"), sym_file)
             return sub_dir
 
     class MockTarball:
@@ -537,7 +543,7 @@ class TestCacheManager:
             ),
             (
                 "dir_name/subdir1/subdir11/../f11.txt",
-                "File/directory 'children' in path dir_name/subdir1/subdir11/../f11.txt not found in cache.",
+                "File/directory '..' in path dir_name/subdir1/subdir11/../f11.txt not found in cache.",
             ),
             (
                 "dir_name/subdir1/subdir13/subdir1",
@@ -585,39 +591,18 @@ class TestCacheManager:
             assert str(exc.value) == expected_msg
 
     @pytest.mark.parametrize(
-        "file_path, expected_msg",
-        [
-            ("dir_name/subdir1/./f11.txt", "f11.txt"),
-            ("dir_name/subdir1//f11.txt", "f11.txt"),
-        ],
-    )
-    def test_cache_map_irregular_path(
-        self, monkeypatch, tmp_path, file_path, expected_msg
-    ):
-        """Test to check irreguraties in file/directory path"""
-        tar = Path("/mock/dir_name.tar.xz")
-        cache = Path("/mock/.cache")
-
-        with monkeypatch.context() as m:
-            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
-            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
-            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
-                tmp_path, "dir_name"
-            )
-            tb.cache_map(tar_dir)
-            tb.get_info(Path(file_path))
-            assert (
-                tb.cachemap["dir_name"]["children"]["subdir1"]["children"]["f11.txt"][
-                    "details"
-                ].name
-                == expected_msg
-            )
-
-    @pytest.mark.parametrize(
         "file_path, location, name, resolve_path, resolve_type, size, file_type",
         [
             ("dir_name", "dir_name", "dir_name", None, None, None, "directory"),
+            (
+                "dir_name/f1.json",
+                "dir_name/f1.json",
+                "f1.json",
+                None,
+                None,
+                0,
+                "file",
+            ),
             (
                 "dir_name/subdir1",
                 "dir_name/subdir1",
@@ -627,7 +612,60 @@ class TestCacheManager:
                 None,
                 "directory",
             ),
-            ("dir_name/f1.json", "dir_name/f1.json", "f1.json", None, None, 0, "file"),
+            (
+                "dir_name/subdir1/./f11.txt",
+                "dir_name/subdir1/f11.txt",
+                "f11.txt",
+                None,
+                None,
+                0,
+                "file",
+            ),
+            (
+                "dir_name/subdir1//f11.txt",
+                "dir_name/subdir1/f11.txt",
+                "f11.txt",
+                None,
+                None,
+                0,
+                "file",
+            ),
+            (
+                "dir_name/subdir1//f11.txt",
+                "dir_name/subdir1/f11.txt",
+                "f11.txt",
+                None,
+                None,
+                0,
+                "file",
+            ),
+            (
+                "dir_name/subdir1/subdir12/f111_sym",
+                "dir_name/subdir1/subdir12/f111_sym",
+                "f111_sym",
+                Path("dir_name/subdir1/subdir14"),
+                "symlink",
+                None,
+                "symlink",
+            ),
+            (
+                "dir_name/subdir1/subdir13",
+                "dir_name/subdir1/subdir13",
+                "subdir13",
+                None,
+                None,
+                None,
+                "directory",
+            ),
+            (
+                "dir_name/subdir1/subdir13/subdir111/f1111.txt",
+                "dir_name/subdir1/subdir13/subdir111/f1111.txt",
+                "f1111.txt",
+                None,
+                None,
+                0,
+                "file",
+            ),
             (
                 "dir_name/subdir1/subdir13/subdir111/f1112_sym",
                 "dir_name/subdir1/subdir13/subdir111/f1112_sym",
