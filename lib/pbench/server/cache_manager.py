@@ -112,8 +112,8 @@ class CacheObject:
     resolve_type: str = None
     size: int = None
     type: str = CacheType
-    dir_path: InitVar[Path | None] = None
-    path: InitVar[Path | None] = None
+    dir_path: InitVar[Path] = None
+    path: InitVar[Path] = None
 
     def __post_init__(self, dir_path, path):
         self.name = path.name
