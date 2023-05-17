@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import datetime
 import errno
 import hashlib
@@ -5,26 +6,21 @@ from http import HTTPStatus
 import os
 from pathlib import Path
 import shutil
-from typing import Any, Optional
+from typing import Any, IO, Optional
 
 from flask import current_app, jsonify
 from flask.wrappers import Request, Response
 import humanize
 
 from pbench.common.utils import Cleanup
-from pbench.server import PbenchServerConfig
+from pbench.server import JSONOBJECT, PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
-    ApiAuthorizationType,
     ApiBase,
     ApiContext,
     APIInternalError,
-    ApiMethod,
     ApiParams,
     ApiSchema,
-    Parameter,
-    ParamType,
-    Schema,
 )
 import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import CacheManager, DuplicateTarball, MetadataError
@@ -32,7 +28,6 @@ from pbench.server.database.models.audit import (
     Audit,
     AuditReason,
     AuditStatus,
-    AuditType,
     OperationCode,
 )
 from pbench.server.database.models.datasets import (
@@ -48,72 +43,125 @@ from pbench.server.sync import Sync
 from pbench.server.utils import UtcTimeHelper
 
 
-class CleanupTime(Exception):
-    """
-    Used to support handling errors during PUT without constantly testing the
-    current status and additional indentation. This will be raised to an outer
-    try block when an error occurs.
-    """
-
-    def __init__(self, status: int, message: str):
-        self.status = status
-        self.message = message
-
-    def __str__(self) -> str:
-        return self.message
+@dataclass
+class Intake:
+    name: str
+    md5: str
+    access: str
+    metadata: list[str]
+    uri: Optional[str]
 
 
-class Upload(ApiBase):
-    """
-    Upload a dataset from an agent. This API accepts a tarball and MD5
-    value from a client. After validation, it creates a new Dataset DB
-    row describing the dataset, along with some metadata.
-    """
+@dataclass
+class Access:
+    length: int
+    stream: IO[bytes]
+
+
+class IntakeBase(ApiBase):
+    """Framework to assimilate a dataset into the Pbench Server"""
 
     CHUNK_SIZE = 65536
 
-    def __init__(self, config: PbenchServerConfig):
-        super().__init__(
-            config,
-            ApiSchema(
-                ApiMethod.PUT,
-                OperationCode.CREATE,
-                uri_schema=Schema(Parameter("filename", ParamType.STRING)),
-                query_schema=Schema(
-                    Parameter("access", ParamType.ACCESS),
-                    Parameter(
-                        "metadata",
-                        ParamType.LIST,
-                        element_type=ParamType.STRING,
-                        string_list=",",
-                    ),
-                ),
-                audit_type=AuditType.NONE,
-                audit_name="upload",
-                authorization=ApiAuthorizationType.NONE,
-            ),
-        )
+    def __init__(self, config: PbenchServerConfig, schema: ApiSchema):
+        super().__init__(config, schema)
         self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
-        current_app.logger.info(
-            "Configured PUT temporary directory as {}", self.temporary
-        )
+        current_app.logger.info("INTAKE temporary directory is {}", self.temporary)
 
-    def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
-        """Upload a dataset to the server.
+    def process_metadata(self, metas: list[str]) -> JSONOBJECT:
+        """Process 'metadata' query parameter
+
+        We allow the client to set metadata on the new dataset. We won't do
+        anything about this until upload is successful, but we process and
+        validate it here so we can fail early.
+
+        Args:
+            metas: A list of "key:value[,key:value]..." strings)
+
+        Returns:
+            A JSON object providing a value for each specified metadata key
+
+        Raises:
+            APIAbort on bad syntax or a disallowed metadata key:value pair
+        """
+        metadata: dict[str, Any] = {}
+        errors = []
+        for kw in metas:
+            # an individual value for the "key" parameter is a simple key:value
+            # pair.
+            try:
+                k, v = kw.split(":", maxsplit=1)
+            except ValueError:
+                errors.append(f"improper metadata syntax {kw} must be 'k:v'")
+                continue
+            k = k.lower()
+            if not Metadata.is_key_path(k, Metadata.USER_UPDATEABLE_METADATA):
+                errors.append(f"Key {k} is invalid or isn't settable")
+                continue
+            try:
+                v = Metadata.validate(dataset=None, key=k, value=v)
+            except MetadataBadValue as e:
+                errors.append(str(e))
+                continue
+            metadata[k] = v
+        if errors:
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST,
+                "at least one specified metadata key is invalid",
+                errors=errors,
+            )
+        return metadata
+
+    def _prepare(self, args: ApiParams, request: Request) -> Intake:
+        """Prepare to begin the intake operation
+
+        Must be implemented by each subclass of this base class.
+
+        Args:
+            args: The API parameters
+            request: The Flask request object
+
+        Returns:
+            An Intake instance
+        """
+        raise NotImplementedError()
+
+    def _access(self, intake: Intake, request: Request) -> Access:
+        """Determine how to access the tarball byte stream
+
+        Must be implemented by each subclass of this base class.
+
+        Args:
+            intake: The Intake parameters produced by _intake
+            request: The Flask request object
+
+        Returns:
+            An Access object with the data byte stream and length
+        """
+        raise NotImplementedError()
+
+    def _intake(
+        self, args: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
+        """Common code to assimilate a remote tarball onto the server
 
         The client must present an authentication bearer token for a registered
         Pbench Server user.
 
-        We get the requested filename from the URI: /api/v1/upload/<filename>.
+        We support two "intake" modes:
 
-        We get the dataset's resource ID (which is the tarball's MD5 checksum)
-        from the "content-md5" HTTP header.
+        1) PUT /api/v1/upload/<filename>
+        2) POST /api/v1/relay/<uri>
 
-        We also check that the "content-length" header value is not 0, and that
-        it matches the final size of the uploaded tarball file.
+        The operational differences are encapsulated by two helper methods
+        provided by the subclasses:
 
-        We expect the dataset's tarball file to be uploaded as a data stream.
+        _prepare: decodes the URI and query parameters to determine the target
+            dataset name, the appropriate MD5, the initial access type, and
+            optional metadata to be set.
+        _access: decodes the intake data and provides the length and byte IO
+            stream to be read into a temporary file.
 
         If the new dataset is created successfully, return 201 (CREATED).
 
@@ -141,43 +189,9 @@ class Upload(ApiBase):
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
         recovery = Cleanup(current_app.logger)
+
         audit: Optional[Audit] = None
         username: Optional[str] = None
-        access = args.query.get("access", Dataset.PRIVATE_ACCESS)
-
-        # We allow the client to set metadata on the new dataset. We won't do
-        # anything about this until upload is successful, but we process and
-        # validate it here so we can fail early.
-        metadata: dict[str, Any] = {}
-        if "metadata" in args.query:
-            errors = []
-            for kw in args.query["metadata"]:
-                # an individual value for the "key" parameter is a simple key:value
-                # pair.
-                try:
-                    k, v = kw.split(":", maxsplit=1)
-                except ValueError:
-                    errors.append(f"improper metadata syntax {kw} must be 'k:v'")
-                    continue
-                k = k.lower()
-                if not Metadata.is_key_path(k, Metadata.USER_UPDATEABLE_METADATA):
-                    errors.append(f"Key {k} is invalid or isn't settable")
-                    continue
-                try:
-                    v = Metadata.validate(dataset=None, key=k, value=v)
-                except MetadataBadValue as e:
-                    errors.append(str(e))
-                    continue
-                metadata[k] = v
-            if errors:
-                raise APIAbort(
-                    HTTPStatus.BAD_REQUEST,
-                    "at least one specified metadata key is invalid",
-                    errors=errors,
-                )
-
-        attributes = {"access": access, "metadata": metadata}
-        filename = args.uri["filename"]
         tmp_dir: Optional[Path] = None
 
         try:
@@ -188,55 +202,30 @@ class Upload(ApiBase):
             except Exception:
                 username = None
                 user_id = None
-                raise CleanupTime(HTTPStatus.UNAUTHORIZED, "Verifying user_id failed")
+                raise APIAbort(HTTPStatus.UNAUTHORIZED, "Verifying user_id failed")
+
+            # Ask our helper to determine the name and resource ID of the new
+            # dataset, along with requested access and metadata.
+            try:
+                intake = self._prepare(args, request)
+            except APIAbort:
+                raise
+            except Exception as e:
+                raise APIInternalError(str(e)) from e
+
+            filename = intake.name
+            metadata = self.process_metadata(intake.metadata)
+            attributes = {"access": intake.access, "metadata": metadata}
 
             if os.path.basename(filename) != filename:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.BAD_REQUEST, "Filename must not contain a path"
                 )
 
             if not Dataset.is_tarball(filename):
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
                     f"File extension not supported, must be {Dataset.TARBALL_SUFFIX}",
-                )
-
-            try:
-                md5sum = request.headers["Content-MD5"]
-            except KeyError:
-                raise CleanupTime(
-                    HTTPStatus.BAD_REQUEST, "Missing required 'Content-MD5' header"
-                )
-            if not md5sum:
-                raise CleanupTime(
-                    HTTPStatus.BAD_REQUEST,
-                    "Missing required 'Content-MD5' header value",
-                )
-            try:
-                length_string = request.headers["Content-Length"]
-                content_length = int(length_string)
-            except KeyError:
-                # NOTE: Werkzeug is "smart" about header access, and knows that
-                # Content-Length is an integer. Therefore, a non-integer value
-                # will raise KeyError. It's virtually impossible to report the
-                # actual incorrect value as we'd just get a KeyError again.
-                raise CleanupTime(
-                    HTTPStatus.LENGTH_REQUIRED,
-                    "Missing or invalid 'Content-Length' header",
-                )
-            except ValueError:
-                # NOTE: Because of the way Werkzeug works, this should not be
-                # possible: if Content-Length isn't an integer, we'll see the
-                # KeyError. This however serves as a clarifying backup case.
-                raise CleanupTime(
-                    HTTPStatus.BAD_REQUEST,
-                    f"Invalid 'Content-Length' header, not an integer ({length_string})",
-                )
-
-            if content_length <= 0:
-                raise CleanupTime(
-                    HTTPStatus.BAD_REQUEST,
-                    f"'Content-Length' {content_length} must be greater than 0",
                 )
 
             dataset_name = Dataset.stem(filename)
@@ -247,10 +236,10 @@ class Upload(ApiBase):
             # tarballs with the same name. (A duplicate MD5 will have already
             # failed, so that's not a concern.)
             try:
-                tmp_dir = self.temporary / md5sum
+                tmp_dir = self.temporary / intake.md5
                 tmp_dir.mkdir()
             except FileExistsError:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.CONFLICT,
                     "Temporary upload directory already exists",
                 )
@@ -275,8 +264,8 @@ class Upload(ApiBase):
                 dataset = Dataset(
                     owner=authorized_user,
                     name=dataset_name,
-                    resource_id=md5sum,
-                    access=access,
+                    resource_id=intake.md5,
+                    access=intake.access,
                 )
                 dataset.add()
             except DatasetDuplicate:
@@ -287,7 +276,7 @@ class Upload(ApiBase):
                     dataset_name,
                 )
                 try:
-                    Dataset.query(resource_id=md5sum)
+                    Dataset.query(resource_id=intake.md5)
                 except DatasetNotFound:
                     current_app.logger.error(
                         "Duplicate dataset {} for user = (user_id: {}, username: {}) not found",
@@ -295,21 +284,22 @@ class Upload(ApiBase):
                         user_id,
                         username,
                     )
-                    raise CleanupTime(
-                        HTTPStatus.INTERNAL_SERVER_ERROR, "INTERNAL ERROR"
-                    )
+                    raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, "INTERNAL ERROR")
                 else:
                     response = jsonify(dict(message="Dataset already exists"))
                     response.status_code = HTTPStatus.OK
                     return response
-            except CleanupTime:
-                raise  # Propagate a CleanupTime exception to the outer block
+            except APIAbort:
+                raise  # Propagate an APIAbort exception to the outer block
             except Exception:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     message="Unable to create dataset",
                 )
 
+            recovery.add(dataset.delete)
+
+            # AUDIT the operation start before we get any further
             audit = Audit.create(
                 operation=OperationCode.CREATE,
                 name="upload",
@@ -319,12 +309,26 @@ class Upload(ApiBase):
                 status=AuditStatus.BEGIN,
                 attributes=attributes,
             )
-            recovery.add(dataset.delete)
+
+            # Now we're ready to pull the tarball, so ask our helper for the
+            # length and data stream.
+            try:
+                access = self._access(intake, request)
+            except APIAbort:
+                raise
+            except Exception as e:
+                raise APIInternalError(str(e)) from e
+
+            if access.length <= 0:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    f"'Content-Length' {access.length} must be greater than 0",
+                )
 
             # An exception from this point on MAY leave an uploaded tar file
             # (possibly partial, or corrupted); remove it if possible on
             # error recovery.
-            recovery.add(tar_full_path.unlink)
+            recovery.add(lambda: tar_full_path.unlink(missing_ok=True))
 
             # NOTE: We know that the MD5 is unique at this point; so even if
             # two tarballs with the same name are uploaded concurrently, by
@@ -335,49 +339,51 @@ class Upload(ApiBase):
                     hash_md5 = hashlib.md5()
 
                     while True:
-                        chunk = request.stream.read(self.CHUNK_SIZE)
+                        chunk = access.stream.read(self.CHUNK_SIZE)
                         bytes_received += len(chunk)
-                        if len(chunk) == 0 or bytes_received > content_length:
+                        if len(chunk) == 0 or bytes_received > access.length:
                             break
                         ofp.write(chunk)
                         hash_md5.update(chunk)
             except OSError as exc:
                 if exc.errno == errno.ENOSPC:
-                    raise CleanupTime(
+                    raise APIAbort(
                         HTTPStatus.INSUFFICIENT_STORAGE,
                         f"Out of space on {tar_full_path.root}",
                     )
                 else:
-                    raise CleanupTime(
+                    raise APIAbort(
                         HTTPStatus.INTERNAL_SERVER_ERROR,
                         f"Unexpected error {exc.errno} encountered during file upload",
                     )
             except Exception:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     "Unexpected error encountered during file upload",
                 )
 
-            if bytes_received != content_length:
-                raise CleanupTime(
+            if bytes_received != access.length:
+                raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
-                    f"Expected {content_length} bytes but received {bytes_received} bytes",
+                    f"Expected {access.length} bytes but received {bytes_received} bytes",
                 )
-            elif hash_md5.hexdigest() != md5sum:
-                raise CleanupTime(
+            elif hash_md5.hexdigest() != intake.md5:
+                raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
-                    f"MD5 checksum {hash_md5.hexdigest()} does not match expected {md5sum}",
+                    f"MD5 checksum {hash_md5.hexdigest()} does not match expected {intake.md5}",
                 )
 
             # First write the .md5
-            current_app.logger.info("Creating MD5 file {}: {}", md5_full_path, md5sum)
+            current_app.logger.info(
+                "Creating MD5 file {}: {}", md5_full_path, intake.md5
+            )
 
             # From this point attempt to remove the MD5 file on error exit
             recovery.add(md5_full_path.unlink)
             try:
-                md5_full_path.write_text(f"{md5sum} {filename}\n")
+                md5_full_path.write_text(f"{intake.md5} {filename}\n")
             except Exception:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     f"Failed to write .md5 file '{md5_full_path}'",
                 )
@@ -386,7 +392,7 @@ class Upload(ApiBase):
             try:
                 cache_m = CacheManager(self.config, current_app.logger)
             except Exception:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the cache manager"
                 )
 
@@ -394,17 +400,17 @@ class Upload(ApiBase):
             try:
                 tarball = cache_m.create(tar_full_path)
             except DuplicateTarball:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
                     f"A tarball with the name {dataset_name!r} already exists",
                 )
             except MetadataError as exc:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
                     f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
                 )
             except Exception as exc:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     f"Unable to create dataset in file system for {tar_full_path}: {exc}",
                 )
@@ -419,11 +425,6 @@ class Upload(ApiBase):
 
             # From this point, failure will remove the tarball from the cache
             # manager.
-            #
-            # NOTE: the Tarball.delete method won't clean up empty controller
-            # directories. This isn't ideal, but we don't want to deal with the
-            # potential synchronization issues and it'll become irrelevant with
-            # the switch to object store. For now we ignore it.
             recovery.add(tarball.delete)
 
             # Add the processed tarball metadata.log file contents, if any.
@@ -440,15 +441,15 @@ class Upload(ApiBase):
                     attributes["missing_metadata"] = True
                 Metadata.create(dataset=dataset, key=Metadata.METALOG, value=metalog)
             except Exception as exc:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Unable to create metalog for Tarball {dataset.name!r}: {exc}",
+                    f"Unable tintakeo create metalog for Tarball {dataset.name!r}: {exc}",
                 )
 
             try:
                 retention_days = self.config.default_retention_period
             except Exception as e:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     f"Unable to get integer retention days: {e!s}",
                 )
@@ -473,7 +474,7 @@ class Upload(ApiBase):
                 if f:
                     attributes["failures"] = f
             except Exception as e:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to set metadata: {e!s}"
                 )
 
@@ -489,16 +490,15 @@ class Upload(ApiBase):
                     root=audit, status=AuditStatus.SUCCESS, attributes=attributes
                 )
             except Exception as exc:
-                raise CleanupTime(
+                raise APIAbort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     f"Unable to finalize dataset {dataset}: {exc!s}",
-                )
+                ) from exc
         except Exception as e:
-            message = str(e)
-            if isinstance(e, CleanupTime):
-                status = e.status
+            if isinstance(e, APIAbort):
+                exception = e
             else:
-                status = HTTPStatus.INTERNAL_SERVER_ERROR
+                exception = APIInternalError(str(e))
 
             # NOTE: there are nested try blocks so we can't be 100% confident
             # here that an audit "root" object was created. We don't audit on
@@ -506,12 +506,11 @@ class Upload(ApiBase):
             # we have a "resource" to track. We won't try to audit failure if
             # we didn't create the root object.
             if audit:
-                if status == HTTPStatus.INTERNAL_SERVER_ERROR:
+                if exception.http_status == HTTPStatus.INTERNAL_SERVER_ERROR:
                     reason = AuditReason.INTERNAL
-                    audit_msg = "INTERNAL ERROR"
                 else:
                     reason = AuditReason.CONSISTENCY
-                    audit_msg = message
+                audit_msg = exception.message
                 Audit.create(
                     root=audit,
                     status=AuditStatus.FAILURE,
@@ -519,10 +518,7 @@ class Upload(ApiBase):
                     attributes={"message": audit_msg},
                 )
             recovery.cleanup()
-            if status == HTTPStatus.INTERNAL_SERVER_ERROR:
-                raise APIInternalError(message) from e
-            else:
-                raise APIAbort(status, message) from e
+            raise exception
         finally:
             if tmp_dir:
                 try:

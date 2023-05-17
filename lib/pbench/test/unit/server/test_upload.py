@@ -1,9 +1,9 @@
 from http import HTTPStatus
+from io import BytesIO
 from logging import Logger
 from pathlib import Path
 from typing import Any
 
-from freezegun import freeze_time
 import pytest
 
 from pbench.server import OperationCode, PbenchServerConfig
@@ -18,7 +18,7 @@ from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
     Metadata,
-    MetadataKeyError,
+    MetadataProtectedKey,
 )
 from pbench.test.unit.server import DRB_USER_ID
 
@@ -139,12 +139,15 @@ class TestUpload:
         """Test with URL uploading a file named "f" which is missing the
         required filename extension"""
         expected_message = "File extension not supported, must be .tar.xz"
-        response = client.put(
-            f"{server_config.rest_uri}/upload/f",
-            headers={
-                "Authorization": "Bearer " + pbench_drb_token,
-            },
-        )
+        with BytesIO(b"junk") as f:
+            response = client.put(
+                f"{server_config.rest_uri}/upload/f",
+                data=f,
+                headers={
+                    "Authorization": "Bearer " + pbench_drb_token,
+                    "Content-MD5": "abcde",
+                },
+            )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
         self.verify_logs(caplog)
@@ -183,14 +186,15 @@ class TestUpload:
         self.verify_logs(caplog)
         assert not self.cachemanager_created
 
+    @pytest.mark.freeze_time("1970-01-01")
     def test_bad_metadata_upload(self, client, server_config, pbench_drb_token):
-        with freeze_time("1970-01-01 00:42:00"):
+        with BytesIO(b"junk") as f:
             response = client.put(
                 self.gen_uri(server_config),
+                data=f,
                 headers={
                     "Authorization": "Bearer " + pbench_drb_token,
                     "Content-MD5": "ANYMD5",
-                    "Content-Length": "STRING",
                 },
                 query_string={
                     "metadata": "global.xyz#A@b=z:y,foobar.badpath:data,server.deletion:3000-12-25T23:59:59+00:00"
@@ -491,7 +495,7 @@ class TestUpload:
         datafile, _, md5 = tarball
 
         def setvalue(dataset: Dataset, key: str, value: Any):
-            raise MetadataKeyError()
+            raise MetadataProtectedKey(key)
 
         monkeypatch.setattr(Metadata, "setvalue", setvalue)
 
@@ -538,7 +542,9 @@ class TestUpload:
         assert audit[1].user_id == DRB_USER_ID
         assert audit[1].user_name == "drb"
         assert audit[1].reason == AuditReason.INTERNAL
-        assert audit[1].attributes == {"message": "INTERNAL ERROR"}
+        assert audit[1].attributes == {
+            "message": "Unable to set metadata: Metadata key server.tarball-path cannot be modified by client"
+        }
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_archive(self, client, pbench_drb_token, server_config, tarball):
