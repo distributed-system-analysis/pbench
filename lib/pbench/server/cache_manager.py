@@ -122,19 +122,23 @@ class CacheObject:
             self.type = CacheType.SYMLINK.name
             try:
                 resolve_path = path.resolve(strict=True)
-                self.resolve_type = (
-                    CacheType.DIRECTORY.name
-                    if resolve_path.is_dir()
-                    else CacheType.FILE.name
-                )
             except FileNotFoundError:
                 resolve_path = path.readlink()
-                self.resolve_type = CacheType.SYMLINK.name
 
             try:
                 self.resolve_path = resolve_path.relative_to(dir_path)
             except ValueError:
                 self.resolve_path = resolve_path
+                self.resolve_type = CacheType.SYMLINK.name
+            else:
+                if not resolve_path.exists():
+                    self.resolve_type = CacheType.SYMLINK.name
+                elif resolve_path.is_dir():
+                    self.resolve_type = CacheType.DIRECTORY.name
+                elif resolve_path.is_file():
+                    self.resolve_type = CacheType.FILE.name
+                else:
+                    self.resolve_type = CacheType.OTHER.name
         elif path.is_file():
             self.type = CacheType.FILE.name
             self.size = path.stat().st_size
@@ -514,6 +518,7 @@ class Tarball:
             try:
                 shutil.rmtree(self.cache)
                 self.unpacked = None
+                self.cachemap = None
             except Exception as e:
                 self.logger.error("incoming remove for {} failed with {}", self.name, e)
                 raise
