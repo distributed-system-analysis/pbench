@@ -11,14 +11,55 @@ export PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"${PB_POD_NAME}-pben
 SERVER_URL="http://localhost:8080"
 SERVER_API_ENDPOINTS="${SERVER_URL}/api/v1/endpoints"
 
-cleanup_flag=""
+cleanup_flag=0
+keep_flag=0
 exit_status=0
 
-if [[ ${1} == "--cleanup" ]]; then
-    cleanup_flag=1
-elif [[ -n "${1}" ]]; then
-    echo "Unrecognized argument \"${1}\"" >&2
-    exit 2
+function usage {
+    printf "Spin up the necessary containers for the Pbench Server on the local"
+    printf "host and run the server functional tests.\n"
+    printf "\nThe following options are available:\n"
+    printf "\n"
+    printf -- "\t-c|--cleanup\n"
+    printf "\t\tRemove the containers when tests complete.\n"
+    printf -- "\t-k|--keep\n"
+    printf "\t\tDon't delete test datasets\n"
+}
+
+opts=$(getopt -q -o ckh --longoptions "cleanup,keep,help" -n "run-server-func-tests" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+    printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${0}" "${*}" >&2
+    usage >&2
+    exit 1
+fi
+eval set -- "${opts}"
+while true; do
+    arg=${1}
+    shift
+    case "${arg}" in
+    -c|--cleanup)
+        cleanup_flag=1
+        ;;
+    -k|--keep)
+        keep_flag=1
+        ;;
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    --)
+        break
+        ;;
+    *)
+        printf -- "${0}: unrecognized command line argument, '${arg}'\n" >&2
+        usage >&2
+        exit 1
+        ;;
+    esac
+done
+
+if (( ${keep_flag} && ${cleanup_flag} )); then
+    printf -- "${0}: [WARNING] 'keep' option is ineffective with 'cleanup'\n"
 fi
 
 function dump_journal {
@@ -29,7 +70,7 @@ function dump_journal {
 }
 
 function cleanup {
-    if [[ -n "${cleanup_flag}" ]]; then
+    if (( ${cleanup_flag} )); then
         # Remove the Pbench Server container and the dependencies pod which we
         # just created and ran; remove any dangling containers; and then remove
         # any dangling images.
@@ -86,8 +127,11 @@ if [[ "${status_code}" != "200" ]]; then
     curl ${SERVER_API_ENDPOINTS}
     exit_status=2
 else
+    if (( ${keep_flag} )); then
+        KEEP_DATASETS="keep"
+    fi
     EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" \
-        jenkins/run tox -e py39 -- server functional ${SERVER_URL}
+        jenkins/run tox -e py39 -- server functional ${SERVER_URL} ${KEEP_DATASETS}
     exit_status=${?}
 fi
 
@@ -96,7 +140,7 @@ if [[ ${exit_status} -ne 0 ]]; then
     printf -- "\nFunctional tests exited with code %s\n" ${exit_status} >&2
 fi
 
-if [[ -z "${cleanup_flag}" ]]; then
+if (( ! ${cleanup_flag} )); then
     echo "No clean up requested -- the Pbench Server container and support services pod are running!"
     trap - $(trap -p | sed -e 's/.* //')
     exit ${exit_status}

@@ -238,9 +238,11 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
     if [[ "${subtst}" == "functional" && ${rc} -eq 0 ]]; then
         server_arg=${1}
         shift
+        keep_datasets=${1}
+        shift
         posargs="${@}"
         # We use SQLALCHEMY_SILENCE_UBER_WARNING here ... (see above).
-        SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} pytest --tb=native -v -s -rs --pyargs ${posargs} pbench.test.functional.server
+        SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} KEEP_DATASETS="${keep_datasets}" pytest --tb=native -v -s -rs --pyargs ${posargs} pbench.test.functional.server
         rc=${?}
     fi
 fi
