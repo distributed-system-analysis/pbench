@@ -119,7 +119,7 @@ class CacheObject:
         self.name = path.name
         self.location = path.relative_to(dir_path)
         if path.is_symlink():
-            self.type = CacheType.SYMLINK.name
+            self.type = CacheType.SYMLINK
             try:
                 resolve_path = path.resolve(strict=True)
             except FileNotFoundError:
@@ -129,23 +129,23 @@ class CacheObject:
                 self.resolve_path = resolve_path.relative_to(dir_path)
             except ValueError:
                 self.resolve_path = resolve_path
-                self.resolve_type = CacheType.SYMLINK.name
+                self.resolve_type = CacheType.SYMLINK
             else:
                 if not resolve_path.exists():
-                    self.resolve_type = CacheType.SYMLINK.name
+                    self.resolve_type = CacheType.SYMLINK
                 elif resolve_path.is_dir():
-                    self.resolve_type = CacheType.DIRECTORY.name
+                    self.resolve_type = CacheType.DIRECTORY
                 elif resolve_path.is_file():
-                    self.resolve_type = CacheType.FILE.name
+                    self.resolve_type = CacheType.FILE
                 else:
-                    self.resolve_type = CacheType.OTHER.name
+                    self.resolve_type = CacheType.OTHER
         elif path.is_file():
-            self.type = CacheType.FILE.name
+            self.type = CacheType.FILE
             self.size = path.stat().st_size
         elif path.is_dir():
-            self.type = CacheType.DIRECTORY.name
+            self.type = CacheType.DIRECTORY
         else:
-            self.type = CacheType.OTHER.name
+            self.type = CacheType.OTHER
 
 
 class Tarball:
@@ -344,7 +344,7 @@ class Tarball:
         try:
             for file_l in file_list:
                 info = f_entries[file_l]
-                if info["details"].type == "DIRECTORY":
+                if info["details"].type == CacheType.DIRECTORY:
                     f_entries = info["children"]
                 else:
                     raise BadDirpath(
@@ -377,14 +377,14 @@ class Tarball:
         children = c_map["children"] if "children" in c_map else {}
         fd_info = c_map["details"].__dict__.copy()
 
-        if fd_info["type"] == "DIRECTORY":
+        if fd_info["type"] == CacheType.DIRECTORY:
             fd_info["directories"] = []
             fd_info["files"] = []
 
             for key, value in children.items():
-                if value["details"].type == "DIRECTORY":
+                if value["details"].type == CacheType.DIRECTORY:
                     fd_info["directories"].append(key)
-                elif value["details"].type == "FILE":
+                elif value["details"].type == CacheType.FILE:
                     fd_info["files"].append(key)
 
             fd_info["directories"].sort()

@@ -13,6 +13,7 @@ from pbench.server.cache_manager import (
     BadDirpath,
     BadFilename,
     CacheManager,
+    CacheType,
     Controller,
     DuplicateTarball,
     MetadataError,
@@ -541,7 +542,7 @@ class TestCacheManager:
                 tb.cachemap["dir_name"]["children"]["subdir1"]["children"]["subdir14"][
                     "children"
                 ]["subdir111"]["children"]["f1112_sym"]["details"].type
-                == "SYMLINK"
+                == CacheType.SYMLINK
             )
 
     @pytest.mark.parametrize(
@@ -603,7 +604,7 @@ class TestCacheManager:
     @pytest.mark.parametrize(
         "file_path, location, name, resolve_path, resolve_type, size, file_type",
         [
-            ("dir_name", "dir_name", "dir_name", None, None, None, "DIRECTORY"),
+            ("dir_name", "dir_name", "dir_name", None, None, None, CacheType.DIRECTORY),
             (
                 "dir_name/f1.json",
                 "dir_name/f1.json",
@@ -611,7 +612,7 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "FILE",
+                CacheType.FILE,
             ),
             (
                 "dir_name/subdir1",
@@ -620,7 +621,7 @@ class TestCacheManager:
                 None,
                 None,
                 None,
-                "DIRECTORY",
+                CacheType.DIRECTORY,
             ),
             (
                 "dir_name/subdir1/./f11.txt",
@@ -629,7 +630,7 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "FILE",
+                CacheType.FILE,
             ),
             (
                 "dir_name/subdir1//f11.txt",
@@ -638,7 +639,7 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "FILE",
+                CacheType.FILE,
             ),
             (
                 "dir_name/subdir1/f11.txt",
@@ -647,25 +648,25 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "FILE",
+                CacheType.FILE,
             ),
             (
                 "dir_name/subdir1/subdir12/f121_sym",
                 "dir_name/subdir1/subdir12/f121_sym",
                 "f121_sym",
                 Path("dir_name/subdir1/subdir15"),
-                "SYMLINK",
+                CacheType.SYMLINK,
                 None,
-                "SYMLINK",
+                CacheType.SYMLINK,
             ),
             (
                 "dir_name/subdir1/subdir13/f131_sym",
                 "dir_name/subdir1/subdir13/f131_sym",
                 "f131_sym",
                 Path("subdir1/subdir15"),
-                "SYMLINK",
+                CacheType.SYMLINK,
                 None,
-                "SYMLINK",
+                CacheType.SYMLINK,
             ),
             (
                 "dir_name/subdir1/subdir14",
@@ -674,7 +675,7 @@ class TestCacheManager:
                 None,
                 None,
                 None,
-                "DIRECTORY",
+                CacheType.DIRECTORY,
             ),
             (
                 "dir_name/subdir1/subdir14/subdir111/f1111.txt",
@@ -683,16 +684,16 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "FILE",
+                CacheType.FILE,
             ),
             (
                 "dir_name/subdir1/subdir14/subdir111/f1112_sym",
                 "dir_name/subdir1/subdir14/subdir111/f1112_sym",
                 "f1112_sym",
                 Path("dir_name/subdir1/f11.txt"),
-                "FILE",
+                CacheType.FILE,
                 None,
-                "SYMLINK",
+                CacheType.SYMLINK,
             ),
         ],
     )
@@ -741,7 +742,7 @@ class TestCacheManager:
                     "resolve_path": None,
                     "resolve_type": None,
                     "size": 0,
-                    "type": "FILE",
+                    "type": CacheType.FILE,
                 },
             ),
             (
@@ -754,7 +755,7 @@ class TestCacheManager:
                     "resolve_path": None,
                     "resolve_type": None,
                     "size": None,
-                    "type": "DIRECTORY",
+                    "type": CacheType.DIRECTORY,
                 },
             ),
             (
@@ -767,7 +768,7 @@ class TestCacheManager:
                     "resolve_path": None,
                     "resolve_type": None,
                     "size": None,
-                    "type": "DIRECTORY",
+                    "type": CacheType.DIRECTORY,
                 },
             ),
             (
@@ -776,9 +777,9 @@ class TestCacheManager:
                     "location": Path("dir_name/subdir1/subdir14/subdir111/f1112_sym"),
                     "name": "f1112_sym",
                     "resolve_path": Path("dir_name/subdir1/f11.txt"),
-                    "resolve_type": "FILE",
+                    "resolve_type": CacheType.FILE,
                     "size": None,
-                    "type": "SYMLINK",
+                    "type": CacheType.SYMLINK,
                 },
             ),
         ],
