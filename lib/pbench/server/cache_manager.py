@@ -1,4 +1,6 @@
 from collections import deque
+from dataclasses import dataclass, InitVar
+from enum import auto, Enum
 from logging import Logger
 from pathlib import Path
 import shlex
@@ -93,39 +95,53 @@ class TarballModeChangeError(CacheManagerError):
         return f"An error occurred while changing file permissions of {self.tarball}: {self.error}"
 
 
-class FileInfo:
-    def __init__(self, dir_path: Path, path: Path):
-        """Collects the file info
+class CacheType(Enum):
 
-        Args:
-            dir_path: root directory parent path
-            path: path to a file/directory
-        """
+    FILE = auto()
+    DIRECTORY = auto()
+    SYMLINK = auto()
+    OTHER = auto()
+
+
+@dataclass
+class CacheObject:
+
+    name: str = None
+    location: Path = None
+    resolve_path: Optional[Path] = None
+    resolve_type: str = None
+    size: int = None
+    type: str = CacheType
+    dir_path: InitVar[Path | None] = None
+    path: InitVar[Path | None] = None
+
+    def __post_init__(self, dir_path, path):
         self.name = path.name
         self.location = path.relative_to(dir_path)
-        self.resolve_path = None
-        self.resolve_type = None
-        self.size = None
         if path.is_symlink():
-            self.type = "symlink"
+            self.type = CacheType.SYMLINK.name
             try:
                 resolve_path = path.resolve(strict=True)
-                self.resolve_type = "directory" if resolve_path.is_dir() else "file"
+                self.resolve_type = (
+                    CacheType.DIRECTORY.name
+                    if resolve_path.is_dir()
+                    else CacheType.FILE.name
+                )
             except FileNotFoundError:
                 resolve_path = path.readlink()
-                self.resolve_type = "symlink"
+                self.resolve_type = CacheType.SYMLINK.name
 
             try:
                 self.resolve_path = resolve_path.relative_to(dir_path)
             except ValueError:
                 self.resolve_path = resolve_path
         elif path.is_file():
-            self.type = "file"
+            self.type = CacheType.FILE.name
             self.size = path.stat().st_size
         elif path.is_dir():
-            self.type = "directory"
+            self.type = CacheType.DIRECTORY.name
         else:
-            self.type = "UNSUPPORTED_MEDIA_TYPE"
+            self.type = CacheType.OTHER.name
 
 
 class Tarball:
@@ -283,7 +299,11 @@ class Tarball:
             dir_path: root directory
         """
         root_dir_path = dir_path.parent
-        cmap = {dir_path.name: {"details": FileInfo(root_dir_path, dir_path)}}
+        cmap = {
+            dir_path.name: {
+                "details": CacheObject(dir_path=root_dir_path, path=dir_path)
+            }
+        }
         dir_queue = deque([(dir_path, cmap)])
         while dir_queue:
             dir_path, parent_map = dir_queue.popleft()
@@ -291,7 +311,7 @@ class Tarball:
 
             curr = {}
             for l_path in dir_path.glob("*"):
-                tar_info = FileInfo(root_dir_path, l_path)
+                tar_info = CacheObject(dir_path=root_dir_path, path=l_path)
                 curr[l_path.name] = {"details": tar_info}
                 if l_path.is_dir():
                     dir_queue.append((l_path, curr))
@@ -320,7 +340,7 @@ class Tarball:
         try:
             for file_l in file_list:
                 info = f_entries[file_l]
-                if info["details"].type == "directory":
+                if info["details"].type == "DIRECTORY":
                     f_entries = info["children"]
                 else:
                     raise BadDirpath(
@@ -353,14 +373,14 @@ class Tarball:
         children = c_map["children"] if "children" in c_map else {}
         fd_info = c_map["details"].__dict__.copy()
 
-        if fd_info["type"] == "directory":
+        if fd_info["type"] == "DIRECTORY":
             fd_info["directories"] = []
             fd_info["files"] = []
 
             for key, value in children.items():
-                if value["details"].type == "directory":
+                if value["details"].type == "DIRECTORY":
                     fd_info["directories"].append(key)
-                elif value["details"].type == "file":
+                elif value["details"].type == "FILE":
                     fd_info["files"].append(key)
 
             fd_info["directories"].sort()

@@ -531,7 +531,7 @@ class TestCacheManager:
                 tb.cachemap["dir_name"]["children"]["subdir1"]["children"]["subdir13"][
                     "children"
                 ]["subdir111"]["children"]["f1112_sym"]["details"].type
-                == "symlink"
+                == "SYMLINK"
             )
 
     @pytest.mark.parametrize(
@@ -593,7 +593,7 @@ class TestCacheManager:
     @pytest.mark.parametrize(
         "file_path, location, name, resolve_path, resolve_type, size, file_type",
         [
-            ("dir_name", "dir_name", "dir_name", None, None, None, "directory"),
+            ("dir_name", "dir_name", "dir_name", None, None, None, "DIRECTORY"),
             (
                 "dir_name/f1.json",
                 "dir_name/f1.json",
@@ -601,7 +601,7 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "file",
+                "FILE",
             ),
             (
                 "dir_name/subdir1",
@@ -610,7 +610,7 @@ class TestCacheManager:
                 None,
                 None,
                 None,
-                "directory",
+                "DIRECTORY",
             ),
             (
                 "dir_name/subdir1/./f11.txt",
@@ -619,7 +619,7 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "file",
+                "FILE",
             ),
             (
                 "dir_name/subdir1//f11.txt",
@@ -628,7 +628,7 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "file",
+                "FILE",
             ),
             (
                 "dir_name/subdir1//f11.txt",
@@ -637,16 +637,16 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "file",
+                "FILE",
             ),
             (
                 "dir_name/subdir1/subdir12/f111_sym",
                 "dir_name/subdir1/subdir12/f111_sym",
                 "f111_sym",
                 Path("dir_name/subdir1/subdir14"),
-                "symlink",
+                "SYMLINK",
                 None,
-                "symlink",
+                "SYMLINK",
             ),
             (
                 "dir_name/subdir1/subdir13",
@@ -655,7 +655,7 @@ class TestCacheManager:
                 None,
                 None,
                 None,
-                "directory",
+                "DIRECTORY",
             ),
             (
                 "dir_name/subdir1/subdir13/subdir111/f1111.txt",
@@ -664,16 +664,16 @@ class TestCacheManager:
                 None,
                 None,
                 0,
-                "file",
+                "FILE",
             ),
             (
                 "dir_name/subdir1/subdir13/subdir111/f1112_sym",
                 "dir_name/subdir1/subdir13/subdir111/f1112_sym",
                 "f1112_sym",
                 Path("dir_name/subdir1/f11.txt"),
-                "file",
+                "FILE",
                 None,
-                "symlink",
+                "SYMLINK",
             ),
         ],
     )
@@ -701,7 +701,6 @@ class TestCacheManager:
                 tmp_path, "dir_name"
             )
             tb.cache_map(tar_dir)
-            assert tb.cachemap["dir_name"]["details"].type == "directory"
 
             # test traverse with random path
             c_map = Tarball.traverse_cmap(Path(file_path), tb.cachemap)
@@ -723,7 +722,7 @@ class TestCacheManager:
                     "resolve_path": None,
                     "resolve_type": None,
                     "size": 0,
-                    "type": "file",
+                    "type": "FILE",
                 },
             ),
             (
@@ -736,7 +735,7 @@ class TestCacheManager:
                     "resolve_path": None,
                     "resolve_type": None,
                     "size": None,
-                    "type": "directory",
+                    "type": "DIRECTORY",
                 },
             ),
             (
@@ -749,7 +748,7 @@ class TestCacheManager:
                     "resolve_path": None,
                     "resolve_type": None,
                     "size": None,
-                    "type": "directory",
+                    "type": "DIRECTORY",
                 },
             ),
             (
@@ -758,9 +757,9 @@ class TestCacheManager:
                     "location": Path("dir_name/subdir1/subdir13/subdir111/f1112_sym"),
                     "name": "f1112_sym",
                     "resolve_path": Path("dir_name/subdir1/f11.txt"),
-                    "resolve_type": "file",
+                    "resolve_type": "FILE",
                     "size": None,
-                    "type": "symlink",
+                    "type": "SYMLINK",
                 },
             ),
         ],
@@ -780,7 +779,6 @@ class TestCacheManager:
                 tmp_path, "dir_name"
             )
             tb.cache_map(tar_dir)
-            assert tb.cachemap["dir_name"]["details"].type == "directory"
 
             # test get_info with random path
             file_info = tb.get_info(Path(file_path))
