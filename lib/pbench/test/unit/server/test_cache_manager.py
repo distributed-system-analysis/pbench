@@ -353,7 +353,7 @@ class TestCacheManager:
                         subdir12/
                             f121_sym -> /tmp/<dir_name>/subdir1/subdir15
                         subdir13/
-                            f131_sym -> /subdir1/subdir15
+                            f131_sym -> subdir1/subdir15
                         subdir14/
                             subdir111/
                                 f1111.txt
