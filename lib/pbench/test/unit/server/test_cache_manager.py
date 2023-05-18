@@ -354,11 +354,11 @@ class TestCacheManager:
                         subdir12/
                             f121_sym -> /tmp/<dir_name>/subdir1/subdir15
                         subdir13/
-                            f131_sym -> subdir1/subdir15
+                            f131_sym -> /etc/passwd
                         subdir14/
-                            subdir111/
-                                f1111.txt
-                                f1112_sym -> /tmp/<dir_name>/subdir1/f11.txt
+                            subdir141/
+                                f1411.txt
+                                f1412_sym -> /tmp/<dir_name>/subdir1/f11.txt
                         f11.txt
                     f1.json
 
@@ -377,11 +377,11 @@ class TestCacheManager:
                                 'subdir14': {
                                     'details': <cache_manager.FileInfo object>,
                                     'children': {
-                                        'subdir111': {
+                                        'subdir141': {
                                             'details': <cache_manager.FileInfo object>,
                                             'children':{
-                                                'f1112_sym': { 'details': <cache_manager.FileInfo object>}
-                                                'f1111.txt': { 'details': <cache_manager.FileInfo object>}
+                                                'f1412_sym': { 'details': <cache_manager.FileInfo object>}
+                                                'f1411.txt': { 'details': <cache_manager.FileInfo object>}
                                             }}}},
                                 'subdir13': {
                                     'details': <cache_manager.FileInfo object>,
@@ -403,16 +403,16 @@ class TestCacheManager:
             for i in range(1, 4):
                 (sub_dir / "subdir1" / f"subdir1{i}").mkdir(parents=True, exist_ok=True)
             (sub_dir / "subdir1" / "f11.txt").touch()
-            (sub_dir / "subdir1" / "subdir14" / "subdir111").mkdir(
+            (sub_dir / "subdir1" / "subdir14" / "subdir141").mkdir(
                 parents=True, exist_ok=True
             )
-            (sub_dir / "subdir1" / "subdir14" / "subdir111" / "f1111.txt").touch()
-            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir111" / "f1112_sym"
+            (sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1411.txt").touch()
+            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1412_sym"
             os.symlink((sub_dir / "subdir1" / "f11.txt"), sym_file)
             sym_file = sub_dir / "subdir1" / "subdir12" / "f121_sym"
             os.symlink((sub_dir / "subdir1" / "subdir15"), sym_file)
             sym_file = sub_dir / "subdir1" / "subdir13" / "f131_sym"
-            os.symlink((Path("subdir1") / "subdir15"), sym_file)
+            os.symlink((Path("/etc") / "passwd"), sym_file)
             return sub_dir
 
     class MockTarball:
@@ -541,7 +541,7 @@ class TestCacheManager:
             assert (
                 tb.cachemap["dir_name"]["children"]["subdir1"]["children"]["subdir14"][
                     "children"
-                ]["subdir111"]["children"]["f1112_sym"]["details"].type
+                ]["subdir141"]["children"]["f1412_sym"]["details"].type
                 == CacheType.SYMLINK
             )
 
@@ -577,8 +577,8 @@ class TestCacheManager:
                 "Found a file 'f11.txt' where a directory was expected in path dir_name/subdir1/f11.txt/ne_subdir",
             ),
             (
-                "dir_name/subdir1/subdir14/subdir111/f1112_sym/ne_file",
-                "Found a file 'f1112_sym' where a directory was expected in path dir_name/subdir1/subdir14/subdir111/f1112_sym/ne_file",
+                "dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file",
+                "Found a file 'f1412_sym' where a directory was expected in path dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file",
             ),
         ],
     )
@@ -663,7 +663,7 @@ class TestCacheManager:
                 "dir_name/subdir1/subdir13/f131_sym",
                 "dir_name/subdir1/subdir13/f131_sym",
                 "f131_sym",
-                Path("subdir1/subdir15"),
+                Path("/etc/passwd"),
                 CacheType.SYMLINK,
                 None,
                 CacheType.SYMLINK,
@@ -678,18 +678,18 @@ class TestCacheManager:
                 CacheType.DIRECTORY,
             ),
             (
-                "dir_name/subdir1/subdir14/subdir111/f1111.txt",
-                "dir_name/subdir1/subdir14/subdir111/f1111.txt",
-                "f1111.txt",
+                "dir_name/subdir1/subdir14/subdir141/f1411.txt",
+                "dir_name/subdir1/subdir14/subdir141/f1411.txt",
+                "f1411.txt",
                 None,
                 None,
                 0,
                 CacheType.FILE,
             ),
             (
-                "dir_name/subdir1/subdir14/subdir111/f1112_sym",
-                "dir_name/subdir1/subdir14/subdir111/f1112_sym",
-                "f1112_sym",
+                "dir_name/subdir1/subdir14/subdir141/f1412_sym",
+                "dir_name/subdir1/subdir14/subdir141/f1412_sym",
+                "f1412_sym",
                 Path("dir_name/subdir1/f11.txt"),
                 CacheType.FILE,
                 None,
@@ -772,10 +772,10 @@ class TestCacheManager:
                 },
             ),
             (
-                "dir_name/subdir1/subdir14/subdir111/f1112_sym",
+                "dir_name/subdir1/subdir14/subdir141/f1412_sym",
                 {
-                    "location": Path("dir_name/subdir1/subdir14/subdir111/f1112_sym"),
-                    "name": "f1112_sym",
+                    "location": Path("dir_name/subdir1/subdir14/subdir141/f1412_sym"),
+                    "name": "f1412_sym",
                     "resolve_path": Path("dir_name/subdir1/f11.txt"),
                     "resolve_type": CacheType.FILE,
                     "size": None,

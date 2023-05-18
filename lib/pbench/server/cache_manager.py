@@ -106,14 +106,14 @@ class CacheType(Enum):
 @dataclass
 class CacheObject:
 
+    dir_path: InitVar[Path]
+    path: InitVar[Path]
     name: str = None
     location: Path = None
-    resolve_path: Optional[Path] = None
+    resolve_path: Path = None
     resolve_type: str = None
     size: int = None
-    type: str = CacheType
-    dir_path: InitVar[Path] = None
-    path: InitVar[Path] = None
+    type: CacheType = None
 
     def __post_init__(self, dir_path, path):
         self.name = path.name
@@ -514,11 +514,11 @@ class Tarball:
 
     def uncache(self):
         """Remove the unpacked tarball directory and all contents."""
+        self.cachemap = None
         if self.unpacked:
             try:
                 shutil.rmtree(self.cache)
                 self.unpacked = None
-                self.cachemap = None
             except Exception as e:
                 self.logger.error("incoming remove for {} failed with {}", self.name, e)
                 raise
