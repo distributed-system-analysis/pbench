@@ -6,7 +6,7 @@ import API from "../utils/axiosInstance";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "utils/helper";
 
-export const getAPIkeysList = () => async (dispatch, getState) => {
+export const getAPIkeysList = async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
 
@@ -27,7 +27,7 @@ export const getAPIkeysList = () => async (dispatch, getState) => {
   dispatch({ type: TYPES.COMPLETED });
 };
 
-export const triggerDeleteAPIKey = (id) => async (dispatch, getState) => {
+export const deleteAPIKey = (id) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
@@ -35,13 +35,12 @@ export const triggerDeleteAPIKey = (id) => async (dispatch, getState) => {
       uriTemplate(endpoints, "key", { key: id })
     );
 
-    const keyList = [...getState().keyManagement.keyList];
     if (response.status === 200) {
-      const index = keyList.findIndex((item) => item.id === id);
-      keyList.splice(index, 1);
       dispatch({
         type: TYPES.SET_API_KEY_LIST,
-        payload: keyList,
+        payload: getState().keyManagement.keyList.filter(
+          (item) => item.id !== id
+        ),
       });
 
       const message = response.data ?? "Deleted";
@@ -61,7 +60,7 @@ export const sendNewKeyRequest = (label) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
-    const keyList = getState().keyManagement.keyList;
+    const keyList = [...getState().keyManagement.keyList];
 
     const response = await API.post(
       uriTemplate(endpoints, "key", { key: "" }),
@@ -76,7 +75,7 @@ export const sendNewKeyRequest = (label) => async (dispatch, getState) => {
       });
       dispatch(showToast(SUCCESS, "API key created successfully"));
 
-      dispatch(toggleNewAPIModal(false));
+      dispatch(toggleNewAPIKeyModal(false));
       dispatch(setNewKeyLabel(""));
     } else {
       dispatch(showToast(DANGER, response.data.message));
@@ -87,7 +86,7 @@ export const sendNewKeyRequest = (label) => async (dispatch, getState) => {
   dispatch({ type: TYPES.COMPLETED });
 };
 
-export const toggleNewAPIModal = (isOpen) => ({
+export const toggleNewAPIKeyModal = (isOpen) => ({
   type: TYPES.TOGGLE_NEW_KEY_MODAL,
   payload: isOpen,
 });

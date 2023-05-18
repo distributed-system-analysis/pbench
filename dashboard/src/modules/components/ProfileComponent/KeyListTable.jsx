@@ -11,8 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import React from "react";
 import { TrashIcon } from "@patternfly/react-icons";
+import { deleteAPIKey } from "actions/keyManagementActions";
 import { formatDateTime } from "utils/dateFunctions";
-import { triggerDeleteAPIKey } from "actions/keyManagementActions";
 
 const KeyListTable = () => {
   const dispatch = useDispatch();
@@ -24,7 +24,7 @@ const KeyListTable = () => {
   };
 
   const deleteKey = (id) => {
-    dispatch(triggerDeleteAPIKey(id));
+    dispatch(deleteAPIKey(id));
   };
 
   return (
@@ -38,35 +38,33 @@ const KeyListTable = () => {
         </Tr>
       </Thead>
       <Tbody className="keylist-table-body">
-        {keyList.map((item) => {
-          return (
-            <Tr key={item.key}>
-              <Td dataLabel={columnNames.label}>{item.label}</Td>
-              <Td dataLabel={columnNames.created}>
-                {formatDateTime(item.created)}
-              </Td>
-              <Td dataLabel={columnNames.key} className="key-cell">
-                <ClipboardCopy
-                  hoverTip="Copy API key"
-                  clickTip="Copied"
-                  variant="plain"
-                >
-                  {item.key}
-                </ClipboardCopy>
-              </Td>
+        {keyList.map((item) => (
+          <Tr key={item.key}>
+            <Td dataLabel={columnNames.label}>{item.label}</Td>
+            <Td dataLabel={columnNames.created}>
+              {formatDateTime(item.created)}
+            </Td>
+            <Td dataLabel={columnNames.key} className="key-cell">
+              <ClipboardCopy
+                hoverTip="Copy API key"
+                clickTip="Copied"
+                variant="plain"
+              >
+                {item.key}
+              </ClipboardCopy>
+            </Td>
 
-              <Td className="delete-icon-cell">
-                <Button
-                  variant="plain"
-                  aria-label="Delete Action"
-                  onClick={() => deleteKey(item.id)}
-                >
-                  <TrashIcon />
-                </Button>
-              </Td>
-            </Tr>
-          );
-        })}
+            <Td className="delete-icon-cell">
+              <Button
+                variant="plain"
+                aria-label="Delete Action"
+                onClick={() => deleteKey(item.id)}
+              >
+                <TrashIcon />
+              </Button>
+            </Td>
+          </Tr>
+        ))}
       </Tbody>
     </TableComposable>
   );

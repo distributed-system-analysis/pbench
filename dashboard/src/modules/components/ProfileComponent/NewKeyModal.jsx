@@ -22,9 +22,6 @@ const NewKeyModal = (props) => {
     (state) => state.keyManagement
   );
 
-  const createNewKey = () => {
-    dispatch(sendNewKeyRequest(newKeyLabel));
-  };
   return (
     <Modal
       variant={ModalVariant.small}
@@ -36,7 +33,7 @@ const NewKeyModal = (props) => {
           key="create"
           variant="primary"
           form="modal-with-form-form"
-          onClick={createNewKey}
+          onClick={() => dispatch(sendNewKeyRequest(newKeyLabel))}
         >
           Create
         </Button>,

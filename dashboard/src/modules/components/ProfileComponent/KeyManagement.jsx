@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import {
   getAPIkeysList,
   setNewKeyLabel,
-  toggleNewAPIModal,
+  toggleNewAPIKeyModal,
 } from "actions/keyManagementActions";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -16,12 +16,12 @@ const KeyManagementComponent = () => {
   const { idToken } = useSelector((state) => state.apiEndpoint?.keycloak);
   useEffect(() => {
     if (idToken) {
-      dispatch(getAPIkeysList());
+      dispatch(getAPIkeysList);
     }
   }, [dispatch, idToken]);
   const handleModalToggle = () => {
     dispatch(setNewKeyLabel(""));
-    dispatch(toggleNewAPIModal(!isModalOpen));
+    dispatch(toggleNewAPIKeyModal(!isModalOpen));
   };
   return (
     <Card className="key-management-container">
