@@ -23,10 +23,6 @@ const KeyListTable = () => {
     key: "API key",
   };
 
-  const deleteKey = (id) => {
-    dispatch(deleteAPIKey(id));
-  };
-
   return (
     <TableComposable aria-label="key list table" isStriped>
       <Thead>
@@ -58,7 +54,7 @@ const KeyListTable = () => {
               <Button
                 variant="plain"
                 aria-label="Delete Action"
-                onClick={() => deleteKey(item.id)}
+                onClick={() => dispatch(deleteAPIKey(item.id))}
               >
                 <TrashIcon />
               </Button>
