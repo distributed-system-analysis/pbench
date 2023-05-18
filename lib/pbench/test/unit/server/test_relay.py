@@ -2,10 +2,14 @@ from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
 
+from flask import Request
 import pytest
 import responses
 
 from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server.api.resources import ApiParams
+from pbench.server.api.resources.intake_base import Intake
+from pbench.server.api.resources.relay import Relay
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.audit import (
     Audit,
@@ -265,4 +269,50 @@ class TestRelay:
         )
         assert (
             response.status_code == HTTPStatus.BAD_GATEWAY
+        ), f"Unexpected result, {response.text}"
+
+    def test_relay_bad_prepare(
+        self, client, server_config, pbench_drb_token, monkeypatch
+    ):
+        def throw(self, args: ApiParams, request: Request) -> Intake:
+            raise Exception("An exception that's not APIAbort")
+
+        monkeypatch.setattr(Relay, "_prepare", throw)
+        response = client.post(
+            self.gen_uri(server_config, "https://relay.example.com/uri1"),
+            headers=self.gen_headers(pbench_drb_token),
+        )
+        assert (
+            response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+        ), f"Unexpected result, {response.text}"
+
+    @responses.activate
+    def test_relay_bad_access(
+        self, client, server_config, pbench_drb_token, monkeypatch
+    ):
+        def throw(self, args: ApiParams, request: Request) -> Intake:
+            raise Exception("An exception that's not APIAbort")
+
+        monkeypatch.setattr(Relay, "_access", throw)
+        responses.add(
+            responses.GET,
+            "https://relay.example.com/uri1",
+            status=HTTPStatus.OK,
+            json={
+                "name": "tarball.tar.xz",
+                "md5": "badmd5",
+                "access": "private",
+                "metadata": [],
+                "uri": "not really a uri but who cares",
+            },
+        )
+        responses.add(
+            responses.GET, "https://relay.example.com/uri2", status=HTTPStatus.NOT_FOUND
+        )
+        response = client.post(
+            self.gen_uri(server_config, "https://relay.example.com/uri1"),
+            headers=self.gen_headers(pbench_drb_token),
+        )
+        assert (
+            response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
         ), f"Unexpected result, {response.text}"

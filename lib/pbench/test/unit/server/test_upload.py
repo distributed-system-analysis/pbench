@@ -1,12 +1,16 @@
+import errno
 from http import HTTPStatus
 from io import BytesIO
 from logging import Logger
 from pathlib import Path
 from typing import Any
 
+from flask import Request
 import pytest
 
 from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server.api.resources.intake_base import Access, Intake
+from pbench.server.api.resources.upload import Upload
 from pbench.server.cache_manager import CacheManager, DuplicateTarball
 from pbench.server.database.models.audit import (
     Audit,
@@ -255,6 +259,46 @@ class TestUpload:
         assert response.json.get("message") == expected_message
         self.verify_logs(caplog)
         assert not self.cachemanager_created
+
+    @pytest.mark.parametrize("error", (errno.ENOSPC, errno.ENFILE, None))
+    def test_bad_stream_read(
+        self, client, server_config, pbench_drb_token, monkeypatch, error
+    ):
+        """Test handling of errors from the intake stream read
+
+        The intake code handles errno.ENOSPC specially; however although the
+        code tried to raise an APIAbort with HTTPStatus.INSUFFICIENT_SPACE
+        (50), the werkzeug abort() doesn't support this and ends up with
+        a generic internal server error. Instead, we now have three distinct
+        cases which all result (to the client) in identical internal server
+        errors. Nevertheless, we exercise all three cases here.
+        """
+        stream = BytesIO(b"12345")
+
+        def access(self, intake: Intake, request: Request) -> Access:
+            return Access(5, stream)
+
+        def read(self):
+            if error:
+                e = OSError()
+                e.errno = error
+            else:
+                e = Exception("Nobody expects the Spanish Exception")
+            raise e
+
+        monkeypatch.setattr(Upload, "_access", access)
+        monkeypatch.setattr(stream, "read", read)
+
+        with BytesIO(b"12345") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, "name.tar.xz"),
+                data=data_fp,
+                headers=self.gen_headers(pbench_drb_token, "md5sum"),
+            )
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+        assert response.json.get("message").startswith(
+            "Internal Pbench Server Error: log reference "
+        )
 
     def test_invalid_authorization_upload(
         self, client, caplog, server_config, pbench_drb_token_invalid

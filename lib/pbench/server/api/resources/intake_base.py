@@ -347,20 +347,20 @@ class IntakeBase(ApiBase):
                         hash_md5.update(chunk)
             except OSError as exc:
                 if exc.errno == errno.ENOSPC:
-                    raise APIAbort(
-                        HTTPStatus.INSUFFICIENT_STORAGE,
-                        f"Out of space on {tar_full_path.root}",
-                    )
+                    # NOTE: Werkzeug doesn't support status 509, so the abort
+                    # call in _dispatch will fail. Rather than figure out how
+                    # to fix that, just report as an internal error.
+                    raise APIInternalError(
+                        f"Out of space on {tar_full_path.root}"
+                    ) from exc
                 else:
-                    raise APIAbort(
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        f"Unexpected error {exc.errno} encountered during file upload",
-                    )
-            except Exception:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    "Unexpected error encountered during file upload",
-                )
+                    raise APIInternalError(
+                        f"Unexpected error {exc.errno} encountered during file upload"
+                    ) from exc
+            except Exception as e:
+                raise APIInternalError(
+                    "Unexpected error encountered during file upload"
+                ) from e
 
             if bytes_received != access.length:
                 raise APIAbort(
