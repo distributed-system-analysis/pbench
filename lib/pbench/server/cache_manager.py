@@ -121,19 +121,16 @@ class CacheObject:
         if path.is_symlink():
             self.type = CacheType.SYMLINK
             try:
+                link_path = path.readlink()
+                if not link_path.is_absolute():
+                    raise ValueError("symlink path is absolute")
                 resolve_path = path.resolve(strict=True)
-            except FileNotFoundError:
-                resolve_path = path.readlink()
-
-            try:
                 self.resolve_path = resolve_path.relative_to(dir_path)
-            except ValueError:
-                self.resolve_path = resolve_path
+            except (FileNotFoundError, ValueError):
+                self.resolve_path = link_path
                 self.resolve_type = CacheType.SYMLINK
             else:
-                if not resolve_path.exists():
-                    self.resolve_type = CacheType.SYMLINK
-                elif resolve_path.is_dir():
+                if resolve_path.is_dir():
                     self.resolve_type = CacheType.DIRECTORY
                 elif resolve_path.is_file():
                     self.resolve_type = CacheType.FILE

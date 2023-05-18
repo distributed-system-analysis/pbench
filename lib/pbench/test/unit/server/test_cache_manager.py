@@ -654,7 +654,7 @@ class TestCacheManager:
                 "dir_name/subdir1/subdir12/f121_sym",
                 "dir_name/subdir1/subdir12/f121_sym",
                 "f121_sym",
-                Path("dir_name/subdir1/subdir15"),
+                Path("subdir1/subdir15"),
                 CacheType.SYMLINK,
                 None,
                 CacheType.SYMLINK,
@@ -721,6 +721,9 @@ class TestCacheManager:
                 tmp_path, "dir_name"
             )
             tb.cache_map(tar_dir)
+
+            if str(resolve_path).endswith("subdir15"):
+                resolve_path = tar_dir / resolve_path
 
             # test traverse with random path
             c_map = Tarball.traverse_cmap(Path(file_path), tb.cachemap)
