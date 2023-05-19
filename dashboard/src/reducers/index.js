@@ -1,5 +1,6 @@
 import DatasetListReducer from "./datasetListReducer";
 import EndpointReducer from "./endpointReducer";
+import KeyManagementReducer from "./keyManagementReducer";
 import LoadingReducer from "./loadingReducer";
 import NavbarReducer from "./navbarReducer";
 import OverviewReducer from "./overviewReducer";
@@ -17,4 +18,5 @@ export default combineReducers({
   overview: OverviewReducer,
   tableOfContent: TableOfContentReducer,
   sidebar: SidebarReducer,
+  keyManagement: KeyManagementReducer,
 });

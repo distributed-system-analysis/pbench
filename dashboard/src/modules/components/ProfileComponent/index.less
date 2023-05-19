@@ -61,3 +61,45 @@
     font-weight: 700;
   }
 }
+
+.key-management-container {
+  margin-top: 2vh;
+  .key-desc {
+    margin-bottom: 2vh;
+  }
+  .heading-wrapper {
+    display: flex;
+    justify-content: space-between;
+    .heading-title {
+      font-weight: 700;
+    }
+  }
+  .keylist-table-body {
+    .key-cell {
+      width: 30vw;
+      overflow: hidden;
+      white-space: nowrap;
+      display: block;
+      text-overflow: ellipsis;
+    }
+    .pf-c-clipboard-copy__group {
+      input {
+        background-color: transparent;
+        border: 1px solid transparent;
+      }
+      button {
+        background-color: transparent;
+      }
+      input:focus,
+      input:focus-visible {
+        outline: none;
+      }
+      button::after {
+        border: 1px solid transparent;
+      }
+      svg {
+        fill: #6a6373;
+      }
+    }
+  }
+}

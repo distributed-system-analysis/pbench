@@ -3,11 +3,21 @@
 # provided by the `ndokos` COPR user.
 fedoraproject_username: ndokos
 pbench_repo_url_prefix: https://copr-be.cloud.fedoraproject.org/results/{{ fedoraproject_username }}
+pbench_aux_repo_name: pbench
+enable_copr_repo: 1
+enable_copr_aux_repo: 1
 
 repos:
-  - name: "{{ pbench_repo_name }}"
+  - tag: "{{ pbench_repo_name }}"
     user: "{{ fedoraproject_username }}"
     baseurl: "{{ pbench_repo_url_prefix }}/{{ pbench_repo_name }}/{{ distrodir }}"
     gpgkey: "{{ pbench_repo_url_prefix }}/{{ pbench_repo_name }}/pubkey.gpg"
     gpgcheck: 1
-    enabled: 1
+    enabled: "{{ enable_copr_repo }}"
+
+  - tag: "{{ pbench_aux_repo_name }}"
+    user: "{{ fedoraproject_username }}"
+    baseurl: "{{ pbench_repo_url_prefix }}/{{ pbench_aux_repo_name }}/{{distrodir}}"
+    gpgkey: "{{ pbench_repo_url_prefix }}/{{ pbench_aux_repo_name }}/pubkey.gpg"
+    gpgcheck: 1
+    enabled: "{{ enable_copr_aux_repo }}"
