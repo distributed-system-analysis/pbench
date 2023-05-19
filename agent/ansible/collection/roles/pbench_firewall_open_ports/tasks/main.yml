@@ -4,6 +4,7 @@
   ansible.posix.firewalld:
     port: "{{ item }}/tcp"
     permanent: true
+    immediate: true
     offline: true
     state: enabled
   with_items:
