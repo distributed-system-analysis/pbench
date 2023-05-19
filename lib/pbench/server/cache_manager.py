@@ -115,6 +115,15 @@ class CacheObject:
 
 
 def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
+    """Collects the file info
+
+    Args:
+        dir_path: root directory parent path
+        path: path to a file/directory
+
+    Returns:
+        CacheObject with file/directory info
+    """
     relative_path: Optional[Path] = None
     resolve_type: Optional[CacheType] = None
     size: Optional[int] = None
