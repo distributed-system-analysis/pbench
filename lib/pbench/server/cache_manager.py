@@ -1,5 +1,5 @@
 from collections import deque
-from dataclasses import dataclass, InitVar
+from dataclasses import dataclass
 from enum import auto, Enum
 from logging import Logger
 from pathlib import Path
@@ -106,43 +106,54 @@ class CacheType(Enum):
 @dataclass
 class CacheObject:
 
-    dir_path: InitVar[Path]
-    path: InitVar[Path]
-    name: str = None
-    location: Path = None
-    resolve_path: Path = None
-    resolve_type: str = None
-    size: int = None
-    type: CacheType = None
+    name: str
+    location: Path
+    resolve_path: Path
+    resolve_type: str
+    size: int
+    type: CacheType
 
-    def __post_init__(self, dir_path, path):
-        self.name = path.name
-        self.location = path.relative_to(dir_path)
-        if path.is_symlink():
-            self.type = CacheType.SYMLINK
-            try:
-                link_path = path.readlink()
-                if not link_path.is_absolute():
-                    raise ValueError("symlink path is absolute")
-                resolve_path = path.resolve(strict=True)
-                self.resolve_path = resolve_path.relative_to(dir_path)
-            except (FileNotFoundError, ValueError):
-                self.resolve_path = link_path
-                self.resolve_type = CacheType.SYMLINK
-            else:
-                if resolve_path.is_dir():
-                    self.resolve_type = CacheType.DIRECTORY
-                elif resolve_path.is_file():
-                    self.resolve_type = CacheType.FILE
-                else:
-                    self.resolve_type = CacheType.OTHER
-        elif path.is_file():
-            self.type = CacheType.FILE
-            self.size = path.stat().st_size
-        elif path.is_dir():
-            self.type = CacheType.DIRECTORY
+
+def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
+    relative_path: Optional[Path] = None
+    resolve_type: Optional[CacheType] = None
+    size: Optional[int] = None
+
+    if path.is_symlink():
+        ftype = CacheType.SYMLINK
+        resolve_path = None
+        try:
+            link_path = path.readlink()
+            if link_path.is_absolute():
+                raise ValueError("symlink path is absolute")
+            resolve_path = path.resolve(strict=True)
+            relative_path = resolve_path.relative_to(dir_path)
+        except (FileNotFoundError, ValueError):
+            relative_path = link_path
+            resolve_type = CacheType.SYMLINK
         else:
-            self.type = CacheType.OTHER
+            if resolve_path.is_dir():
+                resolve_type = CacheType.DIRECTORY
+            elif resolve_path.is_file():
+                resolve_type = CacheType.FILE
+            else:
+                resolve_type = CacheType.OTHER
+    elif path.is_file():
+        ftype = CacheType.FILE
+        size = path.stat().st_size
+    elif path.is_dir():
+        ftype = CacheType.DIRECTORY
+    else:
+        ftype = CacheType.OTHER
+
+    return CacheObject(
+        name=path.name,
+        location=path.relative_to(dir_path),
+        resolve_path=relative_path,
+        resolve_type=resolve_type,
+        size=size,
+        type=ftype,
+    )
 
 
 class Tarball:
@@ -300,11 +311,7 @@ class Tarball:
             dir_path: root directory
         """
         root_dir_path = dir_path.parent
-        cmap = {
-            dir_path.name: {
-                "details": CacheObject(dir_path=root_dir_path, path=dir_path)
-            }
-        }
+        cmap = {dir_path.name: {"details": make_cache_object(root_dir_path, dir_path)}}
         dir_queue = deque([(dir_path, cmap)])
         while dir_queue:
             dir_path, parent_map = dir_queue.popleft()
@@ -312,8 +319,10 @@ class Tarball:
 
             curr = {}
             for l_path in dir_path.glob("*"):
-                tar_info = CacheObject(dir_path=root_dir_path, path=l_path)
+                tar_info = make_cache_object(root_dir_path, l_path)
                 curr[l_path.name] = {"details": tar_info}
+                if l_path.is_symlink():
+                    continue
                 if l_path.is_dir():
                     dir_queue.append((l_path, curr))
             parent_map[tar_n]["children"] = curr
@@ -363,6 +372,18 @@ class Tarball:
 
         Returns:
             Dictionary with Details of the file/directory
+
+            format:
+            {
+                "directories": list of subdirectories under the given directory
+                "files": list of files under the given directory
+                "location": path of the give file/directory
+                "name": name of the file/directory
+                "resolve_path": resolved path of the file/directory if given path is a symlink
+                "resolve_type": type of file/directory after path resolution if path is a symlink
+                "size": size of File, None if not a file
+                "type": type of file/directory
+            }
         """
         if str(path).startswith("/"):
             raise BadDirpath(
