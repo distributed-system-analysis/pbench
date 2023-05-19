@@ -42,6 +42,8 @@ PB_KEYCLOAK_IMAGE_PULL_POLICY=${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE
 # The overall pod name is derived from the pbench server image tag.
 PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 
+CERT_LOCATION=${TMP_DIR:-"/var/tmp/pbench/"}
+
 podman pod create --name ${PB_POD_NAME} -p 9200:9200 -p 5432:5432 -p 8090:8090
 
 podman run \
@@ -51,27 +53,39 @@ podman run \
   --workdir /usr/share/elasticsearch \
   --pull ${PB_ELASTICSEARCH_IMAGE_PULL_POLICY} \
   --restart no \
+  --privileged \
+  -v ${CERT_LOCATION}/elastic.crt:/usr/share/elasticsearch/config/certificates/elastic.crt:Z \
+  -v ${CERT_LOCATION}/elastic.key:/usr/share/elasticsearch/config/certificates/elastic.key:Z \
   -e PATH=/usr/share/elasticsearch/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
   -e HOME=/root \
   -e TERM=xterm \
   -e container=oci \
   -e discovery.type=single-node \
   -e ES_JAVA_OPTS="-Xms1g -Xmx1g"\
-  -e xpack.security.enabled=false \
+  -e ELASTIC_PASSWORD="password" \
+  -e xpack.security.enabled=true \
+  -e xpack.security.http.ssl.enabled=true \
+  -e xpack.security.http.ssl.key=/usr/share/elasticsearch/config/certificates/elastic.key \
+  -e xpack.security.http.ssl.certificate=/usr/share/elasticsearch/config/certificates/elastic.crt \
+  -e xpack.security.transport.ssl.enabled=true \
+  -e xpack.security.transport.ssl.verification_mode=certificate \
+  -e xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certificates/elastic.crt \
+  -e xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certificates/elastic.key \
   -e ES_PORT=9200 \
   -d \
   ${PB_ELASTICSEARCH_IMAGE} \
   /bin/tini -- /usr/local/bin/docker-entrypoint.sh eswrapper
 
 podman run \
-  --rm \
   --pod ${PB_POD_NAME} \
   --name "${PB_POD_NAME}-postgres" \
   --workdir /opt/app-root/src \
   --pull ${PB_POSTGRESQL_IMAGE_PULL_POLICY} \
-  --user 26:26 \
   --restart no \
   --entrypoint container-entrypoint \
+  -v /etc/passwd:/etc/passwd:ro \
+  -v ${CERT_LOCATION}/postgres.crt:/var/lib/pgsql/data/postgres.crt:Z \
+  -v ${CERT_LOCATION}/postgres.key:/var/lib/pgsql/data/postgres.key:Z \
   -e POSTGRESQL_USER=pbenchcontainer \
   -e POSTGRESQL_PASSWORD=pbench \
   -e POSTGRESQL_DATABASE=pbenchcontainer \
@@ -83,7 +97,7 @@ podman run \
   -e STI_SCRIPTS_URL=image:///usr/libexec/s2i \
   -d \
   ${PB_POSTGRESQL_IMAGE} \
-  run-postgresql -p 5432
+  run-postgresql -p 5432 -c ssl=on -c ssl_cert_file=/var/lib/pgsql/data/postgres.crt -c ssl_key_file=/var/lib/pgsql/data/postgres.key
 
 podman run \
   --rm \
@@ -91,10 +105,12 @@ podman run \
   --name "${PB_POD_NAME}-keycloak" \
   --pull ${PB_KEYCLOAK_IMAGE_PULL_POLICY} \
   --restart no \
+  -v ${CERT_LOCATION}/keycloak.crt:/opt/keycloak/conf/keycloak.crt:Z \
+  -v ${CERT_LOCATION}/keycloak.key:/opt/keycloak/conf/keycloak.key:Z \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD=admin \
   -d \
   ${PB_KEYCLOAK_IMAGE} \
-  start-dev --health-enabled=true --http-port=8090
+  start-dev --health-enabled=true --https-port=8090 --https-certificate-file=/opt/keycloak/conf/keycloak.crt --https-certificate-key-file=/opt/keycloak/conf/keycloak.key
 
 server/pbenchinacan/load_keycloak.sh

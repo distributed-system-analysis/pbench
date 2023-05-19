@@ -4,6 +4,7 @@ from datetime import datetime
 from http import HTTPStatus
 import json
 import re
+from ssl import CERT_REQUIRED, create_default_context
 from typing import Any, Callable, Iterator, List, Optional
 from urllib.parse import urljoin
 from urllib.request import Request
@@ -402,7 +403,12 @@ class ElasticBase(ApiBase):
 
         try:
             # perform the Elasticsearch query
-            es_response = method(url, **es_request["kwargs"])
+            es_response = method(
+                url,
+                **es_request["kwargs"],
+                auth=("elastic", "password"),
+                verify="/srv/pbench/elastic.crt",
+            )
             current_app.logger.debug(
                 "ES query response {}:{}",
                 es_response.reason,
@@ -775,7 +781,17 @@ class ElasticBulkBase(ApiBase):
         # indexed and we skip the Elasticsearch actions.
         if map:
             # Build an Elasticsearch instance to manage the bulk update
-            elastic = Elasticsearch(self.elastic_uri)
+            ssl_context = create_default_context(cafile="/srv/pbench/elastic.crt")
+            ssl_context.check_hostname = True
+            ssl_context.verify_mode = CERT_REQUIRED
+            elastic = Elasticsearch(
+                self.elastic_uri,
+                use_ssl=True,
+                http_auth=("elastic", "password"),
+                ssl_context=ssl_context,
+                verify_certs=True,
+                max_retries=0,
+            )
             current_app.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
 
             # NOTE: because both generate_actions and streaming_bulk return

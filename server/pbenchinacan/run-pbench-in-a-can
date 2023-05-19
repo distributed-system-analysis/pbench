@@ -62,6 +62,13 @@ mkdir -p -m 755 ${PB_DEPLOY_FILES}/etc
 cp -r ${pbiac_etc}/rsyslog.d ${pbiac_etc}/rsyslog.conf ${PB_DEPLOY_FILES}/etc/
 cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
 
+openssl req -batch -new -noenc -sha256 -days 365 -x509 -newkey rsa:2048 \
+     -out ${TMP_DIR}/dependency.crt \
+     -keyout ${TMP_DIR}/dependency.key \
+     -subj "/C=US/ST=Massachusetts/L=Westford/O=Red Hat/OU=Performance & Scale/CN=localhost"
+
+chmod 0644 ${TMP_DIR}/dependency.crt ${TMP_DIR}/dependency.key
+
 # Customize the Pbench Server config file for canned operation
 sed -Ei \
     -e "/^ *realhost/ s/=.*/= $(hostname -f)/" \
@@ -76,6 +83,24 @@ mkdir -p -m 0755  \
     ${SRV_PBENCH}/public_html/dashboard \
     ${SRV_PBENCH}/tmp \
     ${SRV_PBENCH}/cache
+
+cp ${TMP_DIR}/dependency.crt ${TMP_DIR}/elastic.crt
+cp ${TMP_DIR}/dependency.key ${TMP_DIR}/elastic.key
+
+chmod 0644 ${TMP_DIR}/elastic.crt ${TMP_DIR}/elastic.key
+
+cp ${TMP_DIR}/dependency.crt ${TMP_DIR}/postgres.crt
+cp ${TMP_DIR}/dependency.key ${TMP_DIR}/postgres.key
+
+chmod 0644 ${TMP_DIR}/postgres.crt
+chmod 0640 ${TMP_DIR}/postgres.key
+cat ${TMP_DIR}/postgres.crt ${TMP_DIR}/postgres.key > ${TMP_DIR}/postgres.pem
+
+cp ${TMP_DIR}/dependency.crt ${TMP_DIR}/keycloak.crt
+cp ${TMP_DIR}/dependency.key ${TMP_DIR}/keycloak.key
+
+chmod 0644 ${TMP_DIR}/keycloak.crt
+chmod 0640 ${TMP_DIR}/keycloak.key
 
 # Set up the static fallback pages for Nginx.
 #

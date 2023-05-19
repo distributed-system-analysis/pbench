@@ -224,14 +224,13 @@ class OpenIDClient:
             status_forcelist=tuple(int(x) for x in HTTPStatus if x != 200),
         )
         adapter = HTTPAdapter(max_retries=retry)
-        session.mount("http://", adapter)
         session.mount("https://", adapter)
 
         # We will also need to retry the connection if the health status is not UP.
         connected = False
         for _ in range(5):
             try:
-                response = session.get(f"{oidc_server}/health")
+                response = session.get(f"{oidc_server}/health", verify="/srv/pbench/keycloak.crt")
                 response.raise_for_status()
             except Exception as exc:
                 raise OpenIDClient.ServerConnectionError() from exc
