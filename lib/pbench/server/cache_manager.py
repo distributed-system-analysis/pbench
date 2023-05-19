@@ -96,7 +96,6 @@ class TarballModeChangeError(CacheManagerError):
 
 
 class CacheType(Enum):
-
     FILE = auto()
     DIRECTORY = auto()
     SYMLINK = auto()
@@ -105,6 +104,16 @@ class CacheType(Enum):
 
 @dataclass
 class CacheObject:
+    """Initialize CacheObject object with file/Directory info attributes.
+
+    Args:
+        name: name of File/Directory
+        location: path of File/Directory from root Directory
+        resolve_path: path of File/Directory after resolution
+        resolve_type: type of File/Directory after resolution
+        size: size of the File
+        type: type of the File/Directory/Symlink
+    """
 
     name: str
     location: Path
@@ -390,7 +399,7 @@ class Tarball:
                 "name": name of the file/directory
                 "resolve_path": resolved path of the file/directory if given path is a symlink
                 "resolve_type": type of file/directory after path resolution if path is a symlink
-                "size": size of File, None if not a file
+                "size": size of the file
                 "type": type of file/directory
             }
         """
