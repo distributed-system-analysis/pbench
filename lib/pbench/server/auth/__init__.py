@@ -205,6 +205,7 @@ class OpenIDClient:
         """
         try:
             oidc_server = server_config.get("openid", "server_url")
+            cert = server_config.get("openid", "cert_location")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
@@ -230,9 +231,7 @@ class OpenIDClient:
         connected = False
         for _ in range(5):
             try:
-                response = session.get(
-                    f"{oidc_server}/health", verify="/srv/pbench/keycloak.crt"
-                )
+                response = session.get(f"{oidc_server}/health", verify=cert)
                 response.raise_for_status()
             except Exception as exc:
                 raise OpenIDClient.ServerConnectionError() from exc

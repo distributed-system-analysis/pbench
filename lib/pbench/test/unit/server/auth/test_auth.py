@@ -298,7 +298,7 @@ class TestOpenIDClient:
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.wait_for_oidc_server(config, make_logger)
 
-        section = {"server_url": "https://example.com"}
+        section = {"server_url": "https://example.com", "cert_location": "/ca.crt"}
         config["openid"] = section
 
         # Keycloak health returning response but status is not UP
@@ -327,7 +327,7 @@ class TestOpenIDClient:
         """Verify .wait_for_oidc_server() success mode"""
 
         config = configparser.ConfigParser()
-        section = {"server_url": "https://example.com"}
+        section = {"server_url": "https://example.com", "cert_location": "/ca.crt"}
         config["openid"] = section
 
         # Keycloak health returning response with status UP

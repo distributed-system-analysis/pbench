@@ -136,7 +136,7 @@ def get_es(config, logger):
     # file instead of setting the logging level up so high.
     logging.getLogger("urllib3").setLevel(logging.FATAL)
     logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
-    ssl_context = create_default_context(cafile="/srv/pbench/elastic.crt")
+    ssl_context = create_default_context(cafile=config.get("Indexing", "cert_location"))
     ssl_context.check_hostname = True
     ssl_context.verify_mode = CERT_REQUIRED
     es = Elasticsearch(

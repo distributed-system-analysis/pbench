@@ -4,7 +4,7 @@ from datetime import datetime
 from http import HTTPStatus
 import json
 import re
-from ssl import CERT_REQUIRED, create_default_context
+import ssl
 from typing import Any, Callable, Iterator, List, Optional
 from urllib.parse import urljoin
 from urllib.request import Request
@@ -407,7 +407,7 @@ class ElasticBase(ApiBase):
                 url,
                 **es_request["kwargs"],
                 auth=("elastic", "password"),
-                verify="/srv/pbench/elastic.crt",
+                verify=self.config.get("Indexing", "cert_location"),
             )
             current_app.logger.debug(
                 "ES query response {}:{}",
@@ -781,9 +781,11 @@ class ElasticBulkBase(ApiBase):
         # indexed and we skip the Elasticsearch actions.
         if map:
             # Build an Elasticsearch instance to manage the bulk update
-            ssl_context = create_default_context(cafile="/srv/pbench/elastic.crt")
+            ssl_context = ssl.create_default_context(
+                cafile=self.config.get("Indexing", "cert_location")
+            )
             ssl_context.check_hostname = True
-            ssl_context.verify_mode = CERT_REQUIRED
+            ssl_context.verify_mode = ssl.CERT_REQUIRED
             elastic = Elasticsearch(
                 self.elastic_uri,
                 use_ssl=True,

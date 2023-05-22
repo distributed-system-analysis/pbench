@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from ssl import PROTOCOL_TLS_CLIENT, SSLContext
 from typing import Iterator
 
 import elasticsearch
@@ -90,6 +91,10 @@ class TestDatasetsUpdate:
             for item in expected_results:
                 yield item
 
+        def fake_ssl_context(cafile: str):
+            return SSLContext(PROTOCOL_TLS_CLIENT)
+
+        monkeypatch.setattr("ssl.create_default_context", fake_ssl_context)
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
     def test_partial(
@@ -184,6 +189,11 @@ class TestDatasetsUpdate:
             raise elasticsearch.helpers.BulkIndexError("test")
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
+
+        def fake_ssl_context(cafile: str):
+            return SSLContext(PROTOCOL_TLS_CLIENT)
+
+        monkeypatch.setattr("ssl.create_default_context", fake_ssl_context)
 
         response = client.post(
             f"{server_config.rest_uri}/datasets/random_md5_string1",
