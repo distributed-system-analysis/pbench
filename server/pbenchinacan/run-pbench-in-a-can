@@ -62,7 +62,10 @@ mkdir -p -m 755 ${PB_DEPLOY_FILES}/etc
 cp -r ${pbiac_etc}/rsyslog.d ${pbiac_etc}/rsyslog.conf ${PB_DEPLOY_FILES}/etc/
 cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
 
-openssl req -batch -new -noenc -sha256 -days 365 -x509 -newkey rsa:2048 \
+# Using deprecated -nodes flag for not encrypting the output key as Intlab VM
+# is using very old version of openssl (OpenSSL 1.1.1k  FIPS 25 Mar 2021)
+# If you are using OpenSSL 3.0 then change it to --noenc
+openssl req -batch -new -nodes -sha256 -days 365 -x509 -newkey rsa:2048 \
      -out ${TMP_DIR}/dependency.crt \
      -keyout ${TMP_DIR}/dependency.key \
      -subj "/C=US/ST=Massachusetts/L=Westford/O=Red Hat/OU=Performance & Scale/CN=localhost"
