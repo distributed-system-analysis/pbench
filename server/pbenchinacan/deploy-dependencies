@@ -53,7 +53,6 @@ podman run \
   --workdir /usr/share/elasticsearch \
   --pull ${PB_ELASTICSEARCH_IMAGE_PULL_POLICY} \
   --restart no \
-  --privileged \
   -v ${CERT_LOCATION}/elastic.crt:/usr/share/elasticsearch/config/certificates/elastic.crt:Z \
   -v ${CERT_LOCATION}/elastic.key:/usr/share/elasticsearch/config/certificates/elastic.key:Z \
   -e PATH=/usr/share/elasticsearch/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
