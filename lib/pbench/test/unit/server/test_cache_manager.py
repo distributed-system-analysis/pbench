@@ -788,7 +788,7 @@ class TestCacheManager:
             )
             tb.cache_map(tar_dir)
 
-            # Hack for absolute paths
+            # Hack for absolute path
             if str(location).endswith("f1412_sym"):
                 resolve_path = tar_dir / resolve_path
 
