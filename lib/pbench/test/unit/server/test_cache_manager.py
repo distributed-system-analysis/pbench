@@ -360,9 +360,9 @@ class TestCacheManager:
                             subdir141/
                                 f1411.txt
                                 f1412_sym -> /tmp/<dir_name>/subdir1/f11.txt
-                                f1413_sym -> ./subdir141
-                                f1414_sym -> ./subdir141/f1411.txt
-                                f1415_sym -> ./subdir141/f1412_sym
+                                f1413_sym -> ../subdir141
+                                f1414_sym -> ./f1411.txt
+                                f1415_sym -> ./f1412_sym
                         f11.txt
                         f12_sym -> ../../<dir_name>
                     f1.json
