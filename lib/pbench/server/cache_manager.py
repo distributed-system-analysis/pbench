@@ -139,7 +139,6 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
 
     if path.is_symlink():
         ftype = CacheType.SYMLINK
-        resolve_path = None
         try:
             link_path = path.readlink()
             if link_path.is_absolute():
@@ -148,7 +147,7 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
             relative_path = resolve_path.relative_to(dir_path)
         except (FileNotFoundError, ValueError):
             relative_path = link_path
-            resolve_type = CacheType.SYMLINK
+            resolve_type = CacheType.OTHER
         else:
             if resolve_path.is_dir():
                 resolve_type = CacheType.DIRECTORY
@@ -395,12 +394,13 @@ class Tarball:
             {
                 "directories": list of subdirectories under the given directory
                 "files": list of files under the given directory
-                "location": path of the give file/directory
+                "location": relative path to the given file/directory
                 "name": name of the file/directory
                 "resolve_path": resolved path of the file/directory if given path is a symlink
                 "resolve_type": type of file/directory after path resolution if path is a symlink
                 "size": size of the file
-                "type": type of file/directory
+                "type": type of file/directory in the form of CacheType Enum class
+                        which contain FILE, DIRECTORY, SYMLINK & OTHER as attributes.
             }
         """
         if str(path).startswith("/"):
