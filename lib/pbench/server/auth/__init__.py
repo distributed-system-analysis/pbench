@@ -230,7 +230,9 @@ class OpenIDClient:
         connected = False
         for _ in range(5):
             try:
-                response = session.get(f"{oidc_server}/health", verify="/srv/pbench/keycloak.crt")
+                response = session.get(
+                    f"{oidc_server}/health", verify="/srv/pbench/keycloak.crt"
+                )
                 response.raise_for_status()
             except Exception as exc:
                 raise OpenIDClient.ServerConnectionError() from exc
