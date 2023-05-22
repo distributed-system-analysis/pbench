@@ -4,9 +4,9 @@
    contain the root `toctree` directive.
 
 Pbench
-########
+======
 
-A Benchmarking and Performance Analysis Framework
+Pbench is a Benchmarking and Performance Analysis Framework.
 
 .. dropdown:: Pbench Agent
    :animate: fade-in-slide-down
@@ -27,13 +27,35 @@ A Benchmarking and Performance Analysis Framework
     by the Agent and indexed by the Server.
 
 
-**Table of Contents**
+.. toctree::
+   :maxdepth: 4
+   :hidden:
+   :caption: Pbench Agent 
 
-* :doc:`guides/UserGuide`
+   Agent/installation/index
+   Agent/user-guide/index
+   Agent/faq
 
 .. toctree::
-   :caption: Pbench-agent
+   :maxdepth: 4
    :hidden:
+   :caption: Pbench Server
 
-   guides/UserGuide
+   Server/API/README
+   Server/FAQ/faq
+   
+.. toctree::
+   :maxdepth: 4
+   :hidden:
+   :caption: Pbench Dashboard
+
+   Dashboard/user_guide
+   Dashboard/faq
+
+.. toctree::
+   :maxdepth: 4
+   :hidden:
+   :caption: Pbench Developer Guidelines
+   
+   Developers/contributing
 
