@@ -47,7 +47,7 @@ host_name=${PB_HOST_NAME:-$(hostname --fqdn)}
 #
 # Point PB_DEPLOY_FILES at a directory in the temporary space to hold the
 # Pbench Server deployment files (e.g., config files).
-TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
+export TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
 export SRV_PBENCH=${SRV_PBENCH:-${TMP_DIR}/srv/pbench}
 export PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 
