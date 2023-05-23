@@ -139,10 +139,12 @@ def get_es(config, logger):
     ssl_context = create_default_context(cafile=config.get("Indexing", "cert_location"))
     ssl_context.check_hostname = True
     ssl_context.verify_mode = CERT_REQUIRED
+    elastic_user = config.get("Indexing", "elastic_user")
+    elastic_password = config.get("Indexing", "elastic_password")
     es = Elasticsearch(
         hosts,
         use_ssl=True,
-        http_auth=("elastic", "password"),
+        http_auth=(elastic_user, elastic_password),
         ssl_context=ssl_context,
         verify_certs=True,
         max_retries=0,

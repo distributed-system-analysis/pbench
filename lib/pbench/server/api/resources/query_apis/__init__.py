@@ -390,6 +390,8 @@ class ElasticBase(ApiBase):
             raise APIInternalError(f"problem in preprocess, missing {e}") from e
         try:
             # prepare payload for Elasticsearch query
+            elastic_user = self.config.get("Indexing", "elastic_user")
+            elastic_password = self.config.get("Indexing", "elastic_password")
             es_request = self.assemble(params, context)
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
@@ -406,7 +408,7 @@ class ElasticBase(ApiBase):
             es_response = method(
                 url,
                 **es_request["kwargs"],
-                auth=("elastic", "password"),
+                auth=(elastic_user, elastic_password),
                 verify=self.config.get("Indexing", "cert_location"),
             )
             current_app.logger.debug(
@@ -786,10 +788,12 @@ class ElasticBulkBase(ApiBase):
             )
             ssl_context.check_hostname = True
             ssl_context.verify_mode = ssl.CERT_REQUIRED
+            elastic_user = self.config.get("Indexing", "elastic_user")
+            elastic_password = self.config.get("Indexing", "elastic_password")
             elastic = Elasticsearch(
                 self.elastic_uri,
                 use_ssl=True,
-                http_auth=("elastic", "password"),
+                http_auth=(elastic_user, elastic_password),
                 ssl_context=ssl_context,
                 verify_certs=True,
                 max_retries=0,
