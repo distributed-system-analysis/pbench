@@ -21,9 +21,7 @@ from pbench.server.database.models.datasets import Dataset
 
 
 class Upload(IntakeBase):
-    """Upload a dataset from a client"""
-
-    CHUNK_SIZE = 65536
+    """Accept a dataset from a client"""
 
     def __init__(self, config: PbenchServerConfig):
         super().__init__(
@@ -47,29 +45,27 @@ class Upload(IntakeBase):
             ),
         )
 
-    def _prepare(self, args: ApiParams, request: Request) -> Intake:
-        """Prepare to begin the intake operation
+    def _identify(self, args: ApiParams, request: Request) -> Intake:
+        """Identify the tarball to be streamed.
 
         We get the filename from the URI: /api/v1/upload/<filename>.
 
         We get the dataset's resource ID (which is the tarball's MD5 checksum)
-        from the "content-md5" HTTP header.
+        from the "Content-MD5" HTTP header.
 
         Args:
             args: API parameters
-                URI parameters
-                    filename: A filename matching the metadata of the uploaded tarball
-                Query parameters
-                    access: The desired access policy (default is "private")
-                    metadata: Metadata key/value pairs to set on dataset
+                URI parameters: filename
+                Query parameters: desired access and metadata
             request: The original Request object containing query parameters
 
         Returns:
             An Intake object capturing the critical information
+
+        Raises:
+            APIAbort on failure
         """
 
-        # Used to record what steps have been completed during the upload, and
-        # need to be undone on failure
         access = args.query.get("access", Dataset.PRIVATE_ACCESS)
         filename = args.uri["filename"]
 
@@ -90,23 +86,24 @@ class Upload(IntakeBase):
                 "Missing required 'Content-MD5' header value",
             )
 
-        return Intake(
-            name=filename, md5=md5sum, access=access, metadata=metadata, uri=None
-        )
+        return Intake(filename, md5sum, access, metadata, None)
 
-    def _access(self, intake: Intake, request: Request) -> Access:
+    def _stream(self, intake: Intake, request: Request) -> Access:
         """Determine how to access the tarball byte stream
 
-        Check that the "content-length" header value is not 0.
+        Check that the "Content-Length" header value is not 0.
 
         The Flask request object provides the input data stream.
 
         Args:
-            intake: The Intake parameters produced by _intake
+            intake: The Intake parameters produced by _identify
             request: The Flask request object
 
         Returns:
             An Access object with the data byte stream and length
+
+        Raises:
+            APIAbort on failure
         """
         try:
             length_string = request.headers["Content-Length"]

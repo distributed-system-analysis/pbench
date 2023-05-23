@@ -82,12 +82,18 @@ class TestRelay:
         monkeypatch.setattr(CacheManager, "create", FakeCacheManager.create)
 
     def test_missing_authorization_header(self, client, server_config):
+        """Verify the authorization check"""
         response = client.post(self.gen_uri(server_config))
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert not self.cachemanager_created
 
     @responses.activate
     def test_relay(self, client, server_config, pbench_drb_token, tarball):
+        """Verify the success path
+
+        Ensure successful completion when the primary relay URI returns a valid
+        relay manifest referencing a secondary relay URI containing a tarball.
+        """
         file, md5file, md5 = tarball
         responses.add(
             responses.GET,
@@ -123,7 +129,7 @@ class TestRelay:
         assert audit[0].root_id is None
         assert audit[0].operation == OperationCode.CREATE
         assert audit[0].status == AuditStatus.BEGIN
-        assert audit[0].name == "upload"
+        assert audit[0].name == "relay"
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
         assert audit[0].object_name == Dataset.stem(file)
@@ -138,7 +144,7 @@ class TestRelay:
         assert audit[1].root_id == 1
         assert audit[1].operation == OperationCode.CREATE
         assert audit[1].status == AuditStatus.SUCCESS
-        assert audit[1].name == "upload"
+        assert audit[1].name == "relay"
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
         assert audit[1].object_name == Dataset.stem(file)
@@ -152,6 +158,7 @@ class TestRelay:
 
     @responses.activate
     def test_relay_tar_fail(self, client, server_config, pbench_drb_token, tarball):
+        """Verify failure when secondary relay URI is not found"""
         file, md5file, md5 = tarball
         responses.add(
             responses.GET,
@@ -182,7 +189,7 @@ class TestRelay:
         assert audit[0].root_id is None
         assert audit[0].operation == OperationCode.CREATE
         assert audit[0].status == AuditStatus.BEGIN
-        assert audit[0].name == "upload"
+        assert audit[0].name == "relay"
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
         assert audit[0].object_name == Dataset.stem(file)
@@ -197,7 +204,7 @@ class TestRelay:
         assert audit[1].root_id == 1
         assert audit[1].operation == OperationCode.CREATE
         assert audit[1].status == AuditStatus.FAILURE
-        assert audit[1].name == "upload"
+        assert audit[1].name == "relay"
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
         assert audit[1].object_name == Dataset.stem(file)
@@ -209,75 +216,72 @@ class TestRelay:
         }
 
     @responses.activate
-    def test_relay_no_json(self, client, server_config, pbench_drb_token, tarball):
-        file, md5file, md5 = tarball
+    def test_relay_no_manifest(self, client, server_config, pbench_drb_token):
+        """Verify behavior when the primary relay URI isn't found"""
         responses.add(
             responses.GET, "https://relay.example.com/uri1", status=HTTPStatus.NOT_FOUND
-        )
-        responses.add(
-            responses.GET, "https://relay.example.com/uri2", status=HTTPStatus.NOT_FOUND
         )
         response = client.post(
             self.gen_uri(server_config, "https://relay.example.com/uri1"),
             headers=self.gen_headers(pbench_drb_token),
         )
-        assert (
-            response.status_code == HTTPStatus.BAD_GATEWAY
-        ), f"Unexpected result, {response.text}"
+        assert response.status_code == HTTPStatus.BAD_GATEWAY
+        assert response.json["message"] == "Relay manifest URI problem: 'Not Found'"
 
     @responses.activate
     def test_relay_not_json(self, client, server_config, pbench_drb_token):
+        """Verify behavior when the primary relay URI doesn't return a JSON
+        document.
+        """
         responses.add(
             responses.GET,
             "https://relay.example.com/uri1",
             status=HTTPStatus.OK,
             body="This isn't JSON",
         )
-        responses.add(
-            responses.GET, "https://relay.example.com/uri2", status=HTTPStatus.NOT_FOUND
-        )
         response = client.post(
             self.gen_uri(server_config, "https://relay.example.com/uri1"),
             headers=self.gen_headers(pbench_drb_token),
         )
+        assert response.status_code == HTTPStatus.BAD_GATEWAY
         assert (
-            response.status_code == HTTPStatus.BAD_GATEWAY
-        ), f"Unexpected result, {response.text}"
+            response.json["message"]
+            == "Relay URI did not return a JSON document: 'Expecting value: line 1 column 1 (char 0)'"
+        )
 
     @responses.activate
-    def test_relay_missing_json_field(
-        self, client, server_config, pbench_drb_token, tarball
-    ):
-        file, md5file, md5 = tarball
+    def test_relay_missing_json_field(self, client, server_config, pbench_drb_token):
+        """Verify behavior when the relay manifest doesn't include the
+        secondary relay URI field."""
         responses.add(
             responses.GET,
             "https://relay.example.com/uri1",
             status=HTTPStatus.OK,
             json={
                 "name": "tarball.tar.xz",
-                "md5": md5,
+                "md5": "md5",
                 "access": "private",
                 "metadata": [],
             },
-        )
-        responses.add(
-            responses.GET, "https://relay.example.com/uri2", status=HTTPStatus.NOT_FOUND
         )
         response = client.post(
             self.gen_uri(server_config, "https://relay.example.com/uri1"),
             headers=self.gen_headers(pbench_drb_token),
         )
-        assert (
-            response.status_code == HTTPStatus.BAD_GATEWAY
-        ), f"Unexpected result, {response.text}"
+        assert response.status_code == HTTPStatus.BAD_GATEWAY
+        assert response.json["message"] == "Relay info missing \"'uri'\""
 
-    def test_relay_bad_prepare(
+    def test_relay_bad_identify(
         self, client, server_config, pbench_drb_token, monkeypatch
     ):
+        """Verify behavior when an unexpected error occurs in the _identify
+        helper.
+        """
+
         def throw(self, args: ApiParams, request: Request) -> Intake:
             raise Exception("An exception that's not APIAbort")
 
-        monkeypatch.setattr(Relay, "_prepare", throw)
+        monkeypatch.setattr(Relay, "_identify", throw)
         response = client.post(
             self.gen_uri(server_config, "https://relay.example.com/uri1"),
             headers=self.gen_headers(pbench_drb_token),
@@ -287,13 +291,17 @@ class TestRelay:
         ), f"Unexpected result, {response.text}"
 
     @responses.activate
-    def test_relay_bad_access(
+    def test_relay_bad_stream(
         self, client, server_config, pbench_drb_token, monkeypatch
     ):
+        """Verify behavior when an unexpected error occurs in the _stream
+        helper.
+        """
+
         def throw(self, args: ApiParams, request: Request) -> Intake:
             raise Exception("An exception that's not APIAbort")
 
-        monkeypatch.setattr(Relay, "_access", throw)
+        monkeypatch.setattr(Relay, "_stream", throw)
         responses.add(
             responses.GET,
             "https://relay.example.com/uri1",
@@ -303,11 +311,8 @@ class TestRelay:
                 "md5": "badmd5",
                 "access": "private",
                 "metadata": [],
-                "uri": "not really a uri but who cares",
+                "uri": "https://relay.example.com/uri2",
             },
-        )
-        responses.add(
-            responses.GET, "https://relay.example.com/uri2", status=HTTPStatus.NOT_FOUND
         )
         response = client.post(
             self.gen_uri(server_config, "https://relay.example.com/uri1"),

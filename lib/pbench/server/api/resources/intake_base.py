@@ -59,7 +59,17 @@ class Access:
 
 
 class IntakeBase(ApiBase):
-    """Framework to assimilate a dataset into the Pbench Server"""
+    """Framework to assimilate a dataset into the Pbench Server.
+
+    This relies on subclasses to provides specific hook methods to identify and
+    stream the tarball data:
+
+    _identify: decodes the URI and query parameters to determine the target
+        dataset name, the appropriate MD5, the initial access type, and
+        optional metadata to be set.
+    _stream: decodes the intake data and provides the length and byte IO
+        stream to be read into a temporary file.
+    """
 
     CHUNK_SIZE = 65536
 
@@ -67,9 +77,12 @@ class IntakeBase(ApiBase):
         super().__init__(config, schema)
         self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
+        method = list(self.schemas.schemas.keys())[0]
+        self.name = self.schemas[method].audit_name
         current_app.logger.info("INTAKE temporary directory is {}", self.temporary)
 
-    def process_metadata(self, metas: list[str]) -> JSONOBJECT:
+    @staticmethod
+    def process_metadata(metas: list[str]) -> JSONOBJECT:
         """Process 'metadata' query parameter
 
         We allow the client to set metadata on the new dataset. We won't do
@@ -113,8 +126,8 @@ class IntakeBase(ApiBase):
             )
         return metadata
 
-    def _prepare(self, args: ApiParams, request: Request) -> Intake:
-        """Prepare to begin the intake operation
+    def _identify(self, args: ApiParams, request: Request) -> Intake:
+        """Identify the tarball to be streamed.
 
         Must be implemented by each subclass of this base class.
 
@@ -127,13 +140,13 @@ class IntakeBase(ApiBase):
         """
         raise NotImplementedError()
 
-    def _access(self, intake: Intake, request: Request) -> Access:
+    def _stream(self, intake: Intake, request: Request) -> Access:
         """Determine how to access the tarball byte stream
 
         Must be implemented by each subclass of this base class.
 
         Args:
-            intake: The Intake parameters produced by _intake
+            intake: The Intake parameters produced by _identify
             request: The Flask request object
 
         Returns:
@@ -153,15 +166,6 @@ class IntakeBase(ApiBase):
 
         1) PUT /api/v1/upload/<filename>
         2) POST /api/v1/relay/<uri>
-
-        The operational differences are encapsulated by two helper methods
-        provided by the subclasses:
-
-        _prepare: decodes the URI and query parameters to determine the target
-            dataset name, the appropriate MD5, the initial access type, and
-            optional metadata to be set.
-        _access: decodes the intake data and provides the length and byte IO
-            stream to be read into a temporary file.
 
         If the new dataset is created successfully, return 201 (CREATED).
 
@@ -206,12 +210,7 @@ class IntakeBase(ApiBase):
 
             # Ask our helper to determine the name and resource ID of the new
             # dataset, along with requested access and metadata.
-            try:
-                intake = self._prepare(args, request)
-            except APIAbort:
-                raise
-            except Exception as e:
-                raise APIInternalError(str(e)) from e
+            intake = self._identify(args, request)
 
             filename = intake.name
             metadata = self.process_metadata(intake.metadata)
@@ -249,14 +248,15 @@ class IntakeBase(ApiBase):
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
             current_app.logger.info(
-                "{} UPLOAD (pre): {:.3}% full, {} remaining",
+                "{} {} (pre): {:.3}% full, {} remaining",
+                self.name,
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
                 humanize.naturalsize(usage.free),
             )
 
             current_app.logger.info(
-                "PUT uploading {} for {} to {}", filename, username, tar_full_path
+                "{} {} for {} to {}", self.name, filename, username, tar_full_path
             )
 
             # Create a tracking dataset object; it'll begin in UPLOADING state
@@ -278,13 +278,9 @@ class IntakeBase(ApiBase):
                 try:
                     Dataset.query(resource_id=intake.md5)
                 except DatasetNotFound:
-                    current_app.logger.error(
-                        "Duplicate dataset {} for user = (user_id: {}, username: {}) not found",
-                        dataset_name,
-                        user_id,
-                        username,
+                    raise APIInternalError(
+                        f"Duplicate dataset {dataset_name} for user {username!r} id {user_id} not found"
                     )
-                    raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, "INTERNAL ERROR")
                 else:
                     response = jsonify(dict(message="Dataset already exists"))
                     response.status_code = HTTPStatus.OK
@@ -292,17 +288,14 @@ class IntakeBase(ApiBase):
             except APIAbort:
                 raise  # Propagate an APIAbort exception to the outer block
             except Exception:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    message="Unable to create dataset",
-                )
+                raise APIInternalError("Unable to create dataset")
 
             recovery.add(dataset.delete)
 
             # AUDIT the operation start before we get any further
             audit = Audit.create(
                 operation=OperationCode.CREATE,
-                name="upload",
+                name=self.name,
                 user_id=user_id,
                 user_name=username,
                 dataset=dataset,
@@ -312,12 +305,7 @@ class IntakeBase(ApiBase):
 
             # Now we're ready to pull the tarball, so ask our helper for the
             # length and data stream.
-            try:
-                access = self._access(intake, request)
-            except APIAbort:
-                raise
-            except Exception as e:
-                raise APIInternalError(str(e)) from e
+            access = self._stream(intake, request)
 
             if access.length <= 0:
                 raise APIAbort(
@@ -373,18 +361,12 @@ class IntakeBase(ApiBase):
                     f"MD5 checksum {hash_md5.hexdigest()} does not match expected {intake.md5}",
                 )
 
-            # First write the .md5
-            current_app.logger.info(
-                "Creating MD5 file {}: {}", md5_full_path, intake.md5
-            )
-
             # From this point attempt to remove the MD5 file on error exit
             recovery.add(md5_full_path.unlink)
             try:
                 md5_full_path.write_text(f"{intake.md5} {filename}\n")
             except Exception:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                raise APIInternalError(
                     f"Failed to write .md5 file '{md5_full_path}'",
                 )
 
@@ -392,9 +374,7 @@ class IntakeBase(ApiBase):
             try:
                 cache_m = CacheManager(self.config, current_app.logger)
             except Exception:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the cache manager"
-                )
+                raise APIInternalError("Unable to map the cache manager")
 
             # Move the files to their final location
             try:
@@ -410,14 +390,14 @@ class IntakeBase(ApiBase):
                     f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
                 )
             except Exception as exc:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Unable to create dataset in file system for {tar_full_path}: {exc}",
+                raise APIInternalError(
+                    f"Unable to create dataset in file system for {tar_full_path}: {exc}"
                 )
 
             usage = shutil.disk_usage(tar_full_path.parent)
             current_app.logger.info(
-                "{} UPLOAD (post): {:.3}% full, {} remaining",
+                "{} {} (post): {:.3}% full, {} remaining",
+                self.name,
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
                 humanize.naturalsize(usage.free),
@@ -441,18 +421,14 @@ class IntakeBase(ApiBase):
                     attributes["missing_metadata"] = True
                 Metadata.create(dataset=dataset, key=Metadata.METALOG, value=metalog)
             except Exception as exc:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Unable tintakeo create metalog for Tarball {dataset.name!r}: {exc}",
+                raise APIInternalError(
+                    f"Unable to create metalog for Tarball {dataset.name!r}: {exc}"
                 )
 
             try:
                 retention_days = self.config.default_retention_period
             except Exception as e:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Unable to get integer retention days: {e!s}",
-                )
+                raise APIInternalError(f"Unable to get integer retention days: {e!s}")
 
             # Calculate a default deletion time for the dataset, based on the
             # time it was uploaded rather than the time it was originally
@@ -474,9 +450,7 @@ class IntakeBase(ApiBase):
                 if f:
                     attributes["failures"] = f
             except Exception as e:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to set metadata: {e!s}"
-                )
+                raise APIInternalError(f"Unable to set metadata: {e!s}")
 
             # Finally, update the operational state and Audit success.
             try:
@@ -490,9 +464,8 @@ class IntakeBase(ApiBase):
                     root=audit, status=AuditStatus.SUCCESS, attributes=attributes
                 )
             except Exception as exc:
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Unable to finalize dataset {dataset}: {exc!s}",
+                raise APIInternalError(
+                    f"Unable to finalize dataset {dataset}: {exc!s}"
                 ) from exc
         except Exception as e:
             if isinstance(e, APIAbort):
@@ -518,7 +491,7 @@ class IntakeBase(ApiBase):
                     attributes={"message": audit_msg},
                 )
             recovery.cleanup()
-            raise exception
+            raise exception from e
         finally:
             if tmp_dir:
                 try:

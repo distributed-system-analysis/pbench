@@ -280,13 +280,12 @@ class TestUpload:
 
         def read(self):
             if error:
-                e = OSError()
-                e.errno = error
+                e = OSError(error, "something went badly")
             else:
                 e = Exception("Nobody expects the Spanish Exception")
             raise e
 
-        monkeypatch.setattr(Upload, "_access", access)
+        monkeypatch.setattr(Upload, "_stream", access)
         monkeypatch.setattr(stream, "read", read)
 
         with BytesIO(b"12345") as data_fp:
@@ -586,9 +585,11 @@ class TestUpload:
         assert audit[1].user_id == DRB_USER_ID
         assert audit[1].user_name == "drb"
         assert audit[1].reason == AuditReason.INTERNAL
-        assert audit[1].attributes == {
-            "message": "Unable to set metadata: Metadata key server.tarball-path cannot be modified by client"
-        }
+        assert (
+            audit[1]
+            .attributes["message"]
+            .startswith("Internal Pbench Server Error: log reference ")
+        )
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_archive(self, client, pbench_drb_token, server_config, tarball):

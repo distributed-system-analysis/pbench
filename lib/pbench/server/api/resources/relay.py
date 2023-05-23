@@ -22,9 +22,7 @@ from pbench.server.database.models.datasets import Dataset
 
 
 class Relay(IntakeBase):
-    """Download a dataset from a relay server"""
-
-    CHUNK_SIZE = 65536
+    """Retrieve a dataset from a relay server"""
 
     def __init__(self, config: PbenchServerConfig):
         super().__init__(
@@ -43,18 +41,18 @@ class Relay(IntakeBase):
                     ),
                 ),
                 audit_type=AuditType.NONE,
-                audit_name="upload",
+                audit_name="relay",
                 authorization=ApiAuthorizationType.NONE,
             ),
         )
 
-    def _prepare(self, args: ApiParams, request: Request) -> Intake:
-        """Prepare to begin the intake operation
+    def _identify(self, args: ApiParams, request: Request) -> Intake:
+        """Identify the tarball to be streamed.
 
-        We get the Relay configuration file location from the "uri" API
+        We get the Relay inventory file location from the "uri" API
         parameter.
 
-        The Relay configuration file is an application/json file which
+        The Relay inventory file is an application/json file which
         contains the following required fields:
 
             uri: The Relay URI of the tarball file
@@ -68,17 +66,22 @@ class Relay(IntakeBase):
 
         Args:
             args: API parameters
-                URI parameters
-                    uri: The full Relay configuration file URI
+                URI parameters: the Relay inventory file URI
             request: The original Request object containing query parameters
 
         Returns:
             An Intake object capturing the critical information
+
+        Raises:
+            APIAbort on failure
         """
         uri = args.uri["uri"]
-        response = requests.get(uri, headers={"accept": "application/json"})
+        response = requests.get(uri, headers={"Accept": "application/json"})
         if not response.ok:
-            raise APIAbort(HTTPStatus.BAD_GATEWAY, "Relay URI does not respond")
+            raise APIAbort(
+                HTTPStatus.BAD_GATEWAY,
+                f"Relay manifest URI problem: {response.reason!r}",
+            )
 
         try:
             information = response.json()
@@ -99,7 +102,7 @@ class Relay(IntakeBase):
 
         return Intake(name, md5, access, metadata, uri)
 
-    def _access(self, intake: Intake, request: Request) -> Access:
+    def _stream(self, intake: Intake, request: Request) -> Access:
         """Determine how to access the tarball byte stream
 
         Using the _intake information captured in the Intake instance, perform
@@ -107,14 +110,17 @@ class Relay(IntakeBase):
         returning the length header and the IO stream.
 
         Args:
-            intake: The Intake parameters produced by _intake
+            intake: The Intake parameters produced by _identify
             request: The Flask request object
 
         Returns:
             An Access object with the data byte stream and length
+
+        Raises:
+            APIAbort on failure
         """
         response: requests.Response = requests.get(
-            url=intake.uri, stream=True, headers={"accept": "application/octet-stream"}
+            url=intake.uri, stream=True, headers={"Accept": "application/octet-stream"}
         )
         if not response.ok:
             raise APIAbort(
@@ -122,7 +128,7 @@ class Relay(IntakeBase):
                 f"Unable to retrieve relay tarball: {response.reason!r}",
             )
         try:
-            length = int(response.headers["content-length"])
+            length = int(response.headers["Content-length"])
             return Access(length, response.raw)
         except Exception as e:
             raise APIAbort(
