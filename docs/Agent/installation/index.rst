@@ -1,7 +1,7 @@
 Installation
 =========================
 
-Choose any one approach to setup `Pbench Agent` on our host.  
+Choose any one of the following approaches to setup `Pbench Agent`
 
 .. toctree::
    :maxdepth: 2

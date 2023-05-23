@@ -53,9 +53,9 @@ templates_path = ["_templates"]
 #
 # source_suffix = ['.rst', '.md']
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.txt': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".txt": "restructuredtext",
+    ".md": "markdown",
 }
 
 myst_enable_extensions = ["colon_fence"]
