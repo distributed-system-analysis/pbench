@@ -1,3 +1,5 @@
+# Metadata
+
 ## Dataset metadata
 
 A dataset is referenced by a formal resource ID, and also has a resource name

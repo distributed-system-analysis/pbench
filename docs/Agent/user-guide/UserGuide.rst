@@ -4,7 +4,6 @@ User Guide
 ##############
 
 .. contents::
-
 What is Pbench?
 ****************
 
