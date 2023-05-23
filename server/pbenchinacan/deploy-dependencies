@@ -76,13 +76,13 @@ podman run \
   /bin/tini -- /usr/local/bin/docker-entrypoint.sh eswrapper
 
 podman run \
+  --rm \
   --pod ${PB_POD_NAME} \
   --name "${PB_POD_NAME}-postgres" \
   --workdir /opt/app-root/src \
   --pull ${PB_POSTGRESQL_IMAGE_PULL_POLICY} \
   --restart no \
   --entrypoint container-entrypoint \
-  -v /etc/passwd:/etc/passwd:ro \
   -v ${CERT_LOCATION}/postgres.crt:/var/lib/pgsql/data/postgres.crt:Z \
   -v ${CERT_LOCATION}/postgres.key:/var/lib/pgsql/data/postgres.key:Z \
   -e POSTGRESQL_USER=pbenchcontainer \
