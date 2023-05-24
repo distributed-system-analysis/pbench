@@ -52,8 +52,8 @@ localhost/pbench-agent-all-centos-8   v0.69.3-1  9396f0337681 ...
 ```
 
 There are make targets for each of the five supported distributions, CentOS 9
-(`centos-9`), CentOS 8 (`centos-8`), CentOS 7 (`centos-7`), Fedora 36
-(`fedora-36`), and Fedora 35 (`fedora-35`).  There are also make targets for
+(`centos-9`), CentOS 8 (`centos-8`), CentOS 7 (`centos-7`), Fedora 38
+(`fedora-38`), and Fedora 37 (`fedora-37`).  There are also make targets for
 each subset of the container image kinds (`all`, `tool-data-sink`,
 `tool-meister`, `tools`, `workloads`, `base`) built for each distribution, e.g.
 `centos-8-tools-tagged`, `fedora-35-base-tagged`, etc.

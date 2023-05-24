@@ -68,11 +68,7 @@ Requires: python3-docutils
 %if 0%{?fedora} != 0
 # RPMs for modules in requirements.txt
 Requires:  python3-bottle, python3-click, python3-daemon
-Requires:  python3-jinja2, python3-redis, python3-sh
-%endif
-
-%if 0%{?fedora} >= 36
-Requires: python3-ifaddr
+Requires:  python3-ifaddr python3-jinja2, python3-redis, python3-sh
 %endif
 
 # Common requirements
