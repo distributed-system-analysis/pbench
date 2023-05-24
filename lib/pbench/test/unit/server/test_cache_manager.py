@@ -571,35 +571,35 @@ class TestCacheManager:
         [
             (
                 "/dir_name/subdir1/f11.txt",
-                "The directory path '/dir_name/subdir1/f11.txt' is an absolute path, we expect relative path to the root directory.",
+                "The path '/dir_name/subdir1/f11.txt' is an absolute path, we expect relative path to the root directory.",
             ),
             (
                 "dir_name/subdir1/subdir11/../f11.txt",
-                "File/directory '..' in path dir_name/subdir1/subdir11/../f11.txt not found in cache.",
+                "directory 'dir_name/subdir1/subdir11/../f11.txt' doesn't have a '..' file/directory.",
             ),
             (
                 "dir_name/subdir1/subdir14/subdir1",
-                "File/directory 'subdir1' in path dir_name/subdir1/subdir14/subdir1 not found in cache.",
+                "directory 'dir_name/subdir1/subdir14/subdir1' doesn't have a 'subdir1' file/directory.",
             ),
             (
                 "dir_name/ne_dir",
-                "File/directory 'ne_dir' in path dir_name/ne_dir not found in cache.",
+                "directory 'dir_name/ne_dir' doesn't have a 'ne_dir' file/directory.",
             ),
             (
                 "dir_name/subdir1/ne_file",
-                "File/directory 'ne_file' in path dir_name/subdir1/ne_file not found in cache.",
+                "directory 'dir_name/subdir1/ne_file' doesn't have a 'ne_file' file/directory.",
             ),
             (
                 "dir_name/ne_dir/ne_file",
-                "File/directory 'ne_dir' in path dir_name/ne_dir/ne_file not found in cache.",
+                "directory 'dir_name/ne_dir/ne_file' doesn't have a 'ne_dir' file/directory.",
             ),
             (
                 "dir_name/subdir1/f11.txt/ne_subdir",
-                "Found a file 'f11.txt' where a directory was expected in path dir_name/subdir1/f11.txt/ne_subdir",
+                "Found a file 'f11.txt' where a directory was expected in path 'dir_name/subdir1/f11.txt/ne_subdir'",
             ),
             (
                 "dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file",
-                "Found a file 'f1412_sym' where a directory was expected in path dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file",
+                "Found a file 'f1412_sym' where a directory was expected in path 'dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file'",
             ),
         ],
     )

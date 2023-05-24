@@ -104,7 +104,7 @@ class CacheType(Enum):
 
 @dataclass
 class CacheObject:
-    """Initialize CacheObject object with file/Directory info attributes.
+    """Define CacheObject object with file/Directory info attributes.
 
     Args:
         name: name of File/Directory
@@ -117,9 +117,9 @@ class CacheObject:
 
     name: str
     location: Path
-    resolve_path: Path
-    resolve_type: str
-    size: int
+    resolve_path: Optional[Path]
+    resolve_type: Optional[CacheType]
+    size: Optional[int]
     type: CacheType
 
 
@@ -133,7 +133,7 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
     Returns:
         CacheObject with file/directory info
     """
-    relative_path: Optional[Path] = None
+    resolve_path: Optional[Path] = None
     resolve_type: Optional[CacheType] = None
     size: Optional[int] = None
 
@@ -143,15 +143,15 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
             link_path = path.readlink()
             if link_path.is_absolute():
                 raise ValueError("symlink path is absolute")
-            resolve_path = path.resolve(strict=True)
-            relative_path = resolve_path.relative_to(dir_path)
+            r_path = path.resolve(strict=True)
+            resolve_path = r_path.relative_to(dir_path)
         except (FileNotFoundError, ValueError):
-            relative_path = link_path
+            resolve_path = link_path
             resolve_type = CacheType.OTHER
         else:
-            if resolve_path.is_dir():
+            if r_path.is_dir():
                 resolve_type = CacheType.DIRECTORY
-            elif resolve_path.is_file():
+            elif r_path.is_file():
                 resolve_type = CacheType.FILE
             else:
                 resolve_type = CacheType.OTHER
@@ -166,7 +166,7 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
     return CacheObject(
         name=path.name,
         location=path.relative_to(dir_path),
-        resolve_path=relative_path,
+        resolve_path=resolve_path,
         resolve_type=resolve_type,
         size=size,
         type=ftype,
@@ -211,7 +211,7 @@ class Tarball:
         self.cache: Path = controller.cache / self.resource_id
 
         # Record hierarchy of a Tar ball
-        self.cachemap: Optional[dict[str, JSONOBJECT]] = None
+        self.cachemap: Optional[JSONOBJECT] = None
 
         # Record the base of the unpacked files for cache management, which
         # is (self.cache / self.name) and will be None when the cache is
@@ -371,14 +371,16 @@ class Tarball:
                     f_entries = info["children"]
                 else:
                     raise BadDirpath(
-                        f"Found a file {file_l!r} where a directory was expected in path {path}"
+                        f"Found a file {file_l!r} where a directory was expected in path {str(path)!r}"
                     )
 
             return f_entries[path.name]
         except KeyError as exc:
-            raise BadDirpath(f"File/directory {exc} in path {path} not found in cache.")
+            raise BadDirpath(
+                f"directory {str(path)!r} doesn't have a {exc} file/directory."
+            )
 
-    def get_info(self, path: Path) -> dict[str, dict]:
+    def get_info(self, path: Path) -> JSONOBJECT:
         """Returns the details of the given file/directory in dict format
 
         Args:
@@ -397,15 +399,14 @@ class Tarball:
                 "location": relative path to the given file/directory
                 "name": name of the file/directory
                 "resolve_path": resolved path of the file/directory if given path is a symlink
-                "resolve_type": type of file/directory after path resolution if path is a symlink
+                "resolve_type": CacheType describing the type of the symlink target
                 "size": size of the file
-                "type": type of file/directory in the form of CacheType Enum class
-                        which contain FILE, DIRECTORY, SYMLINK & OTHER as attributes.
+                "type": CacheType describing the type of the file/directory
             }
         """
         if str(path).startswith("/"):
             raise BadDirpath(
-                f"The directory path {str(path)!r} is an absolute path,"
+                f"The path {str(path)!r} is an absolute path,"
                 " we expect relative path to the root directory."
             )
 
