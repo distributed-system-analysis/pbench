@@ -65,7 +65,7 @@ pipeline {
         }
         stage('Build the Pbench Agent Containers') {
             environment {
-                PB_AGENT_DISTRO="fedora-36"
+                PB_AGENT_DISTRO="fedora-38"
             }
             steps {
                 sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
