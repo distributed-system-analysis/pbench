@@ -16,6 +16,6 @@ You may then perform a built-in benchmark by running it's Pbench script
 
 The above command will collect data from the registered tools for the specified time period and save it in the `/var/lib/pbench-agent` directory.
 
-To move the results, the outcomes are tarred and sent to the default pbench-server with
+To move the results, the outcomes are tarred and sent to the configured pbench-server with
 
 	$pbench-results-move
