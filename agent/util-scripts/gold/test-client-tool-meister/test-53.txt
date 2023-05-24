@@ -155,6 +155,7 @@ daemonize yes
 dir /var/tmp/pbench-test-utils/pbench/mock-run/tm
 save ""
 appendonly no
+protected-mode no
 dbfilename pbench-redis.rdb
 logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
 loglevel notice
