@@ -1,7 +1,7 @@
 ### Configuration
 
 **Note**: This Documentation is only required for administrative purposes.
- &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;By Default the collected results are moved to pbench-server
+By Default the collected results are moved to pbench-server.
 
 
 #### Configure with Server < 1.0
