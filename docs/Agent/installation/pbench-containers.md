@@ -1,6 +1,6 @@
 # Pbench Agent Container
 
-Pbench Agent is available as container images on [Quay.io](https://quay.io/organization/pbench). This makes pbench-agent a distro-independent solution and it could also be used in any containerized ecosystem.
+Pbench Agent is available as container images on [Quay.io](https://quay.io/organization/pbench). This makes Pbench Agent a distro-independent solution and it could also be used in any containerized ecosystem.
 
 **Want to build container images from sources?**  
 Follow [README](https://github.com/distributed-system-analysis/pbench/blob/main/agent/containers/images/README.md)

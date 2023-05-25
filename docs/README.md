@@ -9,7 +9,7 @@ Pbench website is hosted on gh-pages and readthedocs pages(`/docs`) are also hos
 ## Readthedocs setup
 
 ```console
-$ pip3 install -r requirement.txt
+$ pip3 install -r requirements.txt
 $ make clean
 $ make html
 ```
