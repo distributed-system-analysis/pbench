@@ -34,6 +34,7 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
 )
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.relay import Relay
+from pbench.server.api.resources.quisby import QuisbyData
 from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_settings import ServerSettings
 from pbench.server.api.resources.upload import Upload
@@ -131,6 +132,13 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         f"{base_uri}/key/",
         f"{base_uri}/key/<string:key>",
         endpoint="key",
+        resource_class_args=(config,),
+    )
+    api.add_resource(
+        QuisbyData,
+        f"{base_uri}/quisby/<string:dataset>",
+        f"{base_uri}/quisby/<string:dataset>/",
+        endpoint="quisby",
         resource_class_args=(config,),
     )
     api.add_resource(

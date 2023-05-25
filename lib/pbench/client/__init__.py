@@ -49,6 +49,7 @@ class API(Enum):
     DATASETS_VALUES = "datasets_values"
     ENDPOINTS = "endpoints"
     KEY = "key"
+    QUISBY = "quisby"
     RELAY = "relay"
     SERVER_AUDIT = "server_audit"
     SERVER_SETTINGS = "server_settings"
