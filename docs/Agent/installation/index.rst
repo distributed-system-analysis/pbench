@@ -8,5 +8,5 @@ Choose any one of the following approaches to setup `Pbench Agent`
 
    pbench-containers
    rpm_based_installation
-   Ansible_based_installation
+   ansible_based_installation
    
