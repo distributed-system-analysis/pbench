@@ -352,7 +352,7 @@ class TestCacheManager:
                     subdir1/
                         subdir11/
                         subdir12/
-                            f121_sym -> /tmp/<dir_name>/subdir1/subdir15
+                            f121_sym -> ../../subdir1/subdir15
                             f122_sym -> ./bad_subdir/nonexixtent_file.txt
                         subdir13/
                             f131_sym -> /etc/passwd
@@ -364,7 +364,7 @@ class TestCacheManager:
                                 f1414_sym -> ./f1411.txt
                                 f1415_sym -> ./f1412_sym
                         f11.txt
-                        f12_sym -> ../../<dir_name>
+                        f12_sym -> ../../..
                     f1.json
 
 
@@ -418,7 +418,7 @@ class TestCacheManager:
             )
             (sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1411.txt").touch()
             sym_file = sub_dir / "subdir1" / "f12_sym"
-            os.symlink(Path("../..") / dir_name, sym_file)
+            os.symlink(Path("../../.."), sym_file)
             sym_file = sub_dir / "subdir1" / "subdir12" / "f121_sym"
             os.symlink(Path("../..") / "subdir1" / "subdir15", sym_file)
             sym_file = sub_dir / "subdir1" / "subdir12" / "f122_sym"
@@ -675,8 +675,8 @@ class TestCacheManager:
                 "dir_name/subdir1/f12_sym",
                 "dir_name/subdir1/f12_sym",
                 "f12_sym",
-                Path("dir_name"),
-                CacheType.DIRECTORY,
+                Path("../../.."),
+                CacheType.OTHER,
                 None,
                 CacheType.SYMLINK,
             ),
@@ -729,7 +729,7 @@ class TestCacheManager:
                 "dir_name/subdir1/subdir14/subdir141/f1412_sym",
                 "dir_name/subdir1/subdir14/subdir141/f1412_sym",
                 "f1412_sym",
-                Path("subdir1/f11.txt"),
+                Path("/mock_absolute_path/subdir1/f11.txt"),
                 CacheType.OTHER,
                 None,
                 CacheType.SYMLINK,
@@ -788,9 +788,11 @@ class TestCacheManager:
             )
             tb.cache_map(tar_dir)
 
-            # Hack for absolute path
-            if str(location).endswith("f1412_sym"):
-                resolve_path = tar_dir / resolve_path
+            # At the time of executing l.732 we don't know what the value
+            # of tar_dir is going to be which results in this hack
+            abs_pref = "/mock_absolute_path/"
+            if str(resolve_path).startswith(abs_pref):
+                resolve_path = tar_dir / str(resolve_path).removeprefix(abs_pref)
 
             # test traverse with random path
             c_map = Tarball.traverse_cmap(Path(file_path), tb.cachemap)
