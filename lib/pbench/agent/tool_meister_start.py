@@ -586,6 +586,7 @@ daemonize yes
 dir {tm_dir}
 save ""
 appendonly no
+protected-mode no
 dbfilename pbench-redis.rdb
 logfile {tm_dir}/redis.log
 loglevel notice
