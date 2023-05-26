@@ -44,7 +44,7 @@ class TestDatasetsAccess:
     def mock_find_dataset(self, dataset):
         class Tarball(object):
             unpacked = Path("/dataset/")
-            tarball_path = Path("/dataset_tarball")
+            tarball_path = Path("/dataset/tarball.tar.xz")
 
         # Validate the resource_id
         Dataset.query(resource_id=dataset)
@@ -103,11 +103,10 @@ class TestDatasetsAccess:
         }
 
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
-        file_sent = None
-
         def mock_send_file(path_or_file, *args, **kwargs):
-            nonlocal file_sent
-            file_sent = path_or_file
+            assert str(path_or_file) == "/dataset/1-default/default.csv"
+            assert kwargs["as_attachment"] is False
+            assert kwargs["download_name"] == "default.csv"
             return {"status": "OK"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
@@ -116,15 +115,13 @@ class TestDatasetsAccess:
 
         response = query_get_as("fio_2", "1-default/default.csv", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
-        assert str(file_sent) == "/dataset/1-default/default.csv"
 
     @pytest.mark.parametrize("key", (None, ""))
     def test_get_result_tarball(self, query_get_as, monkeypatch, key):
-        file_sent = None
-
         def mock_send_file(path_or_file, *args, **kwargs):
-            nonlocal file_sent
-            file_sent = path_or_file
+            assert str(path_or_file) == "/dataset/tarball.tar.xz"
+            assert kwargs["as_attachment"] is True
+            assert kwargs["download_name"] == "tarball.tar.xz"
             return {"status": "OK"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
@@ -133,4 +130,3 @@ class TestDatasetsAccess:
 
         response = query_get_as("fio_2", key, HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
-        assert str(file_sent) == "/dataset_tarball"
