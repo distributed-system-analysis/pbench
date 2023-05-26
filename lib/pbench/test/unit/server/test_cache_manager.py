@@ -392,7 +392,7 @@ class TestCacheManager:
                                                 'f1413_sym': { 'details': <cache_manager.FileInfo object>},
                                                 'f1414_sym': { 'details': <cache_manager.FileInfo object>},
                                                 'f1415_sym': { 'details': <cache_manager.FileInfo object>},
-                                                'f1415_sym': { 'details': <cache_manager.FileInfo object>},
+                                                'f1416_sym': { 'details': <cache_manager.FileInfo object>},
                                             }}}},
                                 'subdir13': {
                                     'details': <cache_manager.FileInfo object>,
