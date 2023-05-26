@@ -49,11 +49,11 @@ class Relay(IntakeBase):
     def _identify(self, args: ApiParams, request: Request) -> Intake:
         """Identify the tarball to be streamed.
 
-        We get the Relay inventory file location from the "uri" API
+        We get the Relay manifest file location from the "uri" API
         parameter.
 
-        The Relay inventory file is an application/json file which
-        contains the following required fields:
+        The Relay manifest is an application/json file which contains the
+        following required fields:
 
             uri: The Relay URI of the tarball file
             md5: The tarball's MD5 hash (Pbench Server resource ID)
@@ -62,11 +62,11 @@ class Relay(IntakeBase):
             metadata: An optional list of "key:value" metadata strings
 
         This information will be captured in an Intake instance for use by the
-        base class and by the _access method.
+        base class and by the _stream method.
 
         Args:
             args: API parameters
-                URI parameters: the Relay inventory file URI
+                URI parameters: the Relay manifest URI
             request: The original Request object containing query parameters
 
         Returns:
@@ -88,7 +88,7 @@ class Relay(IntakeBase):
         except Exception as e:
             raise APIAbort(
                 HTTPStatus.BAD_GATEWAY,
-                f"Relay URI did not return a JSON document: {str(e)!r}",
+                f"Relay URI did not return a JSON manifest: {str(e)!r}",
             ) from e
 
         try:
@@ -98,7 +98,9 @@ class Relay(IntakeBase):
             access = information.get("access", Dataset.PRIVATE_ACCESS)
             metadata = information.get("metadata", [])
         except KeyError as e:
-            raise APIAbort(HTTPStatus.BAD_GATEWAY, f"Relay info missing {str(e)!r}")
+            raise APIAbort(
+                HTTPStatus.BAD_GATEWAY, f"Relay info missing {str(e)!r}"
+            ) from e
 
         return Intake(name, md5, access, metadata, uri)
 

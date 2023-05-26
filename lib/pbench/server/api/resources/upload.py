@@ -76,17 +76,17 @@ class Upload(IntakeBase):
 
         try:
             md5sum = request.headers["Content-MD5"]
-        except KeyError:
+        except KeyError as e:
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST, "Missing required 'Content-MD5' header"
-            )
+            ) from e
         if not md5sum:
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST,
                 "Missing required 'Content-MD5' header value",
             )
 
-        return Intake(filename, md5sum, access, metadata, None)
+        return Intake(filename, md5sum, access, metadata, uri=None)
 
     def _stream(self, intake: Intake, request: Request) -> Access:
         """Determine how to access the tarball byte stream
@@ -108,7 +108,7 @@ class Upload(IntakeBase):
         try:
             length_string = request.headers["Content-Length"]
             content_length = int(length_string)
-        except KeyError:
+        except KeyError as e:
             # NOTE: Werkzeug is "smart" about header access, and knows that
             # Content-Length is an integer. Therefore, a non-integer value
             # will raise KeyError. It's virtually impossible to report the
@@ -116,15 +116,15 @@ class Upload(IntakeBase):
             raise APIAbort(
                 HTTPStatus.LENGTH_REQUIRED,
                 "Missing or invalid 'Content-Length' header",
-            )
-        except ValueError:
+            ) from e
+        except ValueError as e:
             # NOTE: Because of the way Werkzeug works, this should not be
             # possible: if Content-Length isn't an integer, we'll see the
             # KeyError. This however serves as a clarifying backup case.
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST,
                 f"Invalid 'Content-Length' header, not an integer ({length_string})",
-            )
+            ) from e
         return Access(content_length, request.stream)
 
     def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:

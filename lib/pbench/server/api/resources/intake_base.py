@@ -203,10 +203,12 @@ class IntakeBase(ApiBase):
                 authorized_user = Auth.token_auth.current_user()
                 user_id = authorized_user.id
                 username = authorized_user.username
-            except Exception:
+            except Exception as e:
                 username = None
                 user_id = None
-                raise APIAbort(HTTPStatus.UNAUTHORIZED, "Verifying user_id failed")
+                raise APIAbort(
+                    HTTPStatus.UNAUTHORIZED, "Verifying user_id failed"
+                ) from e
 
             # Ask our helper to determine the name and resource ID of the new
             # dataset, along with requested access and metadata.
@@ -237,11 +239,11 @@ class IntakeBase(ApiBase):
             try:
                 tmp_dir = self.temporary / intake.md5
                 tmp_dir.mkdir()
-            except FileExistsError:
+            except FileExistsError as e:
                 raise APIAbort(
                     HTTPStatus.CONFLICT,
                     "Temporary upload directory already exists",
-                )
+                ) from e
             tar_full_path = tmp_dir / filename
             md5_full_path = tmp_dir / f"{filename}.md5"
 
@@ -277,18 +279,18 @@ class IntakeBase(ApiBase):
                 )
                 try:
                     Dataset.query(resource_id=intake.md5)
-                except DatasetNotFound:
+                except DatasetNotFound as e:
                     raise APIInternalError(
-                        f"Duplicate dataset {dataset_name} for user {username!r} id {user_id} not found"
-                    )
+                        f"Duplicate dataset {intake.md5!r} ({dataset_name!r} is missing"
+                    ) from e
                 else:
                     response = jsonify(dict(message="Dataset already exists"))
                     response.status_code = HTTPStatus.OK
                     return response
             except APIAbort:
                 raise  # Propagate an APIAbort exception to the outer block
-            except Exception:
-                raise APIInternalError("Unable to create dataset")
+            except Exception as e:
+                raise APIInternalError("Unable to create dataset") from e
 
             recovery.add(dataset.delete)
 
@@ -305,12 +307,12 @@ class IntakeBase(ApiBase):
 
             # Now we're ready to pull the tarball, so ask our helper for the
             # length and data stream.
-            access = self._stream(intake, request)
+            stream = self._stream(intake, request)
 
-            if access.length <= 0:
+            if stream.length <= 0:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
-                    f"'Content-Length' {access.length} must be greater than 0",
+                    f"'Content-Length' {stream.length} must be greater than 0",
                 )
 
             # An exception from this point on MAY leave an uploaded tar file
@@ -327,33 +329,30 @@ class IntakeBase(ApiBase):
                     hash_md5 = hashlib.md5()
 
                     while True:
-                        chunk = access.stream.read(self.CHUNK_SIZE)
+                        chunk = stream.stream.read(self.CHUNK_SIZE)
                         bytes_received += len(chunk)
-                        if len(chunk) == 0 or bytes_received > access.length:
+                        if len(chunk) == 0 or bytes_received > stream.length:
                             break
                         ofp.write(chunk)
                         hash_md5.update(chunk)
             except OSError as exc:
+                # NOTE: Werkzeug doesn't support status 509, so the abort call
+                # in _dispatch will fail. Rather than figure out how to fix
+                # that, just report as an internal error.
                 if exc.errno == errno.ENOSPC:
-                    # NOTE: Werkzeug doesn't support status 509, so the abort
-                    # call in _dispatch will fail. Rather than figure out how
-                    # to fix that, just report as an internal error.
-                    raise APIInternalError(
-                        f"Out of space on {tar_full_path.root}"
-                    ) from exc
+                    msg = f"Out of space on {tar_full_path.root}"
                 else:
-                    raise APIInternalError(
-                        f"Unexpected error {exc.errno} encountered during file upload"
-                    ) from exc
+                    msg = f"Unexpected error {exc.errno} encountered during file upload"
+                raise APIInternalError(msg) from exc
             except Exception as e:
                 raise APIInternalError(
                     "Unexpected error encountered during file upload"
                 ) from e
 
-            if bytes_received != access.length:
+            if bytes_received != stream.length:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
-                    f"Expected {access.length} bytes but received {bytes_received} bytes",
+                    f"Expected {stream.length} bytes but received {bytes_received} bytes",
                 )
             elif hash_md5.hexdigest() != intake.md5:
                 raise APIAbort(
@@ -365,34 +364,34 @@ class IntakeBase(ApiBase):
             recovery.add(md5_full_path.unlink)
             try:
                 md5_full_path.write_text(f"{intake.md5} {filename}\n")
-            except Exception:
+            except Exception as e:
                 raise APIInternalError(
                     f"Failed to write .md5 file '{md5_full_path}'",
-                )
+                ) from e
 
             # Create a cache manager object
             try:
                 cache_m = CacheManager(self.config, current_app.logger)
-            except Exception:
-                raise APIInternalError("Unable to map the cache manager")
+            except Exception as e:
+                raise APIInternalError("Unable to map the cache manager") from e
 
             # Move the files to their final location
             try:
                 tarball = cache_m.create(tar_full_path)
-            except DuplicateTarball:
+            except DuplicateTarball as exc:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
                     f"A tarball with the name {dataset_name!r} already exists",
-                )
+                ) from exc
             except MetadataError as exc:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
                     f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
-                )
+                ) from exc
             except Exception as exc:
                 raise APIInternalError(
                     f"Unable to create dataset in file system for {tar_full_path}: {exc}"
-                )
+                ) from exc
 
             usage = shutil.disk_usage(tar_full_path.parent)
             current_app.logger.info(
@@ -423,12 +422,14 @@ class IntakeBase(ApiBase):
             except Exception as exc:
                 raise APIInternalError(
                     f"Unable to create metalog for Tarball {dataset.name!r}: {exc}"
-                )
+                ) from exc
 
             try:
                 retention_days = self.config.default_retention_period
             except Exception as e:
-                raise APIInternalError(f"Unable to get integer retention days: {e!s}")
+                raise APIInternalError(
+                    f"Unable to get integer retention days: {e!s}"
+                ) from e
 
             # Calculate a default deletion time for the dataset, based on the
             # time it was uploaded rather than the time it was originally
@@ -450,7 +451,7 @@ class IntakeBase(ApiBase):
                 if f:
                     attributes["failures"] = f
             except Exception as e:
-                raise APIInternalError(f"Unable to set metadata: {e!s}")
+                raise APIInternalError(f"Unable to set metadata: {e!s}") from e
 
             # Finally, update the operational state and Audit success.
             try:

@@ -246,7 +246,7 @@ class TestRelay:
         assert response.status_code == HTTPStatus.BAD_GATEWAY
         assert (
             response.json["message"]
-            == "Relay URI did not return a JSON document: 'Expecting value: line 1 column 1 (char 0)'"
+            == "Relay URI did not return a JSON manifest: 'Expecting value: line 1 column 1 (char 0)'"
         )
 
     @responses.activate
