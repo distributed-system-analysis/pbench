@@ -139,7 +139,7 @@ export const updateDataset =
         dataset: dataset.resource_id,
       });
       const response = await API.put(uri, {
-        metadata: { payload },
+        metadata: payload,
       });
       if (response.status === 200) {
         const item = runs.find(
