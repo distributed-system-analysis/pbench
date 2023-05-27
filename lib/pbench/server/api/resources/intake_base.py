@@ -281,7 +281,7 @@ class IntakeBase(ApiBase):
                     Dataset.query(resource_id=intake.md5)
                 except DatasetNotFound as e:
                     raise APIInternalError(
-                        f"Duplicate dataset {intake.md5!r} ({dataset_name!r} is missing"
+                        f"Duplicate dataset {intake.md5!r} ({dataset_name!r}) is missing"
                     ) from e
                 else:
                     response = jsonify(dict(message="Dataset already exists"))
