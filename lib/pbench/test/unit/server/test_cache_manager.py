@@ -1,5 +1,6 @@
 import hashlib
 from logging import Logger
+import os
 from pathlib import Path
 import re
 import shutil
@@ -9,8 +10,10 @@ import tarfile
 import pytest
 
 from pbench.server.cache_manager import (
+    BadDirpath,
     BadFilename,
     CacheManager,
+    CacheType,
     Controller,
     DuplicateTarball,
     MetadataError,
@@ -339,10 +342,108 @@ class TestCacheManager:
             self.datasets = {}
             self.tarballs = {}
 
+        @staticmethod
+        def generate_test_result_tree(tmp_path: Path, dir_name: str) -> Path:
+            """
+            Directory Structure
+
+            /tmp/
+                <dir_name>/
+                    subdir1/
+                        subdir11/
+                        subdir12/
+                            f121_sym -> ../../subdir1/subdir15
+                            f122_sym -> ./bad_subdir/nonexixtent_file.txt
+                        subdir13/
+                            f131_sym -> /etc/passwd
+                        subdir14/
+                            subdir141/
+                                f1411.txt
+                                f1412_sym -> /tmp/<dir_name>/subdir1/f11.txt
+                                f1413_sym -> ../subdir141
+                                f1414_sym -> ./f1411.txt
+                                f1415_sym -> ./f1412_sym
+                                f1416_sym -> ../../subdir12/f122_sym
+                        f11.txt
+                        f12_sym -> ../../..
+                    f1.json
+
+
+            Generated cache map
+
+            {
+                'dir_name': {
+                    'details': <cache_manager.FileInfo object>,
+                    'children': {
+                        'f1.json': {'details': <cache_manager.FileInfo object>},
+                        'subdir1': {
+                            'details': <cache_manager.FileInfo object>,
+                            'children': {
+                                'f11.txt': {'details': <cache_manager.FileInfo object>},
+                                'f12_sym': {'details': <cache_manager.FileInfo object>},
+                                'subdir14': {
+                                    'details': <cache_manager.FileInfo object>,
+                                    'children': {
+                                        'subdir141': {
+                                            'details': <cache_manager.FileInfo object>,
+                                            'children':{
+                                                'f1411.txt': { 'details': <cache_manager.FileInfo object>},
+                                                'f1412_sym': { 'details': <cache_manager.FileInfo object>},
+                                                'f1413_sym': { 'details': <cache_manager.FileInfo object>},
+                                                'f1414_sym': { 'details': <cache_manager.FileInfo object>},
+                                                'f1415_sym': { 'details': <cache_manager.FileInfo object>},
+                                                'f1416_sym': { 'details': <cache_manager.FileInfo object>},
+                                            }}}},
+                                'subdir13': {
+                                    'details': <cache_manager.FileInfo object>,
+                                    'children': {
+                                        'f131_sym': {'details': <cache_manager.FileInfo object>}
+                                    }},
+                                'subdir12': {
+                                    'details': <cache_manager.FileInfo object>,
+                                    'children': {
+                                        'f121_sym': {'details': <cache_manager.FileInfo object>},
+                                        'f122_sym': {'details': <cache_manager.FileInfo object>}
+                                    }},
+                                'subdir11': {'details': <cache_manager.FileInfo object>, 'children': {}
+                                }}}}}}
+            """
+            # create some directories and files inside the temp directory
+            sub_dir = tmp_path / dir_name
+            sub_dir.mkdir(parents=True, exist_ok=True)
+            (sub_dir / "f1.json").touch()
+            for i in range(1, 4):
+                (sub_dir / "subdir1" / f"subdir1{i}").mkdir(parents=True, exist_ok=True)
+            (sub_dir / "subdir1" / "f11.txt").touch()
+            (sub_dir / "subdir1" / "subdir14" / "subdir141").mkdir(
+                parents=True, exist_ok=True
+            )
+            (sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1411.txt").touch()
+            sym_file = sub_dir / "subdir1" / "f12_sym"
+            os.symlink(Path("../../.."), sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir12" / "f121_sym"
+            os.symlink(Path("../..") / "subdir1" / "subdir15", sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir12" / "f122_sym"
+            os.symlink(Path(".") / "bad_subdir" / "nonexistent_file.txt", sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir13" / "f131_sym"
+            os.symlink(Path("/etc") / "passwd", sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1412_sym"
+            os.symlink(sub_dir / "subdir1" / "f11.txt", sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1413_sym"
+            os.symlink(Path("..") / "subdir141", sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1414_sym"
+            os.symlink(Path(".") / "f1411.txt", sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1415_sym"
+            os.symlink(Path(".") / "f1412_sym", sym_file)
+            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1416_sym"
+            os.symlink(Path("../..") / "subdir12" / "f122_sym", sym_file)
+
+            return sub_dir
+
     class MockTarball:
         def __init__(self, path: Path, controller: Controller):
-            self.name = "A"
-            self.tarball_path = Path("/mock/A.tar.xz")
+            self.name = Dataset.stem(path)
+            self.tarball_path = path
             self.cache = controller.cache / "ABC"
             self.unpacked = None
 
@@ -437,12 +538,358 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents: None)
             m.setattr(subprocess, "run", mock_run)
+            m.setattr(Path, "resolve", lambda path, strict: path)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
             tb.unpack()
             assert call == ["tar", "find"]
             assert tb.unpacked == cache / "ABC" / tb.name
+
+    def test_cache_map_success(self, monkeypatch, tmp_path):
+        """Test to build the cache map of the root directory"""
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
+
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+                tmp_path, "dir_name"
+            )
+            tb.cache_map(tar_dir)
+            assert (
+                tb.cachemap["dir_name"]["children"]["subdir1"]["details"].name
+                == "subdir1"
+            )
+            assert (
+                tb.cachemap["dir_name"]["children"]["subdir1"]["children"]["subdir14"][
+                    "children"
+                ]["subdir141"]["children"]["f1412_sym"]["details"].type
+                == CacheType.SYMLINK
+            )
+
+    @pytest.mark.parametrize(
+        "file_path, expected_msg",
+        [
+            (
+                "/dir_name/subdir1/f11.txt",
+                "The path '/dir_name/subdir1/f11.txt' is an absolute path, we expect relative path to the root directory.",
+            ),
+            (
+                "dir_name/subdir1/subdir11/../f11.txt",
+                "directory 'dir_name/subdir1/subdir11/../f11.txt' doesn't have a '..' file/directory.",
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir1",
+                "directory 'dir_name/subdir1/subdir14/subdir1' doesn't have a 'subdir1' file/directory.",
+            ),
+            (
+                "dir_name/ne_dir",
+                "directory 'dir_name/ne_dir' doesn't have a 'ne_dir' file/directory.",
+            ),
+            (
+                "dir_name/subdir1/ne_file",
+                "directory 'dir_name/subdir1/ne_file' doesn't have a 'ne_file' file/directory.",
+            ),
+            (
+                "dir_name/ne_dir/ne_file",
+                "directory 'dir_name/ne_dir/ne_file' doesn't have a 'ne_dir' file/directory.",
+            ),
+            (
+                "dir_name/subdir1/f11.txt/ne_subdir",
+                "Found a file 'f11.txt' where a directory was expected in path 'dir_name/subdir1/f11.txt/ne_subdir'",
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file",
+                "Found a file 'f1412_sym' where a directory was expected in path 'dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file'",
+            ),
+        ],
+    )
+    def test_cache_map_bad_dir_path(
+        self, monkeypatch, tmp_path, file_path, expected_msg
+    ):
+        """Test to check bad directory or file path"""
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
+
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+                tmp_path, "dir_name"
+            )
+            tb.cache_map(tar_dir)
+            with pytest.raises(BadDirpath) as exc:
+                tb.get_info(Path(file_path))
+            assert str(exc.value) == expected_msg
+
+    @pytest.mark.parametrize(
+        "file_path, location, name, resolve_path, resolve_type, size, file_type",
+        [
+            ("dir_name", "dir_name", "dir_name", None, None, None, CacheType.DIRECTORY),
+            (
+                "dir_name/f1.json",
+                "dir_name/f1.json",
+                "f1.json",
+                None,
+                None,
+                0,
+                CacheType.FILE,
+            ),
+            (
+                "dir_name/subdir1",
+                "dir_name/subdir1",
+                "subdir1",
+                None,
+                None,
+                None,
+                CacheType.DIRECTORY,
+            ),
+            (
+                "dir_name/subdir1/./f11.txt",
+                "dir_name/subdir1/f11.txt",
+                "f11.txt",
+                None,
+                None,
+                0,
+                CacheType.FILE,
+            ),
+            (
+                "dir_name/subdir1//f11.txt",
+                "dir_name/subdir1/f11.txt",
+                "f11.txt",
+                None,
+                None,
+                0,
+                CacheType.FILE,
+            ),
+            (
+                "dir_name/subdir1/f11.txt",
+                "dir_name/subdir1/f11.txt",
+                "f11.txt",
+                None,
+                None,
+                0,
+                CacheType.FILE,
+            ),
+            (
+                "dir_name/subdir1/f12_sym",
+                "dir_name/subdir1/f12_sym",
+                "f12_sym",
+                Path("../../.."),
+                CacheType.OTHER,
+                None,
+                CacheType.SYMLINK,
+            ),
+            (
+                "dir_name/subdir1/subdir12/f121_sym",
+                "dir_name/subdir1/subdir12/f121_sym",
+                "f121_sym",
+                Path("../../subdir1/subdir15"),
+                CacheType.OTHER,
+                None,
+                CacheType.SYMLINK,
+            ),
+            (
+                "dir_name/subdir1/subdir12/f122_sym",
+                "dir_name/subdir1/subdir12/f122_sym",
+                "f122_sym",
+                Path("bad_subdir/nonexistent_file.txt"),
+                CacheType.OTHER,
+                None,
+                CacheType.SYMLINK,
+            ),
+            (
+                "dir_name/subdir1/subdir13/f131_sym",
+                "dir_name/subdir1/subdir13/f131_sym",
+                "f131_sym",
+                Path("/etc/passwd"),
+                CacheType.OTHER,
+                None,
+                CacheType.SYMLINK,
+            ),
+            (
+                "dir_name/subdir1/subdir14",
+                "dir_name/subdir1/subdir14",
+                "subdir14",
+                None,
+                None,
+                None,
+                CacheType.DIRECTORY,
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir141/f1411.txt",
+                "dir_name/subdir1/subdir14/subdir141/f1411.txt",
+                "f1411.txt",
+                None,
+                None,
+                0,
+                CacheType.FILE,
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir141/f1412_sym",
+                "dir_name/subdir1/subdir14/subdir141/f1412_sym",
+                "f1412_sym",
+                Path("/mock_absolute_path/subdir1/f11.txt"),
+                CacheType.OTHER,
+                None,
+                CacheType.SYMLINK,
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir141/f1413_sym",
+                "dir_name/subdir1/subdir14/subdir141/f1413_sym",
+                "f1413_sym",
+                Path("dir_name/subdir1/subdir14/subdir141"),
+                CacheType.DIRECTORY,
+                None,
+                CacheType.SYMLINK,
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir141/f1414_sym",
+                "dir_name/subdir1/subdir14/subdir141/f1414_sym",
+                "f1414_sym",
+                Path("dir_name/subdir1/subdir14/subdir141/f1411.txt"),
+                CacheType.FILE,
+                None,
+                CacheType.SYMLINK,
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir141/f1415_sym",
+                "dir_name/subdir1/subdir14/subdir141/f1415_sym",
+                "f1415_sym",
+                Path("dir_name/subdir1/f11.txt"),
+                CacheType.FILE,
+                None,
+                CacheType.SYMLINK,
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir141/f1416_sym",
+                "dir_name/subdir1/subdir14/subdir141/f1416_sym",
+                "f1416_sym",
+                Path("../../subdir12/f122_sym"),
+                CacheType.OTHER,
+                None,
+                CacheType.SYMLINK,
+            ),
+        ],
+    )
+    def test_cache_map_traverse_cmap(
+        self,
+        monkeypatch,
+        tmp_path,
+        file_path,
+        location,
+        name,
+        resolve_path,
+        resolve_type,
+        size,
+        file_type,
+    ):
+        """Test to check the sanity of details of the cachemap"""
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
+
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+                tmp_path, "dir_name"
+            )
+            tb.cache_map(tar_dir)
+
+            # Since the result tree is dynamically generated by the test at runtime,
+            # the parametrization for resolve_path cannot provide the correct value
+            # if the path is an absolute reference; therefore, we detect those cases
+            # here and modify the value.
+            abs_pref = "/mock_absolute_path/"
+            if str(resolve_path).startswith(abs_pref):
+                resolve_path = tar_dir / str(resolve_path).removeprefix(abs_pref)
+
+            # test traverse with random path
+            c_map = Tarball.traverse_cmap(Path(file_path), tb.cachemap)
+            assert c_map["details"].location == Path(location)
+            assert c_map["details"].name == name
+            assert c_map["details"].resolve_path == resolve_path
+            assert c_map["details"].resolve_type == resolve_type
+            assert c_map["details"].size == size
+            assert c_map["details"].type == file_type
+
+    @pytest.mark.parametrize(
+        "file_path, expected_msg",
+        [
+            (
+                "dir_name/subdir1/f11.txt",
+                {
+                    "location": Path("dir_name/subdir1/f11.txt"),
+                    "name": "f11.txt",
+                    "resolve_path": None,
+                    "resolve_type": None,
+                    "size": 0,
+                    "type": CacheType.FILE,
+                },
+            ),
+            (
+                "dir_name/subdir1",
+                {
+                    "directories": ["subdir11", "subdir12", "subdir13", "subdir14"],
+                    "files": ["f11.txt"],
+                    "location": Path("dir_name/subdir1"),
+                    "name": "subdir1",
+                    "resolve_path": None,
+                    "resolve_type": None,
+                    "size": None,
+                    "type": CacheType.DIRECTORY,
+                },
+            ),
+            (
+                "dir_name/subdir1/subdir11",
+                {
+                    "directories": [],
+                    "files": [],
+                    "location": Path("dir_name/subdir1/subdir11"),
+                    "name": "subdir11",
+                    "resolve_path": None,
+                    "resolve_type": None,
+                    "size": None,
+                    "type": CacheType.DIRECTORY,
+                },
+            ),
+            (
+                "dir_name/subdir1/subdir14/subdir141/f1413_sym",
+                {
+                    "location": Path("dir_name/subdir1/subdir14/subdir141/f1413_sym"),
+                    "name": "f1413_sym",
+                    "resolve_path": Path("dir_name/subdir1/subdir14/subdir141"),
+                    "resolve_type": CacheType.DIRECTORY,
+                    "size": None,
+                    "type": CacheType.SYMLINK,
+                },
+            ),
+        ],
+    )
+    def test_cache_map_get_info_cmap(
+        self, monkeypatch, tmp_path, file_path, expected_msg
+    ):
+        """Test to check if the info returned by the cachemap is correct"""
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
+
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+                tmp_path, "dir_name"
+            )
+            tb.cache_map(tar_dir)
+
+            # test get_info with random path
+            file_info = tb.get_info(Path(file_path))
+            assert file_info == expected_msg
 
     def test_find(
         self, selinux_enabled, server_config, make_logger, tarball, monkeypatch

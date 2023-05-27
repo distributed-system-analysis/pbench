@@ -1,3 +1,6 @@
+from collections import deque
+from dataclasses import dataclass
+from enum import auto, Enum
 from logging import Logger
 from pathlib import Path
 import shlex
@@ -17,6 +20,16 @@ class CacheManagerError(Exception):
 
     def __str__(self) -> str:
         return "Generic cache manager exception"
+
+
+class BadDirpath(CacheManagerError):
+    """A bad directory path was given."""
+
+    def __init__(self, error_msg: str):
+        self.error_msg = error_msg
+
+    def __str__(self) -> str:
+        return self.error_msg
 
 
 class BadFilename(CacheManagerError):
@@ -82,6 +95,84 @@ class TarballModeChangeError(CacheManagerError):
         return f"An error occurred while changing file permissions of {self.tarball}: {self.error}"
 
 
+class CacheType(Enum):
+    FILE = auto()
+    DIRECTORY = auto()
+    SYMLINK = auto()
+    OTHER = auto()
+
+
+@dataclass
+class CacheObject:
+    """Define CacheObject object with file/Directory info attributes.
+
+    Args:
+        name: name of File/Directory
+        location: path of File/Directory from root Directory
+        resolve_path: path of File/Directory after resolution
+        resolve_type: type of File/Directory after resolution
+        size: size of the File
+        type: type of the File/Directory/Symlink
+    """
+
+    name: str
+    location: Path
+    resolve_path: Optional[Path]
+    resolve_type: Optional[CacheType]
+    size: Optional[int]
+    type: CacheType
+
+
+def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
+    """Collects the file info
+
+    Args:
+        dir_path: root directory parent path
+        path: path to a file/directory
+
+    Returns:
+        CacheObject with file/directory info
+    """
+    resolve_path: Optional[Path] = None
+    resolve_type: Optional[CacheType] = None
+    size: Optional[int] = None
+
+    if path.is_symlink():
+        ftype = CacheType.SYMLINK
+        try:
+            link_path = path.readlink()
+            if link_path.is_absolute():
+                raise ValueError("symlink path is absolute")
+            r_path = path.resolve(strict=True)
+            resolve_path = r_path.relative_to(dir_path)
+        except (FileNotFoundError, ValueError):
+            resolve_path = link_path
+            resolve_type = CacheType.OTHER
+        else:
+            if r_path.is_dir():
+                resolve_type = CacheType.DIRECTORY
+            elif r_path.is_file():
+                resolve_type = CacheType.FILE
+            else:
+                resolve_type = CacheType.OTHER
+    elif path.is_file():
+        ftype = CacheType.FILE
+        size = path.stat().st_size
+    elif path.is_dir():
+        ftype = CacheType.DIRECTORY
+    else:
+        ftype = CacheType.OTHER
+
+    return CacheObject(
+        name=path.name,
+        location=path.relative_to(dir_path),
+        resolve_path=resolve_path,
+        resolve_type=resolve_type,
+        size=size,
+        type=ftype,
+    )
+
+
 class Tarball:
     """Representation of an on-disk tarball.
 
@@ -118,6 +209,9 @@ class Tarball:
 
         # Record where cached unpacked data would live
         self.cache: Path = controller.cache / self.resource_id
+
+        # Record hierarchy of a Tar ball
+        self.cachemap: Optional[JSONOBJECT] = None
 
         # Record the base of the unpacked files for cache management, which
         # is (self.cache / self.name) and will be None when the cache is
@@ -225,6 +319,115 @@ class Tarball:
             controller.logger.error("Error removing incoming dataset {}: {}", name, e)
 
         return cls(destination, controller)
+
+    def cache_map(self, dir_path: Path):
+        """Builds Hierarchy structure of a Directory in a Dictionary
+        Format.
+
+        Args:
+            dir_path: root directory
+        """
+        root_dir_path = dir_path.parent
+        cmap = {dir_path.name: {"details": make_cache_object(root_dir_path, dir_path)}}
+        dir_queue = deque([(dir_path, cmap)])
+        while dir_queue:
+            dir_path, parent_map = dir_queue.popleft()
+            tar_n = dir_path.name
+
+            curr = {}
+            for l_path in dir_path.glob("*"):
+                tar_info = make_cache_object(root_dir_path, l_path)
+                curr[l_path.name] = {"details": tar_info}
+                if l_path.is_symlink():
+                    continue
+                if l_path.is_dir():
+                    dir_queue.append((l_path, curr))
+            parent_map[tar_n]["children"] = curr
+
+        self.cachemap = cmap
+
+    @staticmethod
+    def traverse_cmap(path: Path, cachemap: dict) -> dict[str, dict]:
+        """Sequentially traverses the cachemap to find the leaf of a
+        relative path reference
+
+        Args:
+            path: relative path of the sub-directory/file
+            cachemap: dictionary mapping of the root Dicrectory
+
+        Raises:
+            BadDirpath if the directory/file path is not valid
+
+        Returns:
+            Dictionary with directory/file details or children if present
+        """
+        file_list = path.parts[:-1]
+        f_entries = cachemap
+
+        try:
+            for file_l in file_list:
+                info = f_entries[file_l]
+                if info["details"].type == CacheType.DIRECTORY:
+                    f_entries = info["children"]
+                else:
+                    raise BadDirpath(
+                        f"Found a file {file_l!r} where a directory was expected in path {str(path)!r}"
+                    )
+
+            return f_entries[path.name]
+        except KeyError as exc:
+            raise BadDirpath(
+                f"directory {str(path)!r} doesn't have a {exc} file/directory."
+            )
+
+    def get_info(self, path: Path) -> JSONOBJECT:
+        """Returns the details of the given file/directory in dict format
+
+        Args:
+            path: path of the file/sub-directory
+
+        Raises:
+            BadDirpath on bad directory path
+
+        Returns:
+            Dictionary with Details of the file/directory
+
+            format:
+            {
+                "directories": list of subdirectories under the given directory
+                "files": list of files under the given directory
+                "location": relative path to the given file/directory
+                "name": name of the file/directory
+                "resolve_path": resolved path of the file/directory if given path is a symlink
+                "resolve_type": CacheType describing the type of the symlink target
+                "size": size of the file
+                "type": CacheType describing the type of the file/directory
+            }
+        """
+        if str(path).startswith("/"):
+            raise BadDirpath(
+                f"The path {str(path)!r} is an absolute path,"
+                " we expect relative path to the root directory."
+            )
+
+        c_map = self.traverse_cmap(path, self.cachemap)
+        children = c_map["children"] if "children" in c_map else {}
+        fd_info = c_map["details"].__dict__.copy()
+
+        if fd_info["type"] == CacheType.DIRECTORY:
+            fd_info["directories"] = []
+            fd_info["files"] = []
+
+            for key, value in children.items():
+                if value["details"].type == CacheType.DIRECTORY:
+                    fd_info["directories"].append(key)
+                elif value["details"].type == CacheType.FILE:
+                    fd_info["files"].append(key)
+
+            fd_info["directories"].sort()
+            fd_info["files"].sort()
+
+        return fd_info
 
     @staticmethod
     def extract(tarball_path: Path, path: str) -> Optional[str]:
@@ -344,9 +547,11 @@ class Tarball:
             shutil.rmtree(self.cache, ignore_errors=True)
             raise
         self.unpacked = self.cache / self.name
+        self.cache_map(self.unpacked)
 
     def uncache(self):
         """Remove the unpacked tarball directory and all contents."""
+        self.cachemap = None
         if self.unpacked:
             try:
                 shutil.rmtree(self.cache)
@@ -785,6 +990,20 @@ class CacheManager:
         tarball = self.find_dataset(dataset_id)
         tarball.controller.unpack(dataset_id)
         return tarball
+
+    def get_info(self, dataset_id: str, path: Path) -> dict:
+        """Get information about dataset files from the cache map
+
+        Args:
+            dataset_id: Dataset resource ID
+            path: path of requested content
+
+        Returns:
+            File Metadata
+        """
+        tarball = self.find_dataset(dataset_id)
+        tmap = tarball.get_info(path)
+        return tmap
 
     def uncache(self, dataset_id: str):
         """Remove the unpacked tarball tree.
