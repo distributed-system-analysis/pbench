@@ -147,5 +147,5 @@ files, and benchmark result text files.
             # display byte stream:
             # inline on terminal doesn't really make sense
 
-    directory(request, "http://host.example.com/api/v1/contents/<dataset>/")
+    directory(request, "http://host.example.com/api/v1/datasets/<dataset>/contents/")
 ```

@@ -1,32 +1,53 @@
-# `PUT /api/v1/upload/<file>`
+# `POST /api/v1/relay/<uri>`
 
-This API creates a dataset resource by uploading a tarball to the Pbench Server.
-The tarball must be compressed with the `xz` program, and have the compound
-file type suffix of ".tar.xz".
+This API creates a dataset resource by reading data from a Relay server in two
+steps. The provided URI represents a "manifest file" stored on the Relay server,
+a JSON file (`application/json` MIME format) defining the original tarball name,
+the MD5 hash value, optional metadata key/value pairs for the dataset, and a
+URI from which the Pbench Server expects to `GET` an `application/octet-stream`
+of a file created by `tar` and compressed with the `xz` program.
 
 Primarily this is expected to be a native Pbench Agent tarball with a specific
 structure; however with the `server.archiveonly` metadata key the Pbench Server
-can be used to archive and manage metadata for any tarball.
+can be used to archive and manage metadata for any tarball passed through a
+Relay server.
 
 ## URI parameters
 
-`<file>` string \
-The initial name of the dataset; if `server.archiveonly` is not set, the name must
-match the internal name recorded by the Pbench Agent.
+`<uri>` string \
+The Relay server URI of the tarball's manifest `application/json` file. This
+must provide the following JSON keys:
 
-## Query parameters
+For example,
 
-`access` [ `private` | `public` ] \
-The desired initial access scope of the dataset. Select `public` to make the dataset
-accessible to all clients, or `private` to make the dataset accessible only
-to the owner. The default is `private`.
+```json
+{
+    "uri": "https://relay.example.com/52adfdd3dbf2a87ed6c1c41a1ce278290064b0455f585149b3dadbe5a0b62f44",
+    "md5": "22a4bc5748b920c6ce271eb68f08d91c".
+    "name": "fio_rw_2018.02.01T22.40.57.tar.xz".
+    "access": "private",
+    "metadata": ["server.origin:myrelay", "global.agent:cloud1"]
+}
+```
 
-For example, `?access=public`
+## Manifest file keys
 
-`metadata` metadata keys \
-A set of desired Pbench Server metadata keys to be assigned to the new dataset.
-You can set the initial resource name (`dataset.name`), for example, as well as
-assigning any keys in the `global` and `user` namespaces. See
+`access`: [ `private` | `public` ] \
+The desired initial access scope of the dataset. Select `public` to make the
+dataset accessible to all clients, or `private` to make the dataset accessible
+only to the owner. The default access scope if the key is omitted from the
+manifest is `private`.
+
+For example, `"access": "public"`
+
+`md5`: tarball MD5 hash \
+The MD5 hash of the compressed tarball file. This must match the actual tarball
+octet stream specified by the manifest `uri` key.
+
+`metadata`: [metadata key/value strings] \
+A set of desired Pbench Server metadata key values to be assigned to the new
+dataset. You can set the initial resource name (`dataset.name`), for example, as
+well as assigning any keys in the `global` and `user` namespaces. See
 [metadata](../metadata.md) for more information.
 
 In particular the client can set any of:
@@ -37,6 +58,14 @@ In particular the client can set any of:
 
 For example, `?metadata=server.archiveonly:true,global.project:oidc`
 
+`name`: The original tarball file name \
+The string value must represent a legal filename with the compound type of
+`.tar.xz` representing a `tar` archive compressed with the `xz` program.
+
+`uri`: Relay URI resolving to the tarball file \
+An HTTP `GET` on this URI, exactly as recorded, must return the original tarball
+file as an `application/octet-stream`.
+
 ## Request headers
 
 `authorization: bearer` token \
@@ -46,10 +75,6 @@ authenticated user. E.g., `authorization: bearer <token>`
 `content-length` tarball size \
 The size of the request octet stream in bytes. Generally supplied automatically by
 an upload agent such as Python `requests` or `curl`.
-
-`content-md5` MD5 hash \
-The MD5 hash of the compressed tarball file. This must match the actual tarball
-octet stream provided as the request body.
 
 ## Response headers
 
@@ -73,6 +98,11 @@ payload will be a JSON document with a `message` field containing details.
 
 `401`   **UNAUTHORIZED** \
 The client is not authenticated.
+
+`502`   **BAD GATEWAY** \
+This means that a problem occurred reading either the manifest file or the
+tarball from the Relay server. The return payload will be a JSON document with
+a `message` field containing more information.
 
 `503`   **SERVICE UNAVAILABLE** \
 The server has been disabled using the `server-state` server configuration

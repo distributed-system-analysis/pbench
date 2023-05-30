@@ -11,8 +11,10 @@ The resource ID of a Pbench dataset on the server.
 
 `<path>`    string \
 The resource path of an item in the dataset inventory, as captured by the
-Pbench Agent packaging; for example, `/metadata.log` for the dataset metadata,
-or `/1-default/sample1/result.txt` for the default first iteration results.
+Pbench Agent packaging; for example, `/metadata.log` for a file named
+`metadata.log` at the top level of the dataset tarball, or `/dir1/dir2/file.txt`
+for a `file.txt` file in a directory named `dir2` within a directory called
+`dir1` at the top level of the dataset tarball.
 
 ## Request headers
 
@@ -24,6 +26,23 @@ E.g., `authorization: bearer <token>`
 
 `content-type: application/octet-stream` \
 The return is a raw byte stream representing the contents of the named file.
+
+`content-disposition: <action>; filename=<name>` \
+This header defines the recommended client action on receiving the byte stream.
+The `<action>` types are either `inline` which suggests that the data can be
+displayed "inline" by a web browser or `attachment` which suggests that the data
+should be saved into a new file. The `<name>` is the original filename on the
+Pbench Server. For example,
+
+```
+content-disposition: attachment; filename=pbench-fio-config-2023-06-29-00:14:50.tar.xz
+```
+
+or
+
+```
+content-disposition: inline; filename=data.txt
+```
 
 ## Resource access
 
@@ -48,7 +67,7 @@ exist.
 
 `415` **UNSUPPORTED MEDIA TYPE** \
 The `<path>` refers to a directory. Use
-`/api/v1/dataset/contents/<dataset><path>` to request a JSON response document
+`/api/v1/dataset/<dataset>/contents/<path>` to request a JSON response document
 describing the directory contents.
 
 `503`   **SERVICE UNAVAILABLE** \
