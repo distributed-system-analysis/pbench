@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 4 -*-
 
 script_path="$(dirname ${0})"
 script_name="$(basename ${0})"
@@ -70,7 +70,7 @@ fi
 
 # This tool group's directory which stores the list of tools and their
 # options, etc.
-tool_group_dir="$(verify_tool_group "${group}")"
+tool_group_dir="$(verify_tool_group ${group})"
 if [[ ${?} -ne 0 || -z "${tool_group_dir}" ]]; then
 	exit 1
 fi
@@ -82,46 +82,33 @@ if [[ ! -d "${tool_output_dir}" ]]; then
 	exit 1
 fi
 
+# We run `pbench-list-tools', collect the output and parse it
+# to determine which host runs which tools with what options.
 tmp=${pbench_tmp}/pbench-postprocess-tools.$$
-trap "rm ${tmp}" EXIT QUIT INT
-pbench-list-tools --group ${group} --with-option > ${tmp}
-
-# function to parse the above output
-function get_host {
-    # parse a hostentry and return the host
-    IFS=';' read -a hosttools <<<${1}
-    IFS=':' read -a host <<<${hosttools[1]}
-    echo ${host[1]}
-}
-
-function get_tools_entry {
-    # parse a host entry and return the tools
-    IFS=';' read -a hosttools <<<${1}
-    IFS=':' read -a itools <<<${hosttools[2]}
-    echo ${itools[1]}
-}
-
-function get_tools {
-    # parse a tools entry into separate tool and options
-    IFS=',' read -a otools <<<${1}
-    for tool in ${otools[@]} ;do
-        IFS=' ' read -a atool <<<${tool}
-        tools[${atool[0]}]=${atool[@]:1}
-    done
-}
+trap "rm -f ${tmp}" EXIT QUIT INT TERM
+pbench-list-tools --group ${group} --with-option >${tmp} 2>/dev/null
 
 let failures=0
 while read hostentry ;do
-	host=$(get_host ${hostentry})
-	tools_entry=$(get_tools_entry ${hostentry})
+	# Parse an entry from the output of `pbench-list-tools` above.
+	# The format is: "group: <group>; host: <host>; tools: <tool> <options, <tool> <options>, ...
+	IFS=';' read group_spec host_spec tools_spec <<<"${hostentry}"
+	IFS=':' read dummy host junk <<<"${host_spec}"
+	IFS=':' read dummy tools_entry junk <<< "${tools_spec}"
+	host=${host# *}
+	# Associative array: the keys are the tool names, and the values are the options
 	declare -A tools=()
-	get_tools ${tools_entry}
+	IFS=',' read -a otools <<<"${tools_entry# *}"
+	for tool in ${otools[@]} ;do
+		IFS=' ' read -a atool <<<${tool}
+		tools[${atool[0]}]=${atool[@]:1}
+	done
 
 	# FIXME: add support for label applied to the hostname directory.
 	host_tool_output_dir="${tool_output_dir}/${host}"
 	if [[ -d "${host_tool_output_dir}" ]]; then
 		for tool_name in ${!tools[@]} ;do
-			if [[ ! -x ${pbench_bin}/tool-scripts/${tool_name}} ]]; then
+			if [[ ! -x "${pbench_bin}/tool-scripts/${tool_name}" ]]; then
 				# Ignore unrecognized tools
 				continue
 			fi
@@ -130,7 +117,7 @@ while read hostentry ;do
                                 continue
 			fi
 			tool_options="${tools[${tool_name}]}"
-			${pbench_bin}/tool-scripts/${tool_name} --postprocess --dir=${host_tool_output_dir} ${tool_options} >> ${host_tool_output_dir}/postprocess.log 2>&1
+			${pbench_bin}/tool-scripts/${tool_name} --postprocess --dir="${host_tool_output_dir}" ${tool_options} >> ${host_tool_output_dir}/postprocess.log 2>&1
 			if [[ ${?} -ne 0 ]]; then
 				cat ${host_tool_output_dir}/postprocess.log >&2
 				(( failures++ ))
