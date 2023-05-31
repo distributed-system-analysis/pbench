@@ -132,20 +132,3 @@ through the `directories` list of each
 The [inventory](inventory.md) API returns the raw byte stream of any regular
 file within the directory hierarchy, including log files, postprocessed JSON
 files, and benchmark result text files.
-
-### Example
-
-```
-    def directory(request, url: str, name: str = "/", level: int = 0):
-        ls = request.get(url).get_json()
-        print(f"{'  '*level}{name}")
-        for d in ls.directories:
-            directory(request, level + 1, d.name, d.url)
-        for f in ls.files:
-            print(f"{'  '*(level+1)}{f.name})
-            bytes = request.get(f.url)
-            # display byte stream:
-            # inline on terminal doesn't really make sense
-
-    directory(request, "http://host.example.com/api/v1/datasets/<dataset>/contents/")
-```

@@ -1,36 +1,38 @@
 # `POST /api/v1/relay/<uri>`
 
-This API creates a dataset resource by reading data from a Relay server in two
-steps. The provided URI represents a "manifest file" stored on the Relay server,
-a JSON file (`application/json` MIME format) defining the original tarball name,
-the MD5 hash value, optional metadata key/value pairs for the dataset, and a
-URI from which the Pbench Server expects to `GET` an `application/octet-stream`
-of a file created by `tar` and compressed with the `xz` program.
+This API creates a dataset resource by reading data from a Relay server. There
+are two distinct steps involved:
 
-Primarily this is expected to be a native Pbench Agent tarball with a specific
-structure; however with the `server.archiveonly` metadata key the Pbench Server
-can be used to archive and manage metadata for any tarball passed through a
-Relay server.
+1. A `GET` on the provided URI returns a "manifest file" stored on the Relay
+server. This is a JSON file (`application/json` MIME format) defining the
+original tarball filename, the tarball's MD5 hash value, the URI of the
+performance data tarball file, and optionally metadata key/value pairs to be
+applied to the new dataset.
+2. A `GET` on the Relay manifest file's `uri` field value returns an
+`application/octet-stream` payload for a file created by `tar` and compressed
+with the `xz` program, which will be stored by the Pbench Server as a
+dataset.
 
 ## URI parameters
 
 `<uri>` string \
 The Relay server URI of the tarball's manifest `application/json` file. This
-must provide the following JSON keys:
+JSON object must provide a set of parameter keys as defined below in
+[Manifest file keys](#manifest-file-keys).
+
+## Manifest file keys
 
 For example,
 
 ```json
 {
     "uri": "https://relay.example.com/52adfdd3dbf2a87ed6c1c41a1ce278290064b0455f585149b3dadbe5a0b62f44",
-    "md5": "22a4bc5748b920c6ce271eb68f08d91c".
-    "name": "fio_rw_2018.02.01T22.40.57.tar.xz".
+    "md5": "22a4bc5748b920c6ce271eb68f08d91c",
+    "name": "fio_rw_2018.02.01T22.40.57.tar.xz",
     "access": "private",
     "metadata": ["server.origin:myrelay", "global.agent:cloud1"]
 }
 ```
-
-## Manifest file keys
 
 `access`: [ `private` | `public` ] \
 The desired initial access scope of the dataset. Select `public` to make the
@@ -55,8 +57,6 @@ In particular the client can set any of:
 * `server.origin`: [dataset origin](../metadata.md#serverorigin)
 * `server.archiveonly`: [suppress indexing](../metadata.md#serverarchiveonly)
 * `server.deletion`: [default dataset expiration time](../metadata.md#serverdeletion).
-
-For example, `?metadata=server.archiveonly:true,global.project:oidc`
 
 `name`: The original tarball file name \
 The string value must represent a legal filename with the compound type of
@@ -86,7 +86,8 @@ The return is a serialized JSON object with status information.
 `200`   **OK** \
 Successful request. The dataset MD5 hash is identical to that of a dataset
 previously uploaded to the Pbench Server. This is assumed to be an identical
-tarball.
+tarball, and the secondary URI (the `uri` field in the Relay manifest file)
+has not been consumed.
 
 `201`   **CREATED** \
 The tarball was successfully uploaded and the dataset has been created.
@@ -112,8 +113,10 @@ a message, and optional JSON data provided by the system administrator.
 
 ## Response body
 
-The `application/json` response body consists of a JSON object giving a detailed
-message on success or failure:
+The `application/json` response body consists of a JSON object containing a
+`message` field. On failure this will describe the nature of the problem and
+in some cases an `errors` array will provide details for cases where multiple
+problems can occur.
 
 ```json
 {
