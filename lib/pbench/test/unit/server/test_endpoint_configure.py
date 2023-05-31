@@ -106,6 +106,10 @@ class TestEndpointConfig:
                     "template": f"{uri}/key/{{key}}",
                     "params": {"key": {"type": "string"}},
                 },
+                "relay": {
+                    "template": f"{uri}/relay/{{uri}}",
+                    "params": {"uri": {"type": "path"}},
+                },
                 "server_audit": {"template": f"{uri}/server/audit", "params": {}},
                 "server_settings": {
                     "template": f"{uri}/server/settings/{{key}}",

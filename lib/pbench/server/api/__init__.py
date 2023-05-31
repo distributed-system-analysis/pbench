@@ -33,9 +33,10 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleValues,
 )
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
+from pbench.server.api.resources.relay import Relay
 from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_settings import ServerSettings
-from pbench.server.api.resources.upload_api import Upload
+from pbench.server.api.resources.upload import Upload
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
@@ -144,6 +145,12 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         f"{base_uri}/server/settings/",
         f"{base_uri}/server/settings/<string:key>",
         endpoint="server_settings",
+        resource_class_args=(config,),
+    )
+    api.add_resource(
+        Relay,
+        f"{base_uri}/relay/<path:uri>",
+        endpoint="relay",
         resource_class_args=(config,),
     )
     api.add_resource(
