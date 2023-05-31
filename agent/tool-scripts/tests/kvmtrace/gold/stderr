@@ -2,15 +2,23 @@ kvmtrace: Error, one of the following options is required, --install|--start|--s
 
 The following options are available:
 
+Operational options - do *not* specify any of these when you register a tool:
+
 	--install                 verify this perf tool will work
 
 	--start|stop|postprocess  start/stop/postprocess the data collection
 	-d str|--dir=str          directory to store data collection (required)
+
+Tool-specific options - these should be specified when you register a tool:
+
 	--vm=str                  the hostname of the vm running (to get kallsyms)
 	--timeout=int             how long the trace will run (default is 1 second)
 	                          If 0 is used, the trace will not stop until stop-tools is called
 	--start-delay=int         sleep this many seconds before starting the trace (default is 0 seconds)
 
+Help option - do *not* specify this when you register a tool:
+
 	-h|--help                 display this help message
+
 kvmtrace: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/kvmtrace/tools-group/kvmtrace', missing
 kvmtrace: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/kvmtrace/tools-group/kvmtrace', missing

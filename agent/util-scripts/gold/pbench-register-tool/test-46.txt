@@ -65,6 +65,10 @@ Available tools:
 
 For a list of tool specific options, run:
 	/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/<tool-name> --help
+
+The tools have a few operational options (marked as such in the help message)
+which are used internally by pbench: you should *NOT* specify those when
+you register a tool.
 --- Finished test-46 pbench-register-tool (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
