@@ -6,6 +6,8 @@ The landing page is the browsing page where the user can view the list of public
 
 ![Browsing Page](assets/images/BrowsingPage.png)
 
+Login button can be found on the right side of the Header. By clicking it, user will be redirected to Keycloak OIDC instance.
+
 On logging in, the user can view the Overview Page which is the data curation page.
 It has three components.
 
@@ -17,7 +19,9 @@ It has three components.
 ![Overview](assets/images/Overview.png)
 
 
-To view the profile details and the list of API associated with that account in the User Profile Page. By clicking on the dropdown next to the user name in the header, it will be navigated to the User Profile page.
+To view the profile details and the list of API keys associated with that account in the User Profile Page. By clicking on the dropdown next to the user name in the header, it will be navigated to the User Profile page. 
+
+The user details are the fields of OIDC authentication token. The API Key section allows viewing and managing the set of Pbench Server API Keys the user has created with copy option. 
 
 ![User Profile](assets/images/UserProfile.png)
 
