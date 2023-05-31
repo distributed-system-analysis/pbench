@@ -132,7 +132,11 @@ function usage() {
 	#                     1         2         3         4         5         6         7         8
 	# (no tab)   12345678901234567890123456789012345678901234567890123456789012345678901234567890
 	printf -- "\nFor a list of tool specific options, run:\n"
-	printf -- "\t${pbench_bin}/tool-scripts/<tool-name> --help\n"
+	printf -- "\t${pbench_bin}/tool-scripts/<tool-name> --help\n\n"
+
+	printf -- "The tools have a few operational options (marked as such in the help message)\n"
+	printf -- "which are used internally by pbench: you should *NOT* specify those when\n"
+	printf -- "you register a tool.\n"
 }
 
 # Process options and arguments

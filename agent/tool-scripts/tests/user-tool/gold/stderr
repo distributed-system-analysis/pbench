@@ -2,10 +2,15 @@ user-tool: Error, one of the following options is required, --install|--start|--
 
 The following options are available:
 
+Operational options - do *not* specify any of these when you register a tool:
+
 	--install                 verify this perf tool will work
 
 	--start|stop|postprocess  start/stop/postprocess the data collection
 	-d str|--dir=str          directory to store data collection (required)
+
+Tool-specific options - these should be specified when you register a tool:
+
 	--interval=int            number of seconds between each data collection (optional, default is 10 seconds)
 	--tool-name=str            you must provide a unique name for this user tool
 	--start-script=str         run this user-provided script when starting this tool
@@ -15,6 +20,9 @@ The following options are available:
 	                           you can use this option, or the start/stop/postprocess-script,
 	                           but not both at the same time
 
+Help option - do *not* specify this when you register a tool:
+
 	-h|--help                 display this help message
+
 user-tool: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/user-tool/tools-group/user-tool-foo42', missing
 user-tool: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/user-tool/tools-group/user-tool-foo42', missing
