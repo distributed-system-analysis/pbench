@@ -3,15 +3,14 @@
 This API creates a dataset resource by reading data from a Relay server. There
 are two distinct steps involved:
 
-1. A `GET` on the provided URI returns a "manifest file" stored on the Relay
-server. This is a JSON file (`application/json` MIME format) defining the
-original tarball filename, the tarball's MD5 hash value, the URI of the
-performance data tarball file, and optionally metadata key/value pairs to be
-applied to the new dataset.
-2. A `GET` on the Relay manifest file's `uri` field value returns an
-`application/octet-stream` payload for a file created by `tar` and compressed
-with the `xz` program, which will be stored by the Pbench Server as a
-dataset.
+1. A `GET` on the provided URI must return a "Relay manifest file". This is a
+JSON file (`application/json` MIME format) providing the original tarball
+filename, the tarball's MD5 hash value, a URI to read the tarball file, and
+optionally metadata key/value pairs to be applied to the new dataset. (See
+[Manifest file keys](#manifest-file-keys).)
+2. A `GET` on the Relay manifest file's `uri` field value must return the
+tarball file as an `application/octet-stream` payload, which will be stored by
+the Pbench Server as a dataset.
 
 ## URI parameters
 
@@ -87,7 +86,7 @@ The return is a serialized JSON object with status information.
 Successful request. The dataset MD5 hash is identical to that of a dataset
 previously uploaded to the Pbench Server. This is assumed to be an identical
 tarball, and the secondary URI (the `uri` field in the Relay manifest file)
-has not been consumed.
+has not been accessed.
 
 `201`   **CREATED** \
 The tarball was successfully uploaded and the dataset has been created.

@@ -127,6 +127,11 @@ The `type` codes are:
     "name": "reference-result",
     "type": "sym",
     "uri": "http://hostname/api/v1/datasets/<id>/contents/linkresult"
+},
+{
+    "name": "directory",
+    "type": "dir",
+    "uri": "http://hostname/api/v1/datasets/<id>/contents/directory"
 }
 ```
 
