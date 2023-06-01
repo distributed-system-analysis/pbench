@@ -7,11 +7,14 @@ The Pbench Server provides a set of HTTP endpoints to manage user
 authentication and curated performance information, called "dataset resources"
 or just "datasets".
 
-The [V1 API](V1/README.md) provides a functional interface that's not quite
-standard REST. The intent is to migrate to a cleaner resource-oriented REST
-style for a future V2 API.
+The [V1 API](V1/README.md) provides a REST-like functional interface.
 
-The Pbench Server primarily uses serialized JSON parameters (mimetype
-`application/json`) both for request bodies and response bodies. A few
-exceptions use raw byte streams (`application/octet-stream`) to allow uploading
-new datasets and to access individual files from a dataset.
+The Pbench Server APIs accept parameters from a variety of sources. See the
+individual API documentation for details.
+1. Some parameters, especially "resource ids", are embedded in the URI, such as
+`/api/v1/datasets/<resource_id>`;
+2. Some parameters are passed as query parameters, such as
+`/api/v1/datasets?name:fio`;
+3. For `PUT` and `POST` APIs, parameters may also be passed as a JSON
+(`application/json` content type) request payload, such as
+`{"metadata": {"dataset.name": "new name"}}`

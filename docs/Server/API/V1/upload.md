@@ -82,13 +82,22 @@ a message, and optional JSON data provided by the system administrator.
 
 ## Response body
 
-The `application/json` response body consists of a JSON object giving a detailed
-message on success or failure:
+The `application/json` response body consists of a JSON object containing a
+`message` field. On failure this will describe the nature of the problem and
+in some cases an `errors` array will provide details for cases where multiple
+problems can occur.
+
+```json
+{
+    "message": "File successfully uploaded"
+}
+```
+
+or
 
 ```json
 {
     "message": "Dataset already exists",
-    "errors": [ ]
 }
 ```
 
