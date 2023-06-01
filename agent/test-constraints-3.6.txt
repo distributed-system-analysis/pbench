@@ -1,0 +1,3 @@
+# Python version constraints for P3.6 testing
+python-daemon<3.0.0
+setuptools<60.0.0
