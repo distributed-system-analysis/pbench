@@ -504,12 +504,11 @@ class TestTransientTool:
     @staticmethod
     def test_install(monkeypatch):
         mocked_install_dir = MockedPath()
-        mocked_logger = NullObject()
         tool = TransientTool(
             name="test-tool",
             tool_opts="opt1;opt2",
             pbench_install_dir=mocked_install_dir,
-            logger=mocked_logger,
+            logger=logging.getLogger("pbench.test"),
         )
 
         class CompletedProcess(NamedTuple):
@@ -559,7 +558,7 @@ class TestTransientTool:
         assert tool.start_process.args[0] is tool.tool_script
         assert tool.start_process.args[1] == "--start"
         assert tool.start_process.args[2] == f"--dir={the_tool_dir}"
-        assert tool.start_process.args[3] is tool.tool_opts
+        assert tool.start_process.args[3] == tool.tool_opts
         assert tool.start_process.tool_dir is the_tool_dir
         assert tool.start_process.ctx_name == "start"
         assert len(caplog.record_tuples) == 1
@@ -580,7 +579,7 @@ class TestTransientTool:
         assert tool.stop_process.args[0] is tool.tool_script
         assert tool.stop_process.args[1] == "--stop"
         assert tool.stop_process.args[2] == f"--dir={the_tool_dir}"
-        assert tool.stop_process.args[3] is tool.tool_opts
+        assert tool.stop_process.args[3] == tool.tool_opts
         assert tool.stop_process.tool_dir is the_tool_dir
         assert tool.stop_process.ctx_name == "stop"
         assert len(caplog.record_tuples) == 1

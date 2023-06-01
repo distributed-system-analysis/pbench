@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 4 -*-
 
 script_path="$(dirname ${0})"
 script_name="$(basename ${0})"
@@ -70,7 +70,7 @@ fi
 
 # This tool group's directory which stores the list of tools and their
 # options, etc.
-tool_group_dir="$(verify_tool_group "${group}")"
+tool_group_dir=$(verify_tool_group ${group})
 if [[ ${?} -ne 0 || -z "${tool_group_dir}" ]]; then
 	exit 1
 fi
@@ -82,37 +82,42 @@ if [[ ! -d "${tool_output_dir}" ]]; then
 	exit 1
 fi
 
+# We run `pbench-list-tools', collect the output and parse it
+# to determine which host runs which tools with what options.
+tmp=${pbench_tmp}/pbench-postprocess-tools.$$
+trap "rm -f ${tmp}" EXIT QUIT INT TERM
+pbench-list-tools --group ${group} --with-option >${tmp} 2>/dev/null
+
 let failures=0
-for dirent in $(/bin/ls -1 ${tool_group_dir}); do
-        if [[ "${dirent}" == "__trigger__" ]]; then
-		# Ignore trigger files
-		continue
-	elif [[ ! -d ${tool_group_dir}/${dirent} ]]; then
-		# Skip spurious files of ${tool_group_dir}
-		warn_log "[${script_name}] \"${this_tool_file}\" is a file in \"${tool_group_dir}\"; that should not happen. Please consider deleting it."
-		continue
-	fi
+while read hostentry ;do
+	# Parse an entry from the output of `pbench-list-tools` above.
+	# The format is: "group: <group>; host: <host>; tools: <tool> <options, <tool> <options>, ...
+	IFS=';' read group_spec host_spec tools_spec <<<"${hostentry}"
+	IFS=':' read dummy host junk <<<"${host_spec}"
+	IFS=':' read dummy tools_entry junk <<<"${tools_spec}"
+	host=${host# *}
+	# Associative array: the keys are the tool names, and the values are the options
+	declare -A tools=()
+	IFS=',' read -a otools <<<"${tools_entry# *}"
+	for tool in ${otools[@]} ;do
+		IFS=' ' read -a atool <<<${tool}
+		tools[${atool[0]}]=${atool[@]:1}
+	done
+
 	# FIXME: add support for label applied to the hostname directory.
-	host_tool_output_dir="${tool_output_dir}/${dirent}"
+	host_tool_output_dir="${tool_output_dir}/${host}"
 	if [[ -d "${host_tool_output_dir}" ]]; then
-		for filent in $(/bin/ls -1 ${tool_group_dir}/${dirent}); do
-        		if [[ ! -f "${tool_group_dir}/${dirent}/${filent}" ]]; then
-				# Ignore unrecognized directories or symlinks
-				continue
-			fi
-        		if [[ "${filent}" == "__label__" ]]; then
-				# Ignore label files
-				continue
-			fi
-			if [[ ! -x ${pbench_bin}/tool-scripts/${filent} ]]; then
+		for tool_name in ${!tools[@]} ;do
+			if [[ ! -x "${pbench_bin}/tool-scripts/${tool_name}" ]]; then
 				# Ignore unrecognized tools
 				continue
 			fi
-			if [[ "${filent}" == "node-exporter" || "${filent}" == "dcgm" || "${filent}" == "pcp" || "${filent}" == "pcp-transient" ]]; then
+			if [[ "${tool_name}" == "node-exporter" || "${tool_name}" == "dcgm" || "${tool_name}" == "pcp" || "${tool_name}" == "pcp-transient" ]]; then
                                 # To be removed when converted to python
                                 continue
 			fi
-			${pbench_bin}/tool-scripts/${filent} --postprocess --dir=${host_tool_output_dir} "${tool_opts[@]}" >> ${host_tool_output_dir}/postprocess.log 2>&1
+			tool_options="${tools[${tool_name}]}"
+			${pbench_bin}/tool-scripts/${tool_name} --postprocess --dir="${host_tool_output_dir}" ${tool_options} >> ${host_tool_output_dir}/postprocess.log 2>&1
 			if [[ ${?} -ne 0 ]]; then
 				cat ${host_tool_output_dir}/postprocess.log >&2
 				(( failures++ ))
@@ -122,6 +127,6 @@ for dirent in $(/bin/ls -1 ${tool_group_dir}); do
 		warn_log "[${script_name}] Missing tool output directory, '${host_tool_output_dir}'"
 		(( failures++ ))
 	fi
-done
+done < ${tmp}
 
 exit ${failures}
