@@ -70,7 +70,7 @@ fi
 
 # This tool group's directory which stores the list of tools and their
 # options, etc.
-tool_group_dir="$(verify_tool_group ${group})"
+tool_group_dir=$(verify_tool_group ${group})
 if [[ ${?} -ne 0 || -z "${tool_group_dir}" ]]; then
 	exit 1
 fi
@@ -94,7 +94,7 @@ while read hostentry ;do
 	# The format is: "group: <group>; host: <host>; tools: <tool> <options, <tool> <options>, ...
 	IFS=';' read group_spec host_spec tools_spec <<<"${hostentry}"
 	IFS=':' read dummy host junk <<<"${host_spec}"
-	IFS=':' read dummy tools_entry junk <<< "${tools_spec}"
+	IFS=':' read dummy tools_entry junk <<<"${tools_spec}"
 	host=${host# *}
 	# Associative array: the keys are the tool names, and the values are the options
 	declare -A tools=()
