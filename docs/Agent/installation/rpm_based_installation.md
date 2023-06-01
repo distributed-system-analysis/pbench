@@ -14,16 +14,18 @@ In the following, we describe how to install Pbench Agent using an RPM.
 
 ## Setup
 
-1. Pbench Agent rpm is packaged in [COPR](https://copr.fedorainfracloud.org/coprs/ndokos). Choose a release(prefeably the latest) and enable the repo.
+1. Enable required repos.
 
 	```console
 	dnf copr enable ndokos/pbench-0.72
+	dnf copr enable ndokos/pbench
 	```
 
     :::{note}
-	- This documentation source describes Pbench Agent 0.72, and here's where you find the RPMs [COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-0.72).
+	- This documentation source describes Pbench Agent 0.72, and here's where you find the RPMs [ndokos/pbench-0.72](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-0.72).
+	- There are some RPMs that are shared between versions (e.g. pbench-sysstat). We maintain those in the [ndokos/pbench](https://copr.fedorainfracloud.org/coprs/ndokos/pbench)
     - On RHEL based system enable subscription manager & also enable EPEL repo.
-    :::
+	:::
 
 2. Install Pbench Agent package
 
