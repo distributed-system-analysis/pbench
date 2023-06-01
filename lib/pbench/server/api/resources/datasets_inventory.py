@@ -75,7 +75,20 @@ class DatasetsInventory(ApiBase):
             file_path = dataset_location / target
 
         if file_path.is_file():
-            return send_file(file_path)
+            # Tell send_file to set `Content-Disposition` to "attachment" if
+            # targeting the large binary tarball. Otherwise we'll recommend the
+            # default "inline": only `is_file()` paths are allowed here, and
+            # most are likely "displayable". While `send_file` will guess the
+            # download_name from the path, setting it explicitly does no harm
+            # and supports a unit test mock with no real file.
+            #
+            # NOTE: we could choose to be "smarter" based on file size, file
+            # type codes (e.g., .csv, .json), and so forth.
+            return send_file(
+                file_path,
+                as_attachment=target is None,
+                download_name=file_path.name,
+            )
         elif file_path.exists():
             raise APIAbort(
                 HTTPStatus.UNSUPPORTED_MEDIA_TYPE,

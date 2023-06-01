@@ -1,9 +1,9 @@
 from http import HTTPStatus
 from pathlib import Path
+from typing import Any, Optional
 
 import pytest
 import requests
-import werkzeug.utils
 
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
@@ -44,7 +44,7 @@ class TestDatasetsAccess:
     def mock_find_dataset(self, dataset):
         class Tarball(object):
             unpacked = Path("/dataset/")
-            tarball_path = Path("/dataset_tarball")
+            tarball_path = Path("/dataset/tarball.tar.xz")
 
         # Validate the resource_id
         Dataset.query(resource_id=dataset)
@@ -103,34 +103,45 @@ class TestDatasetsAccess:
         }
 
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
-        file_sent = None
+        mock_args: Optional[tuple[Path, dict[str, Any]]] = None
 
         def mock_send_file(path_or_file, *args, **kwargs):
-            nonlocal file_sent
-            file_sent = path_or_file
+            nonlocal mock_args
+            mock_args = (path_or_file, kwargs)
             return {"status": "OK"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: True)
-        monkeypatch.setattr(werkzeug.utils, "send_file", mock_send_file)
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_inventory.send_file", mock_send_file
+        )
 
         response = query_get_as("fio_2", "1-default/default.csv", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
-        assert str(file_sent) == "/dataset/1-default/default.csv"
+
+        path, args = mock_args
+        assert str(path) == "/dataset/1-default/default.csv"
+        assert args["as_attachment"] is False
+        assert args["download_name"] == "default.csv"
 
     @pytest.mark.parametrize("key", (None, ""))
     def test_get_result_tarball(self, query_get_as, monkeypatch, key):
-        file_sent = None
+        mock_args: Optional[tuple[Path, dict[str, Any]]] = None
 
         def mock_send_file(path_or_file, *args, **kwargs):
-            nonlocal file_sent
-            file_sent = path_or_file
+            nonlocal mock_args
+            mock_args = (path_or_file, kwargs)
             return {"status": "OK"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: True)
-        monkeypatch.setattr(werkzeug.utils, "send_file", mock_send_file)
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_inventory.send_file", mock_send_file
+        )
 
         response = query_get_as("fio_2", key, HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
-        assert str(file_sent) == "/dataset_tarball"
+        path, args = mock_args
+        assert str(path) == "/dataset/tarball.tar.xz"
+        assert args["as_attachment"] is True
+        assert args["download_name"] == "tarball.tar.xz"
