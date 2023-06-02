@@ -3,7 +3,9 @@ from urllib.request import Request
 
 from flask import current_app
 from flask.wrappers import Response
-from pquisby.lib.process_result import extract_data
+# from pquisby.lib.process_result import extract_data
+
+from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
 
 from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -78,13 +80,12 @@ class QuisbyData(ApiBase):
         except TarballUnpackError as e:
             raise APIInternalError(str(e)) from e
 
-        split_rows = file.split("\n")
-        csv_data = []
-        for row in split_rows:
-            csv_data.append(row.split(","))
-
         try:
-            return_val, json_data = extract_data("uperf", "localhost", csv_data)
+            # return_val, json_data = extract_data("uperf",dataset.name, "localhost", "csv",file)
+            # return_val, json_data = extract_data("uperf", "localhost", csv_data)
+
+            ret_val, json_data = extract_uperf_data(dataset.name, "system_name", file)
+
         except Exception as e:
             raise APIInternalError(str(e)) from e
 
