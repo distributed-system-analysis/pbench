@@ -22,8 +22,7 @@ RPMBUILD_BASEIMAGE_DEFAULTS = \
 	fedora-38 fedora-37 \
 	centos-9 centos-8 centos-7
 
-# All Fedora images are based on Fedora 36
-FEDORA_BASE_IMAGE_REF = quay.io/fedora/fedora:36
+CI_BASE_IMAGE = quay.io/fedora/fedora:38
 
 # Templates for the various distributions' base images.  For the moment, for a
 # given distribution, all of the versions can be found by tweaking the image
@@ -87,7 +86,7 @@ ${_DISTROS:%=image-rpmbuild-%}: image-rpmbuild-%:
 
 ci.fedora.Dockerfile: ci.Dockerfile.j2
 	jinja2 ci.Dockerfile.j2 \
-		-D base_image_ref="${FEDORA_BASE_IMAGE_REF}" \
+		-D base_image_ref="${CI_BASE_IMAGE}" \
 		-D fedora=True \
 		> $@
 
