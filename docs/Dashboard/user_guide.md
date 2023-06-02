@@ -6,22 +6,22 @@ The landing page is the browsing page where the user can view the list of public
 
 ![Browsing Page](assets/images/BrowsingPage.png)
 
-Login button can be found on the right side of the Header. By clicking it, user will be redirected to Keycloak OIDC instance.
+Login button can be found on the right side of the Header. Clicking on it will redirect the browser to the login page.
 
 On logging in, the user can view the Overview Page which is the data curation page.
 It has three components.
 
-- New and Unmanaged Runs shows the newly created runs which can be Saved
-- Saved Runs lists the saved runs which can be published to share with others
-- Expiring Runs lists the runs with server deletion date < 20 days
+- *New and Unmanaged Runs* shows the newly created runs which can be saved
+- *Saved Runs* lists the saved runs which can be published to share with others
+- *Expiring Runs* lists the save runs which will be deleted from the server within the next 20 days
 
 
 ![Overview](assets/images/Overview.png)
 
 
-To view the profile details and the list of API keys associated with that account in the User Profile Page. By clicking on the dropdown next to the user name in the header, it will be navigated to the User Profile page. 
+The User Profile page can be used to view profile information from the OIDC authentication as well as to view and manage Pbench Server API keys. This page is accessed by selecting the My profile option from the dropdown menu activated by clicking on the username at the right end of the header bar. 
 
-The user details are the fields of OIDC authentication token. The API Key section allows viewing and managing the set of Pbench Server API Keys the user has created with copy option. 
+From this page, Pbench Server API keys can be created by clicking on the New API Key button; existing keys are listed with their labels and creation dates; and, the keys can be copied or deleted using the icon buttons.
 
 ![User Profile](assets/images/UserProfile.png)
 
