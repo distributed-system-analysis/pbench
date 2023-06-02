@@ -27,7 +27,7 @@
 ---
 
 **NAME**  
-`pbench-clear-results`, Clears the result directory
+`pbench-clear-results`:
 
 **SYNOPSIS**  
 `pbench-clear-results [OPTIONS]`
@@ -94,14 +94,14 @@ Push the benchmark result to the Pbench Server without removing it from the loca
 **OPTIONS**  
 `--user`  
 This option value is required if not provided by the
-'PBENCH_USER' environment variable; otherwise, a value provided
+`PBENCH_USER` environment variable; otherwise, a value provided
 on the command line will override any value provided by the
 environment.
 
 `--controller`  
 This option may be used to override the value
-provided by the 'PBENCH_CONTROLLER' environment variable; if
-neither value is available, the result of 'hostname -f' is used.
+provided by the `PBENCH_CONTROLLER` environment variable; if
+neither value is available, the result of `hostname -f` is used.
 (If no value is available, the command will exit with an error.)
 
 `--prefix`  
@@ -197,14 +197,14 @@ This command can only be used for a 0.69 Pbench Server destination, and requires
 **OPTIONS**  
 `--user`  
 This option value is required if not provided by the
-'PBENCH_USER' environment variable; otherwise, a value provided
+`PBENCH_USER` environment variable; otherwise, a value provided
 on the command line will override any value provided by the
 environment.
 
 `--controller`
 This option may be used to override the value
-provided by the 'PBENCH_CONTROLLER' environment variable; if
-neither value is available, the result of 'hostname -f' is used.
+provided by the `PBENCH_CONTROLLER` environment variable; if
+neither value is available, the result of `hostname -f` is used.
 (If no value is available, the command will exit with an error.)
 
 `--prefix`  
@@ -358,7 +358,7 @@ Path to the Pbench Agent configuration file.
 This option is required if not provided by the `_PBENCH_AGENT_CONFIG` environment variable.
 
 `-g`, `--group`, `--groups` STR  
-Registers the trigger in the <`STR`> group. If no group is specified, the 'default'
+Registers the trigger in the <`STR`> group. If no group is specified, the `default` group is assumed. 
 
 `--start-trigger` STR  
 [required]
@@ -418,7 +418,7 @@ Show this message and exit.
 `pbench-user-benchmark`, Control start/stop/post-process-tools.
 
 **SYNOPSIS**  
-`pbench-user-benchmark[-C][--tool-group][--iteration-list][--sysinfo][--pbench-pre][--pbench-post][--use-tool-triggers][--no-stderr-capture] --<command to run>`
+`pbench-user-benchmark[-C][--tool-group][--iteration-list][--sysinfo][--pbench-pre][--pbench-post][--use-tool-triggers][--no-stderr-capture] -- <command-to-run>`
 
 **DESCRIPTION**  
 
@@ -430,7 +430,7 @@ Here are the steps involved
 - Next, it will run your workload generator; when that finishes, it will stop the collection tools on all the hosts
 - Finally, the postprocessing phase will gather the data from all the remote hosts and generates `result.txt` file by running the postprocessing tools on everything 
 
-`--<command to run>`
+`-- <command to run>`
  It can be a script, or an executable, or a shell command 
 
 **OPTIONS**  
@@ -438,10 +438,10 @@ Here are the steps involved
 Path to the Pbench Agent configuration file.
 This option is required if not provided by the `_PBENCH_AGENT_CONFIG` environment variable.
 
-`--tool-group`  
+`--tool-group` STR
 The tool group to use for the list of tools
 
-`--iteration-list`  
+`--iteration-list` STR  
 A file containing a list of iterations to run for the provided script;
 the file should contain one iteration per line. With a leading `#` (hash) character used for comments and blank lines are ignored.
 Each iteration line should use alpha-numeric characters before the first space to name the iteration, with the rest of the line provided as arguments to the script;  
