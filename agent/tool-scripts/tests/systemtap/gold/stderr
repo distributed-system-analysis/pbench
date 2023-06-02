@@ -2,12 +2,20 @@ systemtap: Error, one of the following options is required, --install|--start|--
 
 The following options are available:
 
+Operational options - do *not* specify any of these when you register a tool:
+
 	--install                 verify this perf tool will work
 
 	--start|stop|postprocess  start/stop/postprocess the data collection
 	-d str|--dir=str          directory to store data collection (required)
+
+Tool-specific options - these should be specified when you register a tool:
+
 	--script=str              path to the systemtap script (required w/ --install)
 
+Help option - do *not* specify this when you register a tool:
+
 	-h|--help                 display this help message
+
 systemtap: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/systemtap/tools-group/systemtap', missing
 systemtap: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/systemtap/tools-group/systemtap', missing
