@@ -31,7 +31,7 @@ isort --check .
 make -C dashboard run_lint
 # We need to invoke the alembic check with host networking so that it can reach
 # the PostgreSQL pod it creates.
-EXTRA_PODMAN_SWITCHES="--network host" jenkins/run tox -e alembic-migration check
+EXTRA_PODMAN_SWITCHES="--network host" jenkins/run tox -e alembic-migration -- check
 set +x
 
 # Run unit tests
