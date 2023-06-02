@@ -3,6 +3,7 @@ import "./index.less";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core";
 
+import Footer from "modules/components/FooterComponent";
 import HeaderComponent from "modules/components/HeaderComponent";
 import LoadingComponent from "modules/components/LoadingComponent";
 import React from "react";
@@ -24,6 +25,7 @@ const MainLayout = () => {
           <LoadingComponent>
             <Outlet context={navigate} />
           </LoadingComponent>
+          <Footer />
         </PageSection>
       </Page>
     </>
