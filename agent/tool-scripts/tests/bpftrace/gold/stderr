@@ -1,13 +1,10 @@
 bpftrace: Error, one of the following options is required, --install|--start|--stop|--postprocess
 
-The following options are available:
+	-h|--help                 display this help message and exit
 
-	--install                 verify this perf tool will work
 
-	--start|stop|postprocess  start/stop/postprocess the data collection
-	-d str|--dir=str          directory to store data collection (required)
-	--script=str              path to the bpftrace script (required w/ --start)
+Tool-specific options - these may be specified when you register a tool:
 
-	-h|--help                 display this help message
+	--script=str              path to the bpftrace script (required)
 bpftrace: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/bpftrace/tools-group/bpftrace', missing
 bpftrace: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/bpftrace/tools-group/bpftrace', missing

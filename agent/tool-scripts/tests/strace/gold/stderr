@@ -1,14 +1,11 @@
 strace: Error, one of the following options is required, --install|--start|--stop|--postprocess
 
-The following options are available:
+	-h|--help                 display this help message and exit
 
-	--install                 verify this perf tool will work
 
-	--start|stop|postprocess  start/stop/postprocess the data collection
-	-d str|--dir=str          directory to store data collection (required)
+Tool-specific options - these may be specified when you register a tool:
+
 	--pid=int                 a process ID to strace
 	--pattern=str             strace any PID which name matches this string (via pgrep)
-
-	-h|--help                 display this help message
 strace: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/strace/tools-group/strace', missing
 strace: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/strace/tools-group/strace', missing
