@@ -244,7 +244,7 @@ install-lib:
 # For some reason, this only seems to be a problem on RHEL platforms prior to 9.
 pver = $(shell /usr/bin/python3 -c 'import sys; print(f"python{sys.version_info.major}.{sys.version_info.minor}")')
 install-python3-setup: install-util-scripts install-lib
-	${COPY} requirements.txt ${DESTDIR}
+	${COPY} requirements.txt constraints.txt ${DESTDIR}
 	mkdir -p ${DESTDIR}/python3
 	cd .. && PYTHONPATH=${DESTDIR}/python3/lib/${pver}/site-packages \
 	  /usr/bin/python3 -m pip install --prefix=${DESTDIR}/python3 -e .

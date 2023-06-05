@@ -115,7 +115,7 @@ if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;f
 %post
 
 # Install python dependencies
-%{__python3} -m pip --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log 2>&1
+%{__python3} -m pip --no-cache-dir install --prefix=/%{installdir} -c /%{installdir}/constraints.txt -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log 2>&1
 
 # link the pbench profile, so it'll automatically be sourced on login
 ln -sf /%{installdir}/profile /etc/profile.d/pbench-agent.sh
@@ -151,6 +151,7 @@ fi
 /%{installdir}/SHA1
 /%{installdir}/profile
 /%{installdir}/requirements.txt
+/%{installdir}/constraints.txt
 
 %config(noreplace) %attr(0664,root,root) /%{installdir}/config/pbench-agent.cfg
 
