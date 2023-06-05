@@ -2,7 +2,7 @@
  
 **Contents**
 
-#### Performance tool management commands
+## Performance tool management commands
 -  [pbench-clear-results](#pbench-clear-results)
 -  [pbench-clear-tools](#pbench-clear-tools)
 -  [pbench-list-tools](#pbench-list-tools)
@@ -10,24 +10,24 @@
 -  [pbench-register-tool](#pbench-register-tool)
 -  [pbench-register-tool-set](#pbench-register-tool-set)
 -  [pbench-register-tool-trigger](#pbench-register-tool-trigger)
-#### Benchmark commands
+## Benchmark commands
 -  [pbench-user-benchmark](#pbench-user-benchmark)
-#### Upload to Pbench Server
-###### Pbench Server 0.69
+## Upload to Pbench Server
+### Pbench Server 0.69
 - [pbench-move-result](#pbench-move-result)
 - [pbench-copy-results](#pbench-copy-results) 
-###### Pbench Server 1.0
+### Pbench Server 1.0
 -  [pbench-results-move](pbench-results-move)
 
 
 ---
 
-##### pbench-clear-results
+#### pbench-clear-results
 
 ---
 
 **NAME**  
-`pbench-clear-results`:
+`pbench-clear-results`, Clears the result directory
 
 **SYNOPSIS**  
 `pbench-clear-results [OPTIONS]`
@@ -46,7 +46,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-clear-tools
+#### pbench-clear-tools
 
 ---
 
@@ -78,7 +78,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-copy-results
+#### pbench-copy-results
 
 ---
 
@@ -123,7 +123,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-list-tools
+#### pbench-list-tools
 
 ---
 
@@ -155,7 +155,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-list-triggers
+#### pbench-list-triggers
 
 ---
 
@@ -181,7 +181,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-move-result
+#### pbench-move-result
 
 ---
 
@@ -225,7 +225,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-register-tool
+#### pbench-register-tool
 
 ---
 
@@ -304,7 +304,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-register-tool-set
+#### pbench-register-tool-set
 
 ---
 
@@ -339,7 +339,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-register-tool-trigger
+#### pbench-register-tool-trigger
 
 ---
 
@@ -371,7 +371,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-results-move
+#### pbench-results-move
 
 ---
 
@@ -410,7 +410,7 @@ Show this message and exit.
 
 ---
 
-##### pbench-user-benchmark
+#### pbench-user-benchmark
 
 ---
 
@@ -430,8 +430,10 @@ Here are the steps involved
 - Next, it will run your workload generator; when that finishes, it will stop the collection tools on all the hosts
 - Finally, the postprocessing phase will gather the data from all the remote hosts and generates `result.txt` file by running the postprocessing tools on everything 
 
-`-- <command to run>`
- It can be a script, or an executable, or a shell command 
+`<command-to-run>`
+A script, executable, or shell command to run while gathering tool data. Use `--`
+to stop processing of `pbench-user-benchmark` options if your command includes
+options, like `pbench-user-benchmark --config string -- fio --bs 16k`.
 
 **OPTIONS**  
 `-C`, `--config` PATH  
