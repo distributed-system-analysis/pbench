@@ -1,8 +1,8 @@
 # Man pages
  
-**Contents**
+## Commands by functional group
 
-## Performance tool management commands
+### Performance tool management commands
 -  [pbench-clear-results](#pbench-clear-results)
 -  [pbench-clear-tools](#pbench-clear-tools)
 -  [pbench-list-tools](#pbench-list-tools)
@@ -10,19 +10,20 @@
 -  [pbench-register-tool](#pbench-register-tool)
 -  [pbench-register-tool-set](#pbench-register-tool-set)
 -  [pbench-register-tool-trigger](#pbench-register-tool-trigger)
-## Benchmark commands
+### Benchmark commands
 -  [pbench-user-benchmark](#pbench-user-benchmark)
-## Upload to Pbench Server
-### Pbench Server 0.69
+### Upload to Pbench Server
+#### Pbench Server 0.69
 - [pbench-move-result](#pbench-move-result)
 - [pbench-copy-results](#pbench-copy-results) 
-### Pbench Server 1.0
+#### Pbench Server 1.0
 -  [pbench-results-move](pbench-results-move)
 
+## Commands
 
 ---
 
-#### pbench-clear-results
+### pbench-clear-results
 
 ---
 
@@ -46,7 +47,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-clear-tools
+### pbench-clear-tools
 
 ---
 
@@ -78,7 +79,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-copy-results
+### pbench-copy-results
 
 ---
 
@@ -123,7 +124,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-list-tools
+### pbench-list-tools
 
 ---
 
@@ -155,7 +156,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-list-triggers
+### pbench-list-triggers
 
 ---
 
@@ -181,7 +182,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-move-result
+### pbench-move-result
 
 ---
 
@@ -225,7 +226,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-register-tool
+### pbench-register-tool
 
 ---
 
@@ -304,7 +305,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-register-tool-set
+### pbench-register-tool-set
 
 ---
 
@@ -339,7 +340,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-register-tool-trigger
+### pbench-register-tool-trigger
 
 ---
 
@@ -371,7 +372,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-results-move
+### pbench-results-move
 
 ---
 
@@ -410,7 +411,7 @@ Show this message and exit.
 
 ---
 
-#### pbench-user-benchmark
+### pbench-user-benchmark
 
 ---
 
