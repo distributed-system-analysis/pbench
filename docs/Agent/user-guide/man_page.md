@@ -418,10 +418,10 @@ Collects data from the registered tools while running a user-specified action. T
 
 Invoking pbench-user-benchmark with a workload generator as an argument will perform the following steps:
 
-- start the collection tools on all the hosts
-- execute the workload generator
-- stop the collection tools on all the hosts
-- gather the data from all the remote hosts and generates a result.txt file by running the tools' post-processing on the collected data
+- Start the collection tools on all the hosts
+- Execute the workload generator
+- Stop the collection tools on all the hosts
+- Gather the data from all the remote hosts and generates a result.txt file by running the tools' post-processing on the collected data
 
 `<command-to-run>`
 A script, executable, or shell command to run while gathering tool data. Use `--`
@@ -444,7 +444,7 @@ Each iteration line should use alpha-numeric characters before the first space t
 _NOTE: --iteration-list is not compatible with --use-tool-triggers_
 
 `--sysinfo` STR[,STR...]  
-comma-separated values of system information to be collected; available: `default`,`none`,`all`,`ara`,`block`,`insights`,`kernel_config`,`libvirt`,`security_mitigations`,`sos`,`stockpile`,`topology`
+Comma-separated values of system information to be collected; available: `default`,`none`,`all`,`ara`,`block`,`insights`,`kernel_config`,`libvirt`,`security_mitigations`,`sos`,`stockpile`,`topology`
 
 `--pbench-pre` STR  
 Path to the script which will be executed before tools are started.  
