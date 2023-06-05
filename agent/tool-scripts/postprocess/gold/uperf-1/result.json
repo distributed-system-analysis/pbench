@@ -1421,7 +1421,7 @@
                }
             ],
             "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
-            "value" : 0.503149997412358
+            "value" : 0.503149997412359
          },
          {
             "client_hostname" : "perf102",
