@@ -3,9 +3,7 @@ from urllib.request import Request
 
 from flask import current_app
 from flask.wrappers import Response
-# from pquisby.lib.process_result import extract_data
-
-from pquisby.lib.benchmarks.uperf.uperf import extract_uperf_data
+from pquisby.lib.post_processing import extract_data
 
 from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -31,7 +29,7 @@ from pbench.server.database import Dataset
 
 class QuisbyData(ApiBase):
     """
-    API class to retrieve inventory files from a dataset
+    API class to retrieve Quisby data for a dataset
     """
 
     def __init__(self, config: PbenchServerConfig):
@@ -51,7 +49,7 @@ class QuisbyData(ApiBase):
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
         """
-        This function returns the contents of the requested file as a byte stream.
+        This function returns the Quisby data for the requested dataset.
 
         Args:
             params: includes the uri parameters, which provide the dataset and target.
@@ -59,7 +57,7 @@ class QuisbyData(ApiBase):
             context: API context dictionary
 
         Raises:
-            APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"
+            APIAbort, reporting either "NOT_FOUND"
 
 
         GET /api/v1/quisby/{dataset}
@@ -80,13 +78,10 @@ class QuisbyData(ApiBase):
         except TarballUnpackError as e:
             raise APIInternalError(str(e)) from e
 
-        try:
-            # return_val, json_data = extract_data("uperf",dataset.name, "localhost", "csv",file)
-            # return_val, json_data = extract_data("uperf", "localhost", csv_data)
+        json_data = extract_data("uperf",dataset.name, "localhost", "stream",file)
 
-            ret_val, json_data = extract_uperf_data(dataset.name, "system_name", file)
+        if json_data["status"]=="success":
+            return json_data
+        else:
+            raise APIInternalError("Unexpected failure from Quisby processing")
 
-        except Exception as e:
-            raise APIInternalError(str(e)) from e
-
-        return json_data
