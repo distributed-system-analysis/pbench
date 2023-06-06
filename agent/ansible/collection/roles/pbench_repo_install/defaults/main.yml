@@ -17,7 +17,7 @@ repos:
 
   - tag: "{{ pbench_aux_repo_name }}"
     user: "{{ fedoraproject_username }}"
-    baseurl: "{{ pbench_repo_url_prefix }}/{{ pbench_aux_repo_name }}/{{distrodir}}"
+    baseurl: "{{ pbench_repo_url_prefix }}/{{ pbench_aux_repo_name }}/{{ distrodir }}"
     gpgkey: "{{ pbench_repo_url_prefix }}/{{ pbench_aux_repo_name }}/pubkey.gpg"
     gpgcheck: 1
     enabled: "{{ enable_copr_aux_repo }}"
