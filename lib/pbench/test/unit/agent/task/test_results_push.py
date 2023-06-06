@@ -26,7 +26,7 @@ class TestResultsPush:
     SRVR_SWITCH = "--server"
     RELAY_TEXT = "http://relay.example.com"
     SRVR_TEXT = "http://pbench.test.example.com"
-    URL = "http://pbench.example.com/api/v1"
+    URL = "https://pbench.example.com/api/v1"
 
     @staticmethod
     def server_mock(

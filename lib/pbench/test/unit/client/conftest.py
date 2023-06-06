@@ -19,7 +19,7 @@ def connect():
             "api": {},
             "uri": {},
             "openid": {
-                "server": "http://oidc_server",
+                "server": "https://oidc_server",
                 "realm": "pbench-server",
                 "client": "pbench-client",
             },
@@ -27,7 +27,7 @@ def connect():
     )
     responses.add(
         responses.POST,
-        "http://oidc_server/realms/master/protocol/openid-connect/token",
+        "https://oidc_server/realms/master/protocol/openid-connect/token",
         json={
             "access_token": "admin_token",
         },

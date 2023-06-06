@@ -264,12 +264,12 @@ display purposes and must not be assumed to be unique or definitive.
 JSON object in this field.
 
 For example, the query
-`GET http://host/api/v1/datasets/list?metadata=user.dashboard.favorite&limit=3`
+`GET https://host/api/v1/datasets/list?metadata=user.dashboard.favorite&limit=3`
 might return:
 
 ```json
 {
-    "next_url": "http://pbench.example.com/api/v1/datasets?limit=3&metadata=user.dashboard.favorite&offset=3",
+    "next_url": "https://pbench.example.com/api/v1/datasets?limit=3&metadata=user.dashboard.favorite&offset=3",
     "results": [
         {
             "metadata": {

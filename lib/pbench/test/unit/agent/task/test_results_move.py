@@ -55,7 +55,7 @@ class TestResultsMove:
     META_SWITCH = "--metadata"
     META_TEXT_FOO = "pbench.sat:FOO"
     META_TEXT_TEST = "pbench.test:TEST"
-    URL = "http://pbench.example.com/api/v1"
+    URL = "https://pbench.example.com/api/v1"
     ENDPOINT = "/login"
 
     @staticmethod
@@ -203,7 +203,7 @@ class TestResultsMove:
 
         responses.add(
             responses.PUT,
-            f"http://pbench.example.com/api/v1/upload/{name}.tar.xz",
+            f"https://pbench.example.com/api/v1/upload/{name}.tar.xz",
             status=200,
         )
 

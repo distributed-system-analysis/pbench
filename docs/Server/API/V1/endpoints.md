@@ -48,7 +48,7 @@ URI template and parameters for the API.
 ##### `template`
 
 The API's URI template pattern, with URI parameters in the form `{<name>}`, as in
-`http://host:port/api/v1/datasets/{dataset}/metadata`.
+`https://host:port/api/v1/datasets/{dataset}/metadata`.
 
 ##### `params`
 
@@ -104,7 +104,7 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/datasets/{dataset}"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/{dataset}"
         },
         "datasets_contents": {
             "params": {
@@ -115,11 +115,11 @@ let uri = uriTemplate(
                     "type": "path"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/datasets/{dataset}/contents/{target}"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/{dataset}/contents/{target}"
         },
         "datasets_daterange": {
             "params": {},
-            "template": "http://10.1.1.1:8080/api/v1/datasets/daterange"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/daterange"
         },
         "datasets_detail": {
             "params": {
@@ -127,7 +127,7 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/datasets/{dataset}/detail"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/{dataset}/detail"
         },
         "datasets_inventory": {
             "params": {
@@ -138,11 +138,11 @@ let uri = uriTemplate(
                     "type": "path"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/datasets/{dataset}/inventory/{target}"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/{dataset}/inventory/{target}"
         },
         "datasets_list": {
             "params": {},
-            "template": "http://10.1.1.1:8080/api/v1/datasets"
+            "template": "https://10.1.1.1:8443/api/v1/datasets"
         },
         "datasets_mappings": {
             "params": {
@@ -150,7 +150,7 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/datasets/mappings/{dataset_view}"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/mappings/{dataset_view}"
         },
         "datasets_metadata": {
             "params": {
@@ -158,7 +158,7 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/datasets/{dataset}/metadata"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/{dataset}/metadata"
         },
         "datasets_namespace": {
             "params": {
@@ -169,11 +169,11 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/datasets/{dataset}/namespace/{dataset_view}"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/{dataset}/namespace/{dataset_view}"
         },
         "datasets_search": {
             "params": {},
-            "template": "http://10.1.1.1:8080/api/v1/datasets/search"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/search"
         },
         "datasets_values": {
             "params": {
@@ -184,27 +184,27 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/datasets/{dataset}/values/{dataset_view}"
+            "template": "https://10.1.1.1:8443/api/v1/datasets/{dataset}/values/{dataset_view}"
         },
         "endpoints": {
             "params": {},
-            "template": "http://10.1.1.1:8080/api/v1/endpoints"
+            "template": "https://10.1.1.1:8443/api/v1/endpoints"
         },
         "login": {
             "params": {},
-            "template": "http://10.1.1.1:8080/api/v1/login"
+            "template": "https://10.1.1.1:8443/api/v1/login"
         },
         "logout": {
             "params": {},
-            "template": "http://10.1.1.1:8080/api/v1/logout"
+            "template": "https://10.1.1.1:8443/api/v1/logout"
         },
         "register": {
             "params": {},
-            "template": "http://10.1.1.1:8080/api/v1/register"
+            "template": "https://10.1.1.1:8443/api/v1/register"
         },
         "server_audit": {
             "params": {},
-            "template": "http://10.1.1.1:8080/api/v1/server/audit"
+            "template": "https://10.1.1.1:8443/api/v1/server/audit"
         },
         "server_settings": {
             "params": {
@@ -212,7 +212,7 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/server/settings/{key}"
+            "template": "https://10.1.1.1:8443/api/v1/server/settings/{key}"
         },
         "upload": {
             "params": {
@@ -220,7 +220,7 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/upload/{filename}"
+            "template": "https://10.1.1.1:8443/api/v1/upload/{filename}"
         },
         "user": {
             "params": {
@@ -228,7 +228,7 @@ let uri = uriTemplate(
                     "type": "string"
                 }
             },
-            "template": "http://10.1.1.1:8080/api/v1/user/{target_username}"
+            "template": "https://10.1.1.1:8443/api/v1/user/{target_username}"
         }
     }
 }
