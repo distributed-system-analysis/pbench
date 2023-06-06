@@ -2,12 +2,12 @@
 
 The Pbench Agent requires the installation of some generic bits, but it also
 requires some localization. It needs to know where to send the results for
-storage and analysis and it needs to be able to authenticate to the results
+storage and analysis, and it needs to be able to authenticate to the results
 server.
 
 The generic bits are packaged as an RPM, available from
 [COPR](https://copr.fedorainfracloud.org/coprs/ndokos).
-Pbench Agent is build for all major releases of
+Pbench Agent is built for all major releases of
 Fedora, RHEL, CentOS and openSUSE.
 
 In the following, we describe how to install Pbench Agent using an RPM.
@@ -22,9 +22,9 @@ In the following, we describe how to install Pbench Agent using an RPM.
 	```
 
     :::{note}
-	- This documentation source describes Pbench Agent 0.72, and here's where you find the RPMs [ndokos/pbench-0.72](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-0.72).
-	- There are some RPMs that are shared between versions (e.g. pbench-sysstat). We maintain those in the [ndokos/pbench](https://copr.fedorainfracloud.org/coprs/ndokos/pbench)
-    - On RHEL based system enable subscription manager & also enable EPEL repo.
+	- This documentation source describes Pbench Agent 0.72, and [here's](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-0.72) where you find the RPMs.
+	- There are some RPMs that are shared between versions (e.g. pbench-sysstat). We maintain those in [ndokos/pbench](https://copr.fedorainfracloud.org/coprs/ndokos/pbench) repo.
+    - On a RHEL-based system enable the subscription manager and enable the `EPEL` repo.
 	:::
 
 2. Install Pbench Agent package
@@ -41,6 +41,3 @@ In the following, we describe how to install Pbench Agent using an RPM.
 	source /etc/profile.d/pbench-agent.sh
 	```
 
-:::{important}
-Make sure you run all your `pbench` commands as a root user.
-:::
