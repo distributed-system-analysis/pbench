@@ -8,11 +8,9 @@ const ClipboardCopy = ({ copyText }) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const copyTextToClipboard = async (text) => {
-    if ("clipboard" in navigator) {
-      return await navigator.clipboard.writeText(text);
-    } else {
-      return document.execCommand("copy", true, text);
-    }
+    "clipboard" in navigator
+      ? await navigator.clipboard.writeText(text)
+      : document.execCommand("copy", true, text);
   };
 
   // onClick handler function for the copy button
