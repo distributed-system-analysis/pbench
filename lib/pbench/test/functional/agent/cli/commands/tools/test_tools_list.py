@@ -262,21 +262,34 @@ class Test_list_tools_tools_registered_with_options:
     # Issue #3434
     @pytest.fixture
     def labels_on_multiple_hosts(self, pbench_run):
+        # This fixture is meant to be called after the previous one
+        # (tools_on_multiple_hosts). The previous one establishes a
+        # tool-like directory structure; this one just embellishes it
+        # with labels on some host entries. Think of it as an
+        # double for-loop, like the one above, only unrolled.
+
+        # row 1
         group = "default"
 
+        # column 1
         host = "th1.example.com"
         label = pbench_run / f"tools-v1-{group}" / host / "__label__"
         label.write_text("foo")
 
+        # column 2
         host = "th2.example.com"
         label = pbench_run / f"tools-v1-{group}" / host / "__label__"
         label.write_text("bar")
 
+        # row 2
         group = "test"
+
+        # column 1
         host = "th1.example.com"
         label = pbench_run / f"tools-v1-{group}" / host / "__label__"
         label.write_text("bar")
 
+        # column 2
         # th2 has no label
 
     # Issue #2346
