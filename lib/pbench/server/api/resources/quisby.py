@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from urllib.request import Request
 
-from flask import current_app
+from flask import current_app, jsonify
 from flask.wrappers import Response
 from pquisby.lib.post_processing import extract_data
 
@@ -70,18 +70,17 @@ class QuisbyData(ApiBase):
             tarball = cache_m.find_dataset(dataset.resource_id)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
-
         name = Dataset.stem(tarball.tarball_path)
 
         try:
             file = tarball.extract(tarball.tarball_path, f"{name}/result.csv")
         except TarballUnpackError as e:
             raise APIInternalError(str(e)) from e
+        json_data = extract_data("uperf", dataset.name, "localhost", "stream", file)
 
-        json_data = extract_data("uperf",dataset.name, "localhost", "stream",file)
-
-        if json_data["status"]=="success":
-            return json_data
+        if json_data["status"] == "success":
+            response = jsonify(json_data)
+            response.status_code = HTTPStatus.OK
+            return response
         else:
             raise APIInternalError("Unexpected failure from Quisby processing")
-
