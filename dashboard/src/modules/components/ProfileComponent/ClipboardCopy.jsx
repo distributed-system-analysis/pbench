@@ -7,11 +7,11 @@ import { SHOW_COPIED_TEXT_MS } from "assets/constants/copyTextConstants";
 const ClipboardCopy = ({ copyText }) => {
   const [isCopied, setIsCopied] = useState(false);
 
-  const copyTextToClipboard = async (text) => {
+  /* Funcion has to be rewritten by removing document.execCommand() on upgrading to HTTPS */
+  const copyTextToClipboard = async (text) =>
     "clipboard" in navigator
       ? await navigator.clipboard.writeText(text)
       : document.execCommand("copy", true, text);
-  };
 
   // onClick handler function for the copy button
   const handleCopyClick = () => {
