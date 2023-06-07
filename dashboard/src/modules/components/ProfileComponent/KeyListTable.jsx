@@ -1,4 +1,3 @@
-import { Button, ClipboardCopy } from "@patternfly/react-core";
 import {
   TableComposable,
   Tbody,
@@ -9,6 +8,8 @@ import {
 } from "@patternfly/react-table";
 import { useDispatch, useSelector } from "react-redux";
 
+import { Button } from "@patternfly/react-core";
+import ClipboardCopy from "./ClipboardCopy";
 import React from "react";
 import { TrashIcon } from "@patternfly/react-icons";
 import { deleteAPIKey } from "actions/keyManagementActions";
@@ -22,7 +23,6 @@ const KeyListTable = () => {
     created: "Created Date & Time",
     key: "API key",
   };
-
   return (
     <TableComposable aria-label="key list table" isStriped>
       <Thead>
@@ -40,14 +40,8 @@ const KeyListTable = () => {
             <Td dataLabel={columnNames.created}>
               {formatDateTime(item.created)}
             </Td>
-            <Td dataLabel={columnNames.key} className="key-cell">
-              <ClipboardCopy
-                hoverTip="Copy API key"
-                clickTip="Copied"
-                variant="plain"
-              >
-                {item.key}
-              </ClipboardCopy>
+            <Td dataLabel={columnNames.key}>
+              <ClipboardCopy copyText={item.key} />
             </Td>
 
             <Td className="delete-icon-cell">
