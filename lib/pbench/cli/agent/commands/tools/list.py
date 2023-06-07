@@ -29,16 +29,21 @@ class ListTools(ToolCommand):
         """
         printed = False
         for group, gval in sorted(toolinfo.items()):
-            for host, tools in sorted(gval.items()):
+            for host, hostitems in sorted(gval.items()):
+                label = toolinfo[group][host]["label"]
+                host_string = (
+                    f"host: {host}" if not label else f"host: {host}, label: {label}"
+                )
+                tools = hostitems["tools"]
                 if tools:
                     if not with_option:
-                        s = ", ".join(sorted(tools.keys()))
+                        tool_string = ", ".join(sorted(tools.keys()))
                     else:
                         tools_with_options = [
                             f"{t} {' '.join(v)}" for t, v in sorted(tools.items())
                         ]
-                        s = ", ".join(tools_with_options)
-                    print(f"group: {group}; host: {host}; tools: {s}")
+                        tool_string = ", ".join(tools_with_options)
+                    print(f"group: {group}; {host_string}; tools: {tool_string}")
                     printed = True
         return printed
 
@@ -68,8 +73,13 @@ class ListTools(ToolCommand):
                 for path in tg_dir:
                     host = path.name
                     tool_info[group][host] = {}
+                    label = path / "__label__"
+                    tool_info[group][host]["label"] = (
+                        None if not label.exists() else label.read_text().rstrip("\n")
+                    )
+                    tool_info[group][host]["tools"] = {}
                     for tool in sorted(self.tools(path)):
-                        tool_info[group][host][tool] = (
+                        tool_info[group][host]["tools"][tool] = (
                             sorted((path / tool).read_text().rstrip("\n").split("\n"))
                             if opts
                             else ""
@@ -106,9 +116,11 @@ class ListTools(ToolCommand):
 
                     host = path.name
                     tool_info[group][host] = {}
+                    tool_info[group][host]["label"] = None
+                    tool_info[group][host]["tools"] = {}
                     # Check to see if the tool is in any of the hosts.
                     if tool in self.tools(path):
-                        tool_info[group][host][tool] = (
+                        tool_info[group][host]["tools"][tool] = (
                             sorted((path / tool).read_text().rstrip("\n").split("\n"))
                             if opts
                             else ""
