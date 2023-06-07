@@ -259,6 +259,26 @@ class Test_list_tools_tools_registered_with_options:
                     tool = p / "perf"
                     tool.write_text("--record-opts='-a --freq=100'")
 
+    # Issue #3434
+    @pytest.fixture
+    def labels_on_multiple_hosts(self, pbench_run):
+        group = "default"
+
+        host = "th1.example.com"
+        label = pbench_run / f"tools-v1-{group}" / host / "__label__"
+        label.write_text("foo")
+
+        host = "th2.example.com"
+        label = pbench_run / f"tools-v1-{group}" / host / "__label__"
+        label.write_text("bar")
+
+        group = "test"
+        host = "th1.example.com"
+        label = pbench_run / f"tools-v1-{group}" / host / "__label__"
+        label.write_text("bar")
+
+        # th2 has no label
+
     # Issue #2346
     def test_existing_group_options(self, single_group_tools, agent_config):
         command = ["pbench-list-tools", "--with-option"]
@@ -307,5 +327,16 @@ class Test_list_tools_tools_registered_with_options:
         assert EMPTY == err and exitcode == 0
         assert (
             b"group: default; host: th1.example.com; tools: iostat --interval=30, mpstat --interval=300, sar --interval=10\ngroup: default; host: th2.example.com; tools: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'\ngroup: test; host: th1.example.com; tools: iostat --interval=30, mpstat --interval=300, sar --interval=10\ngroup: test; host: th2.example.com; tools: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'"
+            in out
+        )
+
+    def test_multiple_hosts_with_options_and_labels(
+        self, tools_on_multiple_hosts, labels_on_multiple_hosts, agent_config
+    ):
+        command = ["pbench-list-tools", "--with-option"]
+        out, err, exitcode = pytest.helpers.capture(command)
+        assert EMPTY == err and exitcode == 0
+        assert (
+            b"group: default; host: th1.example.com, label: foo; tools: iostat --interval=30, mpstat --interval=300, sar --interval=10\ngroup: default; host: th2.example.com, label: bar; tools: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'\ngroup: test; host: th1.example.com, label: bar; tools: iostat --interval=30, mpstat --interval=300, sar --interval=10\ngroup: test; host: th2.example.com; tools: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'"
             in out
         )
