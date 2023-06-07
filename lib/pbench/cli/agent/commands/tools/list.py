@@ -73,17 +73,16 @@ class ListTools(ToolCommand):
                 for path in tg_dir:
                     host = path.name
                     tool_info[group][host] = {}
+
                     label = path / "__label__"
-                    tool_info[group][host]["label"] = (
-                        None if not label.exists() else label.read_text().rstrip("\n")
-                    )
+                    v = label.read_text().rstrip("\n") if label.exists() else None
+                    tool_info[group][host]["label"] = v
+
                     tool_info[group][host]["tools"] = {}
+
                     for tool in sorted(self.tools(path)):
-                        tool_info[group][host]["tools"][tool] = (
-                            sorted((path / tool).read_text().rstrip("\n").split("\n"))
-                            if opts
-                            else ""
-                        )
+                        v = sorted((path / tool).read_text().rstrip("\n").split("\n"))
+                        tool_info[group][host]["tools"][tool] = v if opts else ""
 
             if tool_info:
                 found = self.print_results(tool_info, self.context.with_option)
@@ -118,13 +117,11 @@ class ListTools(ToolCommand):
                     tool_info[group][host] = {}
                     tool_info[group][host]["label"] = None
                     tool_info[group][host]["tools"] = {}
-                    # Check to see if the tool is in any of the hosts.
+
+                    # Check if the tool is in any of the hosts.
                     if tool in self.tools(path):
-                        tool_info[group][host]["tools"][tool] = (
-                            sorted((path / tool).read_text().rstrip("\n").split("\n"))
-                            if opts
-                            else ""
-                        )
+                        v = sorted((path / tool).read_text().rstrip("\n").split("\n"))
+                        tool_info[group][host]["tools"][tool] = v if opts else ""
                         found = True
 
             if found:
