@@ -8,7 +8,8 @@ for those systems, and specified telemetry or data from various tools (`sar`,
 `vmstat`, `perf`, etc.).
 
 The second sub-system is the `pbench-server`, which is responsible for
-archiving result tar balls, indexing them, and unpacking them for display.
+archiving result tar balls, indexing them, and managing access to their
+contents.
 It provides a RESTful API which can be used by client applications, such as
 the Pbench Dashboard, which provides a web-based interface to the Pbench
 Server.
@@ -71,7 +72,7 @@ https://github.com/distributed-system-analysis/pbench/milestones).
 Below are some simple steps for setting up a development environment for
 working with the Pbench code base.  For more detailed instructions on the
 workflow and process of contributing code to Pbench, refer to the [Guidelines
-for Contributing](docs/CONTRIBUTING.md).
+for Contributing](docs/Developers/contributing.md).
 
 ### Getting the Code
 
@@ -126,12 +127,10 @@ Each of the "agent" and "server" tests can be further subsetted as follows:
 
   * server
     * python          -- runs the python tests (via python)
-    * legacy          -- runs the legacy tests
 
 For example:
 
   * `tox -- agent legacy`   -- run agent legacy tests
-  * `tox -- server legacy`  -- run server legacy tests
   * `tox -- server python`  -- run server python tests (via `pytest`)
 
 For any of the test sub-sets on either the agent or server sides of the tree,
@@ -140,7 +139,6 @@ allows one to request a specific test, or set of tests, or command line
 parameters to modify the test behavior:
 
   * `tox -- agent bench-scripts test-CL`    -- run bench-scripts' test-CL
-  * `tox -- server legacy test-28 test-32`  -- run server legacy tests 28 & 32
   * `tox -- server python -v`               -- run server python tests verbosely
 
 For the `agent/bench-scripts` tests, one can run entire sub-sets of tests using
@@ -192,8 +190,6 @@ We employ a simple major, minor, release, build (optional) scheme for tagging
 starting with the `v0.70.0` release (`v<Major>.<Minor>.<Release>[-<Build>]`).
 Prior to the v0.70.0 release, the scheme used was mostly `v<Major>.<Minor>`,
 where we only had minor releases (`Major = 0`).
-
-The practice of using `-agent` or `-server` ended with the `v0.70.0` release.
 
 ### Container Image Tags
 This same GitHub "tag" scheme is used with tags applied to container images
