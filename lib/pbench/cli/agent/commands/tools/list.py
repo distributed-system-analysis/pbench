@@ -31,9 +31,7 @@ class ListTools(ToolCommand):
         for group, gval in sorted(toolinfo.items()):
             for host, hostitems in sorted(gval.items()):
                 label = toolinfo[group][host]["label"]
-                host_string = (
-                    f"host: {host}" if not label else f"host: {host}, label: {label}"
-                )
+                host_string = f"host: {host}" + (f", label: {label}" if label else "")
                 tools = hostitems["tools"]
                 if tools:
                     if not with_option:
