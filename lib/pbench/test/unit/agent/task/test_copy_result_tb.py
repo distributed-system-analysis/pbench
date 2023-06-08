@@ -11,7 +11,7 @@ import requests
 import responses
 
 from pbench.agent import PbenchAgentConfig
-from pbench.agent.results import CopyResult, CopyResultToRelay, CopyResultToServer
+from pbench.agent.results import CopyResultToRelay, CopyResultToServer
 
 
 class TestCopyResults:
@@ -136,8 +136,8 @@ class TestCopyResults:
         tb_name = "test_tarball.tar.xz"
         tb_contents = b"I'm a result!"
         metadata = ["dataset.name:foo", "global.server:FOO"]
-        sha256 = hashlib.sha256(tb_contents, usedforsecurity=False).hexdigest()
-        md5 = hashlib.md5(tb_contents, usedforsecurity=False).hexdigest()
+        sha256 = hashlib.sha256(tb_contents).hexdigest()
+        md5 = hashlib.md5(tb_contents).hexdigest()
         uri = "http://relay.example.com"
 
         manifest = {
@@ -150,7 +150,7 @@ class TestCopyResults:
             manifest["access"] = access
 
         serialized = bytes(json.dumps(manifest, sort_keys=True), encoding="utf-8")
-        man_sha256 = hashlib.sha256(serialized, usedforsecurity=False).hexdigest()
+        man_sha256 = hashlib.sha256(serialized).hexdigest()
 
         def man_callback(request: requests.PreparedRequest):
             assert json.load(fp=request.body) == manifest
@@ -183,7 +183,6 @@ class TestCopyResults:
         tb_contents = "I'm a result!"
         uri = self.config.get("results", "server_rest_url")
         upload_url = f"{uri}/upload/{tb_name}"
-        expected_error_message = f"Cannot connect to '{upload_url}'"
         responses.add(
             responses.PUT, upload_url, body=requests.exceptions.ConnectionError("uh-oh")
         )
@@ -194,7 +193,7 @@ class TestCopyResults:
                 Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
             )
 
-            with pytest.raises(requests.exceptions.ConnectionError) as excinfo:
+            with pytest.raises(requests.exceptions.ConnectionError):
                 CopyResultToServer(
                     self.config, agent_logger, None, None, None, None
                 ).push(Path(tb_name), "someMD5")
@@ -214,7 +213,7 @@ class TestCopyResults:
                 Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
             )
 
-            with pytest.raises(RuntimeError, match="uh-oh") as excinfo:
+            with pytest.raises(RuntimeError, match="uh-oh"):
                 CopyResultToServer(
                     self.config, agent_logger, None, None, None, None
                 ).push(Path(tb_name), "someMD5")

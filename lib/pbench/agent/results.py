@@ -303,7 +303,7 @@ class CopyResult:
         """
         self.logger = logger
         self.uri = None
-        self.headers = {}
+        self.headers = {"content-type": "application/octet-stream"}
         self.params: dict[str, Any] = {"access": access} if access else {}
         if metadata:
             self.params["metadata"] = metadata
@@ -405,12 +405,7 @@ class CopyResultToServer(CopyResult):
         else:
             uri = config.get("results", "server_rest_url")
         self.uri = f"{uri}/upload/{{name}}"
-        self.headers.update(
-            {
-                "content-type": "application/octet-stream",
-                "Authorization": f"Bearer {token}",
-            }
-        )
+        self.headers.update({"Authorization": f"Bearer {token}"})
 
     def push(self, tarball: Path, tarball_md5: str) -> requests.Response:
         """Push a tarball to a Pbench Server.
@@ -484,36 +479,28 @@ class CopyResultToRelay(CopyResult):
             raise FileNotFoundError(f"Tar ball '{tarball!s}' does not exist")
         try:
             with tarball.open("rb") as f:
-                d = hashlib.sha256(usedforsecurity=False)
+                d = hashlib.sha256()
                 for buf in iter(partial(f.read, 2**20), b""):
                     d.update(buf)
                 tar_uri = self.uri.format(sha256=d.hexdigest())
                 self.logger.debug("Relay tarball %s", tar_uri)
 
                 f.seek(0)  # rewind since re-opening doesn't work
-                r = requests.put(
-                    tar_uri,
-                    data=f,
-                    headers={"content-type": "application/octet-stream"},
-                )
+                r = requests.put(tar_uri, data=f, headers=self.headers)
                 if not r.ok:
                     return r
             self.params.update(
                 {"name": tarball.name, "uri": tar_uri, "md5": tarball_md5}
             )
             manifest = bytes(json.dumps(self.params, sort_keys=True), encoding="utf-8")
-            d = hashlib.sha256(manifest, usedforsecurity=False)
+            d = hashlib.sha256(manifest)
             manifest_uri = self.uri.format(sha256=d.hexdigest())
             self.logger.debug(
                 "Uploading manifest %s as %s to relay",
                 manifest.decode("utf-8"),
                 manifest_uri,
             )
-            r = requests.put(
-                manifest_uri,
-                data=BytesIO(manifest),
-                headers={"content-type": "application/octet-stream"},
-            )
+            r = requests.put(manifest_uri, data=BytesIO(manifest), headers=self.headers)
             return r
         except Exception as e:
             self.logger.exception("Problem relaying tarball: %s", str(e))
