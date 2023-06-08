@@ -8,7 +8,7 @@
 #-
 GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 
-BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
+BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi8:latest}
 PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
 PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
 RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
