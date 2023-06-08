@@ -6,7 +6,7 @@ import click
 import requests
 
 from pbench.agent.base import BaseCommand
-from pbench.agent.results import CopyResultTb
+from pbench.agent.results import CopyResult
 from pbench.cli import CliContext, pass_cli_context, sort_click_command_parameters
 from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
@@ -18,17 +18,13 @@ class ResultsPush(BaseCommand):
         super().__init__(context)
 
     def execute(self) -> int:
-        tarball_len, tarball_md5 = md5sum(self.context.result_tb_name)
-        crt = CopyResultTb(
-            self.context.result_tb_name,
-            tarball_len,
-            tarball_md5,
-            self.config,
-            self.logger,
-        )
-        res = crt.copy_result_tb(
-            self.context.token, self.context.access, self.context.metadata
-        )
+        tarball = Path(self.context.result_tb_name)
+        _, tarball_md5 = md5sum(tarball)
+        crt = CopyResult.cli_create(self.context, self.config, self.logger)
+        res = crt.push(tarball, tarball_md5)
+
+        if res.ok and self.context.relay:
+            click.echo(f"RELAY {tarball.name}: {res.url}")
 
         # success
         if res.status_code == HTTPStatus.CREATED:
@@ -73,6 +69,8 @@ def main(
     token: str,
     access: str,
     metadata: List,
+    server: str,
+    relay: str,
 ):
     """Push a result tar ball to the configured Pbench server.
 
@@ -83,10 +81,18 @@ def main(
     the backslash-escaped letters are formatting directives; this
     parenthetical text will not appear in the help output.)
     """
+    clk_ctx = click.get_current_context()
+
     context.result_tb_name = result_tb_name
     context.token = token
     context.access = access
     context.metadata = metadata
+    context.server = server
+    context.relay = relay
+
+    if relay and server:
+        click.echo("Cannot use both relay and Pbench Server destination.", err=True)
+        clk_ctx.exit(2)
 
     try:
         rv = ResultsPush(context).execute()

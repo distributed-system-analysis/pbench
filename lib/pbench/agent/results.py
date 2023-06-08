@@ -1,16 +1,20 @@
 import collections
 import datetime
+from functools import partial
+import hashlib
+from io import BytesIO, IOBase
+import json
 from logging import Logger
 import os
 from pathlib import Path
 import shutil
 import subprocess
-from typing import List, Optional
-import urllib.parse
+from typing import Any, List, Optional
 
 import requests
 
 from pbench.agent import PbenchAgentConfig
+from pbench.cli import CliContext
 from pbench.common import MetadataLog
 from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.utils import md5sum, validate_hostname
@@ -278,7 +282,7 @@ class MakeResultTb:
         return TarballRecord(name=tarball, length=tar_len, md5=tar_md5)
 
 
-class CopyResultTb:
+class CopyResult:
     """Interfaces for copying result tar balls remotely using the server's HTTP
     PUT method for uploads.
     """
@@ -289,93 +293,144 @@ class CopyResultTb:
         pass
 
     def __init__(
-        self,
-        tarball: str,
-        tarball_len: int,
-        tarball_md5: str,
+        self, logger: Logger, access: Optional[str], metadata: Optional[List[str]]
+    ):
+        """Constructor for object representing a tar ball destination"""
+        self.logger = logger
+        self.uri = None
+        self.headers = {}
+        self.params: dict[str, Any] = {"access": access} if access else {}
+        if metadata:
+            self.params["metadata"] = metadata
+
+    def push(self, tarball: Path, tarball_md5: str) -> requests.Response:
+        raise NotImplementedError()
+
+    @staticmethod
+    def create(
         config: PbenchAgentConfig,
         logger: Logger,
-    ):
-        """Constructor for object representing tar ball to be copied remotely.
+        relay: Optional[str],
+        server: Optional[str],
+        token: Optional[str],
+        access: Optional[str],
+        metadata: Optional[list[str]],
+    ) -> "CopyResult":
+        if relay:
+            return CopyResultToRelay(logger, relay, access, metadata)
+        else:
+            return CopyResultToServer(config, logger, server, token, access, metadata)
 
-        Raises
-            FileNotFoundError   if the given tar ball does not exist
-        """
-        self.tarball = Path(tarball)
-        if not self.tarball.exists():
-            raise FileNotFoundError(f"Tar ball '{self.tarball}' does not exist")
-        self.tarball_len = tarball_len
-        self.tarball_md5 = tarball_md5
-        server_rest_url = config.get("results", "server_rest_url")
-        tbname = urllib.parse.quote(self.tarball.name)
-        self.upload_url = f"{server_rest_url}/upload/{tbname}"
-        self.logger = logger
+    @classmethod
+    def cli_create(
+        cls, context: CliContext, config: PbenchAgentConfig, logger: Logger
+    ) -> "CopyResult":
+        return cls.create(
+            config,
+            logger,
+            context.relay,
+            context.server,
+            context.token,
+            context.access,
+            context.metadata,
+        )
 
-    def copy_result_tb(
-        self, token: str, access: Optional[str] = None, metadata: Optional[List] = None
+    def _put(
+        self,
+        stream: IOBase,
+        uri: str,
+        headers: dict[str, Any] = {},
+        query: dict[str, Any] = {},
     ) -> requests.Response:
-        """Copies the tar ball from the agent to the configured server using upload
-        API.
+        try:
+            return requests.put(uri, data=stream, headers=headers, params=query)
+        except requests.exceptions.ConnectionError as exc:
+            raise RuntimeError(f"Cannot connect to '{uri}': {exc}")
+        except Exception as exc:
+            raise self.FileUploadError(
+                f"Pbench Server file upload to {uri!r} failed: {str(exc)!r}"
+            )
 
-        Args:
-            token: a token which establishes that the caller is
-                authorized to make the PUT request on behalf of a
-                specific user.
-            access: keyword that identifies whether a dataset needs
-                to be published public or private.  Optional:  if omitted
-                the result will be the server default.
-            metadata: list of metadata keys to be sent on PUT. (Optional)
-                Format: key:value
 
-        Returns:
-            response from the PUT request
+class CopyResultToServer(CopyResult):
+    def __init__(
+        self,
+        config: PbenchAgentConfig,
+        logger: Logger,
+        server: Optional[str],
+        token: Optional[str],
+        access: Optional[str],
+        metadata: Optional[list[str]],
+    ):
+        super().__init__(logger, access, metadata)
+        if server:
+            path = config.get("results", "rest_endpoint")
+            uri = f"{server}/{path}"
+        else:
+            uri = config.get("results", "server_rest_url")
+        self.uri = f"{uri}/upload/{{name}}"
+        self.headers.update(
+            {
+                "content-type": "application/octet-stream",
+                "Authorization": f"Bearer {token}",
+            }
+        )
 
-        Raises:
-            RuntimeError     if a connection to the server fails
-            FileUploadError  if the tar ball failed to upload properly
+    def push(self, tarball: Path, tarball_md5: str) -> requests.Response:
+        if not tarball.exists():
+            raise FileNotFoundError(f"Tar ball '{tarball}' does not exist")
+        self.headers["Content-MD5"] = tarball_md5
+        tar_uri = self.uri.format(name=tarball.name)
+        with tarball.open("rb") as f:
+            r = self._put(f, tar_uri, self.headers, self.params)
+            return r
 
-        """
-        params = {"access": access} if access else {}
-        if metadata:
-            params["metadata"] = metadata
 
-        headers = {
-            "Content-MD5": self.tarball_md5,
-            "Authorization": f"Bearer {token}",
-        }
-        with self.tarball.open("rb") as f:
-            try:
-                request = requests.Request(
-                    "PUT", self.upload_url, data=f, headers=headers, params=params
-                ).prepare()
+class CopyResultToRelay(CopyResult):
+    def __init__(
+        self,
+        logger: Logger,
+        relay: Optional[str],
+        access: Optional[str],
+        metadata: Optional[list[str]],
+    ):
+        super().__init__(logger, access, metadata)
+        self.uri = f"{relay}/{{sha256}}"
 
-                # Per RFC 2616, a request must not contain both
-                # Content-Length and Transfer-Encoding headers; however,
-                # the server would like to receive the Content-Length
-                # header, but the requests package may opt to generate
-                # the Transfer-Encoding header instead...so, check that
-                # we got what we want before we send the request.  Also,
-                # confirm that the contents of the Content-Length header
-                # is what we expect.
-                assert (
-                    "Transfer-Encoding" not in request.headers
-                ), "Upload request unexpectedly contains a `Transfer-Encoding` header"
-                assert (
-                    "Content-Length" in request.headers
-                ), "Upload request unexpectedly missing a `Content-Length` header"
-                assert request.headers["Content-Length"] == str(self.tarball_len), (
-                    "Upload request `Content-Length` header contains {} -- "
-                    "expected {}".format(
-                        request.headers["Content-Length"], self.tarball_len
-                    )
+    def push(self, tarball: Path, tarball_md5: str) -> requests.Response:
+        if not tarball.exists():
+            raise FileNotFoundError(f"Tar ball '{tarball!s}' does not exist")
+        try:
+            with tarball.open("rb") as f:
+                d = hashlib.sha256(usedforsecurity=False)
+                for buf in iter(partial(f.read, 2**20), b""):
+                    d.update(buf)
+                tar_uri = self.uri.format(sha256=d.hexdigest())
+                self.logger.debug("Relay tarball %s", tar_uri)
+
+                f.seek(0)  # rewind since re-opening doesn't work
+                r = self._put(
+                    f, tar_uri, headers={"content-type": "application/octet-stream"}
                 )
-
-                return requests.Session().send(request)
-            except requests.exceptions.ConnectionError as exc:
-                raise RuntimeError(f"Cannot connect to '{self.upload_url}': {exc}")
-            except Exception as exc:
-                raise self.FileUploadError(
-                    "There was something wrong with the file upload request: "
-                    f"file: '{self.tarball}', URL: '{self.upload_url}';"
-                    f" error: '{exc}'"
-                )
+                if not r.ok:
+                    return r
+            self.params.update(
+                {"name": tarball.name, "uri": tar_uri, "md5": tarball_md5}
+            )
+            manifest = bytes(json.dumps(self.params, sort_keys=True), encoding="utf-8")
+            d = hashlib.sha256(manifest, usedforsecurity=False)
+            manifest_uri = self.uri.format(sha256=d.hexdigest())
+            self.logger.debug(
+                "Uploading manifest %s as %s to relay",
+                manifest.decode("utf-8"),
+                manifest_uri,
+            )
+            r = self._put(
+                BytesIO(manifest),
+                manifest_uri,
+                headers={"content-type": "application/octet-stream"},
+            )
+            return r
+        except Exception as e:
+            self.logger.exception("Problem relaying tarball: %s", str(e))
+            raise

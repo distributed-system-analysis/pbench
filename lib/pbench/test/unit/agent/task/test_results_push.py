@@ -1,5 +1,6 @@
 from http import HTTPStatus
 import os
+import re
 from typing import Dict, Optional, Union
 
 from click.testing import CliRunner
@@ -21,10 +22,14 @@ class TestResultsPush:
     META_SWITCH = "--metadata"
     META_TEXT_FOO = "pbench.sat:FOO"
     META_TEXT_TEST = "pbench.test:TEST"
+    RELAY_SWITCH = "--relay"
+    SRVR_SWITCH = "--server"
+    RELAY_TEXT = "http://relay.example.com"
+    SRVR_TEXT = "http://pbench.test.example.com"
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
-    def add_http_mock_response(
+    def add_server_mock_response(
         status_code: HTTPStatus = HTTPStatus.CREATED,
         message: Optional[Union[str, Dict, Exception]] = None,
     ):
@@ -40,6 +45,25 @@ class TestResultsPush:
         responses.add(
             responses.PUT,
             f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
+            **parms,
+        )
+
+    @staticmethod
+    @pytest.fixture
+    def relay_mock(
+        status_code: HTTPStatus = HTTPStatus.CREATED,
+        error: Optional[Exception] = None,
+    ):
+        parms = {}
+        if status_code:
+            parms["status"] = status_code
+
+        if error:
+            parms["body"] = error
+
+        responses.add(
+            responses.PUT,
+            re.compile(f"{TestResultsPush.RELAY_TEXT}/[a-f0-9]+"),
             **parms,
         )
 
@@ -83,6 +107,40 @@ class TestResultsPush:
             "Invalid value for 'RESULT_TB_NAME': "
             "File 'nothing.tar.xz' does not exist." in result.stderr
         )
+
+    @staticmethod
+    @responses.activate
+    def test_server_and_relay():
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.SRVR_SWITCH,
+                TestResultsPush.SRVR_TEXT,
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.RELAY_SWITCH,
+                TestResultsPush.RELAY_TEXT,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 2
+        assert "Cannot use both relay and Pbench Server destination." in result.stderr
+
+    @staticmethod
+    @responses.activate
+    def test_relay(relay_mock):
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.RELAY_SWITCH,
+                TestResultsPush.RELAY_TEXT,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 0
+        assert "RELAY log.tar.xz: http://relay.example.com/" in result.stdout
 
     @staticmethod
     @responses.activate
@@ -130,7 +188,7 @@ class TestResultsPush:
     def test_multiple_meta_args_single_option():
         """Test normal operation when all arguments and options are specified"""
 
-        TestResultsPush.add_http_mock_response()
+        TestResultsPush.add_server_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -152,7 +210,7 @@ class TestResultsPush:
     def test_multiple_meta_args():
         """Test normal operation when all arguments and options are specified"""
 
-        TestResultsPush.add_http_mock_response()
+        TestResultsPush.add_server_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -179,7 +237,7 @@ class TestResultsPush:
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, args=[tarball])
         assert result.exit_code == 2, result.stderr
-        assert "Missing option '--token'" in str(result.stderr)
+        assert "Pbench Server connection requires '--token'" in str(result.stderr)
 
     @staticmethod
     @responses.activate
@@ -187,7 +245,7 @@ class TestResultsPush:
         """Test normal operation with the token in an environment variable"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_http_mock_response()
+        TestResultsPush.add_server_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, args=[tarball])
         assert result.exit_code == 0, result.stderr
@@ -237,7 +295,7 @@ class TestResultsPush:
     def test_push_status(status_code, message, exit_code):
         """Test normal operation when all arguments and options are specified"""
 
-        TestResultsPush.add_http_mock_response(status_code, message)
+        TestResultsPush.add_server_mock_response(status_code, message)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
