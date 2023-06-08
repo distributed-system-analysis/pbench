@@ -107,7 +107,7 @@ def _stop_option(f):
     )(f)
 
 
-@click.command(help="list registered triggers")
+@click.command(help="register tool triggers")
 @common_options
 @_group_option
 @_start_option

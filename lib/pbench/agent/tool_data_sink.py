@@ -2125,7 +2125,7 @@ def start(prog: Path, parsed: Arguments):
 
 
 def main(argv: List[str]):
-    """Main program for the Tool Meister.
+    """Main program for the Tool Data Sink.
 
     Arguments:  argv - a list of parameters
 
