@@ -259,13 +259,13 @@ class Test_list_tools_tools_registered_with_options:
                     tool = p / "perf"
                     tool.write_text("--record-opts='-a --freq=100'")
 
-    # Issue #3434
+    # Issue #3454
     @pytest.fixture
     def labels_on_multiple_hosts(self, pbench_run):
         # This fixture is meant to be called after the previous one
         # (tools_on_multiple_hosts). The previous one establishes a
         # tool-like directory structure; this one just embellishes it
-        # with labels on some host entries. Think of it as an
+        # with labels on some host entries. Think of it as a
         # double for-loop, like the one above, only unrolled.
 
         # row 1
