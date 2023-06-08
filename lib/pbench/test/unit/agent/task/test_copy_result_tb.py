@@ -194,14 +194,10 @@ class TestCopyResults:
                 Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
             )
 
-            with pytest.raises(RuntimeError) as excinfo:
+            with pytest.raises(requests.exceptions.ConnectionError) as excinfo:
                 CopyResultToServer(
                     self.config, agent_logger, None, None, None, None
                 ).push(Path(tb_name), "someMD5")
-
-        assert str(excinfo.value).startswith(
-            expected_error_message
-        ), f"expected='...{expected_error_message}', found='{str(excinfo.value)}'"
 
     @responses.activate
     def test_unexpected_error(self, monkeypatch, agent_logger):
@@ -218,9 +214,7 @@ class TestCopyResults:
                 Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
             )
 
-            with pytest.raises(CopyResult.FileUploadError) as excinfo:
+            with pytest.raises(RuntimeError, match="uh-oh") as excinfo:
                 CopyResultToServer(
                     self.config, agent_logger, None, None, None, None
                 ).push(Path(tb_name), "someMD5")
-
-        assert f"{upload_url!r} failed:" in str(excinfo.value)

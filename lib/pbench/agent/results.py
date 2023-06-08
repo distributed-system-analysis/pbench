@@ -2,7 +2,7 @@ import collections
 import datetime
 from functools import partial
 import hashlib
-from io import BytesIO, IOBase
+from io import BytesIO
 import json
 from logging import Logger
 import os
@@ -283,9 +283,7 @@ class MakeResultTb:
 
 
 class CopyResult:
-    """Interfaces for copying result tar balls remotely using the server's HTTP
-    PUT method for uploads.
-    """
+    """Base class to copy results to a Pbench Server"""
 
     class FileUploadError(Exception):
         """Raised when the uploading of file to server has failed"""
@@ -295,7 +293,14 @@ class CopyResult:
     def __init__(
         self, logger: Logger, access: Optional[str], metadata: Optional[List[str]]
     ):
-        """Constructor for object representing a tar ball destination"""
+        """Hold generic context applicable to both Server and Relay
+
+        Args
+            logger: A Python logger object in Agent configuration
+            access: A desired dataset access scope (private|public) [private]
+            metadata: An optional list of metadata "key:value" pairs to apply
+                    to the dataset.
+        """
         self.logger = logger
         self.uri = None
         self.headers = {}
@@ -304,6 +309,18 @@ class CopyResult:
             self.params["metadata"] = metadata
 
     def push(self, tarball: Path, tarball_md5: str) -> requests.Response:
+        """Push a tarball to the configured destination.
+
+        Args
+            tarball: A path to a xz compressed tar file
+            tarball_md5: the MD5 hash of tarball
+
+        Returns:
+            A Requests object representing the last outgoing HTTP call
+
+        Raises:
+            NotImplementedError: the base class method is abstract
+        """
         raise NotImplementedError()
 
     @staticmethod
@@ -314,8 +331,22 @@ class CopyResult:
         server: Optional[str],
         token: Optional[str],
         access: Optional[str],
-        metadata: Optional[list[str]],
+        metadata: Optional[List[str]],
     ) -> "CopyResult":
+        """Factory method to create a CopyResults object
+
+        Args:
+            config: Pbench Agent config file
+            logger: Python logger object
+            relay: The value of the --relay option if specified
+            server: The value of the --server option if specified
+            token: The value of the --token option if specified
+            access: The value of the --access option if specified
+            metadata: The value of the --metadata option if specified
+
+        Returns:
+            An instance of the appropriate CopyResult subclass
+        """
         if relay:
             return CopyResultToRelay(logger, relay, access, metadata)
         else:
@@ -325,6 +356,16 @@ class CopyResult:
     def cli_create(
         cls, context: CliContext, config: PbenchAgentConfig, logger: Logger
     ) -> "CopyResult":
+        """Factory method to create a CopyResults object from Click CLI context
+
+        Args:
+            context: The command context with options
+            config: The Pbench Agent configuration object
+            logger: A Python logger object
+
+        Returns:
+            An instance of the appropriate CopyResult subclass
+        """
         return cls.create(
             config,
             logger,
@@ -335,22 +376,6 @@ class CopyResult:
             context.metadata,
         )
 
-    def _put(
-        self,
-        stream: IOBase,
-        uri: str,
-        headers: dict[str, Any] = {},
-        query: dict[str, Any] = {},
-    ) -> requests.Response:
-        try:
-            return requests.put(uri, data=stream, headers=headers, params=query)
-        except requests.exceptions.ConnectionError as exc:
-            raise RuntimeError(f"Cannot connect to '{uri}': {exc}")
-        except Exception as exc:
-            raise self.FileUploadError(
-                f"Pbench Server file upload to {uri!r} failed: {str(exc)!r}"
-            )
-
 
 class CopyResultToServer(CopyResult):
     def __init__(
@@ -358,10 +383,21 @@ class CopyResultToServer(CopyResult):
         config: PbenchAgentConfig,
         logger: Logger,
         server: Optional[str],
-        token: Optional[str],
+        token: str,
         access: Optional[str],
-        metadata: Optional[list[str]],
+        metadata: Optional[List[str]],
     ):
+        """Configure an object to manage result upload to a Pbench Server.
+
+        Args
+            logger: A Python logger object in Agent configuration
+            server: The URI of a Pbench Server [defaults to Pbench Agent config
+                    file value]
+            token: A Pbench Server authentication token, generally an API key
+            access: A desired dataset access scope (private|public) [private]
+            metadata: An optional list of metadata "key:value" pairs to apply
+                    to the dataset.
+        """
         super().__init__(logger, access, metadata)
         if server:
             path = config.get("results", "rest_endpoint")
@@ -377,13 +413,26 @@ class CopyResultToServer(CopyResult):
         )
 
     def push(self, tarball: Path, tarball_md5: str) -> requests.Response:
+        """Push a tarball to a Pbench Server.
+
+        Args
+            tarball: A path to a xz compressed tar file
+            tarball_md5: the MD5 hash of tarball
+
+        Returns:
+            A Response object representing the server PUT HTTP call
+
+        Raises:
+            FileNotFoundError: the tarball doesn't exist
+        """
         if not tarball.exists():
             raise FileNotFoundError(f"Tar ball '{tarball}' does not exist")
         self.headers["Content-MD5"] = tarball_md5
         tar_uri = self.uri.format(name=tarball.name)
         with tarball.open("rb") as f:
-            r = self._put(f, tar_uri, self.headers, self.params)
-            return r
+            return requests.put(
+                tar_uri, data=f, headers=self.headers, params=self.params
+            )
 
 
 class CopyResultToRelay(CopyResult):
@@ -392,12 +441,45 @@ class CopyResultToRelay(CopyResult):
         logger: Logger,
         relay: Optional[str],
         access: Optional[str],
-        metadata: Optional[list[str]],
+        metadata: Optional[List[str]],
     ):
+        """Hold generic context applicable to both Server and Relay
+
+        Args
+            logger: A Python logger object in Agent configuration
+            relay: The URI of a Relay server
+            access: A desired dataset access scope (private|public) [private]
+            metadata: An optional list of metadata "key:value" pairs to apply
+                    to the dataset.
+        """
         super().__init__(logger, access, metadata)
         self.uri = f"{relay}/{{sha256}}"
 
     def push(self, tarball: Path, tarball_md5: str) -> requests.Response:
+        """Push a tarball to a Relay server.
+
+        This involves three steps:
+
+        1. PUT the tarball to the relay server with a SHA256 object ID
+        2. Compile information about the tarball into a relay manifest file,
+        3. PUT the relay manifest file with its own SHA256 object ID
+
+        If either PUT operation fails, the response object is returned to the
+        caller for error diagnosis. Assuming both PUT operations succeed, the
+        relay manifest PUT response object is returned so that the caller can
+        determine the SHA256 object ID and report the relay URI which the
+        Pbench Server relay API will require to pull the result.
+
+        Args
+            tarball: A path to a xz compressed tar file
+            tarball_md5: the MD5 hash of tarball
+
+        Returns:
+            A Response object representing the manifest HTTP PUT call
+
+        Raises:
+            FileNotFoundError: the tarball doesn't exist
+        """
         if not tarball.exists():
             raise FileNotFoundError(f"Tar ball '{tarball!s}' does not exist")
         try:
@@ -409,8 +491,10 @@ class CopyResultToRelay(CopyResult):
                 self.logger.debug("Relay tarball %s", tar_uri)
 
                 f.seek(0)  # rewind since re-opening doesn't work
-                r = self._put(
-                    f, tar_uri, headers={"content-type": "application/octet-stream"}
+                r = requests.put(
+                    tar_uri,
+                    data=f,
+                    headers={"content-type": "application/octet-stream"},
                 )
                 if not r.ok:
                     return r
@@ -425,9 +509,9 @@ class CopyResultToRelay(CopyResult):
                 manifest.decode("utf-8"),
                 manifest_uri,
             )
-            r = self._put(
-                BytesIO(manifest),
+            r = requests.put(
                 manifest_uri,
+                data=BytesIO(manifest),
                 headers={"content-type": "application/octet-stream"},
             )
             return r
