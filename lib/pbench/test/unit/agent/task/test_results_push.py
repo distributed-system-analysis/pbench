@@ -237,7 +237,7 @@ class TestResultsPush:
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, args=[tarball])
         assert result.exit_code == 2, result.stderr
-        assert "Pbench Server connection requires '--token'" in str(result.stderr)
+        assert "Error: Missing option '--token'" in str(result.stderr)
 
     @staticmethod
     @responses.activate

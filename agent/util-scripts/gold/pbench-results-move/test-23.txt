@@ -15,11 +15,11 @@ Options:
   -m, --metadata TEXT            list of metadata keys to be sent on PUT.
                                  Option may need to be specified multiple
                                  times for multiple values. Format: key:value
-  --show-server TEXT             Display information about the pbench server
-                                 where the result(s) will be moved (Not
-                                 implemented)
+  --relay TEXT                   Specify a relay server host as
+                                 http[s]://host[:port]
+  --server TEXT                  Specify the Pbench Server 1.0 host as
+                                 https://host[:port]
   --token TEXT                   pbench server authentication token
-                                 [required]
   --xz-single-threaded           Use single threaded compression with 'xz'
   --help                         Show this message and exit.
 --- Finished test-23 pbench-results-move (status=0)

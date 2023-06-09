@@ -37,7 +37,7 @@ user_script = sleep
 """
 
 
-class TestMoveResults:
+class TestResultsMove:
 
     CTRL_SWITCH = "--controller"
     TOKN_SWITCH = "--token"
@@ -76,16 +76,16 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELY_SWITCH,
-                TestMoveResults.XZST_SWITCH,
-                TestMoveResults.SRVR_SWITCH,
-                TestMoveResults.SRVR_TEXT,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELY_SWITCH,
+                TestResultsMove.XZST_SWITCH,
+                TestResultsMove.SRVR_SWITCH,
+                TestResultsMove.SRVR_TEXT,
+                TestResultsMove.ACCESS_SWITCH,
+                TestResultsMove.ACCESS_TEXT,
             ],
         )
         assert (
@@ -106,17 +106,17 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELY_SWITCH,
-                TestMoveResults.XZST_SWITCH,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
-                TestMoveResults.META_SWITCH,
-                TestMoveResults.META_TEXT_TEST,
-                TestMoveResults.META_TEXT_FOO,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELY_SWITCH,
+                TestResultsMove.XZST_SWITCH,
+                TestResultsMove.ACCESS_SWITCH,
+                TestResultsMove.ACCESS_TEXT,
+                TestResultsMove.META_SWITCH,
+                TestResultsMove.META_TEXT_TEST,
+                TestResultsMove.META_TEXT_FOO,
             ],
         )
         assert (
@@ -132,14 +132,14 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.DELY_SWITCH,
-                TestMoveResults.XZST_SWITCH,
-                TestMoveResults.SRVR_SWITCH,
-                TestMoveResults.SRVR_TEXT,
-                TestMoveResults.RELAY_SWITCH,
-                TestMoveResults.RELAY_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.DELY_SWITCH,
+                TestResultsMove.XZST_SWITCH,
+                TestResultsMove.SRVR_SWITCH,
+                TestResultsMove.SRVR_TEXT,
+                TestResultsMove.RELAY_SWITCH,
+                TestResultsMove.RELAY_TEXT,
             ],
         )
         assert (
@@ -155,18 +155,18 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELY_SWITCH,
-                TestMoveResults.XZST_SWITCH,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
-                TestMoveResults.META_SWITCH,
-                TestMoveResults.META_TEXT_TEST,
-                TestMoveResults.META_SWITCH,
-                TestMoveResults.META_TEXT_FOO,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELY_SWITCH,
+                TestResultsMove.XZST_SWITCH,
+                TestResultsMove.ACCESS_SWITCH,
+                TestResultsMove.ACCESS_TEXT,
+                TestResultsMove.META_SWITCH,
+                TestResultsMove.META_TEXT_TEST,
+                TestResultsMove.META_SWITCH,
+                TestResultsMove.META_TEXT_FOO,
             ],
         )
         assert (
@@ -213,11 +213,11 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELN_SWITCH,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELN_SWITCH,
             ],
         )
         assert (
@@ -235,10 +235,10 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
             ],
         )
         assert (
@@ -254,10 +254,10 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
             ],
         )
         assert (
@@ -292,7 +292,7 @@ class TestMoveResults:
 
         responses.add(
             responses.PUT,
-            f"{TestMoveResults.SRVR_TEXT}/api/v1/upload/{script}_{config}_{date}.tar.xz",
+            f"{TestResultsMove.SRVR_TEXT}/api/v1/upload/{script}_{config}_{date}.tar.xz",
             status=200,
         )
 
@@ -302,13 +302,13 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELN_SWITCH,
-                TestMoveResults.SRVR_SWITCH,
-                TestMoveResults.SRVR_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELN_SWITCH,
+                TestResultsMove.SRVR_SWITCH,
+                TestResultsMove.SRVR_TEXT,
             ],
         )
         assert (
@@ -344,7 +344,7 @@ class TestMoveResults:
         caplog.set_level(logging.DEBUG)
 
         responses.add(
-            responses.PUT, re.compile(f"{TestMoveResults.RELAY_TEXT}/[a-z0-9]+")
+            responses.PUT, re.compile(f"{TestResultsMove.RELAY_TEXT}/[a-z0-9]+")
         )
 
         runner = CliRunner(mix_stderr=False)
@@ -353,11 +353,11 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.DELN_SWITCH,
-                TestMoveResults.RELAY_SWITCH,
-                TestMoveResults.RELAY_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.DELN_SWITCH,
+                TestResultsMove.RELAY_SWITCH,
+                TestResultsMove.RELAY_TEXT,
             ],
         )
 
