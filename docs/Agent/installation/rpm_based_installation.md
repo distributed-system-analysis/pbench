@@ -22,7 +22,7 @@ In the following, we describe how to install Pbench Agent using an RPM.
 	```
 
     :::{note}
-	- This documentation source describes Pbench Agent 0.72, and [here's](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-0.72) where you find the RPMs.
+	- We release Pbench Agent RPMs under the `ndokos` COPR account with repos following the pattern `pbench-<release>`.
 	- There are some RPMs that are shared between versions (e.g. pbench-sysstat). We maintain those in [ndokos/pbench](https://copr.fedorainfracloud.org/coprs/ndokos/pbench) repo.
     - On a RHEL-based system enable the subscription manager and enable the `EPEL` repo.
 	:::

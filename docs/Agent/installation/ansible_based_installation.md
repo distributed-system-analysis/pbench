@@ -1,6 +1,6 @@
 # Ansible based installation
 
-In the following: we describe how to install Pbench Agent using an ansible playbook.
+In the following: we describe how to install Pbench Agent using an ANSIBLE playbook.
 
 :::{note}
 The same Pbench Agent version must be installed on all the test systems that participate in a benchmark run, there is no support for mixed installations.
@@ -22,7 +22,7 @@ The same Pbench Agent version must be installed on all the test systems that par
  export ANSIBLE_ROLES_PATH=$HOME/.ansible/collections/ansible_collections/pbench/agent/roles:$ANSIBLE_ROLES_PATH
  ```
 
-4. Create an inventory file (`~/.config/Inventory/myhosts.inv`) naming the hosts on which you wish to install pbench agent and including information about where the config file. Example [inventory file](assets/myhosts.inv).
+4. Create an inventory file (`~/.config/Inventory/myhosts.inv`) naming the hosts on which you wish to install Pbench Agent and the location of the config file. Example [inventory file](assets/myhosts.inv).
 
 :::{note}
 if you're planning to push performance data to a 0.69 Pbench Server, you need to specify the server's private RSA key. Example [inventory file](assets/0.69_myhosts.inv).
