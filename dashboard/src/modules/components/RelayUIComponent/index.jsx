@@ -1,63 +1,68 @@
 import "./index.less";
 
 import {
+  ActionGroup,
   Button,
   Card,
   CardBody,
-  CardFooter,
-  CardTitle,
-  Flex,
-  FlexItem,
+  Form,
+  FormGroup,
   Grid,
   GridItem,
   TextInput,
   Title,
 } from "@patternfly/react-core";
 
-import DatasetTable from "./DatasetsTable";
 import React from "react";
+import { sendFileRequest } from "actions/relayActions";
+import { useDispatch } from "react-redux";
 
 const RelayComponent = () => {
   const [value, setValue] = React.useState("");
+  const dispatch = useDispatch();
+  const pullServerData = () => {
+    dispatch(sendFileRequest(value));
+  };
   return (
     <Grid hasGutter className="relay-ui-container">
       <Grid>
-        <GridItem span={1} />
-        <GridItem span={10}>
+        <GridItem span={3} />
+        <GridItem span={9}>
           <Title headingLevel="h3">Relay </Title>
         </GridItem>
       </Grid>
-      <GridItem span={1} />
-      <GridItem span={10}>
+
+      <div className="card-wrapper">
         <Card>
           <CardBody>
-            <Title headingLevel="h4">Relay Datasets</Title>
-            <DatasetTable />
-          </CardBody>
-        </Card>
-        <div className="divider" />
-        <Card>
-          <CardBody>
-            <Title headingLevel="h4">Pull Datasets</Title>
-            <Flex>
-              <FlexItem>Enter the Relay URI</FlexItem>
-              <FlexItem flex={{ default: "flex_3" }}>
+            <Form>
+              <FormGroup
+                label="Enter the Relay URI"
+                isRequired
+                fieldId="relay-uri"
+              >
                 <TextInput
+                  isRequired
                   type="text"
+                  id="relay-uri"
+                  name="relay-uri"
                   value={value}
                   onChange={(value) => setValue(value)}
-                  aria-label="Relay URI"
-                  placeholder="Relay URI"
                 />
-              </FlexItem>
-              <FlexItem flex={{ default: "flex_1" }}>
-                <Button isDisabled={!value}>Submit</Button>
-              </FlexItem>
-            </Flex>
+              </FormGroup>
+              <ActionGroup>
+                <Button
+                  variant="primary"
+                  isDisabled={!value}
+                  onClick={pullServerData}
+                >
+                  Submit
+                </Button>
+              </ActionGroup>
+            </Form>
           </CardBody>
         </Card>
-      </GridItem>
-      <GridItem span={1} />
+      </div>
     </Grid>
   );
 };
