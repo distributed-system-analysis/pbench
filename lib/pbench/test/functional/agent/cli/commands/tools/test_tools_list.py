@@ -261,7 +261,7 @@ class Test_list_tools_tools_registered_with_options:
 
     # Issue #3454
     @pytest.fixture
-    def labels_on_multiple_hosts(self, pbench_run):
+    def labels_on_multiple_hosts(self, pbench_run, tools_on_multiple_hosts):
         # This fixture is meant to be called after the previous one
         # (tools_on_multiple_hosts). The previous one establishes a
         # tool-like directory structure; this one just embellishes it
@@ -343,9 +343,7 @@ class Test_list_tools_tools_registered_with_options:
             in out
         )
 
-    def test_multiple_hosts_with_options_and_labels(
-        self, tools_on_multiple_hosts, labels_on_multiple_hosts, agent_config
-    ):
+    def test_multiple_hosts_with_labels(self, labels_on_multiple_hosts, agent_config):
         command = ["pbench-list-tools", "--with-option"]
         out, err, exitcode = pytest.helpers.capture(command)
         assert EMPTY == err and exitcode == 0
