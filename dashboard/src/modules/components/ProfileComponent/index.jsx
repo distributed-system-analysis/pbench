@@ -10,32 +10,33 @@ import {
   Text,
   TextContent,
   TextVariants,
-  isValidDate,
 } from "@patternfly/react-core";
-import { KeyIcon, UserAltIcon } from "@patternfly/react-icons";
 
 import KeyManagementComponent from "./KeyManagement";
 import React from "react";
+import { UserAltIcon } from "@patternfly/react-icons";
 import avatar from "assets/images/avatar.jpg";
 import { useKeycloak } from "@react-keycloak/web";
 
 const ProfileComponent = () => {
   const { keycloak } = useKeycloak();
 
-  const formatDate = (date) => {
-    const registerDate = new Date(date);
-    return isValidDate(registerDate)
-      ? registerDate.toLocaleDateString()
-      : "----";
-  };
   return (
     <div className={"profileDiv"}>
-      <TextContent>
-        <Text component={TextVariants.h2}>User Profile</Text>
-      </TextContent>
+      <Grid>
+        <GridItem span={1} />
+        <GridItem span={10}>
+          <TextContent>
+            <Text component={TextVariants.h2}>User Profile</Text>
+          </TextContent>
+        </GridItem>
+        <GridItem span={1} />
+      </Grid>
+
       <div className="headerDiv">
         <Grid hasGutter>
-          <GridItem span={8}>
+          <GridItem span={1} />
+          <GridItem span={10}>
             <Card className="card">
               <CardBody>
                 <Level className="levelCard">
@@ -111,27 +112,7 @@ const ProfileComponent = () => {
               <KeyManagementComponent />
             </GridItem>
           </GridItem>
-          <GridItem span={4}>
-            <Card className="card">
-              <CardBody>
-                <div className="subHeader settings-wrapper">
-                  <KeyIcon />
-                  <span className="subHeader">Settings</span>
-                </div>
-                <Grid>
-                  <GridItem span={12} className="subCardDiv">
-                    <TextContent>
-                      {/* TODO: How to handle account creation date */}
-                      <span>Account creation Date</span>
-                      <Text component={TextVariants.h4}>
-                        {formatDate("MM/DD/YYYY")}
-                      </Text>
-                    </TextContent>
-                  </GridItem>
-                </Grid>
-              </CardBody>
-            </Card>
-          </GridItem>
+          <GridItem span={1} />
         </Grid>
       </div>
     </div>
