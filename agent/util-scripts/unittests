@@ -366,6 +366,7 @@ declare -A tools=(
     [test-05]="pbench-start-tools"
     [test-06]="pbench-stop-tools"
     [test-07]="pbench-postprocess-tools"
+    [test-07.1]="pbench-postprocess-tools"
     [test-08]="pbench-kill-tools"
     [test-09]="pbench-kill-tools"
     [test-10]="pbench-kill-tools"
@@ -451,6 +452,7 @@ declare -A options=(
     [test-05]="--group=default --dir=42-iter/sample42"
     [test-06]="--group=default --dir=42-iter/sample42"
     [test-07]="--group=foobar --dir=${_testdir}/42-iter/sample42"
+    [test-07.1]="--group=foobar --dir=${_testdir}/42-iter/sample42"
     [test-08]="--group=barfoo --dir=42-iter/sample42"
     [test-09]="--group=barfoo"
     [test-10]="--dir=barfoo"
@@ -566,7 +568,10 @@ declare -A expected_status=(
 declare -A pre_hooks=(
     [test-05]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-06]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client; mkdir -p ${_testdir}/42-iter/sample42/tools-default/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-default/testhost.example.com/iostat/iostat-stdout.txt'
-    [test-07]='mkdir -p ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat/iostat-stdout.txt'
+    # with labeled host
+    [test-07]='mkdir -p ${_testdir}/42-iter/sample42/tools-foobar/bar:testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-foobar/bar:testhost.example.com/iostat/iostat-stdout.txt'
+    # with unlabeled host
+    [test-07.1]='mkdir -p ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat/iostat-stdout.txt'
     [test-11.16]='mkdir ${_testdir}/tmp; (echo foo; echo bar) > ${_testdir}/tmp/good-remote-file'
     [test-11.17]='mkdir ${_testdir}/tmp; touch  ${_testdir}/tmp/empty-remote-file'
     [test-19]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
@@ -623,7 +628,10 @@ function sort_tmlogs {
 declare -A post_hooks=(
     [test-05]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-06]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
-    [test-07]='cat ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/postprocess.log >> ${_testout} 2>&1'
+    # with labeled host
+    [test-07]='cat ${_testdir}/42-iter/sample42/tools-foobar/bar:testhost.example.com/postprocess.log >> ${_testout} 2>&1'
+    # with unlabeled host
+    [test-07.1]='cat ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/postprocess.log >> ${_testout} 2>&1'
     [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-53]='sort_testlog; sort_tmlogs; filter_tmerrs'
     [test-54]='sed -Ei "s/^optional arguments:/options:/" ${_testout}'
