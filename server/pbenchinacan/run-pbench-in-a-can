@@ -108,31 +108,21 @@ podman run \
 # match the host that the container is running on, so we generate it on the fly
 # and place it in the deployment files directory.
 #
-# We do this in the Pbench Server container so that we get a known version of
-# openssl (the native one on the Jenkins executors appears to be ancient).
-#
-# Note that this command, if successful, dumps the status of the factorization
-# search to stderr which produces a bunch of junk in the output; thus, we
-# redirect stderr to stdout and then pipe it through sed to remove any complete
-# lines consisting solely of any combination of periods, plus signs, asterisks,
-# and hyphens.
-podman run \
-    --rm \
-    --volume ${PB_DEPLOY_FILES}:/data:Z \
-    --volume ${PWD}/${pbiac_etc}/pki/tls:/pki_tls:Z \
-    --entrypoint /usr/bin/openssl \
-    ${PB_SERVER_IMAGE} \
-    req -batch -new -noenc -sha256 -days 365 -newkey rsa:2048 \
-    -out /data/pbench-server.crt \
-    -keyout /data/pbench-server.key \
-    -subj "/C=US/ST=Massachusetts/L=Westford/O=Red Hat/OU=Performance & Scale/CN=${host_name}" \
-    -CA /pki_tls/certs/pbench_CA.crt \
-    -CAkey /pki_tls/private/pbench_CA.key \
-    -addext "authorityKeyIdentifier = keyid,issuer" \
-    -addext "basicConstraints=CA:FALSE" \
-    -addext "keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment" \
-    -addext "subjectAltName = IP.2:${PB_HOST_IP}" \
-    2>&1 | sed -E -e '/^[.+*-]*$/ d'
+# We do this in the CI container so that we get a known version of openssl (the
+# native one on the Jenkins executors appears to be ancient).
+EXTRA_PODMAN_SWITCHES="--volume ${PB_DEPLOY_FILES}:/data:Z --volume ${PWD}/${pbiac_etc}/pki/tls:/pki_tls:Z" \
+    jenkins/run \
+        openssl req -batch -new -noenc -sha256 -days 365 -newkey rsa:2048 \
+        -out /data/pbench-server.crt \
+        -keyout /data/pbench-server.key \
+        -subj "/C=US/ST=Massachusetts/L=Westford/O=Red Hat/OU=Performance & Scale/CN=${host_name}" \
+        -CA /pki_tls/certs/pbench_CA.crt \
+        -CAkey /pki_tls/private/pbench_CA.key \
+        -addext "authorityKeyIdentifier = keyid,issuer" \
+        -addext "basicConstraints=CA:FALSE" \
+        -addext "keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment" \
+        -addext "subjectAltName = IP.2:${PB_HOST_IP}" \
+        2>&1 | sed -E -e '/^[.+*-]*$/ d'
 
 #+
 # Start the services which the Pbench Server depends upon and then start the
