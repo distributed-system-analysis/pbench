@@ -259,6 +259,39 @@ class Test_list_tools_tools_registered_with_options:
                     tool = p / "perf"
                     tool.write_text("--record-opts='-a --freq=100'")
 
+    # Issue #3454
+    @pytest.fixture
+    def labels_on_multiple_hosts(self, pbench_run, tools_on_multiple_hosts):
+        # This fixture is meant to be called after the previous one
+        # (tools_on_multiple_hosts). The previous one establishes a
+        # tool-like directory structure; this one just embellishes it
+        # with labels on some host entries. Think of it as a
+        # double for-loop, like the one above, only unrolled.
+
+        # row 1
+        group = "default"
+
+        # column 1
+        host = "th1.example.com"
+        label = pbench_run / f"tools-v1-{group}" / host / "__label__"
+        label.write_text("foo")
+
+        # column 2
+        host = "th2.example.com"
+        label = pbench_run / f"tools-v1-{group}" / host / "__label__"
+        label.write_text("bar")
+
+        # row 2
+        group = "test"
+
+        # column 1
+        host = "th1.example.com"
+        label = pbench_run / f"tools-v1-{group}" / host / "__label__"
+        label.write_text("bar")
+
+        # column 2
+        # th2 has no label
+
     # Issue #2346
     def test_existing_group_options(self, single_group_tools, agent_config):
         command = ["pbench-list-tools", "--with-option"]
@@ -307,5 +340,14 @@ class Test_list_tools_tools_registered_with_options:
         assert EMPTY == err and exitcode == 0
         assert (
             b"group: default; host: th1.example.com; tools: iostat --interval=30, mpstat --interval=300, sar --interval=10\ngroup: default; host: th2.example.com; tools: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'\ngroup: test; host: th1.example.com; tools: iostat --interval=30, mpstat --interval=300, sar --interval=10\ngroup: test; host: th2.example.com; tools: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'"
+            in out
+        )
+
+    def test_multiple_hosts_with_labels(self, labels_on_multiple_hosts, agent_config):
+        command = ["pbench-list-tools", "--with-option"]
+        out, err, exitcode = pytest.helpers.capture(command)
+        assert EMPTY == err and exitcode == 0
+        assert (
+            b"group: default; host: th1.example.com, label: foo; tools: iostat --interval=30, mpstat --interval=300, sar --interval=10\ngroup: default; host: th2.example.com, label: bar; tools: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'\ngroup: test; host: th1.example.com, label: bar; tools: iostat --interval=30, mpstat --interval=300, sar --interval=10\ngroup: test; host: th2.example.com; tools: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'"
             in out
         )

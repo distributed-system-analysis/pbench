@@ -91,11 +91,14 @@ pbench-list-tools --group ${group} --with-option >${tmp} 2>/dev/null
 let failures=0
 while read hostentry ;do
 	# Parse an entry from the output of `pbench-list-tools` above.
-	# The format is: "group: <group>; host: <host>; tools: <tool> <options, <tool> <options>, ...
+	# The format is: "group: <group>; host: <host> [, label: <label>]; tools: <tool> <options, <tool> <options>, ...
 	IFS=';' read group_spec host_spec tools_spec <<<"${hostentry}"
-	IFS=':' read dummy host junk <<<"${host_spec}"
+	IFS=',' read hostpart labelpart <<<"${host_spec}"
+	IFS=':' read dummy host junk <<<"${hostpart}"
+	IFS=':' read dummy label junk <<<"${labelpart}"
 	IFS=':' read dummy tools_entry junk <<<"${tools_spec}"
 	host=${host# *}
+	label=${label# *}
 	# Associative array: the keys are the tool names, and the values are the options
 	declare -A tools=()
 	IFS=',' read -a otools <<<"${tools_entry# *}"
@@ -104,8 +107,11 @@ while read hostentry ;do
 		tools[${atool[0]}]=${atool[@]:1}
 	done
 
-	# FIXME: add support for label applied to the hostname directory.
-	host_tool_output_dir="${tool_output_dir}/${host}"
+	if [[ -z "${label}" ]] ;then
+		host_tool_output_dir="${tool_output_dir}/${host}"
+	else
+		host_tool_output_dir="${tool_output_dir}/${label}:${host}"
+	fi
 	if [[ -d "${host_tool_output_dir}" ]]; then
 		for tool_name in ${!tools[@]} ;do
 			if [[ ! -x "${pbench_bin}/tool-scripts/${tool_name}" ]]; then
