@@ -7,6 +7,6 @@ jinja2
 python-daemon
 python-pidfile
 redis
-requests
+requests>=2.31.0  # CVE-2023-32681
 sh
 state-signals>=1.0.1

@@ -20,10 +20,20 @@
 
 #### Pbench Server 0.69
 
+The 0.69 variant of Pbench Server relies on a private `id_rsa` key for the
+Pbench Server's `pbench` user in order to upload data to the server using `ssh`
+protocols. Results on the server have no ownership, and are visible to
+everyone. Results cannot be deleted except by administrators.
+
 - [pbench-move-results](#pbench-move-results)
 - [pbench-copy-results](#pbench-copy-results)
 
 #### Pbench Server 1.0
+
+The 1.0 variant of Pbench Server relies on OIDC2 authentication to identify
+specific users. Data is uploaded to the server through HTTPS APIs, so that all
+results are owned and managed by the individual user. Results can be published
+to make them accessible to other users.
 
 - [pbench-results-move](#pbench-results-move)
 
@@ -100,7 +110,7 @@ Show this message and exit.
 
 **NAME**
 
-`pbench-copy-results` - copy result tarball to a 0.69 Pbench Server
+`pbench-copy-results` - copy result tarball to a Pbench Server
 
 **SYNOPSIS**
 
@@ -108,9 +118,8 @@ Show this message and exit.
 
 **DESCRIPTION**
 
-Push the benchmark result to a 0.69 Pbench Server without removing it from the
-local host. This command requires an `/opt/pbench-agent/id_rsa` file containing
-a private SSH key for the 0.69 Pbench Server `pbench` account.
+Push all accumulated benchmark results to a Pbench Server without removing
+them from the local host.
 
 **OPTIONS**
 
@@ -129,7 +138,7 @@ neither value is available, the result of `hostname -f` is used.
 `--prefix <prefix>`\
 This option allows the user to specify an optional
 directory-path hierarchy to be used when displaying the result
-files on the 0.69 Pbench Server.
+files on the Pbench Server.
 
 `--show-server`\
 This will not move any results but will resolve and
@@ -216,7 +225,7 @@ Show this message and exit.
 
 **NAME**
 
-`pbench-move-results` - move all results to 0.69 Pbench Server
+`pbench-move-results` - move all results to a Pbench Server
 
 **SYNOPSIS**
 
@@ -224,10 +233,8 @@ Show this message and exit.
 
 **DESCRIPTION**
 
-Push the benchmark result to a 0.69 Pbench Server. This command requires an
-`/opt/pbench-agent/id_rsa` file containing a private SSH key for the 0.69
-Pbench Server `pbench` account. On a successful push, this command removes the
-results from the local host.
+Push all accumulated benchmark results to a Pbench Server. On successful
+completion, this command removes the results from the local host.
 
 **OPTIONS**
 
@@ -405,13 +412,16 @@ should contain a hostname, optionally followed by a label separated by a comma
 Register the toolset in `<group>`. If no group is specified, the `default` group is assumed.
 
 `--labels=<label>[,<label>]...`\
-Where the list of labels must match the list of remotes.
+Where the list of labels must match the list of remotes. If a remotes file is
+specified with `--remotes @<file>` then labels are read from the file instead.
 
 `--interval=<interval>`\
-[To be supplied]
+Define a default interval for tools.
 
 `--no-install`\
-[To be supplied]
+Don't check whether the expected tools are installed when registering. This can
+lead to unexpected errors later, but may also allow running with nonstandard
+tool versions if there are no binary incompatibilities.
 
 `--help`\
 Show this message and exit.
@@ -461,7 +471,7 @@ Show this message and exit.
 
 **NAME**
 
-`pbench-results-move` - move results directories to a 1.0 Pbench Server
+`pbench-results-move` - move results directories to a Pbench Server
 
 **SYNOPSIS**
 
@@ -469,22 +479,23 @@ Show this message and exit.
 
 **DESCRIPTION**
 
-This command uploads one or more result directories to a 1.0 Pbench Server.
+This command uploads all accumulated results to a Pbench Server.
 
 Two modes are supported:
 
 1. The results are pushed directly to a Pbench Server using the API Key
-authentication token specified by `--token`, and will be owned by that user.
+authentication token specified by `--token` and will be owned by that user.
 The Pbench Server URI can be specified with `--server`, or will be defaulted
 from the active configuration file.
-2. The results are pushed to a Relay server, which may be anywhere reachable
-both from the Pbench Agent host executing the command and a 1.0 Pbench Server.
-The command will report a URI, which can be presented to a 1.0 Pbench Server
-through the `relay` API or from the Pbench Dashboard to cause the server to
-pull the results from the Relay server.
+2. The results are pushed to a Relay server rather than directly to a Pbench
+Server, and the command will report the URI of a Relay manifest. The Pbench
+Server can later be used to pull the results by supplying the full Relay
+manifest URI. The Relay server may be located on any network host accessible
+to both the Pbench Agent and the Pbench Server to allow uploading results
+through a firewall.
 
-Once the upload is complete, the result directories
-are, by default, removed from the local system.
+On successful completion, the result directories are removed from the local
+system unless `--no-delete` is specified.
 
 **OPTIONS**
 
@@ -494,14 +505,13 @@ This option is required if not provided by the `_PBENCH_AGENT_CONFIG` environmen
 
 `--relay <relay>`\
 Instead of pushing results directly to a Pbench Server, push them to a Relay
-server at the specified URI. For example, `https://myrelay.example.com`.
+server at the specified address. For example, `https://myrelay.example.com`.
 
 `--server <server>`\
-Override the default server path in the Pbench Agent configuration file and
-push results to the specified Pbench Server URI. For example,
-`https://pbench.example.com`. This is especially useful in a containerized
-Pbench Agent to push results without mapping a customized Pbench Agent
-configuration file into the container.
+Override the default server address in the Pbench Agent configuration file and
+push results to the specified Pbench Server address. For example,
+`https://pbench.example.com`. This often allows a Pbench Agent to push results
+without creating a customized Pbench Agent configuration file.
 
 `--controller <controller>`\
 Override the default controller name.
@@ -561,30 +571,41 @@ The tool group to use for data collection.
 
 `--iteration-list <file>`\
 A file containing a list of iterations to run for the provided script. The file
-must contain one iteration per line. Blank lines are ignored, and you can use a
-leading hash (`#`) character for comments. Each iteration line should use
+must contain one iteration per line. Empty lines are ignored, and comments are
+denoted by a leading hash (`#`) character. Each iteration line should use
 alpha-numeric characters before the first space to name the iteration, with the
 rest of the line provided as arguments to the script.
-_NOTE: --iteration-list is not compatible with --use-tool-triggers_
 
-`--sysinfo STR[,STR]...`\
+_NOTE: --iteration-list is not compatible with --use-tool-triggers._
+
+`--sysinfo <module>[,<module>]...`\
 Comma-separated values of system information to be collected; available:
 `default`, `none`, `all`, `ara`, `block`, `insights`, `kernel_config`,
 `libvirt`, `security_mitigations`, `sos`, `stockpile`, `topology`
 
 `--pbench-pre <pre-script>`\
 Path to the script which will be executed before tools are started.
-_NOTE: --pbench-pre is not compatible with --use-tool-triggers_
+
+_NOTE: --pbench-pre is not compatible with --use-tool-triggers._
 
 `--pbench-post <post-script>`\
 Path to the script which will be executed after tools are stopped and
 postprocessing is complete.
-_NOTE: --pbench-post is not compatible with --use-tool-triggers_
+
+_NOTE: --pbench-post is not compatible with --use-tool-triggers._
 
 `--use-tool-triggers`\
-Use tool triggers instead of normal start/stop around script.
+Use tool triggers instead of normal start/stop sequence when starting and
+stopping iterations.
+
+Tool triggers allow starting and stopping tool data collection based on data
+in the `<command-to-run>` output stream to allow collecting data over parts
+of the execution, dynamically.
+
 _NOTE: --use-tool-triggers is not compatible with --iteration-list,
---pbench-pre, or --pbench-post_
+--pbench-pre, or --pbench-post._
+
+__[TODO: Document the register/list tool trigger commands]__
 
 `--no-stderr-capture`\
 Do not capture the standard error output of the script in the `result.txt` file
