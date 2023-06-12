@@ -49,7 +49,7 @@ RUN \
         redis \
         rpmdevtools \
         `#` \
-        `# Required for server legacy unit tests` \
+        `# Required for server python unit tests` \
         `#` \
         sqlite \
         `#` \
@@ -81,6 +81,10 @@ RUN \
         `# Required for Alembic migration test` \
         `#` \
         nc \
+        `#` \
+        `# Required for Server functional test` \
+        `#` \
+        openssl \
         && \
     `#` \
     `# Save space in the container image.` \
