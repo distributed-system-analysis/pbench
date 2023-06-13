@@ -7,3 +7,4 @@ User Guide
    getting_started
    UserGuide
    man_page
+   guides/end-to-end-workflow

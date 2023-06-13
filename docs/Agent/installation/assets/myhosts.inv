@@ -1,0 +1,8 @@
+[servers]
+<host1>
+<host2>
+<host3>
+
+[servers:vars]
+# where to get the config file
+pbench_config_url = <url>
