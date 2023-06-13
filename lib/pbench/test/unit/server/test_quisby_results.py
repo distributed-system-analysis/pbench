@@ -1,11 +1,11 @@
 from http import HTTPStatus
 from pathlib import Path
-import tarfile
 
+from pquisby.lib.post_processing import QuisbyProcessing
 import pytest
 import requests
 
-from pbench.server.cache_manager import CacheManager, Tarball
+from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -40,31 +40,6 @@ class TestQuisbyResults:
 
         return query_api
 
-    def mock_find_dataset(self, dataset):
-        class Tarball(object):
-            tarball_path = Path(
-                "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz"
-            )
-
-            def extract(tarball_path, path):
-                mod_path = Path(__file__).parent
-                relative_path_2 = "../../functional/server/tarballs/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz"
-                uperf_tarball_path = (mod_path / relative_path_2).resolve()
-                tarball_path_1 = Path(uperf_tarball_path)
-                tar = tarfile.open(tarball_path_1, "r:*")
-
-                return (
-                    tar.extractfile(
-                        "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/result.csv"
-                    )
-                    .read()
-                    .decode()
-                )
-
-        # Validate the resource_id
-        Dataset.query(resource_id=dataset)
-        return Tarball
-
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as("nonexistent-dataset", "drb", HTTPStatus.NOT_FOUND)
         assert response.json == {"message": "Dataset 'nonexistent-dataset' not found"}
@@ -82,20 +57,39 @@ class TestQuisbyResults:
         }
 
     def test_quisby_success(self, query_get_as, monkeypatch):
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
+        def mock_find_dataset(self, dataset):
+            class Tarball(object):
+                tarball_path = Path("/dataset/tarball.tar.xz")
+
+                def extract(tarball_path, path):
+                    return "CSV_file_as_a_byte_stream"
+
+            return Tarball
+
+        def mock_extract_data(test_name, dataset_name, input_type, data):
+            return {"status": "success", "json_data": "quisby_data"}
+
+        monkeypatch.setattr(CacheManager, "find_dataset", mock_find_dataset)
+        monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
 
         response = query_get_as("uperf_1", "test", HTTPStatus.OK)
         assert response.json["status"] == "success"
-        assert response.json["jsonData"]
+        assert response.json["json_data"]
 
     def test_quisby_failure(self, query_get_as, monkeypatch):
+        def mock_find_dataset(self, dataset):
+            class Tarball(object):
+                tarball_path = Path("/dataset/tarball.tar.xz")
 
-        # Need to refine it
-        def extract_csv(self):
-            return "IncorrectData"
+                def extract(tarball_path, path):
+                    return "IncorrectData"
 
-        monkeypatch.setattr(Tarball, "extract", extract_csv)
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
+            return Tarball
 
-        response = query_get_as("uperf_1", "test", HTTPStatus.OK)
-        print(response.json)
+        def mock_extract_data(test_name, dataset_name, input_type, data):
+            return {"status": "failed", "exception": "Unsupported Media Type"}
+
+        monkeypatch.setattr(CacheManager, "find_dataset", mock_find_dataset)
+        monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
+
+        query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)

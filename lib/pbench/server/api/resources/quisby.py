@@ -3,7 +3,7 @@ from urllib.request import Request
 
 from flask import current_app, jsonify
 from flask.wrappers import Response
-from pquisby.lib.post_processing import extract_data
+from pquisby.lib.post_processing import BenchmarkName, InputType, QuisbyProcessing
 
 from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -76,7 +76,10 @@ class QuisbyData(ApiBase):
             file = tarball.extract(tarball.tarball_path, f"{name}/result.csv")
         except TarballUnpackError as e:
             raise APIInternalError(str(e)) from e
-        json_data = extract_data("uperf", dataset.name, "localhost", "stream", file)
+
+        json_data = QuisbyProcessing.extract_data(
+            self, BenchmarkName.UPERF, dataset.name, InputType.STREAM, file
+        )
 
         if json_data["status"] == "success":
             response = jsonify(json_data)
