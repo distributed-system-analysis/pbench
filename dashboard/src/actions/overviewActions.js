@@ -71,7 +71,6 @@ const initializeRuns = () => (dispatch, getState) => {
 
     clearEditableFields(item);
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
-    item["checkedItems"] = ["dataset.access", "dataset.metalog.run"];
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
     item[CONSTANTS.IS_ITEM_FAVORITED] =
       !!item?.metadata?.[CONSTANTS.USER_FAVORITE];

@@ -109,9 +109,7 @@ export const NewRunsHeading = () => {
   const dispatch = useDispatch();
 
   const { endpoints } = useSelector((state) => state.apiEndpoint);
-  const { selectedRuns, isMetadataModalOpen } = useSelector(
-    (state) => state.overview
-  );
+  const { selectedRuns } = useSelector((state) => state.overview);
   const dropdownItems = actions.map((item) => {
     return (
       <DropdownItem
@@ -401,7 +399,7 @@ export const MetadataRow = (props) => {
   return (
     <div className="box">
       {checkedItems.map((attr) => {
-        const levels = attr.split("*");
+        const levels = attr.split(CONSTANTS.KEYS_JOIN_BY);
         const meta = item.metadata;
         const showValue = levels.reduce((a, level) => {
           let value = "";

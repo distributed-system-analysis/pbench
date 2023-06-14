@@ -19,7 +19,6 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { List, ListItem } from "@patternfly/react-core";
 import {
   MetaDataModal,
   MetadataRow,
