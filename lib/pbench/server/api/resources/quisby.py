@@ -57,7 +57,8 @@ class QuisbyData(ApiBase):
             context: API context dictionary
 
         Raises:
-            APIAbort, reporting either "NOT_FOUND"
+            APIAbort, reporting "NOT_FOUND"
+            APIInternalError, reporting the failure message
 
 
         GET /api/v1/quisby/{dataset}
@@ -77,12 +78,24 @@ class QuisbyData(ApiBase):
         except TarballUnpackError as e:
             raise APIInternalError(str(e)) from e
 
-        json_data = QuisbyProcessing.extract_data(
-            self, BenchmarkName.UPERF, dataset.name, InputType.STREAM, file
+        metadata = self._get_dataset_metadata(
+            dataset, ["dataset.metalog.pbench.script"]
+        )
+        benchmark = metadata["dataset.metalog.pbench.script"]
+
+        if benchmark == "uperf":
+            benchmark_type = BenchmarkName.UPERF
+        elif benchmark == "fio":
+            benchmark_type = BenchmarkName.FIO
+        else:
+            raise APIAbort(HTTPStatus.NOT_FOUND, "Unsupported Benchmark")
+
+        get_quisby_data = QuisbyProcessing.extract_data(
+            self, benchmark_type, dataset.name, InputType.STREAM, file
         )
 
-        if json_data["status"] == "success":
-            response = jsonify(json_data)
+        if get_quisby_data["status"] == "success":
+            response = jsonify(get_quisby_data)
             response.status_code = HTTPStatus.OK
             return response
         else:

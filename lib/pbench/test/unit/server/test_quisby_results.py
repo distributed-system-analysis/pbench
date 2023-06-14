@@ -5,6 +5,7 @@ from pquisby.lib.post_processing import QuisbyProcessing
 import pytest
 import requests
 
+from pbench.server.api.resources import ApiBase
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
@@ -40,6 +41,9 @@ class TestQuisbyResults:
 
         return query_api
 
+    def mock_get_dataset_metadata(self, dataset, key):
+        return {"dataset.metalog.pbench.script": "uperf"}
+
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as("nonexistent-dataset", "drb", HTTPStatus.NOT_FOUND)
         assert response.json == {"message": "Dataset 'nonexistent-dataset' not found"}
@@ -66,10 +70,13 @@ class TestQuisbyResults:
 
             return Tarball
 
-        def mock_extract_data(test_name, dataset_name, input_type, data):
+        def mock_extract_data(self, test_name, dataset_name, input_type, data):
             return {"status": "success", "json_data": "quisby_data"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", mock_find_dataset)
+        monkeypatch.setattr(
+            ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
+        )
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
 
         response = query_get_as("uperf_1", "test", HTTPStatus.OK)
@@ -86,10 +93,13 @@ class TestQuisbyResults:
 
             return Tarball
 
-        def mock_extract_data(test_name, dataset_name, input_type, data):
+        def mock_extract_data(self, test_name, dataset_name, input_type, data):
             return {"status": "failed", "exception": "Unsupported Media Type"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", mock_find_dataset)
+        monkeypatch.setattr(
+            ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
+        )
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
 
         query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
