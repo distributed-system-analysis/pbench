@@ -41,6 +41,15 @@ class TestQuisbyResults:
 
         return query_api
 
+    def mock_find_dataset(self, dataset):
+        class Tarball(object):
+            tarball_path = Path("/dataset/tarball.tar.xz")
+
+            def extract(tarball_path, path):
+                return "CSV_file_as_a_byte_stream"
+
+        return Tarball
+
     def mock_get_dataset_metadata(self, dataset, key):
         return {"dataset.metalog.pbench.script": "uperf"}
 
@@ -61,19 +70,10 @@ class TestQuisbyResults:
         }
 
     def test_quisby_success(self, query_get_as, monkeypatch):
-        def mock_find_dataset(self, dataset):
-            class Tarball(object):
-                tarball_path = Path("/dataset/tarball.tar.xz")
-
-                def extract(tarball_path, path):
-                    return "CSV_file_as_a_byte_stream"
-
-            return Tarball
-
         def mock_extract_data(self, test_name, dataset_name, input_type, data):
             return {"status": "success", "json_data": "quisby_data"}
 
-        monkeypatch.setattr(CacheManager, "find_dataset", mock_find_dataset)
+        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(
             ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
         )
@@ -84,7 +84,7 @@ class TestQuisbyResults:
         assert response.json["json_data"]
 
     def test_quisby_failure(self, query_get_as, monkeypatch):
-        def mock_find_dataset(self, dataset):
+        def mock_find_dataset_with_incorrect_data(self, dataset):
             class Tarball(object):
                 tarball_path = Path("/dataset/tarball.tar.xz")
 
@@ -96,10 +96,21 @@ class TestQuisbyResults:
         def mock_extract_data(self, test_name, dataset_name, input_type, data):
             return {"status": "failed", "exception": "Unsupported Media Type"}
 
-        monkeypatch.setattr(CacheManager, "find_dataset", mock_find_dataset)
+        monkeypatch.setattr(
+            CacheManager, "find_dataset", mock_find_dataset_with_incorrect_data
+        )
         monkeypatch.setattr(
             ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
         )
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
 
         query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    def test_unsupported_benchmark(self, query_get_as, monkeypatch):
+        def mock_get_metadata(self, dataset, key):
+            return {"dataset.metalog.pbench.script": "linpack"}
+
+        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(ApiBase, "_get_dataset_metadata", mock_get_metadata)
+        response = query_get_as("uperf_1", "test", HTTPStatus.NOT_FOUND)
+        response.json["message"] = "Unsupported Benchmark"
