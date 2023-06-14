@@ -52,14 +52,12 @@ class QuisbyData(ApiBase):
         This function returns the Quisby data for the requested dataset.
 
         Args:
-            params: includes the uri parameters, which provide the dataset and target.
+            params: includes the uri parameters, which provide the dataset.
             request: Original incoming Request object
             context: API context dictionary
 
         Raises:
-            APIAbort, reporting "NOT_FOUND"
-            APIInternalError, reporting the failure message
-
+            APIAbort, reporting "NOT_FOUND" and "INTERNAL_SERVER_ERROR"
 
         GET /api/v1/quisby/{dataset}
         """
@@ -71,8 +69,8 @@ class QuisbyData(ApiBase):
             tarball = cache_m.find_dataset(dataset.resource_id)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
-        name = Dataset.stem(tarball.tarball_path)
 
+        name = Dataset.stem(tarball.tarball_path)
         try:
             file = tarball.extract(tarball.tarball_path, f"{name}/result.csv")
         except TarballUnpackError as e:
@@ -82,7 +80,6 @@ class QuisbyData(ApiBase):
             dataset, ["dataset.metalog.pbench.script"]
         )
         benchmark = metadata["dataset.metalog.pbench.script"]
-
         if benchmark == "uperf":
             benchmark_type = BenchmarkName.UPERF
         elif benchmark == "fio":
@@ -99,4 +96,9 @@ class QuisbyData(ApiBase):
             response.status_code = HTTPStatus.OK
             return response
         else:
-            raise APIInternalError("Unexpected failure from Quisby processing")
+            current_app.logger.error(
+                "Quisby processing failure. Exception :{}", get_quisby_data["exception"]
+            )
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR, "Unexpected failure from Quisby"
+            )

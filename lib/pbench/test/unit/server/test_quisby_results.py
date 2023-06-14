@@ -103,8 +103,8 @@ class TestQuisbyResults:
             ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
         )
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
-
-        query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
+        response = query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
+        response.json["message"] = "Unexpected failure from Quisby"
 
     def test_unsupported_benchmark(self, query_get_as, monkeypatch):
         def mock_get_metadata(self, dataset, key):
