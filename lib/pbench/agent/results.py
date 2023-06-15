@@ -291,12 +291,15 @@ class CopyResult:
         pass
 
     def __init__(
-        self, logger: Logger, access: Optional[str], metadata: Optional[List[str]]
+        self,
+        logger: Logger,
+        access: Optional[str] = None,
+        metadata: Optional[List[str]] = None,
     ):
         """Hold generic context applicable to both Server and Relay
 
         Args
-            logger: A Python logger object in Agent configuration
+            logger: A Python logger object
             access: A desired dataset access scope (private|public) [private]
             metadata: An optional list of metadata "key:value" pairs to apply
                     to the dataset.
@@ -327,16 +330,16 @@ class CopyResult:
     def create(
         config: PbenchAgentConfig,
         logger: Logger,
-        relay: Optional[str],
-        server: Optional[str],
-        token: Optional[str],
-        access: Optional[str],
-        metadata: Optional[List[str]],
+        relay: Optional[str] = None,
+        server: Optional[str] = None,
+        token: Optional[str] = None,
+        access: Optional[str] = None,
+        metadata: Optional[List[str]] = None,
     ) -> "CopyResult":
         """Factory method to create a CopyResults object
 
         Args:
-            config: Pbench Agent config file
+            config: Pbench Agent configuration object
             logger: Python logger object
             relay: The value of the --relay option if specified
             server: The value of the --server option if specified
@@ -350,7 +353,7 @@ class CopyResult:
         if relay:
             return CopyResultToRelay(logger, relay, access, metadata)
         else:
-            return CopyResultToServer(config, logger, server, token, access, metadata)
+            return CopyResultToServer(config, logger, token, server, access, metadata)
 
     @classmethod
     def cli_create(
@@ -382,17 +385,18 @@ class CopyResultToServer(CopyResult):
         self,
         config: PbenchAgentConfig,
         logger: Logger,
-        server: Optional[str],
         token: str,
-        access: Optional[str],
-        metadata: Optional[List[str]],
+        server: Optional[str] = None,
+        access: Optional[str] = None,
+        metadata: Optional[List[str]] = None,
     ):
-        """Configure an object to manage result upload to a Pbench Server.
+        """Configure an object to manage results upload to a Pbench Server.
 
         Args
-            logger: A Python logger object in Agent configuration
+            config: The Pbench Agent configuration object
+            logger: A Python logger object
             server: The URI of a Pbench Server [defaults to Pbench Agent config
-                    file value]
+                    "server_rest_uri" value]
             token: A Pbench Server authentication token, generally an API key
             access: A desired dataset access scope (private|public) [private]
             metadata: An optional list of metadata "key:value" pairs to apply
@@ -434,11 +438,11 @@ class CopyResultToRelay(CopyResult):
     def __init__(
         self,
         logger: Logger,
-        relay: Optional[str],
-        access: Optional[str],
-        metadata: Optional[List[str]],
+        relay: Optional[str] = None,
+        access: Optional[str] = None,
+        metadata: Optional[List[str]] = None,
     ):
-        """Hold generic context applicable to both Server and Relay
+        """Configure an object to manage results upload to a Relay server.
 
         Args
             logger: A Python logger object in Agent configuration
@@ -460,8 +464,8 @@ class CopyResultToRelay(CopyResult):
         3. PUT the relay manifest file with its own SHA256 object ID
 
         If either PUT operation fails, the response object is returned to the
-        caller for error diagnosis. Assuming both PUT operations succeed, the
-        relay manifest PUT response object is returned so that the caller can
+        caller for error diagnosis. If both PUT operations succeed, the relay
+        manifest PUT response object is returned so that the caller can
         determine the SHA256 object ID and report the relay URI which the
         Pbench Server relay API will require to pull the result.
 
@@ -470,7 +474,8 @@ class CopyResultToRelay(CopyResult):
             tarball_md5: the MD5 hash of tarball
 
         Returns:
-            A Response object representing the manifest HTTP PUT call
+            A Response object representing the last HTTP operation response; if
+            response.ok then response.url is the Relay manifest URI.
 
         Raises:
             FileNotFoundError: the tarball doesn't exist

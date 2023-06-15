@@ -15,9 +15,9 @@ Options:
   -m, --metadata TEXT            list of metadata keys to be sent on PUT.
                                  Option may need to be specified multiple
                                  times for multiple values. Format: key:value
-  --relay TEXT                   Specify a relay server host as
+  --relay TEXT                   Specify a relay server as
                                  http[s]://host[:port]
-  --server TEXT                  Specify the Pbench Server 1.0 host as
+  --server TEXT                  Specify the Pbench Server as
                                  https://host[:port]
   --token TEXT                   pbench server authentication token
   --xz-single-threaded           Use single threaded compression with 'xz'

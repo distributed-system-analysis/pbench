@@ -18,10 +18,10 @@ class TestCopyResults:
     @pytest.fixture(autouse=True)
     def config(self):
         # Setup the configuration
-        TestCopyResults.config = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"])
+        self.config = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"])
         yield
         # Teardown the setup
-        TestCopyResults.config = None
+        self.config = None
 
     @staticmethod
     def get_path_exists_mock(path: str, result: bool) -> Callable:
@@ -51,12 +51,7 @@ class TestCopyResults:
 
             with pytest.raises(FileNotFoundError) as excinfo:
                 CopyResultToServer(
-                    self.config,
-                    agent_logger,
-                    "http://example.com",
-                    "token",
-                    "private",
-                    None,
+                    self.config, agent_logger, "token", "http://example.com", "private"
                 ).push(Path(bad_tarball_name), "ignoremd5")
 
         assert str(excinfo.value).endswith(
@@ -68,7 +63,7 @@ class TestCopyResults:
     @pytest.mark.parametrize("access", ("public", "private", None))
     def test_with_access(self, monkeypatch, agent_logger, server: str, access: str):
         tb_name = "test_tarball.tar.xz"
-        tb_contents = b"I'm a result!"
+        tb_contents = "I'm a result!"
 
         def request_callback(request: requests.Request):
             if access is None:
@@ -88,11 +83,11 @@ class TestCopyResults:
         with monkeypatch.context() as m:
             m.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
             m.setattr(
-                Path, "open", self.get_path_open_mock(tb_name, io.BytesIO(tb_contents))
+                Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
             )
 
             res = CopyResultToServer(
-                self.config, agent_logger, server, None, access, None
+                self.config, agent_logger, "token", server, access
             ).push(Path(tb_name), "someMD5")
 
         assert res.status_code == HTTPStatus.CREATED
@@ -125,7 +120,7 @@ class TestCopyResults:
             )
 
             res = CopyResultToServer(
-                self.config, agent_logger, None, "token", "private", metadata
+                self.config, agent_logger, "token", None, "private", metadata
             ).push(Path(tb_name), "someMD5")
 
         assert res.status_code == HTTPStatus.CREATED
@@ -194,9 +189,9 @@ class TestCopyResults:
             )
 
             with pytest.raises(requests.exceptions.ConnectionError):
-                CopyResultToServer(
-                    self.config, agent_logger, None, None, None, None
-                ).push(Path(tb_name), "someMD5")
+                CopyResultToServer(self.config, agent_logger, "token").push(
+                    Path(tb_name), "someMD5"
+                )
 
     @responses.activate
     def test_unexpected_error(self, monkeypatch, agent_logger):
@@ -214,6 +209,6 @@ class TestCopyResults:
             )
 
             with pytest.raises(RuntimeError, match="uh-oh"):
-                CopyResultToServer(
-                    self.config, agent_logger, None, None, None, None
-                ).push(Path(tb_name), "someMD5")
+                CopyResultToServer(self.config, agent_logger, "token").push(
+                    Path(tb_name), "someMD5"
+                )

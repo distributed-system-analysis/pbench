@@ -203,7 +203,7 @@ class TestResultsMove:
 
         responses.add(
             responses.PUT,
-            f"http://pbench.example.com/api/v1/upload/{script}_{config}_{date}.tar.xz",
+            f"http://pbench.example.com/api/v1/upload/{name}.tar.xz",
             status=200,
         )
 
@@ -363,23 +363,15 @@ class TestResultsMove:
 
         # We expect two PUT calls using the relay base URI: a JSON manifest
         # object followed by the tarball. Responses stores "calls" in reverse
-        # order. While we can effect random access by searching for URIs, we
-        # can't easily know either SHA256 as the tarball and manifest are both
-        # generated internally. Instead, we traverse the list of calls in
-        # reversed order, expecting the first to resolve to a JSON file and the
-        # second to provide a URL corresponding to the tarball, which we assert
-        # must appear in the manifest "uri" field.
-        manifest = {}
-        uris = []
+        # order. We expect the first (index 1) to resolve to a JSON relay
+        # manifest file and the second (index 0) to provide a URL corresponding
+        # to the tarball, which we assert must appear in the manifest "uri"
+        # field.
         assert len(responses.calls) == 2
-        for c in reversed(responses.calls):
-            if not manifest:
-                manifest.update(json.load(c.request.body))
-            else:
-                uris.append(c.request.url)
-
-        assert manifest["uri"] == uris[0]
-        assert manifest["name"] == f"{script}_{config}_{date}.tar.xz"
+        calls = list(responses.calls)
+        manifest = json.load(calls[1].request.body)
+        assert manifest["uri"] == calls[0].request.url
+        assert manifest["name"] == f"{name}.tar.xz"
         assert (
             result.exit_code == 0
         ), f"Expected a successful operation, exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"

@@ -34,11 +34,11 @@ def results_common_options(f):
         ),
         click.option(
             "--server",
-            help=("Specify the Pbench Server 1.0 host as https://host[:port]"),
+            help="Specify the Pbench Server as https://host[:port]",
         ),
         click.option(
             "--relay",
-            help=("Specify a relay server host as http[s]://host[:port]"),
+            help="Specify a relay server as http[s]://host[:port]",
         ),
         click.option(
             "--token",

@@ -100,14 +100,14 @@ class MoveResults(BaseCommand):
 
                 try:
                     res = crt.push(result_tb_name, result_tb_md5)
-                    if res.ok and self.context.relay:
-                        click.echo(f"RELAY {result_tb_name.name}: {res.url}")
                     if not res.ok:
                         try:
                             msg = res.json()["message"]
                         except requests.exceptions.JSONDecodeError:
                             msg = res.text if res.text else res.reason
                         raise CopyResult.FileUploadError(msg)
+                    if self.context.relay:
+                        click.echo(f"RELAY {result_tb_name.name}: {res.url}")
                 except Exception as exc:
                     if isinstance(exc, (CopyResult.FileUploadError, RuntimeError)):
                         msg = "Error uploading file"

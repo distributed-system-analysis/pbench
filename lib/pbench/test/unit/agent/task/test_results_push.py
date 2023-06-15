@@ -29,7 +29,7 @@ class TestResultsPush:
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
-    def add_server_mock_response(
+    def server_mock(
         status_code: HTTPStatus = HTTPStatus.CREATED,
         message: Optional[Union[str, Dict, Exception]] = None,
     ):
@@ -49,7 +49,6 @@ class TestResultsPush:
         )
 
     @staticmethod
-    @pytest.fixture
     def relay_mock(
         status_code: HTTPStatus = HTTPStatus.CREATED,
         error: Optional[Exception] = None,
@@ -129,7 +128,8 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_relay(relay_mock):
+    def test_relay():
+        __class__.relay_mock()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -188,7 +188,7 @@ class TestResultsPush:
     def test_multiple_meta_args_single_option():
         """Test normal operation when all arguments and options are specified"""
 
-        TestResultsPush.add_server_mock_response()
+        TestResultsPush.server_mock()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -210,7 +210,7 @@ class TestResultsPush:
     def test_multiple_meta_args():
         """Test normal operation when all arguments and options are specified"""
 
-        TestResultsPush.add_server_mock_response()
+        TestResultsPush.server_mock()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -245,7 +245,7 @@ class TestResultsPush:
         """Test normal operation with the token in an environment variable"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_server_mock_response()
+        TestResultsPush.server_mock()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, args=[tarball])
         assert result.exit_code == 0, result.stderr
@@ -295,7 +295,7 @@ class TestResultsPush:
     def test_push_status(status_code, message, exit_code):
         """Test normal operation when all arguments and options are specified"""
 
-        TestResultsPush.add_server_mock_response(status_code, message)
+        TestResultsPush.server_mock(status_code, message)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
