@@ -6,7 +6,7 @@ from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
 
 from pbench.server import PbenchServerConfig
-from pbench.server.auth import OpenIDClient, OpenIDTokenInvalid
+from pbench.server.auth import OpenIDClient
 from pbench.server.database.models.api_keys import APIKey
 from pbench.server.database.models.users import User
 
@@ -143,14 +143,15 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
     """
     try:
         token_payload = oidc_client.token_introspect(token=auth_token)
-    except OpenIDTokenInvalid:
-        # The token is not a valid access token, fall through.
-        pass
     except Exception:
-        current_app.logger.exception(
-            "Unexpected exception occurred while verifying the auth token {}",
-            auth_token,
-        )
+        try:
+            return verify_auth_api_key(auth_token)
+        except Exception:
+            current_app.logger.exception(
+                "Unexpected exception occurred while verifying the API key {}",
+                auth_token,
+            )
+        raise
     else:
         # Extract what we want to cache from the access token
         user_id = token_payload["sub"]
@@ -167,13 +168,5 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
         else:
             user.update(username=username, roles=roles)
         return user
-
-    try:
-        return verify_auth_api_key(auth_token)
-    except Exception:
-        current_app.logger.exception(
-            "Unexpected exception occurred while verifying the API key {}",
-            auth_token,
-        )
 
     return None
