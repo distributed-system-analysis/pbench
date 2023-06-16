@@ -361,12 +361,10 @@ class TestResultsMove:
             ],
         )
 
-        # We expect two PUT calls using the relay base URI: a JSON manifest
-        # object followed by the tarball. Responses stores "calls" in reverse
-        # order. We expect the first (index 1) to resolve to a JSON relay
-        # manifest file and the second (index 0) to provide a URL corresponding
-        # to the tarball, which we assert must appear in the manifest "uri"
-        # field.
+        # We expect two PUT calls using the relay base URI: first the tarball
+        # itself, and then a JSON manifest file. The manifest JSON must contain
+        # a "uri" field with a value matching the tarball URI, and a "name"
+        # field identifying the original tarball name.
         assert len(responses.calls) == 2
         calls = list(responses.calls)
         manifest = json.load(calls[1].request.body)

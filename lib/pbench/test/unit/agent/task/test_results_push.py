@@ -129,7 +129,7 @@ class TestResultsPush:
     @staticmethod
     @responses.activate
     def test_relay():
-        __class__.relay_mock()
+        TestResultsPush.relay_mock()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,

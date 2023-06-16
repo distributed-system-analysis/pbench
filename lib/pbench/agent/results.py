@@ -459,9 +459,9 @@ class CopyResultToRelay(CopyResult):
 
         This involves three steps:
 
-        1. PUT the tarball to the relay server with a SHA256 object ID
-        2. Compile information about the tarball into a relay manifest file,
-        3. PUT the relay manifest file with its own SHA256 object ID
+        1. PUT the tarball to the relay server with a SHA256 object ID.
+        2. Compile information about the tarball into a relay manifest file.
+        3. PUT the relay manifest file with its own SHA256 object ID.
 
         If either PUT operation fails, the response object is returned to the
         caller for error diagnosis. If both PUT operations succeed, the relay
