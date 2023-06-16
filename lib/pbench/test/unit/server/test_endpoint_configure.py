@@ -106,8 +106,8 @@ class TestEndpointConfig:
                     "template": f"{uri}/key/{{key}}",
                     "params": {"key": {"type": "string"}},
                 },
-                "quisby": {
-                    "template": f"{uri}/quisby/{{dataset}}",
+                "visualize": {
+                    "template": f"{uri}/visualize/{{dataset}}",
                     "params": {"dataset": {"type": "string"}},
                 },
                 "relay": {

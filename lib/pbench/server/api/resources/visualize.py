@@ -27,9 +27,9 @@ from pbench.server.cache_manager import (
 from pbench.server.database import Dataset
 
 
-class QuisbyData(ApiBase):
+class Visualize(ApiBase):
     """
-    API class to retrieve Quisby data for a dataset
+    API class to retrieve data using Quisby to visualize
     """
 
     def __init__(self, config: PbenchServerConfig):
@@ -49,7 +49,7 @@ class QuisbyData(ApiBase):
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
         """
-        This function returns the Quisby data for the requested dataset.
+        This function is using Quisby to process results into a form that supports visualization
 
         Args:
             params: includes the uri parameters, which provide the dataset.
@@ -59,7 +59,7 @@ class QuisbyData(ApiBase):
         Raises:
             APIAbort, reporting "NOT_FOUND" and "INTERNAL_SERVER_ERROR"
 
-        GET /api/v1/quisby/{dataset}
+        GET /api/v1/visualize/{dataset}
         """
 
         dataset = params.uri["dataset"]
@@ -82,23 +82,17 @@ class QuisbyData(ApiBase):
         benchmark = metadata["dataset.metalog.pbench.script"]
         if benchmark == "uperf":
             benchmark_type = BenchmarkName.UPERF
-        elif benchmark == "fio":
-            benchmark_type = BenchmarkName.FIO
         else:
-            raise APIAbort(HTTPStatus.NOT_FOUND, "Unsupported Benchmark")
+            raise APIAbort(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Benchmark")
 
         get_quisby_data = QuisbyProcessing.extract_data(
             self, benchmark_type, dataset.name, InputType.STREAM, file
         )
 
         if get_quisby_data["status"] == "success":
-            response = jsonify(get_quisby_data)
-            response.status_code = HTTPStatus.OK
-            return response
+            return jsonify(get_quisby_data)
+
         else:
-            current_app.logger.error(
-                "Quisby processing failure. Exception :{}", get_quisby_data["exception"]
-            )
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR, "Unexpected failure from Quisby"
+            raise APIInternalError(
+                f"Quisby processing failure. Exception : { get_quisby_data['exception']}"
             )

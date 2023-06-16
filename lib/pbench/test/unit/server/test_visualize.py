@@ -10,7 +10,7 @@ from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
-class TestQuisbyResults:
+class TestVisualize:
     @pytest.fixture()
     def query_get_as(self, client, server_config, more_datasets, get_token_func):
         """
@@ -21,7 +21,7 @@ class TestQuisbyResults:
             client: Flask test API client fixture
             server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
-            pbench_drb_token: Authenticated user token fixture
+            get_token_func: Pbench token fixture
         """
 
         def query_api(
@@ -33,7 +33,7 @@ class TestQuisbyResults:
                 dataset_id = dataset  # Allow passing deliberately bad value
             headers = {"authorization": f"bearer {get_token_func(user)}"}
             response = client.get(
-                f"{server_config.rest_uri}/quisby/{dataset_id}/",
+                f"{server_config.rest_uri}/visualize/{dataset_id}/",
                 headers=headers,
             )
             assert response.status_code == expected_status
@@ -60,7 +60,7 @@ class TestQuisbyResults:
     def test_dataset_not_present(self, query_get_as):
         response = query_get_as("fio_2", "drb", HTTPStatus.NOT_FOUND)
         assert response.json == {
-            "message": "The dataset tarball named 'random_md5_string4' is not present in the cache manager"
+            "message": "The dataset tarball named 'random_md5_string4' not found"
         }
 
     def test_unauthorized_access(self, query_get_as):
@@ -69,7 +69,7 @@ class TestQuisbyResults:
             "message": "User drb is not authorized to READ a resource owned by test with private access"
         }
 
-    def test_quisby_success(self, query_get_as, monkeypatch):
+    def test_successful_get(self, query_get_as, monkeypatch):
         def mock_extract_data(self, test_name, dataset_name, input_type, data):
             return {"status": "success", "json_data": "quisby_data"}
 
@@ -81,9 +81,9 @@ class TestQuisbyResults:
 
         response = query_get_as("uperf_1", "test", HTTPStatus.OK)
         assert response.json["status"] == "success"
-        assert response.json["json_data"]
+        assert response.json["json_data"] == "quisby_data"
 
-    def test_quisby_failure(self, query_get_as, monkeypatch):
+    def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
         def mock_find_dataset_with_incorrect_data(self, dataset):
             class Tarball(object):
                 tarball_path = Path("/dataset/tarball.tar.xz")
@@ -112,5 +112,5 @@ class TestQuisbyResults:
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(ApiBase, "_get_dataset_metadata", mock_get_metadata)
-        response = query_get_as("uperf_1", "test", HTTPStatus.NOT_FOUND)
+        response = query_get_as("uperf_1", "test", HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
         response.json["message"] = "Unsupported Benchmark"
