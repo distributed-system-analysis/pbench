@@ -55,7 +55,7 @@ if [[ "${BASE_IMAGE}" == *"ubi9:latest" || "${BASE_IMAGE}" == *"centos:stream9" 
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 fi
 buildah run $container dnf install -y --nodocs \
-    /tmp/pbench-server.rpm nginx less rsyslog rsyslog-mmjsonparse
+    /tmp/pbench-server.rpm less nginx openssl rsyslog rsyslog-mmjsonparse
 buildah run $container dnf clean all
 buildah run $container rm -f /tmp/pbench-server.rpm
 
