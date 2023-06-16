@@ -94,5 +94,5 @@ class Visualize(ApiBase):
 
         else:
             raise APIInternalError(
-                f"Quisby processing failure. Exception : { get_quisby_data['exception']}"
+                f"Quisby processing failure. Exception: {get_quisby_data['exception']}"
             )

@@ -33,7 +33,7 @@ class TestVisualize:
                 dataset_id = dataset  # Allow passing deliberately bad value
             headers = {"authorization": f"bearer {get_token_func(user)}"}
             response = client.get(
-                f"{server_config.rest_uri}/visualize/{dataset_id}/",
+                f"{server_config.rest_uri}/visualize/{dataset_id}",
                 headers=headers,
             )
             assert response.status_code == expected_status

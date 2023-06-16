@@ -137,7 +137,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     api.add_resource(
         Visualize,
         f"{base_uri}/visualize/<string:dataset>",
-        f"{base_uri}/visualize/<string:dataset>/",
         endpoint="visualize",
         resource_class_args=(config,),
     )
