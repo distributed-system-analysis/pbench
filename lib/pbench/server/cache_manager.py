@@ -7,7 +7,7 @@ import shlex
 import shutil
 import subprocess
 import tarfile
-from typing import Optional, Union
+from typing import IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, PbenchServerConfig
@@ -373,7 +373,6 @@ class Tarball:
                     raise BadDirpath(
                         f"Found a file {file_l!r} where a directory was expected in path {str(path)!r}"
                     )
-
             return f_entries[path.name]
         except KeyError as exc:
             raise BadDirpath(
@@ -430,29 +429,61 @@ class Tarball:
         return fd_info
 
     @staticmethod
-    def extract(tarball_path: Path, path: str) -> Optional[str]:
-        """Extract a file from the tarball and return it as a string
+    def filestream(tarball_path: Path, path: Path) -> Optional[IO[bytes]]:
+        """Extracts filestream from the tarball
 
-        Report failures by raising exceptions.
+        Reports failure by raising Exceptions
+
+        Args:
+            path: relative path within the tarball
+
+        Raise:
+            BadDirpath on failure extracting the file from tarball
+        """
+        try:
+            return tarfile.open(tarball_path, "r:*").extractfile(path)
+        except Exception as exc:
+            raise BadDirpath(
+                f"A problem occurred processing {path!r} from {tarball_path!s}: {exc}"
+            ) from exc
+
+    @staticmethod
+    def filecontents(tarball_path: Path, path: Path) -> Optional[str]:
+        """Returns filestream as a string"""
+        return Tarball.filestream(tarball_path, path).read().decode()
+
+    def extract(self, path: str) -> Optional[tuple[dict, IO[bytes]]]:
+        """Extracts the contents of a file from the Tarball
 
         Args:
             path: relative path within the tarball of a file
 
         Raises:
-            MetadataError on failure opening the tarball
             TarballUnpackError on failure to extract the named path
 
         Returns:
-            The named file as a string
+            Tuple with file information and contents/stream
         """
+        name = Path(self.name)
+        path = name / path
+        info = self.get_info(path)
+
+        # Fix: Currently if target is not provided we are returning tarball.
+        # Do we want to do the same or there is an alternative approach that
+        # we can just return the info
         try:
-            tar = tarfile.open(tarball_path, "r:*")
+            if info["type"] == CacheType.FILE:
+                # Fix: instead of name we can check for size and we can return
+                # contents for files maybe less than 20k?
+                if info["name"] == "metadata.log":
+                    return (info, Tarball.filecontents(self.tarball_path, path))
+                return (info, Tarball.filestream(self.tarball_path, path))
+            else:
+                return (info, None)
         except Exception as exc:
-            raise MetadataError(tarball_path, exc) from exc
-        try:
-            return tar.extractfile(path).read().decode()
-        except Exception as exc:
-            raise TarballUnpackError(tarball_path, f"Unable to extract {path}") from exc
+            raise TarballUnpackError(
+                self.tarball_path, f"Unable to extract {path!r}"
+            ) from exc
 
     @staticmethod
     def _get_metadata(tarball_path: Path) -> Optional[JSONOBJECT]:
@@ -464,7 +495,7 @@ class Tarball:
         """
         name = Dataset.stem(tarball_path)
         try:
-            data = Tarball.extract(tarball_path, f"{name}/metadata.log")
+            data = Tarball.filecontents(tarball_path, f"{name}/metadata.log")
         except TarballUnpackError:
             data = None
         if data:
@@ -1004,6 +1035,10 @@ class CacheManager:
         tarball = self.find_dataset(dataset_id)
         tmap = tarball.get_info(path)
         return tmap
+
+    def extract(self, dataset, target):
+        tarball = self.find_dataset(dataset.resource_id)
+        return tarball.extract(target)
 
     def uncache(self, dataset_id: str):
         """Remove the unpacked tarball tree.
