@@ -108,6 +108,7 @@ CLIENT_CONF=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/c
        "directAccessGrantsEnabled": true,
        "serviceAccountsEnabled": true,
        "enabled": true,
+       "attributes": {"post.logout.redirect.uris": "'${KEYCLOAK_REDIRECT_URI}'"},
        "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
 
 CLIENT_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
