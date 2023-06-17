@@ -27,10 +27,6 @@ class OpenIDClientError(Exception):
         return self.message
 
 
-class OpenIDTokenInvalid(Exception):
-    pass
-
-
 class Connection:
     """Helper connection class for use by an OpenIDClient instance."""
 
@@ -359,23 +355,14 @@ class OpenIDClient:
                 "sub": <user_id>
             }
         """
-        try:
-            return jwt.decode(
-                token,
-                self._pem_public_key,
-                algorithms=[self._TOKEN_ALG],
-                audience=[self.client_id],
-                options={
-                    "verify_signature": True,
-                    "verify_aud": True,
-                    "verify_exp": True,
-                },
-            )
-        except (
-            jwt.ExpiredSignatureError,
-            jwt.InvalidSignatureError,
-            jwt.InvalidAudienceError,
-            jwt.InvalidAlgorithmError,
-            ValueError,
-        ) as exc:
-            raise OpenIDTokenInvalid() from exc
+        return jwt.decode(
+            token,
+            self._pem_public_key,
+            algorithms=[self._TOKEN_ALG],
+            audience=[self.client_id],
+            options={
+                "verify_signature": True,
+                "verify_aud": True,
+                "verify_exp": True,
+            },
+        )

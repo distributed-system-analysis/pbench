@@ -12,12 +12,7 @@ import responses
 
 from pbench.server import JSON
 import pbench.server.auth
-from pbench.server.auth import (
-    Connection,
-    OpenIDClient,
-    OpenIDClientError,
-    OpenIDTokenInvalid,
-)
+from pbench.server.auth import Connection, OpenIDClient, OpenIDClientError
 import pbench.server.auth.auth as Auth
 from pbench.test.unit.server import DRB_USER_ID
 from pbench.test.unit.server.conftest import jwt_secret
@@ -435,9 +430,8 @@ class TestOpenIDClient:
         )
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
-        with pytest.raises(OpenIDTokenInvalid) as exc:
+        with pytest.raises(jwt.exceptions.ExpiredSignatureError):
             oidc_client.token_introspect(token)
-        assert isinstance(exc.value.__cause__, jwt.exceptions.ExpiredSignatureError)
 
     def test_token_introspect_aud(self, monkeypatch, rsa_keys):
         """Verify .token_introspect() failure via audience error"""
@@ -449,9 +443,8 @@ class TestOpenIDClient:
         config = mock_connection(monkeypatch, "them", public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
-        with pytest.raises(OpenIDTokenInvalid) as exc:
+        with pytest.raises(jwt.exceptions.InvalidAudienceError):
             oidc_client.token_introspect(token)
-        assert isinstance(exc.value.__cause__, jwt.exceptions.InvalidAudienceError)
 
     def test_token_introspect_sig(self, monkeypatch, rsa_keys):
         """Verify .token_introspect() failure via signature error"""
@@ -465,10 +458,9 @@ class TestOpenIDClient:
         )
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
-        with pytest.raises(OpenIDTokenInvalid) as exc:
+        with pytest.raises(jwt.exceptions.InvalidSignatureError):
             # Make the signature invalid.
             oidc_client.token_introspect(token + "1")
-        assert isinstance(exc.value.__cause__, jwt.exceptions.InvalidSignatureError)
 
     def test_token_introspect_alg(self, monkeypatch, rsa_keys):
         """Verify .token_introspect() failure via algorithm error"""
@@ -483,9 +475,8 @@ class TestOpenIDClient:
         )
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
-        with pytest.raises(OpenIDTokenInvalid) as exc:
+        with pytest.raises(jwt.exceptions.InvalidAlgorithmError):
             oidc_client.token_introspect(generated_api_key)
-        assert isinstance(exc.value.__cause__, jwt.exceptions.InvalidAlgorithmError)
 
 
 @dataclass
@@ -671,7 +662,7 @@ class TestAuthModule:
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
         def tio_exc(token: str) -> JSON:
-            raise OpenIDTokenInvalid()
+            raise Exception("OIDC validation is disabled")
 
         app = Flask("test-verify-auth-oidc-invalid")
         app.logger = make_logger
@@ -693,7 +684,7 @@ class TestAuthModule:
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
         def tio_exc(token: str) -> JSON:
-            raise OpenIDTokenInvalid()
+            raise Exception("OIDC validation is disabled")
 
         app = Flask("test_verify_auth_api_key")
         app.logger = make_logger
@@ -716,7 +707,7 @@ class TestAuthModule:
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
         def tio_exc(token: str) -> JSON:
-            raise OpenIDTokenInvalid()
+            raise Exception("OIDC validation is disabled")
 
         app = Flask("test_verify_auth_api_key_invalid")
         app.logger = make_logger
