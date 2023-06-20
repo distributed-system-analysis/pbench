@@ -38,6 +38,7 @@ class API(Enum):
     name completion.
     """
 
+    COMPARE_DATASETS = "compare_datasets"
     DATASETS = "datasets"
     DATASETS_CONTENTS = "datasets_contents"
     DATASETS_DETAIL = "datasets_detail"

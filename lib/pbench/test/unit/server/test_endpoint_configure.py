@@ -55,6 +55,7 @@ class TestEndpointConfig:
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "uri": {
+                "compare_datasets": {"template": f"{uri}/compare", "params": {}},
                 "datasets": {
                     "template": f"{uri}/datasets/{{dataset}}",
                     "params": {"dataset": {"type": "string"}},
