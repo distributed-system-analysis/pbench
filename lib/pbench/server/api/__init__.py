@@ -135,12 +135,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         resource_class_args=(config,),
     )
     api.add_resource(
-        Visualize,
-        f"{base_uri}/visualize/<string:dataset>",
-        endpoint="visualize",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         ServerAudit,
         f"{base_uri}/server/audit",
         endpoint="server_audit",
@@ -164,6 +158,12 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         Upload,
         f"{base_uri}/upload/<string:filename>",
         endpoint="upload",
+        resource_class_args=(config,),
+    )
+    api.add_resource(
+        Visualize,
+        f"{base_uri}/datasets/<string:dataset>/visualize",
+        endpoint="visualize",
         resource_class_args=(config,),
     )
 

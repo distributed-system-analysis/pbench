@@ -6,7 +6,7 @@ import pytest
 import requests
 
 from pbench.server.api.resources import ApiBase
-from pbench.server.cache_manager import CacheManager
+from pbench.server.cache_manager import CacheManager, Tarball
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -33,7 +33,7 @@ class TestVisualize:
                 dataset_id = dataset  # Allow passing deliberately bad value
             headers = {"authorization": f"bearer {get_token_func(user)}"}
             response = client.get(
-                f"{server_config.rest_uri}/visualize/{dataset_id}",
+                f"{server_config.rest_uri}/datasets/{dataset_id}/visualize",
                 headers=headers,
             )
             assert response.status_code == expected_status
@@ -41,17 +41,20 @@ class TestVisualize:
 
         return query_api
 
-    def mock_find_dataset(self, dataset):
+    def mock_find_dataset(self, _dataset: str) -> Tarball:
         class Tarball(object):
             tarball_path = Path("/dataset/tarball.tar.xz")
 
-            def extract(tarball_path, path):
+            def extract(_tarball_path: Path, _path: str) -> str:
                 return "CSV_file_as_a_byte_stream"
 
         return Tarball
 
-    def mock_get_dataset_metadata(self, dataset, key):
+    def mock_get_dataset_metadata(self, _dataset, _key):
         return {"dataset.metalog.pbench.script": "uperf"}
+
+    def mock_extract_data(self, test_name, dataset_name, input_type, data):
+        return {"status": "success", "json_data": "quisby_data"}
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as("nonexistent-dataset", "drb", HTTPStatus.NOT_FOUND)
@@ -60,7 +63,7 @@ class TestVisualize:
     def test_dataset_not_present(self, query_get_as):
         response = query_get_as("fio_2", "drb", HTTPStatus.NOT_FOUND)
         assert response.json == {
-            "message": "The dataset tarball named 'random_md5_string4' not found"
+            "message": "No dataset with ID 'random_md5_string4' found"
         }
 
     def test_unauthorized_access(self, query_get_as):
@@ -70,14 +73,12 @@ class TestVisualize:
         }
 
     def test_successful_get(self, query_get_as, monkeypatch):
-        def mock_extract_data(self, test_name, dataset_name, input_type, data):
-            return {"status": "success", "json_data": "quisby_data"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(
             ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
         )
-        monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
+        monkeypatch.setattr(QuisbyProcessing, "extract_data", self.mock_extract_data)
 
         response = query_get_as("uperf_1", "test", HTTPStatus.OK)
         assert response.json["status"] == "success"
@@ -104,13 +105,16 @@ class TestVisualize:
         )
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
-        response.json["message"] = "Unexpected failure from Quisby"
+        assert response.json.get("message").startswith(
+            "Internal Pbench Server Error: log reference "
+        )
 
     def test_unsupported_benchmark(self, query_get_as, monkeypatch):
         def mock_get_metadata(self, dataset, key):
-            return {"dataset.metalog.pbench.script": "linpack"}
+            return {"dataset.metalog.pbench.script": "hammerDB"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(ApiBase, "_get_dataset_metadata", mock_get_metadata)
+        monkeypatch.setattr(QuisbyProcessing, "extract_data", self.mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
-        response.json["message"] = "Unsupported Benchmark"
+        response.json["message"] == "Unsupported Benchmark"

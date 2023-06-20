@@ -49,7 +49,7 @@ class TarballNotFound(CacheManagerError):
         self.tarball = tarball
 
     def __str__(self) -> str:
-        return f"The dataset tarball named {self.tarball!r} not found"
+        return f"The dataset tarball named {self.tarball!r} is not found"
 
 
 class DuplicateTarball(CacheManagerError):

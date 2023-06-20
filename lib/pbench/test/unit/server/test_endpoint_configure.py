@@ -106,10 +106,6 @@ class TestEndpointConfig:
                     "template": f"{uri}/key/{{key}}",
                     "params": {"key": {"type": "string"}},
                 },
-                "visualize": {
-                    "template": f"{uri}/visualize/{{dataset}}",
-                    "params": {"dataset": {"type": "string"}},
-                },
                 "relay": {
                     "template": f"{uri}/relay/{{uri}}",
                     "params": {"uri": {"type": "path"}},
@@ -122,6 +118,10 @@ class TestEndpointConfig:
                 "upload": {
                     "template": f"{uri}/upload/{{filename}}",
                     "params": {"filename": {"type": "string"}},
+                },
+                "visualize": {
+                    "template": f"{uri}/datasets/{{dataset}}/visualize",
+                    "params": {"dataset": {"type": "string"}},
                 },
             },
         }

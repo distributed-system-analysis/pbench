@@ -29,7 +29,7 @@ from pbench.server.database import Dataset
 
 class Visualize(ApiBase):
     """
-    API class to retrieve data using Quisby to visualize
+    This class implements the Server API used to retrieve data for visualization.
     """
 
     def __init__(self, config: PbenchServerConfig):
@@ -63,12 +63,22 @@ class Visualize(ApiBase):
         """
 
         dataset = params.uri["dataset"]
-
         cache_m = CacheManager(self.config, current_app.logger)
+
         try:
             tarball = cache_m.find_dataset(dataset.resource_id)
         except TarballNotFound as e:
-            raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
+            raise APIAbort(
+                HTTPStatus.NOT_FOUND, f"No dataset with ID '{e.tarball}' found"
+            ) from e
+
+        metadata = self._get_dataset_metadata(
+            dataset, ["dataset.metalog.pbench.script"]
+        )
+        benchmark = metadata["dataset.metalog.pbench.script"].upper()
+        benchmark_type = BenchmarkName.__members__.get(benchmark)
+        if not benchmark_type:
+            raise APIAbort(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Benchmark")
 
         name = Dataset.stem(tarball.tarball_path)
         try:
@@ -76,23 +86,13 @@ class Visualize(ApiBase):
         except TarballUnpackError as e:
             raise APIInternalError(str(e)) from e
 
-        metadata = self._get_dataset_metadata(
-            dataset, ["dataset.metalog.pbench.script"]
-        )
-        benchmark = metadata["dataset.metalog.pbench.script"]
-        if benchmark == "uperf":
-            benchmark_type = BenchmarkName.UPERF
-        else:
-            raise APIAbort(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Benchmark")
-
-        get_quisby_data = QuisbyProcessing.extract_data(
-            self, benchmark_type, dataset.name, InputType.STREAM, file
+        pquisby_obj = QuisbyProcessing()
+        get_quisby_data = pquisby_obj.extract_data(
+            benchmark_type, dataset.name, InputType.STREAM, file
         )
 
-        if get_quisby_data["status"] == "success":
-            return jsonify(get_quisby_data)
-
-        else:
+        if get_quisby_data["status"] != "success":
             raise APIInternalError(
                 f"Quisby processing failure. Exception: {get_quisby_data['exception']}"
-            )
+            ) from None
+        return jsonify(get_quisby_data)

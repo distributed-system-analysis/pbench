@@ -924,7 +924,7 @@ class TestCacheManager:
         assert tarball == cm[md5]
         with pytest.raises(TarballNotFound) as exc:
             cm["foobar"]
-        assert str(exc.value) == "The dataset tarball named 'foobar' not found"
+        assert str(exc.value) == "The dataset tarball named 'foobar' is not found"
 
         # Test __contains__
         assert md5 in cm
@@ -943,7 +943,7 @@ class TestCacheManager:
         # Try to find a dataset that doesn't exist
         with pytest.raises(TarballNotFound) as exc:
             cm.find_dataset("foobar")
-        assert str(exc.value) == "The dataset tarball named 'foobar' not found"
+        assert str(exc.value) == "The dataset tarball named 'foobar' is not found"
         assert exc.value.tarball == "foobar"
 
         # Unpack the dataset, creating INCOMING and RESULTS links
