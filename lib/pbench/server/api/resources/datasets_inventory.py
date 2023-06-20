@@ -61,7 +61,7 @@ class DatasetsInventory(ApiBase):
 
         cache_m = CacheManager(self.config, current_app.logger)
         try:
-            file_info, file_stream = cache_m.extract(dataset, target)
+            file_info = cache_m.filestream(dataset, target)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
@@ -76,16 +76,12 @@ class DatasetsInventory(ApiBase):
             # NOTE: we could choose to be "smarter" based on file size, file
             # type codes (e.g., .csv, .json), and so forth.
             return send_file(
-                file_stream,
+                file_info["stream"],
                 as_attachment=target is None,
                 download_name=file_info["name"],
             )
-        elif file_info["type"] != CacheType.FILE:
+        else:
             raise APIAbort(
                 HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
                 "The specified path does not refer to a regular file",
-            )
-        else:
-            raise APIAbort(
-                HTTPStatus.NOT_FOUND, "The specified path does not refer to a file"
             )

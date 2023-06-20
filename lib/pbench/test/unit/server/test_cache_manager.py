@@ -898,90 +898,38 @@ class TestCacheManager:
             assert file_info == expected_msg
 
     @pytest.mark.parametrize(
-        "file_path, expected_info, expected_msg",
+        "file_path, exp_file_info, exp_stream",
         [
-            (
-                "",
-                {
-                    "directories": ["subdir1"],
-                    "files": ["f1.json", "metadata.log"],
-                    "location": Path("dir_name"),
-                    "name": "dir_name",
-                    "resolve_path": None,
-                    "resolve_type": None,
-                    "size": None,
-                    "type": CacheType.DIRECTORY,
-                },
-                None,
-            ),
-            (
-                "f1.json",
-                {
-                    "location": Path("dir_name/f1.json"),
-                    "name": "f1.json",
-                    "resolve_path": None,
-                    "resolve_type": None,
-                    "size": 0,
-                    "type": CacheType.FILE,
-                },
-                "file_as_a_byte_stream",
-            ),
-            (
-                "metadata.log",
-                {
-                    "location": Path("dir_name/metadata.log"),
-                    "name": "metadata.log",
-                    "resolve_path": None,
-                    "resolve_type": None,
-                    "size": 0,
-                    "type": CacheType.FILE,
-                },
-                "file_contents",
-            ),
-            (
-                "subdir1/subdir12",
-                {
-                    "directories": [],
-                    "files": [],
-                    "location": Path("dir_name/subdir1/subdir12"),
-                    "name": "subdir12",
-                    "resolve_path": None,
-                    "resolve_type": None,
-                    "size": None,
-                    "type": CacheType.DIRECTORY,
-                },
-                None,
-            ),
+            (Path(""), CacheType.DIRECTORY, "file_as_a_byte_stream"),
+            (Path("f1.json"), CacheType.FILE, "file_as_a_byte_stream"),
+            (Path("subdir1/subdir12"), CacheType.DIRECTORY, None),
         ],
     )
-    def test_extract(
-        self, monkeypatch, tmp_path, file_path, expected_info, expected_msg
+    def test_filestream(
+        self, monkeypatch, tmp_path, file_path, exp_file_info, exp_stream
     ):
         """Test to extract file contents/stream from a file"""
         tar = Path("/mock/dir_name.tar.xz")
         cache = Path("/mock/.cache")
 
-        def mock_filestream(tarball_path, path):
+        def mock_extract(tarball_path, path):
             return "file_as_a_byte_stream"
-
-        def mock_filecontents(tarball_path, path):
-            return "file_contents"
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            m.setattr(Tarball, "filestream", mock_filestream)
-            m.setattr(Tarball, "filecontents", mock_filecontents)
+            m.setattr(Tarball, "extract", mock_extract)
             tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
             tb.cache_map(tar_dir)
-            info, content = tb.extract(file_path)
-            assert info == expected_info
-            assert content == expected_msg
 
-    def test_extract_tarfile_open(self, monkeypatch, tmp_path):
+            file_info = tb.filestream(file_path)
+            assert file_info["type"] == exp_file_info
+            assert file_info["stream"] == exp_stream
+
+    def test_filestream_tarfile_open(self, monkeypatch, tmp_path):
         """Test to check non-existent file or tarfile unpack issue"""
         tar = Path("/mock/dir_name.tar.xz")
         cache = Path("/mock/.cache")
@@ -1000,15 +948,15 @@ class TestCacheManager:
             tb.cache_map(tar_dir)
 
             path = Path(tb.name) / "subdir1/f11.txt"
-            expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {path!r}"
+            expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {str(path)!r}"
             with pytest.raises(TarballUnpackError) as exc:
-                info, content = tb.extract("subdir1/f11.txt")
+                tb.filestream("subdir1/f11.txt")
             assert str(exc.value) == expected_error_msg
 
             path = Path(tb.name) / "metadata.log"
-            expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {path!r}"
+            expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {str(path)!r}"
             with pytest.raises(TarballUnpackError) as exc:
-                info, content = tb.extract("metadata.log")
+                tb.filestream("metadata.log")
             assert str(exc.value) == expected_error_msg
 
     def test_find(

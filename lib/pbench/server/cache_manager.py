@@ -429,12 +429,11 @@ class Tarball:
         return fd_info
 
     @staticmethod
-    def filestream(tarball_path: Path, path: Path) -> Optional[IO[bytes]]:
-        """Extracts filestream from the tarball
-
-        Reports failure by raising Exceptions
+    def extract(tarball_path: Path, path: Path) -> Optional[IO[bytes]]:
+        """Extracts file stream from the tarball
 
         Args:
+            tarball_path: absolute path of the tarball
             path: relative path within the tarball
 
         Raise:
@@ -444,16 +443,12 @@ class Tarball:
             return tarfile.open(tarball_path, "r:*").extractfile(path)
         except Exception as exc:
             raise BadDirpath(
-                f"A problem occurred processing {path!r} from {tarball_path!s}: {exc}"
-            ) from exc
+                f"A problem occurred processing {str(path)!r} from {str(tarball_path)!s}: {exc}"
+            )
 
-    @staticmethod
-    def filecontents(tarball_path: Path, path: Path) -> Optional[str]:
-        """Returns filestream as a string"""
-        return Tarball.filestream(tarball_path, path).read().decode()
-
-    def extract(self, path: str) -> Optional[tuple[dict, IO[bytes]]]:
-        """Extracts the contents of a file from the Tarball
+    def filestream(self, path: str) -> Optional[dict]:
+        """Returns the file stream which yields the contents of
+        a file at the specified path in the Tarball
 
         Args:
             path: relative path within the tarball of a file
@@ -462,27 +457,19 @@ class Tarball:
             TarballUnpackError on failure to extract the named path
 
         Returns:
-            Tuple with file information and contents/stream
+            Dictionary with file info and file stream
         """
-        name = Path(self.name)
-        path = name / path
-        info = self.get_info(path)
+        file_path = Path(self.name) / path
+        info = self.get_info(file_path)
+        info["stream"] = None
 
-        # Fix: Currently if target is not provided we are returning tarball.
-        # Do we want to do the same or there is an alternative approach that
-        # we can just return the info
         try:
-            if info["type"] == CacheType.FILE:
-                # Fix: instead of name we can check for size and we can return
-                # contents for files maybe less than 20k?
-                if info["name"] == "metadata.log":
-                    return (info, Tarball.filecontents(self.tarball_path, path))
-                return (info, Tarball.filestream(self.tarball_path, path))
-            else:
-                return (info, None)
+            if info["type"] == CacheType.FILE or path == Path("."):
+                info["stream"] = Tarball.extract(self.tarball_path, file_path)
+            return info
         except Exception as exc:
             raise TarballUnpackError(
-                self.tarball_path, f"Unable to extract {path!r}"
+                self.tarball_path, f"Unable to extract {str(file_path)!r}"
             ) from exc
 
     @staticmethod
@@ -495,12 +482,12 @@ class Tarball:
         """
         name = Dataset.stem(tarball_path)
         try:
-            data = Tarball.filecontents(tarball_path, f"{name}/metadata.log")
+            data = Tarball.extract(tarball_path, f"{name}/metadata.log")
         except TarballUnpackError:
             data = None
         if data:
             metadata = MetadataLog()
-            metadata.read_string(data)
+            metadata.read(data)
             metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
             return metadata
         else:
@@ -1036,9 +1023,9 @@ class CacheManager:
         tmap = tarball.get_info(path)
         return tmap
 
-    def extract(self, dataset, target):
+    def filestream(self, dataset, target):
         tarball = self.find_dataset(dataset.resource_id)
-        return tarball.extract(target)
+        return tarball.filestream(target)
 
     def uncache(self, dataset_id: str):
         """Remove the unpacked tarball tree.

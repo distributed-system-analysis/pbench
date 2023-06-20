@@ -40,21 +40,24 @@ class TestDatasetsAccess:
 
         return query_api
 
-    class Tarball:
+    class MockTarball:
         def __init__(self, path: Path, controller: Controller):
             self.name = "dir_name.tar.xz"
             self.tarball_path = path
             self.unpacked = None
 
-        def extract(self, target):
-            info = {"name": "f1.json", "type": CacheType.FILE}
-            stream = "file_as_a_byte_stream"
-            return (info, stream)
+        def filestream(self, target):
+            info = {
+                "name": "f1.json",
+                "type": CacheType.FILE,
+                "stream": "file_as_a_byte_stream",
+            }
+            return info
 
     def mock_find_dataset(self, dataset):
         # Validate the resource_id
         Dataset.query(resource_id=dataset)
-        return self.Tarball(Path("/mock/dir_name.tar.xz"), "abc")
+        return self.MockTarball(Path("/mock/dir_name.tar.xz"), "abc")
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(
@@ -76,13 +79,11 @@ class TestDatasetsAccess:
 
     @pytest.mark.parametrize("key", (None, "", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
-        def mock_extract(self, target):
-            info = {"type": CacheType.DIRECTORY}
-            stream = None
-            return (info, stream)
-
+        filestream_tuple = {"type": CacheType.DIRECTORY, "stream": None}
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(self.Tarball, "extract", mock_extract)
+        monkeypatch.setattr(
+            self.MockTarball, "filestream", lambda _s, _t: filestream_tuple
+        )
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
 
@@ -92,13 +93,11 @@ class TestDatasetsAccess:
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
-        def mock_extract(self, target):
-            info = {"type": CacheType.SYMLINK}
-            stream = None
-            return (info, stream)
-
+        filestream_tuple = {"type": CacheType.SYMLINK, "stream": None}
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(self.Tarball, "extract", mock_extract)
+        monkeypatch.setattr(
+            self.MockTarball, "filestream", lambda _s, _t: filestream_tuple
+        )
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: False)
 
