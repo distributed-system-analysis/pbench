@@ -101,6 +101,10 @@ class TestEndpointConfig:
                         "dataset_view": {"type": "string"},
                     },
                 },
+                "datasets_visualize": {
+                    "template": f"{uri}/datasets/{{dataset}}/visualize",
+                    "params": {"dataset": {"type": "string"}},
+                },
                 "endpoints": {"template": f"{uri}/endpoints", "params": {}},
                 "key": {
                     "template": f"{uri}/key/{{key}}",

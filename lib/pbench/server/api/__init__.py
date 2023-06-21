@@ -17,6 +17,7 @@ from pbench.server.api.resources.api_key import APIKeyManage
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
+from pbench.server.api.resources.datasets_visualize import DatasetsVisualize
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.server.api.resources.query_apis.dataset import Datasets
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
@@ -117,6 +118,12 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         DatasetsSearch,
         f"{base_uri}/datasets/search",
         endpoint="datasets_search",
+        resource_class_args=(config,),
+    )
+    api.add_resource(
+        DatasetsVisualize,
+        f"{base_uri}/datasets/<string:dataset>/visualize",
+        endpoint="datasets_visualize",
         resource_class_args=(config,),
     )
     api.add_resource(

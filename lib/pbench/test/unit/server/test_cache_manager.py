@@ -236,7 +236,7 @@ class TestCacheManager:
             cm.create(tarball.tarball_path)
         assert (
             str(exc.value)
-            == "A dataset tarball named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present in the cache manager"
+            == "A dataset tarball named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present"
         )
         assert tarball.metadata == fake_get_metadata(tarball.tarball_path)
         assert exc.value.tarball == tarball.name
@@ -924,10 +924,7 @@ class TestCacheManager:
         assert tarball == cm[md5]
         with pytest.raises(TarballNotFound) as exc:
             cm["foobar"]
-        assert (
-            str(exc.value)
-            == "The dataset tarball named 'foobar' is not present in the cache manager"
-        )
+        assert str(exc.value) == "The dataset tarball named 'foobar' is not found"
 
         # Test __contains__
         assert md5 in cm
@@ -946,10 +943,7 @@ class TestCacheManager:
         # Try to find a dataset that doesn't exist
         with pytest.raises(TarballNotFound) as exc:
             cm.find_dataset("foobar")
-        assert (
-            str(exc.value)
-            == "The dataset tarball named 'foobar' is not present in the cache manager"
-        )
+        assert str(exc.value) == "The dataset tarball named 'foobar' is not found"
         assert exc.value.tarball == "foobar"
 
         # Unpack the dataset, creating INCOMING and RESULTS links

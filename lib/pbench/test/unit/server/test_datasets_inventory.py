@@ -59,7 +59,7 @@ class TestDatasetsAccess:
     def test_dataset_not_present(self, query_get_as):
         response = query_get_as("fio_2", "metadata.log", HTTPStatus.NOT_FOUND)
         assert response.json == {
-            "message": "The dataset tarball named 'random_md5_string4' is not present in the cache manager"
+            "message": "The dataset tarball named 'random_md5_string4' is not found"
         }
 
     def test_unauthorized_access(self, query_get_as):
