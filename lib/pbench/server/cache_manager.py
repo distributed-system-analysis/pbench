@@ -965,6 +965,13 @@ class CacheManager:
             controller: associated controller name
             tarfile: dataset tarball path
 
+        Raises
+            BadDirpath: Failure on extracting the file from tarball
+            MetadataError: Failure on getting metadata from metadata.log file
+                in the tarball
+            BadFilename: A bad tarball path was given
+            DuplicateTarball: A duplicate tarball name was detected
+
         Returns
             Tarball object
         """
