@@ -88,7 +88,7 @@ class TestDatasetsAccess:
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
 
-        response = query_get_as("fio_2", key, HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
+        response = query_get_as("fio_2", key, HTTPStatus.BAD_REQUEST)
         assert response.json == {
             "message": "The specified path does not refer to a regular file"
         }
@@ -102,9 +102,7 @@ class TestDatasetsAccess:
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: False)
 
-        response = query_get_as(
-            "fio_2", "subdir1/f1_sym", HTTPStatus.UNSUPPORTED_MEDIA_TYPE
-        )
+        response = query_get_as("fio_2", "subdir1/f1_sym", HTTPStatus.BAD_REQUEST)
         assert response.json == {
             "message": "The specified path does not refer to a regular file"
         }
@@ -126,8 +124,7 @@ class TestDatasetsAccess:
         response = query_get_as("fio_2", "f1.json", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
 
-        file_content, args = mock_args
+        _, args = mock_args
 
-        assert str(file_content).startswith("<_io.BytesIO")
         assert args["as_attachment"] is False
         assert args["download_name"] == "f1.json"

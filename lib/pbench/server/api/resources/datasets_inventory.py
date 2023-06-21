@@ -75,13 +75,15 @@ class DatasetsInventory(ApiBase):
             #
             # NOTE: we could choose to be "smarter" based on file size, file
             # type codes (e.g., .csv, .json), and so forth.
-            return send_file(
+            resp = send_file(
                 file_info["stream"],
                 as_attachment=target is None,
                 download_name=file_info["name"],
             )
+            file_info["stream"].close()
+            return resp
         else:
             raise APIAbort(
-                HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+                HTTPStatus.BAD_REQUEST,
                 "The specified path does not refer to a regular file",
             )

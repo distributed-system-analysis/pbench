@@ -464,13 +464,15 @@ class Tarball:
         info = self.get_info(file_path)
         info["stream"] = None
 
-        if info["type"] == CacheType.FILE or file_path.name == self.name:
-            try:
+        try:
+            if not path:
+                info["stream"] = self.tarball_path.open("rb")
+            if info["type"] == CacheType.FILE:
                 info["stream"] = Tarball.extract(self.tarball_path, file_path)
-            except Exception as exc:
-                raise TarballUnpackError(
-                    self.tarball_path, f"Unable to extract {str(file_path)!r}"
-                ) from exc
+        except Exception as exc:
+            raise TarballUnpackError(
+                self.tarball_path, f"Unable to extract {str(file_path)!r}"
+            ) from exc
         return info
 
     @staticmethod
@@ -485,14 +487,12 @@ class Tarball:
         try:
             data = Tarball.extract(tarball_path, f"{name}/metadata.log")
         except TarballUnpackError:
-            data = None
-        if data:
-            metadata = MetadataLog()
-            metadata.read(data)
-            metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
-            return metadata
-        else:
             return None
+        else:
+            metadata_log = MetadataLog()
+            metadata_log.read_file(data)
+            metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
+            return metadata
 
     @staticmethod
     def subprocess_run(
