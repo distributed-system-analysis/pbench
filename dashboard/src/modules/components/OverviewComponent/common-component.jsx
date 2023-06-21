@@ -9,6 +9,8 @@ import {
   Dropdown,
   DropdownItem,
   DropdownToggle,
+  List,
+  ListItem,
   Modal,
   ModalVariant,
   Pagination,
@@ -397,23 +399,25 @@ export const MetaDataModal = () => {
 export const MetadataRow = (props) => {
   const { checkedItems, item } = props;
   return (
-    <div className="box">
+    <div className="box" key={item.resource_id}>
       {checkedItems.map((attr) => {
         const levels = attr.split(CONSTANTS.KEYS_JOIN_BY);
-        const meta = item.metadata;
-        const showValue = levels.reduce((a, level) => {
-          let value = "";
-          if (a && a[level]) {
-            value = a[level];
-          }
-          return value;
-        }, meta);
+        const showValue = levels.reduce(
+          (a, level) => a?.[level] ?? "",
+          item.metadata
+        );
         return (
           <>
             {showValue && showValue.constructor !== Object && (
               <div key={item.resource_id}>
-                <span className="keyClass"> {levels[levels.length - 1]} :</span>
-                <span className="valueClass">{showValue}</span>
+                <List>
+                  <ListItem>
+                    <span className="keyClass">
+                      {levels[levels.length - 1]}
+                    </span>{" "}
+                    : {showValue}
+                  </ListItem>
+                </List>
               </div>
             )}
           </>

@@ -130,14 +130,14 @@ const NewRunsComponent = () => {
   ];
 
   const [expandedRunNames, setExpandedRunNames] = React.useState([]);
-  const setRunExpanded = (run, isExpanding = true) => {
+  const setRunExpanded = (run, isExpanding = true) =>
     setExpandedRunNames((prevExpanded) => {
       const otherExpandedRunNames = prevExpanded.filter((r) => r !== run.name);
       return isExpanding
         ? [...otherExpandedRunNames, run.name]
         : otherExpandedRunNames;
     });
-  };
+
   const isRunExpanded = useCallback(
     (run) => expandedRunNames.includes(run.name),
     [expandedRunNames]
@@ -209,6 +209,7 @@ const NewRunsComponent = () => {
                           <ExpandableRowContent>
                             <div className="pf-u-m-md">
                               <MetadataRow
+                                key={item.resource_id}
                                 checkedItems={checkedItems}
                                 item={item}
                               />

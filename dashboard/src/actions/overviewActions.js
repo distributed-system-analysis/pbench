@@ -416,9 +416,11 @@ export const setMetadataModal = (isOpen, run) => async (dispatch, getState) => {
 /**
  * Function to get keySummary and send to parse data
  * @function
+ * @param {Object} dispatch -  Dataset which is being updated
+ * @param {Object} getState - Type of the Dataset (Saved/New)
  * @return {Function} - dispatch the action and update the state
  */
-export const getKeySummary = () => async (dispatch, getState) => {
+export const getKeySummary = async (dispatch, getState) => {
   try {
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(uriTemplate(endpoints, "datasets_list"), {
