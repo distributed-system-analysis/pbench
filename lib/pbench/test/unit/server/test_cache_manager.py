@@ -1,4 +1,5 @@
 import hashlib
+import io
 from logging import Logger
 import os
 from pathlib import Path
@@ -156,10 +157,10 @@ class TestCacheManager:
         dataset_name = Dataset.stem(source_tarball)
         cm = CacheManager(server_config, make_logger)
 
-        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"A problem occurred processing '{dataset_name}/metadata.log' from {source_tarball!s}: Invalid Tarfile\""
+        expected_metaerror = f"A problem occurred processing '{dataset_name}/metadata.log' from {str(source_tarball)!r}: Invalid Tarfile"
         with monkeypatch.context() as m:
             m.setattr(tarfile, "open", fake_tarfile_open)
-            with pytest.raises(MetadataError) as exc:
+            with pytest.raises(BadDirpath) as exc:
                 cm.create(source_tarball)
             assert str(exc.value) == expected_metaerror
 
@@ -184,10 +185,10 @@ class TestCacheManager:
                 cm.create(source_tarball)
             assert str(exc.value) == expected_metaerror
 
-        expected_msg = f"A problem occurred processing metadata.log from {source_tarball!s}: \"A problem occurred processing '{dataset_name}/metadata.log' from {source_tarball!s}: 'filename {dataset_name}/metadata.log not found'\""
+        expected_msg = f"A problem occurred processing '{dataset_name}/metadata.log' from {str(source_tarball)!r}: 'filename {dataset_name}/metadata.log not found'"
         with monkeypatch.context() as m:
             m.setattr(tarfile.TarFile, "extractfile", fake_extract_file)
-            with pytest.raises(MetadataError) as exc:
+            with pytest.raises(BadDirpath) as exc:
                 cm.create(source_tarball)
             assert str(exc.value) == expected_msg
 
@@ -898,22 +899,22 @@ class TestCacheManager:
             assert file_info == expected_msg
 
     @pytest.mark.parametrize(
-        "file_path, exp_file_info, exp_stream",
+        "file_path, exp_file_type, exp_stream",
         [
-            (Path(""), CacheType.DIRECTORY, "file_as_a_byte_stream"),
-            (Path("f1.json"), CacheType.FILE, "file_as_a_byte_stream"),
-            (Path("subdir1/subdir12"), CacheType.DIRECTORY, None),
+            (Path(""), CacheType.DIRECTORY, "<class '_io.BytesIO'>"),
+            (Path("f1.json"), CacheType.FILE, "<class '_io.BytesIO'>"),
+            (Path("subdir1/subdir12"), CacheType.DIRECTORY, "<class 'NoneType'>"),
         ],
     )
     def test_filestream(
-        self, monkeypatch, tmp_path, file_path, exp_file_info, exp_stream
+        self, monkeypatch, tmp_path, file_path, exp_file_type, exp_stream
     ):
         """Test to extract file contents/stream from a file"""
         tar = Path("/mock/dir_name.tar.xz")
         cache = Path("/mock/.cache")
 
         def mock_extract(tarball_path, path):
-            return "file_as_a_byte_stream"
+            return io.BytesIO(b"file_as_a_byte_stream")
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
@@ -924,10 +925,9 @@ class TestCacheManager:
                 tmp_path, "dir_name"
             )
             tb.cache_map(tar_dir)
-
             file_info = tb.filestream(file_path)
-            assert file_info["type"] == exp_file_info
-            assert file_info["stream"] == exp_stream
+            assert file_info["type"] == exp_file_type
+            assert str(type(file_info["stream"])) == exp_stream
 
     def test_filestream_tarfile_open(self, monkeypatch, tmp_path):
         """Test to check non-existent file or tarfile unpack issue"""
@@ -951,12 +951,6 @@ class TestCacheManager:
             expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {str(path)!r}"
             with pytest.raises(TarballUnpackError) as exc:
                 tb.filestream("subdir1/f11.txt")
-            assert str(exc.value) == expected_error_msg
-
-            path = Path(tb.name) / "metadata.log"
-            expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {str(path)!r}"
-            with pytest.raises(TarballUnpackError) as exc:
-                tb.filestream("metadata.log")
             assert str(exc.value) == expected_error_msg
 
     def test_find(

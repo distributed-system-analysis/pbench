@@ -430,7 +430,8 @@ class Tarball:
 
     @staticmethod
     def extract(tarball_path: Path, path: Path) -> Optional[IO[bytes]]:
-        """Extracts file stream from the tarball
+        """Returns the file stream which yields the contents of
+        a file at the specified path in the Tarball
 
         Args:
             tarball_path: absolute path of the tarball
@@ -443,12 +444,12 @@ class Tarball:
             return tarfile.open(tarball_path, "r:*").extractfile(path)
         except Exception as exc:
             raise BadDirpath(
-                f"A problem occurred processing {str(path)!r} from {str(tarball_path)!s}: {exc}"
+                f"A problem occurred processing {str(path)!r} from {str(tarball_path)!r}: {exc}"
             )
 
     def filestream(self, path: str) -> Optional[dict]:
-        """Returns the file stream which yields the contents of
-        a file at the specified path in the Tarball
+        """Returns a dictionary containing information about the target
+        file and file stream
 
         Args:
             path: relative path within the tarball of a file
@@ -463,14 +464,14 @@ class Tarball:
         info = self.get_info(file_path)
         info["stream"] = None
 
-        try:
-            if info["type"] == CacheType.FILE or path == Path("."):
+        if info["type"] == CacheType.FILE or file_path.name == self.name:
+            try:
                 info["stream"] = Tarball.extract(self.tarball_path, file_path)
-            return info
-        except Exception as exc:
-            raise TarballUnpackError(
-                self.tarball_path, f"Unable to extract {str(file_path)!r}"
-            ) from exc
+            except Exception as exc:
+                raise TarballUnpackError(
+                    self.tarball_path, f"Unable to extract {str(file_path)!r}"
+                ) from exc
+        return info
 
     @staticmethod
     def _get_metadata(tarball_path: Path) -> Optional[JSONOBJECT]:
@@ -973,7 +974,7 @@ class CacheManager:
                 controller_name = metadata["run"]["controller"]
             else:
                 controller_name = "unknown"
-        except MetadataError:
+        except BadDirpath:
             raise
         except Exception as exc:
             raise MetadataError(tarfile, exc)

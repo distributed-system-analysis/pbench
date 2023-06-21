@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import io
 from pathlib import Path
 from typing import Any, Optional
 
@@ -50,7 +51,7 @@ class TestDatasetsAccess:
             info = {
                 "name": "f1.json",
                 "type": CacheType.FILE,
-                "stream": "file_as_a_byte_stream",
+                "stream": io.BytesIO(b"file_as_a_byte_stream"),
             }
             return info
 
@@ -79,10 +80,10 @@ class TestDatasetsAccess:
 
     @pytest.mark.parametrize("key", (None, "", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
-        filestream_tuple = {"type": CacheType.DIRECTORY, "stream": None}
+        filestream_dict = {"type": CacheType.DIRECTORY, "stream": None}
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(
-            self.MockTarball, "filestream", lambda _s, _t: filestream_tuple
+            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
         )
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
@@ -93,10 +94,10 @@ class TestDatasetsAccess:
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
-        filestream_tuple = {"type": CacheType.SYMLINK, "stream": None}
+        filestream_dict = {"type": CacheType.SYMLINK, "stream": None}
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(
-            self.MockTarball, "filestream", lambda _s, _t: filestream_tuple
+            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
         )
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: False)
@@ -127,6 +128,6 @@ class TestDatasetsAccess:
 
         file_content, args = mock_args
 
-        assert str(file_content) == "file_as_a_byte_stream"
+        assert str(file_content).startswith("<_io.BytesIO")
         assert args["as_attachment"] is False
         assert args["download_name"] == "f1.json"
