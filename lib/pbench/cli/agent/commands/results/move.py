@@ -5,7 +5,6 @@ import tempfile
 from typing import List
 
 import click
-import requests
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResult, MakeResultTb
@@ -103,7 +102,7 @@ class MoveResults(BaseCommand):
                     if not res.ok:
                         try:
                             msg = res.json()["message"]
-                        except requests.exceptions.JSONDecodeError:
+                        except Exception:
                             msg = res.text if res.text else res.reason
                         raise CopyResult.FileUploadError(msg)
                     if self.context.relay:

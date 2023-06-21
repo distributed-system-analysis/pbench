@@ -12,11 +12,12 @@ flask-restful>=0.3.9
 flask-sqlalchemy
 gunicorn
 humanize
+pquisby
 psycopg2
 pyesbulk>=2.0.1
 PyJwt[crypto]
 python-dateutil
-requests>=2.31.0  # CVE-2023-32681
+requests # TODO CVE-2023-32681 (>=2.31.0)
 sdnotify
 sqlalchemy>=1.4.23
 sqlalchemy_utils>=0.37.6
