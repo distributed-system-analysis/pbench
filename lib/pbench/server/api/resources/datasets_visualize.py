@@ -27,7 +27,7 @@ from pbench.server.cache_manager import (
 from pbench.server.database import Dataset
 
 
-class Visualize(ApiBase):
+class DatasetsVisualize(ApiBase):
     """
     This class implements the Server API used to retrieve data for visualization.
     """
@@ -78,7 +78,9 @@ class Visualize(ApiBase):
         benchmark = metadata["dataset.metalog.pbench.script"].upper()
         benchmark_type = BenchmarkName.__members__.get(benchmark)
         if not benchmark_type:
-            raise APIAbort(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Benchmark")
+            raise APIAbort(
+                HTTPStatus.UNSUPPORTED_MEDIA_TYPE, f"Unsupported Benchmark: {benchmark}"
+            )
 
         name = Dataset.stem(tarball.tarball_path)
         try:
@@ -86,13 +88,12 @@ class Visualize(ApiBase):
         except TarballUnpackError as e:
             raise APIInternalError(str(e)) from e
 
-        pquisby_obj = QuisbyProcessing()
-        get_quisby_data = pquisby_obj.extract_data(
+        get_quisby_data = QuisbyProcessing().extract_data(
             benchmark_type, dataset.name, InputType.STREAM, file
         )
 
         if get_quisby_data["status"] != "success":
             raise APIInternalError(
                 f"Quisby processing failure. Exception: {get_quisby_data['exception']}"
-            ) from None
+            )
         return jsonify(get_quisby_data)

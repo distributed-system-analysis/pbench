@@ -17,6 +17,7 @@ from pbench.server.api.resources.api_key import APIKeyManage
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
+from pbench.server.api.resources.datasets_visualize import DatasetsVisualize
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.server.api.resources.query_apis.dataset import Datasets
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
@@ -37,7 +38,6 @@ from pbench.server.api.resources.relay import Relay
 from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_settings import ServerSettings
 from pbench.server.api.resources.upload import Upload
-from pbench.server.api.resources.visualize import Visualize
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
@@ -121,6 +121,12 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         resource_class_args=(config,),
     )
     api.add_resource(
+        DatasetsVisualize,
+        f"{base_uri}/datasets/<string:dataset>/visualize",
+        endpoint="datasets_visualize",
+        resource_class_args=(config,),
+    )
+    api.add_resource(
         EndpointConfig,
         f"{base_uri}/endpoints",
         endpoint="endpoints",
@@ -158,12 +164,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         Upload,
         f"{base_uri}/upload/<string:filename>",
         endpoint="upload",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        Visualize,
-        f"{base_uri}/datasets/<string:dataset>/visualize",
-        endpoint="visualize",
         resource_class_args=(config,),
     )
 

@@ -5,6 +5,7 @@ from pquisby.lib.post_processing import QuisbyProcessing
 import pytest
 import requests
 
+from pbench.server import JSON
 from pbench.server.api.resources import ApiBase
 from pbench.server.cache_manager import CacheManager, Tarball
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
@@ -50,11 +51,8 @@ class TestVisualize:
 
         return Tarball
 
-    def mock_get_dataset_metadata(self, _dataset, _key):
+    def mock_get_dataset_metadata(self, _dataset, _key) -> JSON:
         return {"dataset.metalog.pbench.script": "uperf"}
-
-    def mock_extract_data(self, test_name, dataset_name, input_type, data):
-        return {"status": "success", "json_data": "quisby_data"}
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as("nonexistent-dataset", "drb", HTTPStatus.NOT_FOUND)
@@ -73,28 +71,30 @@ class TestVisualize:
         }
 
     def test_successful_get(self, query_get_as, monkeypatch):
+        def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
+            return {"status": "success", "json_data": "quisby_data"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(
             ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
         )
-        monkeypatch.setattr(QuisbyProcessing, "extract_data", self.mock_extract_data)
+        monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
 
         response = query_get_as("uperf_1", "test", HTTPStatus.OK)
         assert response.json["status"] == "success"
         assert response.json["json_data"] == "quisby_data"
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
-        def mock_find_dataset_with_incorrect_data(self, dataset):
+        def mock_find_dataset_with_incorrect_data(self, dataset) -> Tarball:
             class Tarball(object):
                 tarball_path = Path("/dataset/tarball.tar.xz")
 
-                def extract(tarball_path, path):
+                def extract(tarball_path, path) -> str:
                     return "IncorrectData"
 
             return Tarball
 
-        def mock_extract_data(self, test_name, dataset_name, input_type, data):
+        def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
             return {"status": "failed", "exception": "Unsupported Media Type"}
 
         monkeypatch.setattr(
@@ -105,16 +105,23 @@ class TestVisualize:
         )
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
-        assert response.json.get("message").startswith(
+        assert response.json["message"].startswith(
             "Internal Pbench Server Error: log reference "
         )
 
     def test_unsupported_benchmark(self, query_get_as, monkeypatch):
-        def mock_get_metadata(self, dataset, key):
+        flag = True
+
+        def mock_extract_data(*args, **kwargs) -> JSON:
+            nonlocal flag
+            flag = False
+
+        def mock_get_metadata(self, dataset, key) -> JSON:
             return {"dataset.metalog.pbench.script": "hammerDB"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(ApiBase, "_get_dataset_metadata", mock_get_metadata)
-        monkeypatch.setattr(QuisbyProcessing, "extract_data", self.mock_extract_data)
+        monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
-        response.json["message"] == "Unsupported Benchmark"
+        assert response.json["message"] == "Unsupported Benchmark: HAMMERDB"
+        assert flag is True
