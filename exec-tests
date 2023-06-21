@@ -164,6 +164,7 @@ if [[ "${subtst:-python}" == "python" ]]; then
     # used which are not compatible with SQLAlchemy 2.x. Since we are not
     # going to switch to 2.x any time soon, we use the big hammer approach
     # to avoid the noise.
+    python3 -m pip list
     SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True _PBENCH_COV_DIR="${_toxenvdir}/cov" ${_ECHO} _time pytest \
         --tb=native \
         ${pytest_jobs_arg} \

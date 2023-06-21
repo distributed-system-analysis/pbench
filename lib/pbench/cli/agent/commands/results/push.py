@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import List
 
 import click
-import requests
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResult
@@ -32,7 +31,7 @@ class ResultsPush(BaseCommand):
 
         try:
             msg = res.json()["message"]
-        except requests.exceptions.JSONDecodeError:
+        except Exception:
             msg = res.text if res.text else res.reason
 
         # dup or other unexpected but non-error status

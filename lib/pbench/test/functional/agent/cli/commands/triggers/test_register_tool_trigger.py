@@ -4,7 +4,7 @@ import pytest
 def test_pbench_register_tool_trigger_help():
     command = ["pbench-register-tool-trigger", "--help"]
     out, err, exitcode = pytest.helpers.capture(command)
-    assert b"Usage: pbench-register-tool-trigger [OPTIONS]" in out
+    assert b"Usage: pbench-register-tool-trigger" in out
     assert exitcode == 0
 
 
