@@ -1,3 +1,5 @@
+import sys
+
 import click
 
 from pbench.cli import compose_options
@@ -5,6 +7,11 @@ from pbench.cli import compose_options
 
 def results_common_options(f):
     """Common options for results command"""
+
+    def server_token_required(ctx, param, value):
+        if not (ctx.params.get("relay") or "--help" in sys.argv[1:] or value):
+            raise click.MissingParameter()
+        return value
 
     options = [
         click.option(
@@ -18,8 +25,6 @@ def results_common_options(f):
         click.option(
             "-m",
             "--metadata",
-            required=False,
-            default=[],
             multiple=True,
             help=(
                 "list of metadata keys to be sent on PUT."
@@ -28,10 +33,17 @@ def results_common_options(f):
             ),
         ),
         click.option(
+            "--server",
+            help="Specify the Pbench Server as https://host[:port]",
+        ),
+        click.option(
+            "--relay",
+            help="Specify a relay server as http[s]://host[:port]",
+        ),
+        click.option(
             "--token",
-            required=True,
             envvar="PBENCH_ACCESS_TOKEN",
-            prompt=False,
+            callback=server_token_required,
             help="pbench server authentication token",
         ),
     ]

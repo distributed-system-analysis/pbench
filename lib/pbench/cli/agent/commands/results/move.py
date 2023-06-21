@@ -8,7 +8,7 @@ import click
 import requests
 
 from pbench.agent.base import BaseCommand
-from pbench.agent.results import CopyResultTb, MakeResultTb
+from pbench.agent.results import CopyResult, MakeResultTb
 from pbench.cli import CliContext, pass_cli_context, sort_click_command_parameters
 from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
@@ -36,6 +36,7 @@ class MoveResults(BaseCommand):
         runs_copied = 0
         failures = 0
         no_of_tb = 0
+        crt = CopyResult.cli_create(self.context, self.config, self.logger)
 
         with tempfile.TemporaryDirectory(
             dir=self.config.pbench_tmp, prefix="pbench-results-move."
@@ -51,7 +52,7 @@ class MoveResults(BaseCommand):
 
                 try:
                     mrt = MakeResultTb(
-                        result_dir,
+                        str(result_dir),
                         temp_dir,
                         self.context.controller,
                         self.config,
@@ -73,7 +74,7 @@ class MoveResults(BaseCommand):
                     continue
 
                 try:
-                    result_tb_name, result_tb_len, result_tb_md5 = mrt.make_result_tb(
+                    result_tb_name, _, result_tb_md5 = mrt.make_result_tb(
                         single_threaded=single_threaded
                     )
                 except BadMDLogFormat as exc:
@@ -98,24 +99,17 @@ class MoveResults(BaseCommand):
                     continue
 
                 try:
-                    crt = CopyResultTb(
-                        result_tb_name,
-                        result_tb_len,
-                        result_tb_md5,
-                        self.config,
-                        self.logger,
-                    )
-                    res = crt.copy_result_tb(
-                        self.context.token, self.context.access, self.context.metadata
-                    )
+                    res = crt.push(result_tb_name, result_tb_md5)
                     if not res.ok:
                         try:
                             msg = res.json()["message"]
                         except requests.exceptions.JSONDecodeError:
                             msg = res.text if res.text else res.reason
-                        raise CopyResultTb.FileUploadError(msg)
+                        raise CopyResult.FileUploadError(msg)
+                    if self.context.relay:
+                        click.echo(f"RELAY {result_tb_name.name}: {res.url}")
                 except Exception as exc:
-                    if isinstance(exc, (CopyResultTb.FileUploadError, RuntimeError)):
+                    if isinstance(exc, (CopyResult.FileUploadError, RuntimeError)):
                         msg = "Error uploading file"
                     else:
                         msg = "Unexpected error occurred copying tar ball remotely"
@@ -204,13 +198,6 @@ class MoveResults(BaseCommand):
     is_flag=True,
     help="Use single threaded compression with 'xz'",
 )
-@click.option(
-    "--show-server",
-    help=(
-        "Display information about the pbench server where the result(s) will"
-        " be moved (Not implemented)"
-    ),
-)
 @pass_cli_context
 def main(
     context: CliContext,
@@ -220,7 +207,8 @@ def main(
     delete: bool,
     metadata: List,
     xz_single_threaded: bool,
-    show_server: str,
+    server: str,
+    relay: str,
 ):
     """Move result directories to the configured Pbench server."""
     clk_ctx = click.get_current_context()
@@ -237,19 +225,23 @@ def main(
                 err=True,
             )
             clk_ctx.exit(1)
+
+    if relay and server:
+        click.echo("Cannot use both relay and Pbench Server destination.", err=True)
+        clk_ctx.exit(2)
+
     if validate_hostname(controller) != 0:
         # We check once to avoid having to deal with a bad controller each
         # time we try to copy the results.
         click.echo(f"Controller, {controller!r}, is not a valid host name")
         clk_ctx.exit(1)
-    context.controller = controller
 
+    context.controller = controller
     context.access = access
     context.token = token
     context.metadata = metadata
-
-    if show_server:
-        click.echo("WARNING -- Option '--show-server' is not implemented", err=True)
+    context.server = server
+    context.relay = relay
 
     try:
         rv = MoveResults(context).execute(xz_single_threaded, delete=delete)

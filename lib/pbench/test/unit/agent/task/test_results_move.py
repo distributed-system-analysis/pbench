@@ -1,5 +1,7 @@
 import datetime
+import json
 import logging
+import re
 
 from click.testing import CliRunner
 import responses
@@ -35,7 +37,7 @@ user_script = sleep
 """
 
 
-class TestMoveResults:
+class TestResultsMove:
 
     CTRL_SWITCH = "--controller"
     TOKN_SWITCH = "--token"
@@ -43,11 +45,13 @@ class TestMoveResults:
     DELY_SWITCH = "--delete"
     DELN_SWITCH = "--no-delete"
     XZST_SWITCH = "--xz-single-threaded"
-    SWSR_SWITCH = "--show-server"
+    RELAY_SWITCH = "--relay"
+    SRVR_SWITCH = "--server"
     CTRL_TEXT = "ctrl"
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
     ACCESS_TEXT = "private"
-    SWSR_TEXT = None
+    RELAY_TEXT = "http://relay.example.com"
+    SRVR_TEXT = "http://pbench.test.example.com"
     META_SWITCH = "--metadata"
     META_TEXT_FOO = "pbench.sat:FOO"
     META_TEXT_TEST = "pbench.test:TEST"
@@ -72,16 +76,16 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELY_SWITCH,
-                TestMoveResults.XZST_SWITCH,
-                TestMoveResults.SWSR_SWITCH,
-                TestMoveResults.SWSR_TEXT,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELY_SWITCH,
+                TestResultsMove.XZST_SWITCH,
+                TestResultsMove.SRVR_SWITCH,
+                TestResultsMove.SRVR_TEXT,
+                TestResultsMove.ACCESS_SWITCH,
+                TestResultsMove.ACCESS_TEXT,
             ],
         )
         assert (
@@ -102,19 +106,17 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELY_SWITCH,
-                TestMoveResults.XZST_SWITCH,
-                TestMoveResults.SWSR_SWITCH,
-                TestMoveResults.SWSR_TEXT,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
-                TestMoveResults.META_SWITCH,
-                TestMoveResults.META_TEXT_TEST,
-                TestMoveResults.META_TEXT_FOO,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELY_SWITCH,
+                TestResultsMove.XZST_SWITCH,
+                TestResultsMove.ACCESS_SWITCH,
+                TestResultsMove.ACCESS_TEXT,
+                TestResultsMove.META_SWITCH,
+                TestResultsMove.META_TEXT_TEST,
+                TestResultsMove.META_TEXT_FOO,
             ],
         )
         assert (
@@ -124,26 +126,47 @@ class TestMoveResults:
 
     @staticmethod
     @responses.activate
+    def test_server_relay():
+        """Test metadata with conflicting server and relay"""
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.DELY_SWITCH,
+                TestResultsMove.XZST_SWITCH,
+                TestResultsMove.SRVR_SWITCH,
+                TestResultsMove.SRVR_TEXT,
+                TestResultsMove.RELAY_SWITCH,
+                TestResultsMove.RELAY_TEXT,
+            ],
+        )
+        assert (
+            result.exit_code == 2
+        ), f"Expected exit code of 2: exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
+        assert "Cannot use both relay and Pbench Server destination." in result.stderr
+
+    @staticmethod
+    @responses.activate
     def test_multiple_metadata_args():
         """Test metadata with multiple values"""
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELY_SWITCH,
-                TestMoveResults.XZST_SWITCH,
-                TestMoveResults.SWSR_SWITCH,
-                TestMoveResults.SWSR_TEXT,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
-                TestMoveResults.META_SWITCH,
-                TestMoveResults.META_TEXT_TEST,
-                TestMoveResults.META_SWITCH,
-                TestMoveResults.META_TEXT_FOO,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELY_SWITCH,
+                TestResultsMove.XZST_SWITCH,
+                TestResultsMove.ACCESS_SWITCH,
+                TestResultsMove.ACCESS_TEXT,
+                TestResultsMove.META_SWITCH,
+                TestResultsMove.META_TEXT_TEST,
+                TestResultsMove.META_SWITCH,
+                TestResultsMove.META_TEXT_FOO,
             ],
         )
         assert (
@@ -179,14 +202,8 @@ class TestMoveResults:
         caplog.set_level(logging.DEBUG)
 
         responses.add(
-            responses.GET,
-            "http://pbench.example.com/api/v1/host_info",
-            status=200,
-            body="pbench@pbench-server:/srv/pbench/pbench-move-results-receive/fs-version-002",
-        )
-        responses.add(
             responses.PUT,
-            f"http://pbench.example.com/api/v1/upload/{script}_{config}_{date}.tar.xz",
+            f"http://pbench.example.com/api/v1/upload/{name}.tar.xz",
             status=200,
         )
 
@@ -196,11 +213,11 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
-                TestMoveResults.DELN_SWITCH,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELN_SWITCH,
             ],
         )
         assert (
@@ -218,10 +235,10 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
             ],
         )
         assert (
@@ -237,10 +254,10 @@ class TestMoveResults:
         result = runner.invoke(
             main,
             args=[
-                TestMoveResults.CTRL_SWITCH,
-                TestMoveResults.CTRL_TEXT,
-                TestMoveResults.TOKN_SWITCH,
-                TestMoveResults.TOKN_TEXT,
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
             ],
         )
         assert (
@@ -250,3 +267,118 @@ class TestMoveResults:
             result.stdout
             == "Status: total # of result directories considered 1, successfully moved 1, encountered 0 failures\n"
         )
+
+    @staticmethod
+    @responses.activate
+    def test_results_move_server(monkeypatch, caplog, setup):
+        monkeypatch.setenv("_pbench_full_hostname", "localhost")
+        monkeypatch.setattr(datetime, "datetime", MockDatetime)
+
+        # In order for a pbench tar ball to be moved/copied to a pbench-server
+        # the run directory has to have one file in it, a "metadata.log" file.
+        # We make a run directory and populate it with our test specific
+        # information.
+        pbrun = setup["tmp"] / "var" / "lib" / "pbench-agent"
+        script = "pbench-user-benchmark"
+        config = "test-results-move"
+        date = "YYYY.MM.DDTHH.MM.SS"
+        name = f"{script}_{config}_{date}"
+        res_dir = pbrun / name
+        res_dir.mkdir(parents=True, exist_ok=True)
+        mlog = res_dir / "metadata.log"
+        mlog.write_text(mdlog_tmpl.format(**locals()))
+
+        caplog.set_level(logging.DEBUG)
+
+        responses.add(
+            responses.PUT,
+            f"{TestResultsMove.SRVR_TEXT}/api/v1/upload/{script}_{config}_{date}.tar.xz",
+            status=200,
+        )
+
+        runner = CliRunner(mix_stderr=False)
+
+        # Test --no-delete
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.TOKN_SWITCH,
+                TestResultsMove.TOKN_TEXT,
+                TestResultsMove.DELN_SWITCH,
+                TestResultsMove.SRVR_SWITCH,
+                TestResultsMove.SRVR_TEXT,
+            ],
+        )
+        assert (
+            result.exit_code == 0
+        ), f"Expected a successful operation, exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
+        assert (
+            result.stdout
+            == "Status: total # of result directories considered 1, successfully copied 1, encountered 0 failures\n"
+        )
+        # This should raise an unexpected exception if it was not created.
+        (pbrun / f"{name}.copied").unlink()
+
+    @staticmethod
+    @responses.activate
+    def test_results_move_relay(monkeypatch, caplog, setup):
+        monkeypatch.setenv("_pbench_full_hostname", "localhost")
+        monkeypatch.setattr(datetime, "datetime", MockDatetime)
+
+        # In order for a pbench tar ball to be moved/copied to a pbench-server
+        # the run directory has to have one file in it, a "metadata.log" file.
+        # We make a run directory and populate it with our test specific
+        # information.
+        pbrun = setup["tmp"] / "var" / "lib" / "pbench-agent"
+        script = "pbench-user-benchmark"
+        config = "test-results-move"
+        date = "YYYY.MM.DDTHH.MM.SS"
+        name = f"{script}_{config}_{date}"
+        res_dir = pbrun / name
+        res_dir.mkdir(parents=True, exist_ok=True)
+        mlog = res_dir / "metadata.log"
+        mlog.write_text(mdlog_tmpl.format(**locals()))
+
+        caplog.set_level(logging.DEBUG)
+
+        responses.add(
+            responses.PUT, re.compile(f"{TestResultsMove.RELAY_TEXT}/[a-z0-9]+")
+        )
+
+        runner = CliRunner(mix_stderr=False)
+
+        # Test --no-delete
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsMove.CTRL_SWITCH,
+                TestResultsMove.CTRL_TEXT,
+                TestResultsMove.DELN_SWITCH,
+                TestResultsMove.RELAY_SWITCH,
+                TestResultsMove.RELAY_TEXT,
+            ],
+        )
+
+        # We expect two PUT calls using the relay base URI: first the tarball
+        # itself, and then a JSON manifest file. The manifest JSON must contain
+        # a "uri" field with a value matching the tarball URI, and a "name"
+        # field identifying the original tarball name.
+        assert len(responses.calls) == 2
+        calls = list(responses.calls)
+        manifest = json.load(calls[1].request.body)
+        assert manifest["uri"] == calls[0].request.url
+        assert manifest["name"] == f"{name}.tar.xz"
+        assert (
+            result.exit_code == 0
+        ), f"Expected a successful operation, exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
+        assert re.match(
+            (
+                r"RELAY pbench-user-benchmark_test-results-move_YYYY.MM.DDTHH.MM.SS.tar.xz: http://relay.example.com/[a-z0-9]+\n"
+                "Status: total # of result directories considered 1, successfully copied 1, encountered 0 failures\n"
+            ),
+            result.stdout,
+        )
+        # This should raise an unexpected exception if it was not created.
+        (pbrun / f"{name}.copied").unlink()

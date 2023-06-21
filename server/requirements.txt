@@ -16,7 +16,7 @@ psycopg2
 pyesbulk>=2.0.1
 PyJwt[crypto]
 python-dateutil
-requests
+requests>=2.31.0  # CVE-2023-32681
 sdnotify
 sqlalchemy>=1.4.23
 sqlalchemy_utils>=0.37.6
