@@ -8,6 +8,7 @@ from pquisby.lib.post_processing import BenchmarkName, InputType, QuisbyProcessi
 from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
+    ApiAuthorization,
     ApiAuthorizationType,
     ApiBase,
     ApiContext,
@@ -15,11 +16,9 @@ from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
     ApiSchema,
-    convert_dataset,
     Parameter,
     ParamType,
     Schema,
-    UnauthorizedAccess,
 )
 import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import (
@@ -27,7 +26,7 @@ from pbench.server.cache_manager import (
     TarballNotFound,
     TarballUnpackError,
 )
-from pbench.server.database import Dataset
+from pbench.server.database.models.datasets import Metadata
 from pbench.server.database.models.users import User
 
 
@@ -44,7 +43,11 @@ class CompareDataset(ApiBase):
                 OperationCode.READ,
                 query_schema=Schema(
                     Parameter(
-                        "datasets", ParamType.LIST, string_list=",", required=True
+                        "datasets",
+                        ParamType.LIST,
+                        element_type=ParamType.DATASET,
+                        string_list=",",
+                        required=True,
                     ),
                 ),
                 authorization=ApiAuthorizationType.NONE,
@@ -63,7 +66,7 @@ class CompareDataset(ApiBase):
             context: API context dictionary
 
         Raises:
-            UnauthorizedAccess : The user isn't authorized for the requestedaccess.
+            UnauthorizedAccess : The user isn't authorized for the requested access.
             APIAbort, reporting "NOT_FOUND" and "INTERNAL_SERVER_ERROR"
             APIInternalError, reporting the failure message
 
@@ -79,56 +82,48 @@ class CompareDataset(ApiBase):
                 "User provided access_token is invalid or expired",
             )
 
-        ds_list = [convert_dataset(ds, None) for ds in datasets]
         cache_m = CacheManager(self.config, current_app.logger)
-
-        benchmark_check = []
-
+        benchmark = None
+        benchmark_check = set()
         stream_file = {}
-        for dataset in ds_list:
-            metadata = self._get_dataset_metadata(
-                dataset, ["dataset.metalog.pbench.script"]
-            )
 
-            benchmark = metadata["dataset.metalog.pbench.script"]
-            benchmark_check.append(benchmark)
+        for dataset in datasets:
+            benchmark = Metadata.getvalue(dataset, "dataset.metalog.pbench.script")
+            benchmark_check.add(benchmark)
 
             # Validate if all the selected datasets is of same benchmark
-            if len(set(benchmark_check)) != 1:
+            if len(benchmark_check) != 1:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
-                    "Requested datasets are not of same benchmark. It can't be compared",
+                    f"Requested datasets are not of same benchmark. It can't be compared.Benchmarks :{benchmark_check} are requested.",
                 )
 
             # Validate if the user is authorized to access the selected datasets
-            if (
-                dataset.owner_id != str(authorized_user.id)
-                and dataset.access == Dataset.PRIVATE_ACCESS
-            ):
-                raise UnauthorizedAccess(
-                    authorized_user,
+            self._check_authorization(
+                ApiAuthorization(
+                    ApiAuthorizationType.USER_ACCESS,
                     OperationCode.READ,
-                    dataset.owner.username,
+                    str(dataset.owner_id),
                     dataset.access,
-                    HTTPStatus.FORBIDDEN,
                 )
+            )
 
-        for dataset in ds_list:
+        for dataset in datasets:
             try:
                 tarball = cache_m.find_dataset(dataset.resource_id)
             except TarballNotFound as e:
-                raise APIAbort(
-                    HTTPStatus.NOT_FOUND, f"No dataset with ID '{e.tarball}' found"
+                raise APIInternalError(
+                    f"Expected dataset with ID:'{e.tarball}' is missing from the cache manager."
                 ) from e
-            name = Dataset.stem(tarball.tarball_path)
             try:
-                file = tarball.extract(tarball.tarball_path, f"{name}/result.csv")
+                file = tarball.extract(
+                    tarball.tarball_path, f"{tarball.name}/result.csv"
+                )
             except TarballUnpackError as e:
                 raise APIInternalError(str(e)) from e
             stream_file[dataset.name] = file
 
-        benchmark = metadata["dataset.metalog.pbench.script"].upper()
-        benchmark_type = BenchmarkName.__members__.get(benchmark)
+        benchmark_type = BenchmarkName.__members__.get(benchmark.upper())
         if not benchmark_type:
             raise APIAbort(
                 HTTPStatus.UNSUPPORTED_MEDIA_TYPE, f"Unsupported Benchmark: {benchmark}"

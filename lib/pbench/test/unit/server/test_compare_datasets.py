@@ -6,9 +6,8 @@ import pytest
 import requests
 
 from pbench.server import JSON
-from pbench.server.api.resources import ApiBase
 from pbench.server.cache_manager import CacheManager, Tarball
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 
 
 class TestCompareDatasets:
@@ -50,28 +49,37 @@ class TestCompareDatasets:
     def mock_find_dataset(self, _dataset: str) -> Tarball:
         class Tarball(object):
             tarball_path = Path("/dataset/tarball.tar.xz")
+            name = "tarball"
 
             def extract(_tarball_path: Path, _path: str) -> str:
                 return "CSV_file_as_a_byte_stream"
 
         return Tarball
 
-    def mock_get_dataset_metadata(self, _dataset, _key) -> JSON:
-        return {"dataset.metalog.pbench.script": "uperf"}
+    def mock_get_value(_dataset, _key, _user) -> str:
+        return "uperf"
 
-    def test_get_no_dataset(self, query_get_as):
+    def test_get_no_dataset(self, query_get_as, monkeypatch):
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_get_value)
+
         response = query_get_as(
-            ["nonexistent-dataset", "uperf_1"], "drb", HTTPStatus.NOT_FOUND
+            ["uperf_1", "nonexistent-dataset"], "drb", HTTPStatus.BAD_REQUEST
         )
-        assert response.json == {"message": "Dataset 'nonexistent-dataset' not found"}
-
-    def test_dataset_not_present(self, query_get_as):
-        response = query_get_as(["fio_2"], "drb", HTTPStatus.NOT_FOUND)
         assert response.json == {
-            "message": "No dataset with ID 'random_md5_string4' found"
+            "message": "Unrecognized list value ['nonexistent-dataset'] given for parameter datasets; expected Dataset"
         }
 
-    def test_unauthorized_access(self, query_get_as):
+    def test_dataset_not_present(self, query_get_as, monkeypatch):
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_get_value)
+
+        response = query_get_as(["fio_2"], "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
+        assert response.json["message"].startswith(
+            "Internal Pbench Server Error: log reference "
+        )
+
+    def test_unauthorized_access(self, query_get_as, monkeypatch):
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_get_value)
+
         response = query_get_as(["uperf_1", "uperf_2"], "drb", HTTPStatus.FORBIDDEN)
         assert response.json == {
             "message": "User drb is not authorized to READ a resource owned by test with private access"
@@ -84,18 +92,18 @@ class TestCompareDatasets:
             nonlocal extract_data_called
             extract_data_called = True
 
-        def mock_get_metadata(self, dataset, key) -> JSON:
-            return {"dataset.metalog.pbench.script": "hammerDB"}
+        def mock_get_value(dataset, key) -> str:
+            return "hammerDB"
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(ApiBase, "_get_dataset_metadata", mock_get_metadata)
+        monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         monkeypatch.setattr(
             QuisbyProcessing, "compare_csv_to_json", mock_compare_csv_to_json
         )
         response = query_get_as(
             ["uperf_1", "uperf_2"], "test", HTTPStatus.UNSUPPORTED_MEDIA_TYPE
         )
-        assert response.json["message"] == "Unsupported Benchmark: HAMMERDB"
+        assert response.json["message"] == "Unsupported Benchmark: hammerDB"
         assert not extract_data_called
 
     def test_successful_get(self, query_get_as, monkeypatch):
@@ -105,9 +113,7 @@ class TestCompareDatasets:
             return {"status": "success", "json_data": "quisby_data"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(
-            ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
-        )
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_get_value)
         monkeypatch.setattr(
             QuisbyProcessing, "compare_csv_to_json", mock_compare_csv_to_json
         )
@@ -134,9 +140,7 @@ class TestCompareDatasets:
         monkeypatch.setattr(
             CacheManager, "find_dataset", mock_find_dataset_with_incorrect_data
         )
-        monkeypatch.setattr(
-            ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
-        )
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_get_value)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_compare_csv_to_json)
         response = query_get_as(
             ["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR
