@@ -901,8 +901,8 @@ class TestCacheManager:
     @pytest.mark.parametrize(
         "file_path, exp_file_type, exp_stream",
         [
-            ("", CacheType.DIRECTORY, b"/mock/dir_name.tar.xz"),
-            ("f1.json", CacheType.FILE, b"file_as_a_byte_stream"),
+            ("", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
+            ("f1.json", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
             ("subdir1/subdir12", CacheType.DIRECTORY, None),
         ],
     )
@@ -914,10 +914,10 @@ class TestCacheManager:
         cache = Path("/mock/.cache")
 
         def mock_extract(tarball_path, path):
-            return io.BytesIO(b"file_as_a_byte_stream").read()
+            return exp_stream
 
         def mock_open(self, mode="rb"):
-            return io.BytesIO(b"/mock/dir_name.tar.xz").read()
+            return exp_stream
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
@@ -941,14 +941,10 @@ class TestCacheManager:
         def fake_tarfile_open(self, path):
             raise tarfile.TarError("Invalid Tarfile")
 
-        def mock_open(self, mode="rb"):
-            raise FileNotFoundError(f"No such file or directory: '{tar}'")
-
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             m.setattr(tarfile, "open", fake_tarfile_open)
-            m.setattr(Path, "open", mock_open)
             tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
@@ -959,12 +955,6 @@ class TestCacheManager:
             expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {str(path)!r}"
             with pytest.raises(TarballUnpackError) as exc:
                 tb.filestream("subdir1/f11.txt")
-            assert str(exc.value) == expected_error_msg
-
-            path = Path(tb.name)
-            expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {str(path)!r}"
-            with pytest.raises(TarballUnpackError) as exc:
-                tb.filestream("")
             assert str(exc.value) == expected_error_msg
 
     def test_find(

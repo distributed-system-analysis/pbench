@@ -124,7 +124,8 @@ class TestDatasetsAccess:
         response = query_get_as("fio_2", "f1.json", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
 
-        _, args = mock_args
+        file_content, args = mock_args
 
+        assert isinstance(file_content, io.BytesIO)
         assert args["as_attachment"] is False
         assert args["download_name"] == "f1.json"

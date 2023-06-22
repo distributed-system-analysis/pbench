@@ -460,19 +460,25 @@ class Tarball:
         Returns:
             Dictionary with file info and file stream
         """
-        file_path = Path(self.name) / path
-        info = self.get_info(file_path)
-        info["stream"] = None
-
-        try:
-            if not path:
-                info["stream"] = self.tarball_path.open("rb")
+        if not path:
+            info = {
+                "name": self.name,
+                "type": CacheType.FILE,
+                "stream": self.tarball_path.open("rb"),
+            }
+        else:
+            file_path = Path(self.name) / path
+            info = self.get_info(file_path)
             if info["type"] == CacheType.FILE:
-                info["stream"] = Tarball.extract(self.tarball_path, file_path)
-        except Exception as exc:
-            raise TarballUnpackError(
-                self.tarball_path, f"Unable to extract {str(file_path)!r}"
-            ) from exc
+                try:
+                    info["stream"] = Tarball.extract(self.tarball_path, file_path)
+                except Exception as exc:
+                    raise TarballUnpackError(
+                        self.tarball_path, f"Unable to extract {str(file_path)!r}"
+                    ) from exc
+            else:
+                info["stream"] = None
+
         return info
 
     @staticmethod

@@ -54,7 +54,7 @@ class DatasetsInventory(ApiBase):
             APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"
 
 
-        GET /api/v1/datasets/inventory/{dataset}/{target}
+        GET /api/v1/datasets/{dataset}/inventory/{target}
         """
         dataset = params.uri["dataset"]
         target = params.uri.get("target")
