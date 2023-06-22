@@ -14,7 +14,7 @@ These are the variables that are defined by default and do not
 generally need to be modified unless there is a conflict:
 
 - pbench_redis_port: 17001
-- pbench_wsgi_port: 8443
+- pbench_wsgi_port: 8080
 
 Dependencies
 ------------
