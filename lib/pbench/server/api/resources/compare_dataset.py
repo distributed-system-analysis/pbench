@@ -19,18 +19,21 @@ from pbench.server.api.resources import (
     Parameter,
     ParamType,
     Schema,
+    UnauthorizedAccess,
 )
+import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import (
     CacheManager,
     TarballNotFound,
     TarballUnpackError,
 )
 from pbench.server.database import Dataset
+from pbench.server.database.models.users import User
 
 
 class CompareDataset(ApiBase):
     """
-    API class to retrieve data using Quisby to visualize
+    This class implements the Server API used to retrieve comparison data for visualization.
     """
 
     def __init__(self, config: PbenchServerConfig):
@@ -52,7 +55,7 @@ class CompareDataset(ApiBase):
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
         """
-        This function is using Quisby to process results into a form that supports visualization
+        This function is using Quisby to compare results into a form that supports visualization
 
         Args:
             params: includes the uri parameters, which provide the list of dataset.
@@ -60,15 +63,23 @@ class CompareDataset(ApiBase):
             context: API context dictionary
 
         Raises:
+            UnauthorizedAccess : The user isn't authorized for the requestedaccess.
             APIAbort, reporting "NOT_FOUND" and "INTERNAL_SERVER_ERROR"
+            APIInternalError, reporting the failure message
 
         GET /api/v1/compare?datasets=d1,d2,d3
         """
 
         datasets = params.query.get("datasets")
+        authorized_user: User = Auth.token_auth.current_user()
+
+        if not authorized_user:
+            raise APIAbort(
+                HTTPStatus.UNAUTHORIZED,
+                "User provided access_token is invalid or expired",
+            )
 
         ds_list = [convert_dataset(ds, None) for ds in datasets]
-
         cache_m = CacheManager(self.config, current_app.logger)
 
         benchmark_check = []
@@ -89,11 +100,26 @@ class CompareDataset(ApiBase):
                     "Requested datasets are not of same benchmark. It can't be compared",
                 )
 
+            # Validate if the user is authorized to access the selected datasets
+            if (
+                dataset.owner_id != str(authorized_user.id)
+                and dataset.access == Dataset.PRIVATE_ACCESS
+            ):
+                raise UnauthorizedAccess(
+                    authorized_user,
+                    OperationCode.READ,
+                    dataset.owner.username,
+                    dataset.access,
+                    HTTPStatus.FORBIDDEN,
+                )
+
         for dataset in ds_list:
             try:
                 tarball = cache_m.find_dataset(dataset.resource_id)
             except TarballNotFound as e:
-                raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
+                raise APIAbort(
+                    HTTPStatus.NOT_FOUND, f"No dataset with ID '{e.tarball}' found"
+                ) from e
             name = Dataset.stem(tarball.tarball_path)
             try:
                 file = tarball.extract(tarball.tarball_path, f"{name}/result.csv")
@@ -112,12 +138,8 @@ class CompareDataset(ApiBase):
             benchmark_type, InputType.STREAM, stream_file
         )
 
+        if get_quisby_data["status"] != "success":
+            raise APIInternalError(
+                f"Quisby processing failure. Exception: {get_quisby_data['exception']}"
+            )
         return jsonify(get_quisby_data)
-
-        # if get_quisby_data["status"] == "success":
-        #     return jsonify(get_quisby_data)
-        #
-        # else:
-        #     raise APIInternalError(
-        #         f"Quisby processing failure. Exception: {get_quisby_data['exception']}"
-        #     )
