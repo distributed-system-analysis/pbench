@@ -14,11 +14,11 @@
 # The script defaults to using master realm username/password as admin/admin
 # unless specified otherwise by 'ADMIN_USERNAME' and 'ADMIN_PASSWORD' env
 # variables. The script also defaults the keycloak redirect URI as
-# "http://localhost:8080/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
+# "https://localhost:8443/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
 # env variable.
 
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"http://localhost:8090"}
-KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"http://localhost:8080/*"}
+KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"https://localhost:8443/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # These values must match the options "realm" and "client in the

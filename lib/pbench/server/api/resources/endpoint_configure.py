@@ -64,7 +64,7 @@ class EndpointConfig(Resource):
         API to get or modify metadata is:
 
             {
-                "template": "http://host/api/v1/datasets/{dataset}/metadata",
+                "template": "https://host/api/v1/datasets/{dataset}/metadata",
                 "params": {"dataset": {"type": "string"}}
             }
 

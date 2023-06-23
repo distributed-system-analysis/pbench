@@ -77,12 +77,12 @@ Pbench returns a JSON object with two list fields:
         {
             "name": "dir1",
             "type": "dir",
-            "uri": "http://hostname/api/v1/datasets/<id>/contents/dir1"
+            "uri": "https://hostname/api/v1/datasets/<id>/contents/dir1"
         },
         {
             "name": "dir2",
             "type": "dir",
-            "uri": "http://hostname/api/v1/datasets/<id>/contents/dir2"
+            "uri": "https://hostname/api/v1/datasets/<id>/contents/dir2"
         },
         ...
     ],
@@ -93,7 +93,7 @@ Pbench returns a JSON object with two list fields:
         "size": 24,
         "mode": "0o644",
         "type": "reg",
-        "uri": "http://hostname/api/v1/datasets/<id>/inventory/file.txt"
+        "uri": "https://hostname/api/v1/datasets/<id>/inventory/file.txt"
         },
         {
         "name": "data.lis",
@@ -101,7 +101,7 @@ Pbench returns a JSON object with two list fields:
         "size": 18,
         "mode": "0o644",
         "type": "reg",
-        "uri": "http://hostname/api/v1/datasets/<id>/inventory/data.lis"
+        "uri": "https://hostname/api/v1/datasets/<id>/inventory/data.lis"
         },
         ...
     ]
@@ -126,12 +126,12 @@ The `type` codes are:
 {
     "name": "reference-result",
     "type": "sym",
-    "uri": "http://hostname/api/v1/datasets/<id>/contents/linkresult"
+    "uri": "https://hostname/api/v1/datasets/<id>/contents/linkresult"
 },
 {
     "name": "directory",
     "type": "dir",
-    "uri": "http://hostname/api/v1/datasets/<id>/contents/directory"
+    "uri": "https://hostname/api/v1/datasets/<id>/contents/directory"
 }
 ```
 
@@ -159,6 +159,6 @@ URI returning the linked file's byte stream.
     "size": 18,
     "mode": "0o644",
     "type": "reg",
-    "uri": "http://hostname/api/v1/datasets/<id>/inventory/<path>"
+    "uri": "https://hostname/api/v1/datasets/<id>/inventory/<path>"
 }
 ```

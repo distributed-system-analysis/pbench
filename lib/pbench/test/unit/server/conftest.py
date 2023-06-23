@@ -49,7 +49,7 @@ uri = sqlite:///:memory:
 secret-key = my_precious
 
 [openid]
-server_url = http://openid.example.com
+server_url = https://openid.example.com
 
 [logging]
 logger_type = null
@@ -189,6 +189,7 @@ def client(monkeypatch, server_config, add_auth_connection_mock):
     the db_session fixture instead, which adds DB cleanup after the test.
     """
     app = create_app(server_config)
+    app.config["PREFERRED_URL_SCHEME"] = "https"
 
     app_client = app.test_client()
     app_client.logger = app.logger

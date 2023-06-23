@@ -151,7 +151,7 @@ class TestDatasetsList:
             else:
                 query["offset"] = str(next_offset)
                 next_url = (
-                    f"http://localhost{server_config.rest_uri}/datasets?"
+                    f"https://localhost{server_config.rest_uri}/datasets?"
                     + urlencode_json(query)
                 )
         else:

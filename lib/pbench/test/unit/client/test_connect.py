@@ -7,7 +7,7 @@ class TestConnect:
     def test_construct_host(self):
         pbench = PbenchServerClient("10.1.100.2")
         assert pbench.host == "10.1.100.2"
-        assert pbench.scheme == "http"
+        assert pbench.scheme == "https"
         assert pbench.session is None
         assert pbench.endpoints is None
 
@@ -22,7 +22,7 @@ class TestConnect:
     def test_connect(self):
         pbench = PbenchServerClient("10.1.100.2")
         url = f"{pbench.url}/api/v1/endpoints"
-        openid_dict = {"server": "http://oidc_server", "client": "pbench_client"}
+        openid_dict = {"server": "https://oidc_server", "client": "pbench_client"}
 
         with responses.RequestsMock() as rsp:
             rsp.add(

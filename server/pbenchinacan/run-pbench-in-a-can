@@ -27,9 +27,16 @@ export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
 export KEYCLOAK_REALM=${KEYCLOAK_REALM:-"pbench-server"}
 export KEYCLOAK_CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
 
+# Note:  the value of PB_HOST_IP will be used to generate the TLS certificate
+# and so it (not `localhost`) must also be used to access the Pbench Server;
+# otherwise, the TLS validation will fail due to a host mismatch.
+if [[ -z "${PB_HOST_IP}" ]]; then
+    host_ip_list=$(hostname -I)
+    PB_HOST_IP=${host_ip_list%% *}
+    export PB_HOST_IP
+fi
+
 host_name=${PB_HOST_NAME:-$(hostname --fqdn)}
-host_ip_list=${PB_HOST_IP:-$(hostname -I)}
-host_ip=${host_ip_list%% *}
 
 # Set up TMP_DIR, if it's not already defined, to point to WORKSPACE_TMP, if it
 # is defined (e.g., by the CI), or to `/var/tmp/pbench` as a fallback.
@@ -103,6 +110,12 @@ podman run \
 #
 # We do this in the Pbench Server container so that we get a known version of
 # openssl (the native one on the Jenkins executors appears to be ancient).
+#
+# Note that this command, if successful, dumps the status of the factorization
+# search to stderr which produces a bunch of junk in the output; thus, we
+# redirect stderr to stdout and then pipe it through sed to remove any complete
+# lines consisting solely of any combination of periods, plus signs, asterisks,
+# and hyphens.
 podman run \
     --rm \
     --volume ${PB_DEPLOY_FILES}:/data:Z \
@@ -118,7 +131,8 @@ podman run \
     -addext "authorityKeyIdentifier = keyid,issuer" \
     -addext "basicConstraints=CA:FALSE" \
     -addext "keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment" \
-    -addext "subjectAltName = IP.2:${host_ip}"
+    -addext "subjectAltName = IP.2:${PB_HOST_IP}" \
+    2>&1 | sed -E -e '/^[.+*-]*$/ d'
 
 #+
 # Start the services which the Pbench Server depends upon and then start the

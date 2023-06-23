@@ -225,6 +225,7 @@ class OpenIDClient:
         )
         adapter = HTTPAdapter(max_retries=retry)
         session.mount("http://", adapter)
+        session.mount("https://", adapter)
 
         # We will also need to retry the connection if the health status is not UP.
         connected = False

@@ -51,11 +51,11 @@ class TestResultsMove:
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
     ACCESS_TEXT = "private"
     RELAY_TEXT = "http://relay.example.com"
-    SRVR_TEXT = "http://pbench.test.example.com"
+    SRVR_TEXT = "https://pbench.test.example.com"
     META_SWITCH = "--metadata"
     META_TEXT_FOO = "pbench.sat:FOO"
     META_TEXT_TEST = "pbench.test:TEST"
-    URL = "http://pbench.example.com/api/v1"
+    URL = "https://pbench.example.com/api/v1"
     ENDPOINT = "/login"
 
     @staticmethod
@@ -203,7 +203,7 @@ class TestResultsMove:
 
         responses.add(
             responses.PUT,
-            f"http://pbench.example.com/api/v1/upload/{name}.tar.xz",
+            f"{TestResultsMove.URL}/upload/{name}.tar.xz",
             status=200,
         )
 
@@ -292,7 +292,7 @@ class TestResultsMove:
 
         responses.add(
             responses.PUT,
-            f"{TestResultsMove.SRVR_TEXT}/api/v1/upload/{script}_{config}_{date}.tar.xz",
+            f"{TestResultsMove.SRVR_TEXT}/api/v1/upload/{name}.tar.xz",
             status=200,
         )
 
