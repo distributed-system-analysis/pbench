@@ -896,8 +896,8 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            m.setattr(Tarball, "extract", lambda _s, _t: exp_stream)
-            m.setattr(Path, "open", lambda _s, _m: exp_stream)
+            m.setattr(Tarball, "extract", lambda _t, _p: exp_stream)
+            m.setattr(Path, "open", lambda _s, _m="rb": exp_stream)
             tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"

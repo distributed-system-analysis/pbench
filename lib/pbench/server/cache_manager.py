@@ -496,7 +496,7 @@ class Tarball:
             return None
         else:
             metadata_log = MetadataLog()
-            metadata_log.read_file(data)
+            metadata_log.read_file(e.decode() for e in data)
             metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
             return metadata
 

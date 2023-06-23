@@ -48,7 +48,6 @@ class TestDatasetsAccess:
             self.unpacked = None
 
         def filestream(self, target):
-            print("FS")
             info = {
                 "name": "f1.json",
                 "type": CacheType.FILE,
@@ -109,8 +108,12 @@ class TestDatasetsAccess:
         }
 
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
+        class MockBytesIO(io.BytesIO):
+            def close(self):
+                super().close()
+
         mock_args: Optional[tuple[Path, dict[str, Any]]] = None
-        exp_stream = io.BytesIO(b"file_as_a_byte_stream")
+        exp_stream = MockBytesIO(b"file_as_a_byte_stream")
         filestream_dict = {
             "name": "f1.json",
             "type": CacheType.FILE,

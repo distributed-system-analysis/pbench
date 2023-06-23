@@ -23,12 +23,7 @@ from pbench.server.api.resources import (
     ApiSchema,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.cache_manager import (
-    BadDirpath,
-    CacheManager,
-    DuplicateTarball,
-    MetadataError,
-)
+from pbench.server.cache_manager import CacheManager, DuplicateTarball, MetadataError
 from pbench.server.database.models.audit import (
     Audit,
     AuditReason,
@@ -383,11 +378,6 @@ class IntakeBase(ApiBase):
             # Move the files to their final location
             try:
                 tarball = cache_m.create(tar_full_path)
-            except BadDirpath as exc:
-                raise APIAbort(
-                    HTTPStatus.BAD_REQUEST,
-                    exc,
-                ) from exc
             except DuplicateTarball as exc:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
