@@ -20,17 +20,15 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import (
     CacheManager,
     TarballNotFound,
     TarballUnpackError,
 )
 from pbench.server.database.models.datasets import Metadata
-from pbench.server.database.models.users import User
 
 
-class CompareDataset(ApiBase):
+class DatasetsCompare(ApiBase):
     """
     This class implements the Server API used to retrieve comparison data for visualization.
     """
@@ -74,28 +72,18 @@ class CompareDataset(ApiBase):
         """
 
         datasets = params.query.get("datasets")
-        authorized_user: User = Auth.token_auth.current_user()
-
-        if not authorized_user:
-            raise APIAbort(
-                HTTPStatus.UNAUTHORIZED,
-                "User provided access_token is invalid or expired",
-            )
-
-        cache_m = CacheManager(self.config, current_app.logger)
-        benchmark = None
-        benchmark_check = set()
-        stream_file = {}
-
+        benchmark_choice = None
         for dataset in datasets:
-            benchmark = Metadata.getvalue(dataset, "dataset.metalog.pbench.script")
-            benchmark_check.add(benchmark)
-
+            benchmark = Metadata.getvalue(
+                dataset=dataset, key="dataset.metalog.pbench.script"
+            )
             # Validate if all the selected datasets is of same benchmark
-            if len(benchmark_check) != 1:
+            if not benchmark_choice:
+                benchmark_choice = benchmark
+            elif benchmark != benchmark_choice:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
-                    f"Requested datasets are not of same benchmark. It can't be compared.Benchmarks :{benchmark_check} are requested.",
+                    f"Requested datasets must all use the same benchmark; found references to {benchmark_choice} and {benchmark}.",
                 )
 
             # Validate if the user is authorized to access the selected datasets
@@ -103,17 +91,18 @@ class CompareDataset(ApiBase):
                 ApiAuthorization(
                     ApiAuthorizationType.USER_ACCESS,
                     OperationCode.READ,
-                    str(dataset.owner_id),
+                    dataset.owner_id,
                     dataset.access,
                 )
             )
-
+        cache_m = CacheManager(self.config, current_app.logger)
+        stream_file = {}
         for dataset in datasets:
             try:
                 tarball = cache_m.find_dataset(dataset.resource_id)
             except TarballNotFound as e:
                 raise APIInternalError(
-                    f"Expected dataset with ID:'{e.tarball}' is missing from the cache manager."
+                    f"Expected dataset with ID '{dataset.resource_id}' is missing from the cache manager."
                 ) from e
             try:
                 file = tarball.extract(
@@ -128,11 +117,9 @@ class CompareDataset(ApiBase):
             raise APIAbort(
                 HTTPStatus.UNSUPPORTED_MEDIA_TYPE, f"Unsupported Benchmark: {benchmark}"
             )
-
         get_quisby_data = QuisbyProcessing().compare_csv_to_json(
             benchmark_type, InputType.STREAM, stream_file
         )
-
         if get_quisby_data["status"] != "success":
             raise APIInternalError(
                 f"Quisby processing failure. Exception: {get_quisby_data['exception']}"

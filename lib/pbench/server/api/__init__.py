@@ -14,7 +14,7 @@ from pbench.common.exceptions import ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.api_key import APIKeyManage
-from pbench.server.api.resources.compare_dataset import CompareDataset
+from pbench.server.api.resources.datasets_compare import DatasetsCompare
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
@@ -59,9 +59,9 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     app.logger.info("Registering service endpoints with base URI {}", base_uri)
 
     api.add_resource(
-        CompareDataset,
+        DatasetsCompare,
         f"{base_uri}/compare",
-        endpoint="compare_datasets",
+        endpoint="datasets_compare",
         resource_class_args=(config,),
     )
     api.add_resource(
