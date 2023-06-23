@@ -56,7 +56,7 @@ class TestDatasetsAccess:
             }
             return info
 
-    def mock_find_dataset(self, dataset):
+    def mock_find_dataset(self, dataset) -> MockTarball:
         # Validate the resource_id
         Dataset.query(resource_id=dataset)
         return self.MockTarball(Path("/mock/dir_name.tar.xz"), "abc")

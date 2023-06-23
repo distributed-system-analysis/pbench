@@ -492,7 +492,7 @@ class Tarball:
         name = Dataset.stem(tarball_path)
         try:
             data = Tarball.extract(tarball_path, f"{name}/metadata.log")
-        except TarballUnpackError:
+        except BadDirpath:
             return None
         else:
             metadata_log = MetadataLog()
@@ -987,8 +987,6 @@ class CacheManager:
                 controller_name = metadata["run"]["controller"]
             else:
                 controller_name = "unknown"
-        except BadDirpath:
-            raise
         except Exception as exc:
             raise MetadataError(tarfile, exc)
 
