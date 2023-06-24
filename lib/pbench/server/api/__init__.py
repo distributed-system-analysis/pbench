@@ -59,15 +59,15 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     app.logger.info("Registering service endpoints with base URI {}", base_uri)
 
     api.add_resource(
-        DatasetsCompare,
-        f"{base_uri}/compare",
-        endpoint="datasets_compare",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         Datasets,
         f"{base_uri}/datasets/<string:dataset>",
         endpoint="datasets",
+        resource_class_args=(config,),
+    )
+    api.add_resource(
+        DatasetsCompare,
+        f"{base_uri}/compare",
+        endpoint="datasets_compare",
         resource_class_args=(config,),
     )
     api.add_resource(

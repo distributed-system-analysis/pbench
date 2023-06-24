@@ -74,16 +74,14 @@ class DatasetsCompare(ApiBase):
         datasets = params.query.get("datasets")
         benchmark_choice = None
         for dataset in datasets:
-            benchmark = Metadata.getvalue(
-                dataset=dataset, key="dataset.metalog.pbench.script"
-            )
+            benchmark = Metadata.getvalue(dataset, "dataset.metalog.pbench.script")
             # Validate if all the selected datasets is of same benchmark
             if not benchmark_choice:
                 benchmark_choice = benchmark
             elif benchmark != benchmark_choice:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
-                    f"Requested datasets must all use the same benchmark; found references to {benchmark_choice} and {benchmark}.",
+                    f"Selected dataset benchmarks must match: {benchmark_choice} and {benchmark} cannot be compared.",
                 )
 
             # Validate if the user is authorized to access the selected datasets
