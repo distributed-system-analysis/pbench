@@ -241,7 +241,7 @@ const TableOfContent = () => {
                         key={index}
                         direction="down"
                         onClick={() => {
-                          attachBreadCrumbs(data, true);
+                          attachBreadCrumbs(data.name, true);
                         }}
                         drilldownMenu={
                           <DrilldownMenu id="drilldownMenuStart">
@@ -255,11 +255,11 @@ const TableOfContent = () => {
                                     key={index}
                                     direction="down"
                                     onClick={() => {
-                                      attachBreadCrumbs(data, false);
+                                      attachBreadCrumbs(data.name, false);
                                     }}
                                   >
                                     <FolderIcon />
-                                    {data}
+                                    {data.name}
                                   </MenuItem>
                                 );
                               } else {
