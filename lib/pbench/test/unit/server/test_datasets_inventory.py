@@ -108,8 +108,12 @@ class TestDatasetsAccess:
         }
 
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
+        mock_close = False
+
         class MockBytesIO(io.BytesIO):
             def close(self):
+                nonlocal mock_close
+                mock_close = True
                 super().close()
 
         mock_args: Optional[tuple[Path, dict[str, Any]]] = None
@@ -143,3 +147,4 @@ class TestDatasetsAccess:
         assert file_content == exp_stream
         assert args["as_attachment"] is False
         assert args["download_name"] == "f1.json"
+        assert mock_close
