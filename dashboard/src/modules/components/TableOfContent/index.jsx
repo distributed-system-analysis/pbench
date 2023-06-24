@@ -195,7 +195,7 @@ const TableOfContent = () => {
         ? initialBreadcrumb(breadCrumbLabels)
         : appGroupingBreadcrumb(false, breadCrumbLabels)
     );
-    const dirPath = param.concat(`${firstHierarchyLevel ? "" : "/"}`, data);
+    const dirPath = param.concat(firstHierarchyLevel ? "" : "/", data);
     setParam(dirPath);
     setIsLoading(true);
     getSubFolderData(dirPath);
@@ -288,7 +288,7 @@ const TableOfContent = () => {
                         }
                       >
                         <FolderIcon />
-                        {data}
+                        {data.name}
                       </MenuItem>
                     );
                   })}

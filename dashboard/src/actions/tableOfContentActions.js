@@ -1,6 +1,8 @@
 import * as TYPES from "./types";
 import API from "../utils/axiosInstance";
 import { uriTemplate } from "../utils/helper";
+import { showToast } from "./toastActions";
+import { DANGER } from "assets/constants/toastConstants";
 
 export const fetchTOC =
   (param, parent, callForSubData) => async (dispatch, getState) => {
@@ -18,7 +20,8 @@ export const fetchTOC =
         });
       }
     } catch (error) {
-      return error;
+      const msg = error.response?.data?.message;
+      dispatch(showToast(DANGER, msg ? msg : `Error response: ERROR_MSG`));
     }
   };
 
