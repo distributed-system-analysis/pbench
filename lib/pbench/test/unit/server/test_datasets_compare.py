@@ -9,9 +9,10 @@ import requests
 from pbench.server import JSON
 from pbench.server.cache_manager import CacheManager, TarballUnpackError
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
+from pbench.server.database.models.users import User
 
 
-def mock_get_value(dataset: Dataset, key: str, user: Optional = None) -> str:
+def mock_get_value(dataset: Dataset, key: str, user: Optional[User] = None) -> str:
     if dataset.name == "uperf_3" or dataset.name == "uperf_4":
         return "hammerDB"
     return "uperf"
@@ -54,9 +55,6 @@ class TestCompareDatasets:
 
         return query_api
 
-    def mock_compare_csv_to_json(self, benchmark_name, input_type, data_stream) -> JSON:
-        return {"status": "success", "json_data": "quisby_data"}
-
     class MockTarball:
         tarball_path = Path("/dataset/tarball.tar.xz")
         name = "tarball"
@@ -77,7 +75,7 @@ class TestCompareDatasets:
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
         def mock_extract(_tarball_path: Path, _path: str) -> str:
-            raise "IncorrectData"
+            return "IncorrectData"
 
         def mock_compare_csv_to_json(
             self, benchmark_name, input_type, data_stream
@@ -94,7 +92,9 @@ class TestCompareDatasets:
 
     def test_tarball_unpack_exception(self, query_get_as, monkeypatch):
         def mock_extract(_tarball_path: Path, _path: str):
-            raise TarballUnpackError
+            raise TarballUnpackError(
+                _tarball_path, f"Testing unpack exception for path {_path}"
+            )
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(self.MockTarball, "extract", mock_extract)
@@ -140,16 +140,20 @@ class TestCompareDatasets:
                 HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
                 "Unsupported Benchmark: hammerDB",
             ),
-            # Add more scenarios here.
         ),
     )
     def test_datasets_with_different_benchmark(
         self, user, datasets, exp_status, exp_message, query_get_as, monkeypatch
     ):
+        def mock_compare_csv_to_json(
+            self, benchmark_name, input_type, data_stream
+        ) -> JSON:
+            return {"status": "success", "json_data": "quisby_data"}
+
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         monkeypatch.setattr(
-            QuisbyProcessing, "compare_csv_to_json", self.mock_compare_csv_to_json
+            QuisbyProcessing, "compare_csv_to_json", mock_compare_csv_to_json
         )
 
         response = query_get_as(datasets, user, exp_status)
