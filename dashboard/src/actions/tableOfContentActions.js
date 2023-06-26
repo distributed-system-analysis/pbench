@@ -21,7 +21,7 @@ export const fetchTOC =
       }
     } catch (error) {
       const msg = error.response?.data?.message;
-      dispatch(showToast(DANGER, msg ? msg : `Error response: ERROR_MSG`));
+      dispatch(showToast(DANGER, msg ?? `Error response: ${error}`));
     }
   };
 
