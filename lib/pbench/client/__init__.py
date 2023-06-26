@@ -39,6 +39,7 @@ class API(Enum):
     """
 
     DATASETS = "datasets"
+    DATASETS_COMPARE = "datasets_compare"
     DATASETS_CONTENTS = "datasets_contents"
     DATASETS_DETAIL = "datasets_detail"
     DATASETS_INVENTORY = "datasets_inventory"

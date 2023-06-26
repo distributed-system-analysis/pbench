@@ -17,7 +17,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.cache_manager import CacheManager, TarballNotFound
+from pbench.server.cache_manager import CacheManager, CacheType, TarballNotFound
 
 
 class DatasetsInventory(ApiBase):
@@ -54,27 +54,18 @@ class DatasetsInventory(ApiBase):
             APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"
 
 
-        GET /api/v1/datasets/inventory/{dataset}/{target}
+        GET /api/v1/datasets/{dataset}/inventory/{target}
         """
-
         dataset = params.uri["dataset"]
         target = params.uri.get("target")
 
         cache_m = CacheManager(self.config, current_app.logger)
         try:
-            tarball = cache_m.find_dataset(dataset.resource_id)
+            file_info = cache_m.filestream(dataset, target)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
-        if target is None:
-            file_path = tarball.tarball_path
-        else:
-            dataset_location = tarball.unpacked
-            if dataset_location is None:
-                raise APIAbort(HTTPStatus.NOT_FOUND, "The dataset is not unpacked")
-            file_path = dataset_location / target
-
-        if file_path.is_file():
+        if file_info["type"] == CacheType.FILE:
             # Tell send_file to set `Content-Disposition` to "attachment" if
             # targeting the large binary tarball. Otherwise we'll recommend the
             # default "inline": only `is_file()` paths are allowed here, and
@@ -84,17 +75,15 @@ class DatasetsInventory(ApiBase):
             #
             # NOTE: we could choose to be "smarter" based on file size, file
             # type codes (e.g., .csv, .json), and so forth.
-            return send_file(
-                file_path,
+            resp = send_file(
+                file_info["stream"],
                 as_attachment=target is None,
-                download_name=file_path.name,
+                download_name=file_info["name"],
             )
-        elif file_path.exists():
-            raise APIAbort(
-                HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
-                "The specified path does not refer to a regular file",
-            )
+            file_info["stream"].close()
+            return resp
         else:
             raise APIAbort(
-                HTTPStatus.NOT_FOUND, "The specified path does not refer to a file"
+                HTTPStatus.BAD_REQUEST,
+                "The specified path does not refer to a regular file",
             )

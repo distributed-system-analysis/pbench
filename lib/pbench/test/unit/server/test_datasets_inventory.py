@@ -1,11 +1,12 @@
 from http import HTTPStatus
+import io
 from pathlib import Path
 from typing import Any, Optional
 
 import pytest
 import requests
 
-from pbench.server.cache_manager import CacheManager
+from pbench.server.cache_manager import CacheManager, CacheType, Controller
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -31,9 +32,8 @@ class TestDatasetsAccess:
             except DatasetNotFound:
                 dataset_id = dataset  # Allow passing deliberately bad value
             headers = {"authorization": f"bearer {pbench_drb_token}"}
-            k = "" if target is None else f"/{target}"
             response = client.get(
-                f"{server_config.rest_uri}/datasets/{dataset_id}/inventory{k}",
+                f"{server_config.rest_uri}/datasets/{dataset_id}/inventory/{target}",
                 headers=headers,
             )
             assert response.status_code == expected_status
@@ -41,14 +41,24 @@ class TestDatasetsAccess:
 
         return query_api
 
-    def mock_find_dataset(self, dataset):
-        class Tarball(object):
-            unpacked = Path("/dataset/")
-            tarball_path = Path("/dataset/tarball.tar.xz")
+    class MockTarball:
+        def __init__(self, path: Path, controller: Controller):
+            self.name = "dir_name.tar.xz"
+            self.tarball_path = path
+            self.unpacked = None
 
+        def filestream(self, target):
+            info = {
+                "name": "f1.json",
+                "type": CacheType.FILE,
+                "stream": io.BytesIO(b"file_as_a_byte_stream"),
+            }
+            return info
+
+    def mock_find_dataset(self, dataset) -> MockTarball:
         # Validate the resource_id
         Dataset.query(resource_id=dataset)
-        return Tarball
+        return self.MockTarball(Path("/mock/dir_name.tar.xz"), "abc")
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(
@@ -68,80 +78,73 @@ class TestDatasetsAccess:
             "message": "User drb is not authorized to READ a resource owned by test with private access"
         }
 
-    def test_dataset_is_not_unpacked(self, query_get_as, monkeypatch):
-        def mock_find_not_unpacked(self, dataset):
-            class Tarball(object):
-                unpacked = None
-
-            # Validate the resource_id
-            Dataset.query(resource_id=dataset)
-            return Tarball
-
-        monkeypatch.setattr(CacheManager, "find_dataset", mock_find_not_unpacked)
-
-        response = query_get_as("fio_2", "1-default", HTTPStatus.NOT_FOUND)
-        assert response.json == {"message": "The dataset is not unpacked"}
-
-    def test_path_is_directory(self, query_get_as, monkeypatch):
+    @pytest.mark.parametrize("key", (None, "", "subdir1"))
+    def test_path_is_directory(self, query_get_as, monkeypatch, key):
+        filestream_dict = {"type": CacheType.DIRECTORY, "stream": None}
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(
+            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
+        )
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
 
-        response = query_get_as("fio_2", "1-default", HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
+        response = query_get_as("fio_2", key, HTTPStatus.BAD_REQUEST)
         assert response.json == {
             "message": "The specified path does not refer to a regular file"
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
+        filestream_dict = {"type": CacheType.SYMLINK, "stream": None}
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(
+            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
+        )
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: False)
 
-        response = query_get_as("fio_2", "1-default", HTTPStatus.NOT_FOUND)
+        response = query_get_as("fio_2", "subdir1/f1_sym", HTTPStatus.BAD_REQUEST)
         assert response.json == {
-            "message": "The specified path does not refer to a file"
+            "message": "The specified path does not refer to a regular file"
         }
 
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
+        mock_close = False
+
+        class MockBytesIO(io.BytesIO):
+            def close(self):
+                nonlocal mock_close
+                mock_close = True
+                super().close()
+
         mock_args: Optional[tuple[Path, dict[str, Any]]] = None
+        exp_stream = MockBytesIO(b"file_as_a_byte_stream")
+        filestream_dict = {
+            "name": "f1.json",
+            "type": CacheType.FILE,
+            "stream": exp_stream,
+        }
 
         def mock_send_file(path_or_file, *args, **kwargs):
             nonlocal mock_args
+            assert path_or_file == exp_stream
             mock_args = (path_or_file, kwargs)
             return {"status": "OK"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(Path, "is_file", lambda self: True)
+        monkeypatch.setattr(
+            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
+        )
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_inventory.send_file", mock_send_file
         )
 
-        response = query_get_as("fio_2", "1-default/default.csv", HTTPStatus.OK)
+        response = query_get_as("fio_2", "f1.json", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
 
-        path, args = mock_args
-        assert str(path) == "/dataset/1-default/default.csv"
+        file_content, args = mock_args
+
+        assert isinstance(file_content, io.BytesIO)
+        assert file_content == exp_stream
         assert args["as_attachment"] is False
-        assert args["download_name"] == "default.csv"
-
-    @pytest.mark.parametrize("key", (None, ""))
-    def test_get_result_tarball(self, query_get_as, monkeypatch, key):
-        mock_args: Optional[tuple[Path, dict[str, Any]]] = None
-
-        def mock_send_file(path_or_file, *args, **kwargs):
-            nonlocal mock_args
-            mock_args = (path_or_file, kwargs)
-            return {"status": "OK"}
-
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(Path, "is_file", lambda self: True)
-        monkeypatch.setattr(
-            "pbench.server.api.resources.datasets_inventory.send_file", mock_send_file
-        )
-
-        response = query_get_as("fio_2", key, HTTPStatus.OK)
-        assert response.status_code == HTTPStatus.OK
-        path, args = mock_args
-        assert str(path) == "/dataset/tarball.tar.xz"
-        assert args["as_attachment"] is True
-        assert args["download_name"] == "tarball.tar.xz"
+        assert args["download_name"] == "f1.json"
+        assert mock_close
