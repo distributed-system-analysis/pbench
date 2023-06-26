@@ -74,6 +74,7 @@ class TestCompareDatasets:
         query_get_as(["fio_2"], "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
+        @staticmethod
         def mock_extract(_tarball_path: Path, _path: str) -> str:
             return "IncorrectData"
 
@@ -91,6 +92,7 @@ class TestCompareDatasets:
         query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_tarball_unpack_exception(self, query_get_as, monkeypatch):
+        @staticmethod
         def mock_extract(_tarball_path: Path, _path: str):
             raise TarballUnpackError(
                 _tarball_path, f"Testing unpack exception for path {_path}"
