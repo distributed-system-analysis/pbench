@@ -59,6 +59,7 @@ class TestEndpointConfig:
                     "template": f"{uri}/datasets/{{dataset}}",
                     "params": {"dataset": {"type": "string"}},
                 },
+                "datasets_compare": {"template": f"{uri}/compare", "params": {}},
                 "datasets_contents": {
                     "template": f"{uri}/datasets/{{dataset}}/contents/{{target}}",
                     "params": {
