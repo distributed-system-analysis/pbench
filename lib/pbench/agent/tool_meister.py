@@ -303,9 +303,8 @@ class TransientTool(Tool):
             self.stop_process is None
         ), f"Tool({self.name}) has an unexpected stop process running"
 
-        args = [self.tool_script, "--start", f"--dir={tool_dir}"] + shlex.split(
-            self.tool_opts
-        )
+        args = [self.tool_script, "--start", f"--dir={tool_dir}"]
+        args += shlex.split(self.tool_opts)
         self.logger.info("%s: start_tool -- %s", self.name, " ".join(args))
         self.start_process = self._create_process_with_logger(args, tool_dir, "start")
         self.tool_dir = tool_dir
@@ -337,9 +336,8 @@ class TransientTool(Tool):
                 break
             time.sleep(0.1)
 
-        args = [self.tool_script, "--stop", f"--dir={self.tool_dir}"] + shlex.split(
-            self.tool_opts
-        )
+        args = [self.tool_script, "--stop", f"--dir={self.tool_dir}"]
+        args += shlex.split(self.tool_opts)
         self.logger.info("%s: stop_tool -- %s", self.name, " ".join(args))
         self.stop_process = self._create_process_with_logger(
             args, self.tool_dir, "stop"

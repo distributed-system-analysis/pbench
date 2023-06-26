@@ -82,14 +82,10 @@ if [[ ! -d "${tool_output_dir}" ]]; then
 	exit 1
 fi
 
-# We run `pbench-list-tools', collect the output and parse it
+# We run `pbench-list-tools', and parse its output
 # to determine which host runs which tools with what options.
-tmp=${pbench_tmp}/pbench-postprocess-tools.$$
-trap "rm -f ${tmp}" EXIT QUIT INT TERM
-pbench-list-tools --group ${group} --with-option >${tmp} 2>/dev/null
-
 let failures=0
-while read hostentry ;do
+pbench-list-tools --group ${group} --with-option 2>/dev/null | while read hostentry ;do
 	# Parse an entry from the output of `pbench-list-tools` above.
 	# The format is: "group: <group>; host: <host>; tools: <tool> <options, <tool> <options>, ...
 	IFS=';' read group_spec host_spec tools_spec <<<"${hostentry}"
@@ -127,6 +123,6 @@ while read hostentry ;do
 		warn_log "[${script_name}] Missing tool output directory, '${host_tool_output_dir}'"
 		(( failures++ ))
 	fi
-done < ${tmp}
+done
 
 exit ${failures}
