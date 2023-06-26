@@ -1,4 +1,5 @@
 import hashlib
+import io
 from logging import Logger
 import os
 from pathlib import Path
@@ -132,12 +133,6 @@ class TestCacheManager:
     ):
         """Test behavior with metadata.log access errors."""
 
-        def fake_extract_file(self, path):
-            raise KeyError(f"filename {path} not found")
-
-        def fake_tarfile_open(self, path):
-            raise tarfile.TarError("Invalid Tarfile")
-
         def fake_metadata(tar_path):
             return {"pbench": {"date": "2002-05-16T00:00:00"}}
 
@@ -154,13 +149,6 @@ class TestCacheManager:
         # being there should result in a MetadataError
         source_tarball, source_md5, md5 = tarball
         cm = CacheManager(server_config, make_logger)
-
-        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'Invalid Tarfile'"
-        with monkeypatch.context() as m:
-            m.setattr(tarfile, "open", fake_tarfile_open)
-            with pytest.raises(MetadataError) as exc:
-                cm.create(source_tarball)
-            assert str(exc.value) == expected_metaerror
 
         expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'run'\""
         with monkeypatch.context() as m:
@@ -182,11 +170,6 @@ class TestCacheManager:
             with pytest.raises(MetadataError) as exc:
                 cm.create(source_tarball)
             assert str(exc.value) == expected_metaerror
-
-        with monkeypatch.context() as m:
-            m.setattr(tarfile.TarFile, "extractfile", fake_extract_file)
-            cm.create(source_tarball)
-            assert cm[md5].metadata is None
 
     def test_with_metadata(
         self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
@@ -367,6 +350,7 @@ class TestCacheManager:
                         f11.txt
                         f12_sym -> ../../..
                     f1.json
+                    metadata.log
 
 
             Generated cache map
@@ -376,6 +360,7 @@ class TestCacheManager:
                     'details': <cache_manager.FileInfo object>,
                     'children': {
                         'f1.json': {'details': <cache_manager.FileInfo object>},
+                        'metadata.log': {'details': <cache_manager.FileInfo object>},
                         'subdir1': {
                             'details': <cache_manager.FileInfo object>,
                             'children': {
@@ -412,6 +397,7 @@ class TestCacheManager:
             sub_dir = tmp_path / dir_name
             sub_dir.mkdir(parents=True, exist_ok=True)
             (sub_dir / "f1.json").touch()
+            (sub_dir / "metadata.log").touch()
             for i in range(1, 4):
                 (sub_dir / "subdir1" / f"subdir1{i}").mkdir(parents=True, exist_ok=True)
             (sub_dir / "subdir1" / "f11.txt").touch()
@@ -890,6 +876,60 @@ class TestCacheManager:
             # test get_info with random path
             file_info = tb.get_info(Path(file_path))
             assert file_info == expected_msg
+
+    @pytest.mark.parametrize(
+        "file_path, exp_file_type, exp_stream",
+        [
+            ("", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
+            (None, CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
+            ("f1.json", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
+            ("subdir1/subdir12", CacheType.DIRECTORY, None),
+        ],
+    )
+    def test_filestream(
+        self, monkeypatch, tmp_path, file_path, exp_file_type, exp_stream
+    ):
+        """Test to extract file contents/stream from a file"""
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
+
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            m.setattr(Tarball, "extract", lambda _t, _p: exp_stream)
+            m.setattr(Path, "open", lambda _s, _m="rb": exp_stream)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+                tmp_path, "dir_name"
+            )
+            tb.cache_map(tar_dir)
+            file_info = tb.filestream(file_path)
+            assert file_info["type"] == exp_file_type
+            assert file_info["stream"] == exp_stream
+
+    def test_filestream_tarfile_open(self, monkeypatch, tmp_path):
+        """Test to check non-existent file or tarfile unpack issue"""
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
+
+        def fake_tarfile_open(self, path):
+            raise tarfile.TarError("Invalid Tarfile")
+
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            m.setattr(tarfile, "open", fake_tarfile_open)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+                tmp_path, "dir_name"
+            )
+            tb.cache_map(tar_dir)
+
+            path = Path(tb.name) / "subdir1/f11.txt"
+            expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {str(path)!r}"
+            with pytest.raises(TarballUnpackError) as exc:
+                tb.filestream("subdir1/f11.txt")
+            assert str(exc.value) == expected_error_msg
 
     def test_find(
         self, selinux_enabled, server_config, make_logger, tarball, monkeypatch

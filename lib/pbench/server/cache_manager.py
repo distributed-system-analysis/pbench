@@ -7,7 +7,7 @@ import shlex
 import shutil
 import subprocess
 import tarfile
-from typing import Optional, Union
+from typing import IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, PbenchServerConfig
@@ -373,7 +373,6 @@ class Tarball:
                     raise BadDirpath(
                         f"Found a file {file_l!r} where a directory was expected in path {str(path)!r}"
                     )
-
             return f_entries[path.name]
         except KeyError as exc:
             raise BadDirpath(
@@ -430,29 +429,57 @@ class Tarball:
         return fd_info
 
     @staticmethod
-    def extract(tarball_path: Path, path: str) -> Optional[str]:
-        """Extract a file from the tarball and return it as a string
+    def extract(tarball_path: Path, path: Path) -> Optional[IO[bytes]]:
+        """Returns the file stream which yields the contents of
+        a file at the specified path in the Tarball
 
-        Report failures by raising exceptions.
+        Args:
+            tarball_path: absolute path of the tarball
+            path: relative path within the tarball
+
+        Raise:
+            BadDirpath on failure extracting the file from tarball
+        """
+        try:
+            return tarfile.open(tarball_path, "r:*").extractfile(path)
+        except Exception as exc:
+            raise BadDirpath(
+                f"A problem occurred processing {str(path)!r} from {str(tarball_path)!r}: {exc}"
+            )
+
+    def filestream(self, path: str) -> Optional[dict]:
+        """Returns a dictionary containing information about the target
+        file and file stream
 
         Args:
             path: relative path within the tarball of a file
 
         Raises:
-            MetadataError on failure opening the tarball
             TarballUnpackError on failure to extract the named path
 
         Returns:
-            The named file as a string
+            Dictionary with file info and file stream
         """
-        try:
-            tar = tarfile.open(tarball_path, "r:*")
-        except Exception as exc:
-            raise MetadataError(tarball_path, exc) from exc
-        try:
-            return tar.extractfile(path).read().decode()
-        except Exception as exc:
-            raise TarballUnpackError(tarball_path, f"Unable to extract {path}") from exc
+        if not path:
+            info = {
+                "name": self.name,
+                "type": CacheType.FILE,
+                "stream": self.tarball_path.open("rb"),
+            }
+        else:
+            file_path = Path(self.name) / path
+            info = self.get_info(file_path)
+            if info["type"] == CacheType.FILE:
+                try:
+                    info["stream"] = Tarball.extract(self.tarball_path, file_path)
+                except Exception as exc:
+                    raise TarballUnpackError(
+                        self.tarball_path, f"Unable to extract {str(file_path)!r}"
+                    ) from exc
+            else:
+                info["stream"] = None
+
+        return info
 
     @staticmethod
     def _get_metadata(tarball_path: Path) -> Optional[JSONOBJECT]:
@@ -465,15 +492,13 @@ class Tarball:
         name = Dataset.stem(tarball_path)
         try:
             data = Tarball.extract(tarball_path, f"{name}/metadata.log")
-        except TarballUnpackError:
-            data = None
-        if data:
-            metadata = MetadataLog()
-            metadata.read_string(data)
-            metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
-            return metadata
-        else:
+        except BadDirpath:
             return None
+        else:
+            metadata_log = MetadataLog()
+            metadata_log.read_file(e.decode() for e in data)
+            metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
+            return metadata
 
     @staticmethod
     def subprocess_run(
@@ -946,6 +971,13 @@ class CacheManager:
             controller: associated controller name
             tarfile: dataset tarball path
 
+        Raises
+            BadDirpath: Failure on extracting the file from tarball
+            MetadataError: Failure on getting metadata from metadata.log file
+                in the tarball
+            BadFilename: A bad tarball path was given
+            DuplicateTarball: A duplicate tarball name was detected
+
         Returns
             Tarball object
         """
@@ -955,8 +987,6 @@ class CacheManager:
                 controller_name = metadata["run"]["controller"]
             else:
                 controller_name = "unknown"
-        except MetadataError:
-            raise
         except Exception as exc:
             raise MetadataError(tarfile, exc)
 
@@ -1004,6 +1034,10 @@ class CacheManager:
         tarball = self.find_dataset(dataset_id)
         tmap = tarball.get_info(path)
         return tmap
+
+    def filestream(self, dataset, target):
+        tarball = self.find_dataset(dataset.resource_id)
+        return tarball.filestream(target)
 
     def uncache(self, dataset_id: str):
         """Remove the unpacked tarball tree.
