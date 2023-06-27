@@ -114,7 +114,7 @@ podman run \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.conf:/etc/rsyslog.conf:Z \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.d:/etc/rsyslog.d:Z \
     --volume ${PB_SSL_CERT_FILE}:/etc/pki/tls/certs/pbench-server.crt:Z \
-    --volume ${PWD}/${pbiac_etc}/pki/tls/certs/pbench_CA.crt:/etc/pki/tls/certs/pbench_CA.crt \
+    --volume ${PWD}/${pbiac_etc}/pki/tls/certs/pbench_CA.crt:/etc/pki/tls/certs/pbench_CA.crt:Z \
     --volume ${PB_SSL_KEY_FILE}:/etc/pki/tls/private/pbench-server.key:Z \
     --volume ${PB_DEPLOY_FILES}/pbench-server.cfg:/opt/pbench-server/lib/config/pbench-server.cfg:Z \
     --volume ${SRV_PBENCH}:/srv/pbench:Z \
