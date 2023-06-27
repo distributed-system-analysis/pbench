@@ -42,8 +42,6 @@ PB_KEYCLOAK_IMAGE_PULL_POLICY=${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE
 # The overall pod name is derived from the pbench server image tag.
 PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 
-PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-"/var/tmp/pbench/pbench_server_deployment"}
-
 podman pod create --name ${PB_POD_NAME} -p 9200:9200 -p 5432:5432 -p 8090:8090
 
 podman run \
@@ -99,6 +97,8 @@ podman run \
   -e KEYCLOAK_ADMIN_PASSWORD=admin \
   -d \
   ${PB_KEYCLOAK_IMAGE} \
-  start-dev --health-enabled=true --https-port=8090 --https-certificate-file=/opt/keycloak/conf/keycloak.crt --https-certificate-key-file=/opt/keycloak/conf/keycloak.key
+  start-dev --health-enabled=true --https-port=8090 \
+  --https-certificate-file=/opt/keycloak/conf/keycloak.crt \
+  --https-certificate-key-file=/opt/keycloak/conf/keycloak.key
 
 server/pbenchinacan/load_keycloak.sh

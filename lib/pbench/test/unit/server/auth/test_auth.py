@@ -293,19 +293,21 @@ class TestOpenIDClient:
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.wait_for_oidc_server(config, make_logger)
         # Missing "server_url"
-        section = {}
-        config["openid"] = section
+        config["openid"] = {}
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.wait_for_oidc_server(config, make_logger)
 
-        section = {
+        config["openid"] = {
             "server_url": "https://example.com",
             "realm": "realm",
             "cert_location": "/ca.crt",
         }
-        config["openid"] = section
 
-        # Keycloak well-known endpoint returning response with valid issuer
+        # Keycloak well-known endpoint without any response
+        with pytest.raises(OpenIDClient.ServerConnectionError):
+            OpenIDClient.wait_for_oidc_server(config, make_logger)
+
+        # Keycloak well-known endpoint returning response without a valid issuer
         responses.add(
             responses.GET,
             "https://example.com/realms/realm/.well-known/openid-configuration",
@@ -332,12 +334,12 @@ class TestOpenIDClient:
         """Verify .wait_for_oidc_server() success mode"""
 
         config = configparser.ConfigParser()
-        section = {
+
+        config["openid"] = {
             "server_url": "https://example.com",
             "realm": "realm",
             "cert_location": "/ca.crt",
         }
-        config["openid"] = section
 
         # Keycloak well-known endpoint returning response with valid issuer
         responses.add(

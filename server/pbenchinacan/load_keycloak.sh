@@ -14,17 +14,11 @@
 # The script defaults to using master realm username/password as admin/admin
 # unless specified otherwise by 'ADMIN_USERNAME' and 'ADMIN_PASSWORD' env
 # variables. The script also defaults the keycloak redirect URI as
-# "https://<host_ip>:8443/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
+# "https://localhost:8443/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
 # env variable.
 
-if [[ -z "${PB_HOST_IP}" ]]; then
-    host_ip_list=$(hostname -I)
-    PB_HOST_IP=${host_ip_list%% *}
-    export PB_HOST_IP
-fi
-
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"https://localhost:8090"}
-KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"https://${PB_HOST_IP}:8443/*"}
+KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"https://localhost:8443/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # These values must match the options "realm" and "client in the
@@ -33,6 +27,7 @@ REALM=${KEYCLOAK_REALM:-"pbench-server"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
 
 PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-"/var/tmp/pbench/pbench_server_deployment"}
+export CURL_CA_BUNDLE="${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt"
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
@@ -40,7 +35,7 @@ end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
 ADMIN_TOKEN=""
 while true; do
-  ADMIN_TOKEN=$(curl -s -f -X POST  --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
+  ADMIN_TOKEN=$(curl -s -f -X POST \
     "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "username=${ADMIN_USERNAME}" \
@@ -63,7 +58,7 @@ echo "Keycloak connection successful on : ${KEYCLOAK_HOST_PORT}"
 echo
 
 status_code=$(curl -f -s -o /dev/null -w "%{http_code}" -X POST \
-  --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" "${KEYCLOAK_HOST_PORT}/admin/realms" \
+  "${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"realm": "'${REALM}'", "enabled": true}')
@@ -80,7 +75,7 @@ fi
 # a token from Keycloak using a <client_id>.
 # Having <client_id> in the aud claim of the token is essential for the token
 # to be validated.
-curl -si -f -X POST --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
+curl -si -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -110,7 +105,7 @@ curl -si -f -X POST --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
     }'
 
 
-CLIENT_CONF=$(curl -si -f -X POST --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
+CLIENT_CONF=$(curl -si -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -132,7 +127,6 @@ else
 fi
 
 status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-  --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -145,8 +139,7 @@ else
   echo "Created an 'ADMIN' role under ${CLIENT} client of the ${REALM} realm"
 fi
 
-ROLE_ID=$(curl -s -f --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
-  "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
+ROLE_ID=$(curl -s -f "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" | jq -r '.[0].id')
 
 if [[ -z "${ROLE_ID}" ]]; then
@@ -154,7 +147,7 @@ if [[ -z "${ROLE_ID}" ]]; then
   exit 1
 fi
 
-USER=$(curl -si -f -X POST --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
+USER=$(curl -si -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -169,7 +162,7 @@ else
   echo "Created an 'admin' user inside ${REALM} realm"
 fi
 
-status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
+status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -183,8 +176,7 @@ else
 fi
 
 # Verify that the user id has an 'ADMIN' role assigned to it
-USER_ROLES=$(curl -s --cacert "${PB_DEPLOY_FILES}/pbench-server.crt" \
-  "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
+USER_ROLES=$(curl -s "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" | jq -r '.[].name')
 
