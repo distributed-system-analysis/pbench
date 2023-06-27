@@ -19,7 +19,10 @@ const areSomeDescendantsChecked = (dataItem, checkedItems) =>
       )
     : isChecked(dataItem, checkedItems);
 const setChildNodes = (childNodes, isChecked) =>
-  childNodes.forEach((item) => (item.checkProps.checked = isChecked));
+  childNodes.map((item) => {
+    item.checkProps.checked = isChecked;
+    return item;
+  });
 
 const getCheckedItemsKey = (item) => item.map((i) => i.key);
 const getIndexofKey = (arr, key) => arr.findIndex((item) => item.key === key);
@@ -52,7 +55,7 @@ export const onCheck =
 
     const treeData = [...getState().overview.treeData];
 
-    const options = treeData.find((item) => item.title === dataType);
+    const { options } = treeData.find((item) => item.title === dataType);
     let checkedItems = getState().overview.checkedItems;
     const keys = treeViewItem.key.split(KEYS_JOIN_BY);
     const isFirstChild = keys.length === 2;

@@ -38,7 +38,7 @@ const OverviewComponent = () => {
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
       dispatch(getDatasets());
-      dispatch(getKeySummary());
+      dispatch(getKeySummary);
     }
   }, [dispatch, endpoints]);
 

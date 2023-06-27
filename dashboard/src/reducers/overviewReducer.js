@@ -14,7 +14,6 @@ const initialState = {
   relayInput: "",
   treeData: [],
   checkedItems: ["dataset*access", "dataset*metalog*run"],
-  keySummary: {},
 };
 
 const OverviewReducer = (state = initialState, action = {}) => {
@@ -89,11 +88,6 @@ const OverviewReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         treeData: payload,
-      };
-    case TYPES.GET_KEY_SUMMARY:
-      return {
-        ...state,
-        keySummary: payload,
       };
     default:
       return state;
