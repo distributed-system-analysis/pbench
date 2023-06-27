@@ -206,7 +206,7 @@ class OpenIDClient:
         try:
             oidc_server = server_config.get("openid", "server_url")
             oidc_realm = server_config.get("openid", "realm")
-            cert = server_config.get("openid", "cert_location")
+            cert = server_config.get("openid", "cert_location", fallback=True)
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
