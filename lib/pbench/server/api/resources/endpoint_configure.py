@@ -1,23 +1,24 @@
-from http import HTTPStatus
-import re
-from typing import Any, Dict
+from typing import Any
 from urllib.parse import urljoin
 
-from flask import current_app, jsonify, request
-from flask_restful import abort, Resource
+from flask import current_app, jsonify, Request, Response
 
-from pbench.server import PbenchServerConfig
+from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server.api.resources import (
+    ApiBase,
+    ApiContext,
+    APIInternalError,
+    ApiMethod,
+    ApiParams,
+    ApiSchema,
+)
 
 
-class EndpointConfig(Resource):
+class EndpointConfig(ApiBase):
     """
     This supports dynamic dashboard configuration from the Pbench server rather
     than constructing a static dashboard config file.
     """
-
-    forward_pattern = re.compile(r";\s*host\s*=\s*(?P<host>[^;\s]+)")
-    x_forward_pattern = re.compile(r"\s*(?P<host>[^;\s,]+)")
-    param_template = re.compile(r"/<(?P<type>[^:]+):(?P<name>\w+)>")
 
     def __init__(self, config: PbenchServerConfig):
         """
@@ -42,9 +43,10 @@ class EndpointConfig(Resource):
         proxying was set up for the original endpoints query: e.g., the
         Javascript `window.origin` from which the Pbench dashboard was loaded.
         """
+        super().__init__(config, ApiSchema(ApiMethod.GET, OperationCode.READ))
         self.server_config = config
 
-    def get(self):
+    def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
@@ -76,42 +78,15 @@ class EndpointConfig(Resource):
 
             template.replace('{target_username}', 'value')
         """
-        current_app.logger.debug(
-            "Received headers: {!r}, access_route {!r}, base_url {!r}, host {!r}, host_url {!r}",
-            request.headers,
-            request.access_route,
-            request.base_url,
-            request.host,
-            request.host_url,
-        )
-        origin = None
-        host_source = "request"
-        host_value = request.host
-        header = request.headers.get("Forwarded")
-        if header:
-            m = self.forward_pattern.search(header)
-            if m:
-                origin = m.group("host")
-                host_source = "Forwarded"
-                host_value = header
-        if not origin:
-            header = request.headers.get("X-Forwarded-Host")
-            if header:
-                m = self.x_forward_pattern.match(header)
-                if m:
-                    origin = m.group("host")
-                    host_source = "X-Forwarded-Host"
-                    host_value = header
-        if not origin:
-            origin = host_value
-        proto = request.headers.get("X-Forwarded-Proto", "https")
-        host = f"{proto}://{origin}"
+        origin = self._get_uri_base(request)
         current_app.logger.info(
             "Advertising endpoints at {} relative to {} ({})",
-            host,
-            host_source,
-            host_value,
+            origin.host,
+            origin.host_source,
+            origin.host_value,
         )
+
+        host = origin.host
 
         templates = {}
 
@@ -122,9 +97,9 @@ class EndpointConfig(Resource):
             # Ignore anything that doesn't use our API prefix, because it's
             # not in our API.
             if url.startswith(self.server_config.rest_uri):
-                simplified = self.param_template.sub(r"/{\g<name>}", url)
-                matches = self.param_template.finditer(url)
-                template: Dict[str, Any] = {
+                simplified = self.PARAM_TEMPLATE.sub(r"/{\g<name>}", url)
+                matches = self.PARAM_TEMPLATE.finditer(url)
+                template: dict[str, Any] = {
                     "template": urljoin(host, simplified),
                     "params": {
                         match.group("name"): {"type": match.group("type")}
@@ -160,12 +135,6 @@ class EndpointConfig(Resource):
         }
 
         try:
-            response = jsonify(endpoints)
+            return jsonify(endpoints)
         except Exception:
-            current_app.logger.exception(
-                "Something went wrong constructing the endpoint info"
-            )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-        else:
-            response.status_code = HTTPStatus.OK
-            return response
+            APIInternalError("Something went wrong constructing the endpoint info")
