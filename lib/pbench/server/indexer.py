@@ -16,7 +16,6 @@ import os
 from random import SystemRandom
 import re
 import socket
-from ssl import CERT_REQUIRED, create_default_context
 import tarfile
 from time import sleep as _sleep
 from urllib.parse import urlparse
@@ -136,20 +135,7 @@ def get_es(config, logger):
     # file instead of setting the logging level up so high.
     logging.getLogger("urllib3").setLevel(logging.FATAL)
     logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
-    ssl_context = create_default_context(cafile=config.get("Indexing", "cert_location"))
-    ssl_context.check_hostname = True
-    ssl_context.verify_mode = CERT_REQUIRED
-    elastic_user = config.get("Indexing", "elastic_user")
-    elastic_password = config.get("Indexing", "elastic_password")
-    es = Elasticsearch(
-        hosts,
-        use_ssl=True,
-        http_auth=(elastic_user, elastic_password),
-        ssl_context=ssl_context,
-        verify_certs=True,
-        max_retries=0,
-    )
-    return es
+    return Elasticsearch(hosts, max_retries=0)
 
 
 # Always use "create" operations, as we also ensure each JSON document being

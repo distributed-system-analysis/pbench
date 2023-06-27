@@ -42,9 +42,9 @@ GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PB_DASHBOARD_DIR=${PB_DASHBOARD_DIR:-${GITTOP}/dashboard/build}
 PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${HOME}/Deploy}
 SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
-CERT_LOCATION=${TMP_DIR:-"/var/tmp/pbench/"}
 PB_SSL_CERT_FILE=${PB_SSL_CERT_FILE:-${PB_DEPLOY_FILES}/pbench-server.crt}
 PB_SSL_KEY_FILE=${PB_SSL_KEY_FILE:-${PB_DEPLOY_FILES}/pbench-server.key}
+pbiac_etc=server/pbenchinacan/etc
 
 # Locations inside the container
 #
@@ -114,11 +114,9 @@ podman run \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.conf:/etc/rsyslog.conf:Z \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.d:/etc/rsyslog.d:Z \
     --volume ${PB_SSL_CERT_FILE}:/etc/pki/tls/certs/pbench-server.crt:Z \
+    --volume ${PWD}/${pbiac_etc}/pki/tls/certs/pbench_CA.crt:/etc/pki/tls/certs/pbench_CA.crt \
     --volume ${PB_SSL_KEY_FILE}:/etc/pki/tls/private/pbench-server.key:Z \
     --volume ${PB_DEPLOY_FILES}/pbench-server.cfg:/opt/pbench-server/lib/config/pbench-server.cfg:Z \
     --volume ${SRV_PBENCH}:/srv/pbench:Z \
-    --volume ${CERT_LOCATION}/elastic.crt:/srv/pbench/elastic.crt:Z \
-    --volume ${CERT_LOCATION}/postgres.crt:/srv/pbench/postgres.crt:Z \
-    --volume ${CERT_LOCATION}/keycloak.crt:/srv/pbench/keycloak.crt:Z \
     ${PB_SERVER_PODMAN_SWITCHES} \
     ${PB_SERVER_IMAGE}

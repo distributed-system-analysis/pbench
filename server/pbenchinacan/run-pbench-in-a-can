@@ -47,7 +47,7 @@ host_name=${PB_HOST_NAME:-$(hostname --fqdn)}
 #
 # Point PB_DEPLOY_FILES at a directory in the temporary space to hold the
 # Pbench Server deployment files (e.g., config files).
-export TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
+TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
 export SRV_PBENCH=${SRV_PBENCH:-${TMP_DIR}/srv/pbench}
 export PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 
@@ -61,16 +61,6 @@ rm -rf ${PB_DEPLOY_FILES:?}/etc ${PB_DEPLOY_FILES}/pbench-server.cfg
 mkdir -p -m 755 ${PB_DEPLOY_FILES}/etc
 cp -r ${pbiac_etc}/rsyslog.d ${pbiac_etc}/rsyslog.conf ${PB_DEPLOY_FILES}/etc/
 cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
-
-# Using deprecated -nodes flag for not encrypting the output key as Intlab VM
-# is using very old version of openssl (OpenSSL 1.1.1k  FIPS 25 Mar 2021)
-# If you are using OpenSSL 3.0 then change it to --noenc
-openssl req -batch -new -nodes -sha256 -days 365 -x509 -newkey rsa:2048 \
-     -out ${TMP_DIR}/dependency.crt \
-     -keyout ${TMP_DIR}/dependency.key \
-     -subj "/C=US/ST=Massachusetts/L=Westford/O=Red Hat/OU=Performance & Scale/CN=localhost"
-
-chmod 0644 ${TMP_DIR}/dependency.crt ${TMP_DIR}/dependency.key
 
 # Customize the Pbench Server config file for canned operation
 sed -Ei \
@@ -86,24 +76,6 @@ mkdir -p -m 0755  \
     ${SRV_PBENCH}/public_html/dashboard \
     ${SRV_PBENCH}/tmp \
     ${SRV_PBENCH}/cache
-
-cp ${TMP_DIR}/dependency.crt ${TMP_DIR}/elastic.crt
-cp ${TMP_DIR}/dependency.key ${TMP_DIR}/elastic.key
-
-chmod 0644 ${TMP_DIR}/elastic.crt ${TMP_DIR}/elastic.key
-
-cp ${TMP_DIR}/dependency.crt ${TMP_DIR}/postgres.crt
-cp ${TMP_DIR}/dependency.key ${TMP_DIR}/postgres.key
-
-chmod 0644 ${TMP_DIR}/postgres.crt
-chmod 0640 ${TMP_DIR}/postgres.key
-cat ${TMP_DIR}/postgres.crt ${TMP_DIR}/postgres.key > ${TMP_DIR}/postgres.pem
-
-cp ${TMP_DIR}/dependency.crt ${TMP_DIR}/keycloak.crt
-cp ${TMP_DIR}/dependency.key ${TMP_DIR}/keycloak.key
-
-chmod 0644 ${TMP_DIR}/keycloak.crt
-chmod 0640 ${TMP_DIR}/keycloak.key
 
 # Set up the static fallback pages for Nginx.
 #
@@ -159,9 +131,10 @@ podman run \
     -addext "authorityKeyIdentifier = keyid,issuer" \
     -addext "basicConstraints=CA:FALSE" \
     -addext "keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment" \
-    -addext "subjectAltName = IP.2:${PB_HOST_IP}" \
+    -addext "subjectAltName = IP.2:${PB_HOST_IP}, DNS:localhost" \
     2>&1 | sed -E -e '/^[.+*-]*$/ d'
 
+chmod 0640 ${PB_DEPLOY_FILES}/pbench-server.key
 #+
 # Start the services which the Pbench Server depends upon and then start the
 # Pbench Server itself.

@@ -4,7 +4,6 @@ from datetime import datetime
 from http import HTTPStatus
 import json
 import re
-import ssl
 from typing import Any, Callable, Iterator, List, Optional
 from urllib.parse import urljoin
 from urllib.request import Request
@@ -390,8 +389,6 @@ class ElasticBase(ApiBase):
             raise APIInternalError(f"problem in preprocess, missing {e}") from e
         try:
             # prepare payload for Elasticsearch query
-            elastic_user = self.config.get("Indexing", "elastic_user")
-            elastic_password = self.config.get("Indexing", "elastic_password")
             es_request = self.assemble(params, context)
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
@@ -405,12 +402,7 @@ class ElasticBase(ApiBase):
 
         try:
             # perform the Elasticsearch query
-            es_response = method(
-                url,
-                **es_request["kwargs"],
-                auth=(elastic_user, elastic_password),
-                verify=self.config.get("Indexing", "cert_location"),
-            )
+            es_response = method(url, **es_request["kwargs"])
             current_app.logger.debug(
                 "ES query response {}:{}",
                 es_response.reason,
@@ -783,21 +775,7 @@ class ElasticBulkBase(ApiBase):
         # indexed and we skip the Elasticsearch actions.
         if map:
             # Build an Elasticsearch instance to manage the bulk update
-            ssl_context = ssl.create_default_context(
-                cafile=self.config.get("Indexing", "cert_location")
-            )
-            ssl_context.check_hostname = True
-            ssl_context.verify_mode = ssl.CERT_REQUIRED
-            elastic_user = self.config.get("Indexing", "elastic_user")
-            elastic_password = self.config.get("Indexing", "elastic_password")
-            elastic = Elasticsearch(
-                self.elastic_uri,
-                use_ssl=True,
-                http_auth=(elastic_user, elastic_password),
-                ssl_context=ssl_context,
-                verify_certs=True,
-                max_retries=0,
-            )
+            elastic = Elasticsearch(self.elastic_uri)
             current_app.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
 
             # NOTE: because both generate_actions and streaming_bulk return

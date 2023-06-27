@@ -205,6 +205,7 @@ class OpenIDClient:
         """
         try:
             oidc_server = server_config.get("openid", "server_url")
+            oidc_realm = server_config.get("openid", "realm")
             cert = server_config.get("openid", "cert_location")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
@@ -231,11 +232,15 @@ class OpenIDClient:
         connected = False
         for _ in range(5):
             try:
-                response = session.get(f"{oidc_server}/health", verify=cert)
+                response = session.get(
+                    f"{oidc_server}/realms/{oidc_realm}/.well-known/openid-configuration",
+                    verify=cert,
+                )
                 response.raise_for_status()
             except Exception as exc:
                 raise OpenIDClient.ServerConnectionError() from exc
-            if response.json().get("status") == "UP":
+            auth_issuer = response.json().get("issuer")
+            if auth_issuer and auth_issuer == f"{oidc_server}/realms/{oidc_realm}":
                 logger.debug("OIDC server connection verified")
                 connected = True
                 break
