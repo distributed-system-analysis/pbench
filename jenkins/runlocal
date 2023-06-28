@@ -1,19 +1,17 @@
 #!/bin/bash -e
-
+#
 # Build the Pbench Server RPM and container, and run functional tests locally.
-# Requires a Fedora, CentOS, or RHEL environment to run.
-
+#
 # NOTE WELL: By default, when the functional tests are run, the infrastructure
 # pod and Pbench Server container are left running by default.  Add the switch,
 # `--cleanup` to direct `jenkins/run-server-func-tests` to cleanup when
 # finished (success or failure).
 
-# Build the pbench-server RPM locally, then build the containers locally, and
-# then run the functional tests against the locally built CI container image.
 export PB_SERVER_IMAGE_NAME=pbench-server
 
 # We use the current user name as the tag to avoid any conflict with what the CI
 # environment does.
+export PB_CONTAINER_REG=images.paas.redhat.com/pbench
 export PB_SERVER_IMAGE_TAG=${USER}
 
 # We use the image pull policy of `never` here to ensure our locally built image
@@ -21,32 +19,17 @@ export PB_SERVER_IMAGE_TAG=${USER}
 export PB_SERVER_IMAGE_PULL_POLICY=never
 
 # Create an RPM from the current source tree and double check it exists.
-make -C server/rpm clean rpm
-export RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm
+# Set the workspace to the home directory so that the RPM built inside the
+# container will be available after it exits.
+WORKSPACE_TMP=${WORKSPACE_TMP:-${HOME}}
+jenkins/run make -C server/rpm distclean ci
+export RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/'pbench-server-*.rpm'
+# _Don't_ quote the expansion of ${RPM_PATH}:  we _want_ it to be globbed!
+# shellcheck disable=SC2086
 ls -ld ${RPM_PATH}
 
 # Create a Pbench Dashboard deployment
-WORKSPACE_TMP=${WORKSPACE_TMP:-${HOME}} jenkins/run make -C dashboard clean build
-
-source /etc/os-release
-
-if [[ -z ${BASE_IMAGE} ]]; then
-    major=${VERSION_ID%%.*}
-    if [[ ${ID} == "fedora" ]]; then
-        # Any Fedora is okay.
-        BASE_IMAGE=${ID}:${major}
-    elif [[ ${ID} == "centos" && "${major}" == "9" ]]; then
-        # Only CentOS 9 is supported
-        BASE_IMAGE=${ID}:stream${major}
-    elif [[ ${ID} == "rhel" && "${major}" == "9" ]]; then
-        # Only RHEL 9 is supported
-        BASE_IMAGE=ubi${major}:latest
-    else
-        echo "Unsupported local OS, ${ID}:${VERSION_ID}" >&2
-        exit 1
-    fi
-    export BASE_IMAGE
-fi
+jenkins/run make -C dashboard clean build
 
 # Build the canned Pbench Server container from the RPM built above.
 server/pbenchinacan/container-build.sh
