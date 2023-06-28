@@ -36,4 +36,4 @@ endif
 
 include ../../utils/rpm.mk
 
-ci: rhel-9-rpm
+ci: rhel-8-rpm
