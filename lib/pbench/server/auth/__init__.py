@@ -206,6 +206,9 @@ class OpenIDClient:
         try:
             oidc_server = server_config.get("openid", "server_url")
             oidc_realm = server_config.get("openid", "realm")
+            # Get a custom cert location to verify Keycloak ssl if its define
+            # in the config file. Otherwise, we default to using system-wide
+            # certificates.
             cert = server_config.get("openid", "cert_location", fallback=True)
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc

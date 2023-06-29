@@ -12,7 +12,7 @@ class OIDCAdmin(Connection):
     ADMIN_PASSWORD = os.getenv("OIDC_ADMIN_PASSWORD", "admin")
 
     def __init__(self, server_url: str):
-        super().__init__(server_url, verify=os.environ.get("CURL_CA_BUNDLE", False))
+        super().__init__(server_url, verify=os.environ.get("OIDC_CA", True))
 
     def get_admin_token(self) -> dict:
         """pbench-server realm admin user login.

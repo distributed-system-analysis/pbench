@@ -63,6 +63,10 @@ buildah run $container rm -f /tmp/pbench-server.rpm
 buildah copy --chown root:root --chmod 0644 $container \
     ${PBINC_SERVER}/lib/config/nginx.conf /etc/nginx/nginx.conf
 
+# Add our Pbench Server CA certificate.
+buildah copy --chown root:root --chmod 0444 $container \
+    ${PBINC_INACAN}/etc/pki/tls/certs/pbench_CA.crt /etc/pki/tls/certs/pbench_CA.crt
+
 # Since we configure Nginx to log via syslog directly, remove Nginx log rotation
 # configuration as it emits unnecessary "Permission denied" errors.
 buildah run $container rm /etc/logrotate.d/nginx

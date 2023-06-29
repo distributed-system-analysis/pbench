@@ -146,6 +146,7 @@ ${PODMAN} run \
     --volume ${WORKSPACE_TMP}:${HOME_DIR} \
     --volume ${WORKSPACE}:${HOME_DIR}/pbench \
     --volume ${PODMAN_SOCK}:${PODMAN_SOCK} \
+    --volume ${WORKSPACE}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt:/etc/pki/tls/certs/pbench_CA.crt:Z \
     ${GIT_BASE_VOLUME} \
     -w ${HOME_DIR}/pbench \
     --env CONTAINER_HOST=unix:/${PODMAN_SOCK} \
@@ -154,6 +155,7 @@ ${PODMAN} run \
     --env USER=${USER_NAME} \
     --env WORKSPACE=${WORKSPACE} \
     --env WORKSPACE_TMP=${WORKSPACE_TMP} \
+    --env OIDC_CA="/etc/pki/tls/certs/pbench_CA.crt" \
     --ulimit nofile=65536:65536 \
     --rm \
     ${EXTRA_PODMAN_SWITCHES} \

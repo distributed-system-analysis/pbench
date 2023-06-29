@@ -26,8 +26,10 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 REALM=${KEYCLOAK_REALM:-"pbench-server"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
 
-PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-"/var/tmp/pbench/pbench_server_deployment"}
-export CURL_CA_BUNDLE="${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt"
+TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
+PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
+
+export CURL_CA_BUNDLE=${CURL_CA_BUNDLE:-"${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt"}
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
