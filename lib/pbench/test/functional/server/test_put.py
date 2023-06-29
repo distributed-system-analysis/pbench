@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
@@ -8,10 +9,11 @@ import time
 
 import dateutil.parser
 import pytest
+from requests import Response
 from requests.exceptions import HTTPError
 
 from pbench.client import API, PbenchServerClient
-from pbench.client.types import Dataset
+from pbench.client.types import Dataset, JSONOBJECT
 
 TARBALL_DIR = Path("lib/pbench/test/functional/server/tarballs")
 SPECIAL_DIR = TARBALL_DIR / "special"
@@ -495,6 +497,129 @@ class TestList:
             assert (
                 deletion >= soonish
             ), f"Filter failed to return {m['dataset.name']}, with expiration in range ({deletion:%Y-%m-%d})"
+
+
+class TestInventory:
+    """Validate APIs involving tarball inventory"""
+
+    @pytest.mark.dependency(name="contents", depends=["index"], scope="session")
+    def test_contents(self, server_client: PbenchServerClient, login_user):
+        """Check that we can retrieve the root directory TOC
+
+        NOTE: the TOC API currently uses the Elasticsearch run-toc index, so
+        the datasets must have gotten through indexing.
+        """
+        datasets = server_client.get_list(
+            owner="tester",
+            metadata=["server.archiveonly"],
+        )
+
+        for dataset in datasets:
+            response = server_client.get(
+                API.DATASETS_CONTENTS, {"dataset": dataset.resource_id, "target": ""}
+            )
+            assert (
+                response.ok
+            ), f"CONTENTS failed with {response.status_code}:{response.json()['message']}"
+            json = response.json()
+
+            # assert that we have directories and/or files: an empty root
+            # directory is technically possible, but not legal unless it's a
+            # trivial "archiveonly" dataset. NOTE: this will also fail if
+            # either the "directories" or "files" JSON keys are missing.
+            archive = dataset.metadata["server.archiveonly"]
+            assert json["directories"] or json["files"] or archive
+
+            # Unless archiveonly, we need a metadata.log
+            files = set(f["name"] for f in json["files"])
+            assert archive or "metadata.log" in files
+
+    @pytest.mark.dependency(name="vizualize", depends=["upload"], scope="session")
+    def test_visualize(self, server_client: PbenchServerClient, login_user):
+        """Check that we can retrieve inventory files from a tarball
+
+        Identify all "uperf" runs (pbench-uperf wrapper script) as that's all
+        we can currently support.
+        """
+        datasets = server_client.get_list(
+            owner="tester",
+            filter=["dataset.metalog.pbench.script:uperf"],
+        )
+
+        for dataset in datasets:
+            response = server_client.get(
+                API.DATASETS_VISUALIZE, {"dataset": dataset.resource_id}
+            )
+            assert (
+                response.ok
+            ), f"VISUALIZE failed with {response.status_code}:{response.json()['message']}"
+            json = response.json()
+            assert json["status"] == "success"
+            assert "csv_data" in json
+            assert json["json_data"]["dataset_name"] == dataset.name
+            assert isinstance(json["json_data"]["data"], list)
+
+    @pytest.mark.dependency(name="vizualize", depends=["upload"], scope="session")
+    def test_compare(self, server_client: PbenchServerClient, login_user):
+        """Check that we can retrieve inventory files from a tarball
+
+        Identify all "uperf" runs (pbench-uperf wrapper script) as that's all
+        we can currently support.
+        """
+        datasets = server_client.get_list(
+            owner="tester",
+            filter=["dataset.metalog.pbench.script:uperf"],
+        )
+
+        candidates = [dataset.resource_id for dataset in datasets]
+
+        # We need at least two "uperf" datasets to compare, but they can be the
+        # same ... so if we only have one (the normal case), duplicate it.
+        if len(candidates) == 1:
+            candidates.append(candidates[0])
+
+        response = server_client.get(
+            API.DATASETS_COMPARE, params={"datasets": candidates}
+        )
+        json = response.json()
+        assert (
+            response.ok
+        ), f"COMPARE failed with {response.status_code}:{json['message']}"
+        assert json["status"] == "success"
+        assert isinstance(json["json_data"]["data"], list)
+
+    @pytest.mark.dependency(name="inventory", depends=["upload"], scope="session")
+    def test_inventory(self, server_client: PbenchServerClient, login_user):
+        """Check that we can retrieve inventory files from a tarball
+
+        The most universal tarball artifact is "metadata.log", which is
+        mandatory for all "non-archive-only" datasets. So find them all and
+        ensure that each yields the same metadata.log that the server read
+        during upload.
+        """
+
+        def read_metadata(response: Response) -> JSONOBJECT:
+            metadata_log = ConfigParser(interpolation=None)
+            metadata_log.read_string(response.text)
+            metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
+            return metadata
+
+        datasets = server_client.get_list(
+            owner="tester",
+            metadata=["dataset.metalog"],
+            filter=["server.archiveonly:false:bool"],
+        )
+
+        for dataset in datasets:
+            response = server_client.get(
+                API.DATASETS_INVENTORY,
+                {"dataset": dataset.resource_id, "target": "metadata.log"},
+            )
+            assert (
+                response.ok
+            ), f"INVENTORY {dataset.name} failed with {response.status_code}:{response.json()['message']}"
+            meta = read_metadata(response)
+            assert meta == dataset.metadata["dataset.metalog"]
 
 
 class TestUpdate:

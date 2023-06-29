@@ -1,13 +1,14 @@
 from http import HTTPStatus
+from io import BytesIO
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from pquisby.lib.post_processing import QuisbyProcessing
 import pytest
 import requests
 
 from pbench.server import JSON
-from pbench.server.cache_manager import CacheManager, TarballUnpackError
+from pbench.server.cache_manager import CacheExtractBadPath, CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.server.database.models.users import User
 
@@ -59,9 +60,8 @@ class TestCompareDatasets:
         tarball_path = Path("/dataset/tarball.tar.xz")
         name = "tarball"
 
-        @staticmethod
-        def extract(_tarball_path: Path, _path: str) -> str:
-            return "CSV_file_as_a_string"
+        def filestream(self, _path: str) -> dict[str, Any]:
+            return {"stream": BytesIO(b"CSV_file_as_a_string")}
 
     def mock_find_dataset(self, dataset) -> MockTarball:
         # Validate the resource_id
@@ -74,9 +74,8 @@ class TestCompareDatasets:
         query_get_as(["fio_2"], "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
-        @staticmethod
-        def mock_extract(_tarball_path: Path, _path: str) -> str:
-            return "IncorrectData"
+        def mock_filestream(_path: str) -> dict[str, Any]:
+            return {"stream": BytesIO(b"IncorrectData")}
 
         def mock_compare_csv_to_json(
             self, benchmark_name, input_type, data_stream
@@ -84,7 +83,7 @@ class TestCompareDatasets:
             return {"status": "failed", "exception": "Unsupported Media Type"}
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(self.MockTarball, "extract", mock_extract)
+        monkeypatch.setattr(CacheManager, "filestream", mock_filestream)
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         monkeypatch.setattr(
             QuisbyProcessing, "compare_csv_to_json", mock_compare_csv_to_json
@@ -92,14 +91,11 @@ class TestCompareDatasets:
         query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_tarball_unpack_exception(self, query_get_as, monkeypatch):
-        @staticmethod
-        def mock_extract(_tarball_path: Path, _path: str):
-            raise TarballUnpackError(
-                _tarball_path, f"Testing unpack exception for path {_path}"
-            )
+        def mock_filestream(path: str) -> dict[str, Any]:
+            raise CacheExtractBadPath(Path("tarball"), path)
 
         monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(self.MockTarball, "extract", mock_extract)
+        monkeypatch.setattr(self.MockTarball, "filestream", mock_filestream)
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
 
@@ -139,7 +135,7 @@ class TestCompareDatasets:
             (
                 "test",
                 ["uperf_3", "uperf_4"],
-                HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+                HTTPStatus.BAD_REQUEST,
                 "Unsupported Benchmark: hammerDB",
             ),
         ),

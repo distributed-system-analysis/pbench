@@ -1,12 +1,14 @@
 from http import HTTPStatus
 import io
 from pathlib import Path
-from typing import Any, Optional
+from typing import Callable, Optional
 
+from flask import Response
 import pytest
 import requests
 
-from pbench.server.cache_manager import CacheManager, CacheType, Controller
+from pbench.server import JSONOBJECT
+from pbench.server.cache_manager import CacheManager, CacheType, Controller, Inventory
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -110,29 +112,27 @@ class TestDatasetsAccess:
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
         mock_close = False
 
-        class MockBytesIO(io.BytesIO):
-            def close(self):
-                nonlocal mock_close
-                mock_close = True
-                super().close()
+        def call_on_close(_c: Callable):
+            nonlocal mock_close
+            mock_close = True
 
-        mock_args: Optional[tuple[Path, dict[str, Any]]] = None
-        exp_stream = MockBytesIO(b"file_as_a_byte_stream")
+        mock_args: Optional[tuple[Path, JSONOBJECT]] = None
+        exp_stream = io.BytesIO(b"file_as_a_byte_stream")
         filestream_dict = {
             "name": "f1.json",
             "type": CacheType.FILE,
-            "stream": exp_stream,
+            "stream": Inventory(exp_stream, None),
         }
+        response = Response()
+        monkeypatch.setattr(response, "call_on_close", call_on_close)
 
         def mock_send_file(path_or_file, *args, **kwargs):
             nonlocal mock_args
-            assert path_or_file == exp_stream
             mock_args = (path_or_file, kwargs)
-            return {"status": "OK"}
+            return response
 
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(
-            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
+            CacheManager, "filestream", lambda _s, _d, _t: filestream_dict
         )
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_inventory.send_file", mock_send_file
@@ -143,8 +143,8 @@ class TestDatasetsAccess:
 
         file_content, args = mock_args
 
-        assert isinstance(file_content, io.BytesIO)
-        assert file_content == exp_stream
+        assert isinstance(file_content, Inventory)
+        assert file_content.stream == exp_stream
         assert args["as_attachment"] is False
         assert args["download_name"] == "f1.json"
         assert mock_close

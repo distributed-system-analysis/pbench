@@ -20,11 +20,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.cache_manager import (
-    CacheManager,
-    TarballNotFound,
-    TarballUnpackError,
-)
+from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Metadata
 
 
@@ -93,28 +89,26 @@ class DatasetsCompare(ApiBase):
                     dataset.access,
                 )
             )
-        cache_m = CacheManager(self.config, current_app.logger)
-        stream_file = {}
-        for dataset in datasets:
-            try:
-                tarball = cache_m.find_dataset(dataset.resource_id)
-            except TarballNotFound as e:
-                raise APIInternalError(
-                    f"Expected dataset with ID '{dataset.resource_id}' is missing from the cache manager."
-                ) from e
-            try:
-                file = tarball.extract(
-                    tarball.tarball_path, f"{tarball.name}/result.csv"
-                )
-            except TarballUnpackError as e:
-                raise APIInternalError(str(e)) from e
-            stream_file[dataset.name] = file
 
         benchmark_type = BenchmarkName.__members__.get(benchmark.upper())
         if not benchmark_type:
             raise APIAbort(
-                HTTPStatus.UNSUPPORTED_MEDIA_TYPE, f"Unsupported Benchmark: {benchmark}"
+                HTTPStatus.BAD_REQUEST, f"Unsupported Benchmark: {benchmark}"
             )
+
+        cache_m = CacheManager(self.config, current_app.logger)
+        stream_file = {}
+        for dataset in datasets:
+            try:
+                info = cache_m.filestream(dataset.resource_id, "result.csv")
+                file = info["stream"].read().decode("utf-8")
+                info["stream"].close()
+            except Exception as e:
+                raise APIInternalError(
+                    f"{dataset.name} is missing 'result.csv' file"
+                ) from e
+            stream_file[dataset.name] = file
+
         get_quisby_data = QuisbyProcessing().compare_csv_to_json(
             benchmark_type, InputType.STREAM, stream_file
         )

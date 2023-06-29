@@ -17,6 +17,7 @@ from pbench.server.cache_manager import (
     CacheType,
     Controller,
     DuplicateTarball,
+    Inventory,
     MetadataError,
     Tarball,
     TarballModeChangeError,
@@ -882,8 +883,7 @@ class TestCacheManager:
         [
             ("", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
             (None, CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
-            ("f1.json", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
-            ("subdir1/subdir12", CacheType.DIRECTORY, None),
+            ("f1.json", CacheType.FILE, io.BytesIO(b"file_as_a_byte_stream")),
         ],
     )
     def test_filestream(
@@ -896,7 +896,7 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            m.setattr(Tarball, "extract", lambda _t, _p: exp_stream)
+            m.setattr(Tarball, "extract", lambda _t, _p: Inventory(exp_stream))
             m.setattr(Path, "open", lambda _s, _m="rb": exp_stream)
             tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
@@ -905,7 +905,7 @@ class TestCacheManager:
             tb.cache_map(tar_dir)
             file_info = tb.filestream(file_path)
             assert file_info["type"] == exp_file_type
-            assert file_info["stream"] == exp_stream
+            assert file_info["stream"].stream == exp_stream
 
     def test_filestream_tarfile_open(self, monkeypatch, tmp_path):
         """Test to check non-existent file or tarfile unpack issue"""
@@ -925,9 +925,10 @@ class TestCacheManager:
             )
             tb.cache_map(tar_dir)
 
-            path = Path(tb.name) / "subdir1/f11.txt"
-            expected_error_msg = f"An error occurred while unpacking {tb.tarball_path}: Unable to extract {str(path)!r}"
-            with pytest.raises(TarballUnpackError) as exc:
+            expected_error_msg = (
+                f"The dataset tarball named '{tb.tarball_path}' is not found"
+            )
+            with pytest.raises(TarballNotFound) as exc:
                 tb.filestream("subdir1/f11.txt")
             assert str(exc.value) == expected_error_msg
 
