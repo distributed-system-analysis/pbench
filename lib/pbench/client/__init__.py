@@ -1,5 +1,4 @@
 from enum import Enum
-import os
 from pathlib import Path
 from typing import Iterator, Optional
 from urllib import parse
@@ -319,9 +318,6 @@ class PbenchServerClient:
         url = parse.urljoin(self.url, "api/v1/endpoints")
         self.session = requests.Session()
 
-        # Use the same CA as Curl to do TLS verification;
-        # if it's not defined then disable TLS verification.
-        self.session.verify = os.environ.get("CURL_CA_BUNDLE", False)
         if headers:
             self.session.headers.update(headers)
         response = self.session.get(url)
