@@ -87,7 +87,7 @@ fi
 let failures=0
 pbench-list-tools --group ${group} --with-option 2>/dev/null | while read hostentry ;do
 	# Parse an entry from the output of `pbench-list-tools` above.
-	# The format is: "group: <group>; host: <host> [, label: <label>]; tools: <tool> <options, <tool> <options>, ...
+	# The format is: "group: <group>; host: <host> [, label: <label>]; tools: <tool> <options>, <tool> <options>, ...
 	IFS=';' read group_spec host_spec tools_spec <<<"${hostentry}"
 	IFS=',' read hostpart labelpart <<<"${host_spec}"
 	IFS=':' read dummy host junk <<<"${hostpart}"
