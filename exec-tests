@@ -243,7 +243,7 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
         shift
         posargs="${@}"
         # We use SQLALCHEMY_SILENCE_UBER_WARNING here ... (see above).
-        SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} KEEP_DATASETS="${keep_datasets}" pytest --tb=native -v -s -rs --pyargs ${posargs} pbench.test.functional.server
+        REQUESTS_CA_BUNDLE=${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} KEEP_DATASETS="${keep_datasets}" pytest --tb=native -v -s -rs --pyargs ${posargs} pbench.test.functional.server
         rc=${?}
     fi
 fi
