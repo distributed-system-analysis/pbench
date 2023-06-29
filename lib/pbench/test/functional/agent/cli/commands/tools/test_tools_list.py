@@ -262,11 +262,13 @@ class Test_list_tools_tools_registered_with_options:
     # Issue #3454
     @pytest.fixture
     def labels_on_multiple_hosts(self, pbench_run, tools_on_multiple_hosts):
-        # This fixture is meant to be called after the previous one
-        # (tools_on_multiple_hosts). The previous one establishes a
-        # tool-like directory structure; this one just embellishes it
-        # with labels on some host entries. Think of it as a
-        # double for-loop, like the one above, only unrolled.
+        # Note that this fixture depends on `tools_on_multiple_hosts'.
+        # It embelishes the structure produced by
+        # `tools_on_multiple_hosts' by adding labels to some host
+        # entries in the tool-like directory structure that
+        # `tools_on_multiple_hosts' establishes. Think of it as a
+        # double for-loop, like the one in `tools_on_multiple_hosts',
+        # only unrolled.
 
         # row 1
         group = "default"
