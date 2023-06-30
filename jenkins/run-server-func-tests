@@ -95,6 +95,7 @@ function cleanup {
 }
 trap cleanup INT QUIT TERM EXIT
 
+export PB_ADMIN_NAMES=${PB_ADMIN_NAMES:-testadmin}
 server/pbenchinacan/run-pbench-in-a-can
 exit_status=${?}
 if [[ ${exit_status} -ne 0 ]]; then

@@ -214,6 +214,7 @@ def create_app(server_config: PbenchServerConfig) -> Flask:
     app = Flask(__name__.split(".")[0])
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+    app.server_config = server_config
     app.logger = get_pbench_logger(__name__, server_config)
 
     Auth.setup_app(app, server_config)

@@ -10,7 +10,7 @@ import requests
 from requests.structures import CaseInsensitiveDict
 import responses
 
-from pbench.server import JSON
+from pbench.server import JSON, PbenchServerConfig
 import pbench.server.auth
 from pbench.server.auth import Connection, OpenIDClient, OpenIDClientError
 import pbench.server.auth.auth as Auth
@@ -529,7 +529,9 @@ class TestAuthModule:
         "headers",
         [{"Authorization": "not-bearer my-token"}, {"Authorization": "no-space"}, {}],
     )
-    def test_get_auth_token_fail(self, monkeypatch, make_logger, headers):
+    def test_get_auth_token_fail(
+        self, monkeypatch, server_config, make_logger, headers
+    ):
         """Verify error handling fetching the authorization token from HTTP
         headers
         """
@@ -548,6 +550,7 @@ class TestAuthModule:
 
         app = Flask("test-get-auth-token-fail")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             monkeypatch.setattr(Auth, "request", MockRequest(headers=headers))
             try:
@@ -563,28 +566,33 @@ class TestAuthModule:
             )
             assert record["code"] == expected_code
 
-    def test_verify_auth(self, make_logger, pbench_drb_token):
+    def test_verify_auth(self, server_config, make_logger, pbench_drb_token):
         """Verify success path of verify_auth"""
         app = Flask("test-verify-auth")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token)
         assert user.id == DRB_USER_ID
 
-    def test_verify_auth_invalid(self, make_logger, pbench_drb_token_invalid):
+    def test_verify_auth_invalid(
+        self, server_config, make_logger, pbench_drb_token_invalid
+    ):
         """Verify handling of an invalid (expired) token in verify_auth"""
         app = Flask("test-verify-auth-invalid")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token_invalid)
         assert user is None
 
-    def test_verify_auth_invsig(self, make_logger, pbench_drb_token):
+    def test_verify_auth_invsig(self, server_config, make_logger, pbench_drb_token):
         """Verify handling of a token with an invalid signature"""
         app = Flask("test-verify-auth-invsig")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token + "1")
@@ -592,7 +600,7 @@ class TestAuthModule:
 
     @pytest.mark.parametrize("roles", [["ROLE"], ["ROLE1", "ROLE2"], [], None])
     def test_verify_auth_oidc(
-        self, monkeypatch, db_session, rsa_keys, make_logger, roles
+        self, monkeypatch, server_config, db_session, rsa_keys, make_logger, roles
     ):
         """Verify OIDC token offline verification success path"""
         client_id = "us"
@@ -613,6 +621,7 @@ class TestAuthModule:
 
         app = Flask("test-verify-auth-oidc")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             user = Auth.verify_auth(token)
 
@@ -620,7 +629,7 @@ class TestAuthModule:
         assert user.roles == (roles if roles else [])
 
     def test_verify_auth_oidc_user_update(
-        self, monkeypatch, db_session, rsa_keys, make_logger
+        self, monkeypatch, server_config, db_session, rsa_keys, make_logger
     ):
         """Verify we update our internal user database when we get updated user
         payload from the OIDC token for an existing user."""
@@ -637,6 +646,7 @@ class TestAuthModule:
 
         app = Flask("test-verify-auth-oidc-user-update")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             user = Auth.verify_auth(token)
 
@@ -657,7 +667,54 @@ class TestAuthModule:
         assert user.roles == ["ROLE"]
         assert user.username == "new_dummy"
 
-    def test_verify_auth_oidc_invalid(self, monkeypatch, rsa_keys, make_logger):
+    def test_verify_auth_oidc_user_admin(
+        self,
+        monkeypatch,
+        server_config: PbenchServerConfig,
+        db_session,
+        rsa_keys,
+        make_logger,
+    ):
+        """Verify we update our internal user database when we get updated user
+        payload from the OIDC token for an existing user."""
+        client_id = "us"
+        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+
+        # Mock the Connection object and generate an OpenIDClient object,
+        # installing it as Auth module's OIDC client.
+        config = mock_connection(
+            monkeypatch, client_id, public_key=rsa_keys["public_key"]
+        )
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
+        server_config._conf.set("pbench-server", "admin-role", "friend,dummy,admin")
+
+        app = Flask("test-verify-auth-oidc-user-update")
+        app.logger = make_logger
+        app.server_config = server_config
+        with app.app_context():
+            user = Auth.verify_auth(token)
+
+        assert user.id == "12345"
+        assert user.roles == ["ADMIN"]
+        assert user.username == "dummy"
+
+        # Generate a new token with a role for the same user
+        token, expected_payload = gen_rsa_token(
+            client_id,
+            rsa_keys["private_key"],
+            username="friend",
+            oidc_client_roles=["ROLE"],
+        )
+        with app.app_context():
+            user = Auth.verify_auth(token)
+        assert user.id == "12345"
+        assert user.roles == ["ROLE", "ADMIN"]
+        assert user.username == "friend"
+
+    def test_verify_auth_oidc_invalid(
+        self, monkeypatch, server_config, rsa_keys, make_logger
+    ):
         """Verify OIDC token offline verification via Auth.verify_auth() fails
         gracefully with an invalid token
         """
@@ -677,6 +734,7 @@ class TestAuthModule:
 
         app = Flask("test-verify-auth-oidc-invalid")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             user = Auth.verify_auth(token)
@@ -684,7 +742,7 @@ class TestAuthModule:
         assert user is None
 
     def test_verify_auth_api_key(
-        self, monkeypatch, rsa_keys, make_logger, pbench_drb_api_key
+        self, monkeypatch, server_config, rsa_keys, make_logger, pbench_drb_api_key
     ):
         """Verify api_key verification via Auth.verify_auth()"""
 
@@ -699,6 +757,7 @@ class TestAuthModule:
 
         app = Flask("test_verify_auth_api_key")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             current_app.secret_key = jwt_secret
@@ -706,7 +765,7 @@ class TestAuthModule:
         assert user.id == DRB_USER_ID
 
     def test_verify_auth_api_key_invalid(
-        self, monkeypatch, rsa_keys, make_logger, pbench_invalid_api_key
+        self, monkeypatch, server_config, rsa_keys, make_logger, pbench_invalid_api_key
     ):
         """Verify api_key verification via Auth.verify_auth() fails
         gracefully with an invalid token
@@ -722,6 +781,7 @@ class TestAuthModule:
 
         app = Flask("test_verify_auth_api_key_invalid")
         app.logger = make_logger
+        app.server_config = server_config
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             current_app.secret_key = jwt_secret
