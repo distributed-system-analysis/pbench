@@ -468,6 +468,7 @@ class ElasticBase(ApiBase):
             uri_params: URI encoded keyword-arg supplied by the Flask
                 framework
         """
+        context["request"] = request
         return self._call(requests.post, params, context)
 
     def _get(
@@ -484,6 +485,7 @@ class ElasticBase(ApiBase):
             uri_params: URI encoded keyword-arg supplied by the Flask
                 framework
         """
+        context["request"] = request
         return self._call(requests.get, params, context)
 
 

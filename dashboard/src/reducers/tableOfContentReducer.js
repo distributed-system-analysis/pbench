@@ -36,7 +36,7 @@ const TableOfContentReducer = (state = initialState, action = {}) => {
         stack: [...state.stack, payload],
         searchSpace: payload.files,
         tableData: payload.files,
-        currData: payload,
+        contentData: payload,
         isLoading: false,
       };
 
