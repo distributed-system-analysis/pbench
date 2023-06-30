@@ -75,27 +75,24 @@ class ListTools(ToolCommand):
                     continue
 
                 host = path.name
-                tool_info[group][host] = {}
+                tool_info[group][host] = {"label": None, "tools": {}}
 
+                toolsdict = tool_info[group][host]["tools"]
                 if toolname:
-                    tool_info[group][host]["label"] = None
+                    # Check if the tool is in any of the hosts.
+                    found = toolname in self.tools(path)
+                    toolslist = [toolname] if found else []
                 else:
+                    # no tool name was specified
+                    toolslist = sorted(self.tools(path))
+
                     label = path / "__label__"
                     v = label.read_text().rstrip("\n") if label.exists() else None
                     tool_info[group][host]["label"] = v
 
-                toolsdict = tool_info[group][host]["tools"] = {}
-                if toolname:
-                    # Check if the tool is in any of the hosts.
-                    if toolname in self.tools(path):
-                        v = (path / toolname).read_text().rstrip("\n").split("\n")
-                        toolsdict[toolname] = sorted(v) if opts else ""
-                        found = True
-                else:
-                    # no tool name was specified
-                    for tool in sorted(self.tools(path)):
-                        v = (path / tool).read_text().rstrip("\n").split("\n")
-                        toolsdict[tool] = sorted(v) if opts else ""
+                for tool in toolslist:
+                    v = (path / tool).read_text().rstrip("\n").split("\n")
+                    toolsdict[tool] = sorted(v) if opts else ""
 
         if toolname:
             if found:
@@ -107,17 +104,17 @@ class ListTools(ToolCommand):
                 self.logger.error(msg)
                 return 1
 
-        # no tool name was specified
-        if tool_info:
-            found = self.print_results(tool_info, self.context.with_option)
-            if not found:
-                msg = "No tools found"
-                if self.context.group:
-                    msg += f' in group "{self.context.group[0]}"'
-                self.logger.warn(msg)
         else:
-            self.logger.warn("No tool groups found")
-        return 0
+            if tool_info:
+                found = self.print_results(tool_info, self.context.with_option)
+                if not found:
+                    msg = "No tools found"
+                    if self.context.group:
+                        msg += f' in group "{self.context.group[0]}"'
+                    self.logger.warn(msg)
+            else:
+                self.logger.warn("No tool groups found")
+            return 0
 
 
 def _group_option(f):
