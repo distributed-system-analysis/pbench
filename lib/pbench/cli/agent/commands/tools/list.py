@@ -104,17 +104,17 @@ class ListTools(ToolCommand):
                 self.logger.error(msg)
                 return 1
 
+        elif tool_info:
+            found = self.print_results(tool_info, self.context.with_option)
+            if not found:
+                msg = "No tools found"
+                if self.context.group:
+                    msg += f' in group "{self.context.group[0]}"'
+                self.logger.warn(msg)
         else:
-            if tool_info:
-                found = self.print_results(tool_info, self.context.with_option)
-                if not found:
-                    msg = "No tools found"
-                    if self.context.group:
-                        msg += f' in group "{self.context.group[0]}"'
-                    self.logger.warn(msg)
-            else:
-                self.logger.warn("No tool groups found")
-            return 0
+            self.logger.warn("No tool groups found")
+
+        return 0
 
 
 def _group_option(f):
