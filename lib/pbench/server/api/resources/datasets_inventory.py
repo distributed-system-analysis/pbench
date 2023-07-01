@@ -61,7 +61,7 @@ class DatasetsInventory(ApiBase):
 
         cache_m = CacheManager(self.config, current_app.logger)
         try:
-            file_info = cache_m.filestream(dataset.resource_id, target)
+            file_info = cache_m.get_inventory(dataset.resource_id, target)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
@@ -89,6 +89,8 @@ class DatasetsInventory(ApiBase):
                 stream, as_attachment=target is None, download_name=file_info["name"]
             )
         except Exception as e:
+            if stream:
+                stream.close()
             raise APIInternalError(
                 f"Problem sending {dataset}:{target} stream {stream}: {str(e)!r}"
             )

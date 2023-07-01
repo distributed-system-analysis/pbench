@@ -13,6 +13,7 @@ import pytest
 from pbench.server.cache_manager import (
     BadDirpath,
     BadFilename,
+    CacheExtractBadPath,
     CacheManager,
     CacheType,
     Controller,
@@ -903,34 +904,116 @@ class TestCacheManager:
                 tmp_path, "dir_name"
             )
             tb.cache_map(tar_dir)
-            file_info = tb.filestream(file_path)
+            file_info = tb.get_inventory(file_path)
             assert file_info["type"] == exp_file_type
             assert file_info["stream"].stream == exp_stream
 
-    def test_filestream_tarfile_open(self, monkeypatch, tmp_path):
-        """Test to check non-existent file or tarfile unpack issue"""
-        tar = Path("/mock/dir_name.tar.xz")
-        cache = Path("/mock/.cache")
+    def test_tarfile_open_fails(self, monkeypatch, tmp_path):
+        """Test to check non-existent tarfile"""
+        tar = Path("/mock/result.tar.xz")
 
         def fake_tarfile_open(self, path):
             raise tarfile.TarError("Invalid Tarfile")
 
         with monkeypatch.context() as m:
-            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
-            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             m.setattr(tarfile, "open", fake_tarfile_open)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
-            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
-                tmp_path, "dir_name"
-            )
-            tb.cache_map(tar_dir)
 
-            expected_error_msg = (
-                f"The dataset tarball named '{tb.tarball_path}' is not found"
-            )
+            expected_error_msg = f"The dataset tarball named '{tar}' is not found"
             with pytest.raises(TarballNotFound) as exc:
-                tb.filestream("subdir1/f11.txt")
+                Tarball.extract(tar, Path("subdir1/f11.txt"))
             assert str(exc.value) == expected_error_msg
+
+    def test_tarfile_extractfile_fails(self, monkeypatch, tmp_path):
+        """Test to check non-existent path in tarfile"""
+        tar = Path("/mock/result.tar.xz")
+        path = Path("subdir/f11.txt")
+
+        class MockTarFile:
+            def extractfile(self, path):
+                raise Exception("Mr Robot refuses trivial human command")
+
+        def fake_tarfile_open(self, path):
+            return MockTarFile()
+
+        with monkeypatch.context() as m:
+            m.setattr(tarfile, "open", fake_tarfile_open)
+            expected_error_msg = f"Unable to extract {path} from {tar.name}"
+            with pytest.raises(CacheExtractBadPath) as exc:
+                Tarball.extract(tar, path)
+            assert str(exc.value) == expected_error_msg
+
+    def test_tarfile_extractfile_notfile(self, monkeypatch, tmp_path):
+        """Test to check target that's not a file"""
+        tar = Path("/mock/result.tar.xz")
+        path = Path("subdir/f11.txt")
+
+        class MockTarFile:
+            def extractfile(self, path):
+                return None
+
+        def fake_tarfile_open(self, path):
+            return MockTarFile()
+
+        with monkeypatch.context() as m:
+            m.setattr(tarfile, "open", fake_tarfile_open)
+            expected_error_msg = f"Unable to extract {path} from {tar.name}"
+            with pytest.raises(CacheExtractBadPath) as exc:
+                Tarball.extract(tar, path)
+            assert str(exc.value) == expected_error_msg
+
+    @pytest.mark.parametrize(
+        "tarball,stream", (("hasmetalog.tar.xz", True), ("nometalog.tar.xz", False))
+    )
+    def test_get_metadata(self, monkeypatch, tarball, stream):
+        """Verify access and processing of `metadata.log`"""
+
+        @staticmethod
+        def fake_extract(t: Path, f: Path):
+            if str(t) == tarball:
+                if str(f) == f"{Dataset.stem(t)}/metadata.log":
+                    if stream:
+                        return io.BytesIO(b"[test]\nfoo = bar\n")
+                    else:
+                        raise CacheExtractBadPath(t, f)
+            raise Exception(f"Unexpected mock exception with stream:{stream}: {t}, {f}")
+
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "extract", fake_extract)
+            metadata = Tarball._get_metadata(Path(tarball))
+
+        if stream:
+            assert metadata == {"test": {"foo": "bar"}}
+        else:
+            assert metadata is None
+
+    def test_inventory(self):
+        closed = False
+
+        class MockTarFile:
+            def close(self):
+                nonlocal closed
+                closed = True
+
+            def __repr__(self) -> str:
+                return "<Mock tarfile>"
+
+        raw = b"abcde\nfghij\n"
+        stream = Inventory(io.BytesIO(raw), MockTarFile())
+        assert re.match(
+            r"<Stream <_io.BytesIO object at 0x[a-z0-9]+> from <Mock tarfile>",
+            str(stream),
+        )
+
+        assert stream.getbuffer() == raw
+        assert stream.readable()
+        assert stream.read(5) == b"abcde"
+        assert stream.read() == b"\nfghij\n"
+        assert stream.seek(0) == 0
+        assert [b for b in stream] == [b"abcde\n", b"fghij\n"]
+        stream.close()
+        assert closed
+        with pytest.raises(ValueError):
+            stream.read()
 
     def test_find(
         self, selinux_enabled, server_config, make_logger, tarball, monkeypatch

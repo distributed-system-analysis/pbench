@@ -3,7 +3,6 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, Optional
 
-from pquisby.lib.post_processing import QuisbyProcessing
 import pytest
 import requests
 
@@ -56,46 +55,31 @@ class TestCompareDatasets:
 
         return query_api
 
-    class MockTarball:
-        tarball_path = Path("/dataset/tarball.tar.xz")
-        name = "tarball"
-
-        def filestream(self, _path: str) -> dict[str, Any]:
-            return {"stream": BytesIO(b"CSV_file_as_a_string")}
-
-    def mock_find_dataset(self, dataset) -> MockTarball:
-        # Validate the resource_id
-        Dataset.query(resource_id=dataset)
-        return self.MockTarball()
-
     def test_dataset_not_present(self, query_get_as, monkeypatch):
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
 
         query_get_as(["fio_2"], "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
-        def mock_filestream(_path: str) -> dict[str, Any]:
+        def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
             return {"stream": BytesIO(b"IncorrectData")}
 
-        def mock_compare_csv_to_json(
-            self, benchmark_name, input_type, data_stream
-        ) -> JSON:
-            return {"status": "failed", "exception": "Unsupported Media Type"}
+        class MockQuisby:
+            def compare_csv_to_json(self, _b, _i, _d) -> JSON:
+                return {"status": "failed", "exception": "Unsupported Media Type"}
 
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(CacheManager, "filestream", mock_filestream)
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         monkeypatch.setattr(
-            QuisbyProcessing, "compare_csv_to_json", mock_compare_csv_to_json
+            "pbench.server.api.resources.datasets_compare.QuisbyProcessing", MockQuisby
         )
         query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_tarball_unpack_exception(self, query_get_as, monkeypatch):
-        def mock_filestream(path: str) -> dict[str, Any]:
-            raise CacheExtractBadPath(Path("tarball"), path)
+        def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
+            raise CacheExtractBadPath(Path("tarball"), _path)
 
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(self.MockTarball, "filestream", mock_filestream)
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
 
@@ -143,15 +127,17 @@ class TestCompareDatasets:
     def test_datasets_with_different_benchmark(
         self, user, datasets, exp_status, exp_message, query_get_as, monkeypatch
     ):
-        def mock_compare_csv_to_json(
-            self, benchmark_name, input_type, data_stream
-        ) -> JSON:
-            return {"status": "success", "json_data": "quisby_data"}
+        class MockQuisby:
+            def compare_csv_to_json(self, _b, _i, _d) -> JSON:
+                return {"status": "success", "json_data": "quisby_data"}
 
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
+        def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
+            return {"stream": BytesIO(b"IncorrectData")}
+
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         monkeypatch.setattr(
-            QuisbyProcessing, "compare_csv_to_json", mock_compare_csv_to_json
+            "pbench.server.api.resources.datasets_compare.QuisbyProcessing", MockQuisby
         )
 
         response = query_get_as(datasets, user, exp_status)

@@ -49,7 +49,7 @@ class TestVisualize:
 
         return query_api
 
-    def mock_filestream(self, _dataset: str, target: str):
+    def mock_get_inventory(self, _dataset: str, target: str):
         return {
             "name": Path(target).name,
             "type": CacheType.FILE,
@@ -69,11 +69,11 @@ class TestVisualize:
     def test_dataset_not_cached(self, monkeypatch, query_get_as):
         """The dataset exists, but isn't in the cache manager"""
 
-        def mock_filestream_not_found(self, d: str, _t: str) -> JSONOBJECT:
+        def mock_inventory_not_found(self, d: str, _t: str) -> JSONOBJECT:
             raise TarballNotFound(d)
 
         monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
-        monkeypatch.setattr(CacheManager, "filestream", mock_filestream_not_found)
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_inventory_not_found)
         query_get_as("fio_2", "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_unauthorized_access(self, query_get_as):
@@ -90,7 +90,7 @@ class TestVisualize:
         def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
             return {"status": "success", "json_data": "quisby_data"}
 
-        monkeypatch.setattr(CacheManager, "filestream", self.mock_filestream)
+        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
         monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
 
@@ -104,7 +104,7 @@ class TestVisualize:
         def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
             return {"status": "failed", "exception": "Unsupported Media Type"}
 
-        monkeypatch.setattr(CacheManager, "filestream", self.mock_filestream)
+        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
         monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
@@ -125,7 +125,7 @@ class TestVisualize:
         def mock_get_metadata(_d: Dataset, _k: str, _u: Optional[User] = None) -> JSON:
             return "hammerDB"
 
-        monkeypatch.setattr(CacheManager, "filestream", self.mock_filestream)
+        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
         monkeypatch.setattr(Metadata, "getvalue", mock_get_metadata)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.BAD_REQUEST)

@@ -70,7 +70,7 @@ class DatasetsVisualize(ApiBase):
 
         cache_m = CacheManager(self.config, current_app.logger)
         try:
-            info = cache_m.filestream(dataset.resource_id, "result.csv")
+            info = cache_m.get_inventory(dataset.resource_id, "result.csv")
             file = info["stream"].read().decode("utf-8")
             info["stream"].close()
         except Exception as e:

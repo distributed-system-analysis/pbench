@@ -100,7 +100,7 @@ class DatasetsCompare(ApiBase):
         stream_file = {}
         for dataset in datasets:
             try:
-                info = cache_m.filestream(dataset.resource_id, "result.csv")
+                info = cache_m.get_inventory(dataset.resource_id, "result.csv")
                 file = info["stream"].read().decode("utf-8")
                 info["stream"].close()
             except Exception as e:

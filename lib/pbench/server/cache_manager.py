@@ -1,7 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
 from enum import auto, Enum
-from io import SEEK_SET
 from logging import Logger
 from pathlib import Path
 import shlex
@@ -47,7 +46,7 @@ class CacheExtractBadPath(CacheManagerError):
     """Request to extract a path that's bad or not a file"""
 
     def __init__(self, tar_name: Path, path: Union[str, Path]):
-        self.name = Dataset.stem(tar_name)
+        self.name = tar_name.name
         self.path = str(path)
 
     def __str__(self) -> str:
@@ -214,27 +213,26 @@ class Inventory:
 
     def getbuffer(self):
         """Return the underlying byte buffer (used by send_file)"""
-        return self.getbuffer()
+        return self.stream.getbuffer()
 
-    def read(self, size: int = -1, /) -> bytes:
+    def read(self, *args, **kwargs) -> bytes:
         """Encapsulate a read operation"""
-        return self.stream.read(size)
+        return self.stream.read(*args, **kwargs)
 
     def readable(self) -> bool:
         """Return the readable state of the stream"""
         return self.stream.readable()
 
-    def seek(self, offset: int, whence: int = SEEK_SET, /) -> int:
+    def seek(self, *args, **kwargs) -> int:
         """Allow setting the relative position in the stream"""
-        return self.stream.seek(offset, whence)
+        return self.stream.seek(*args, **kwargs)
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         """Return a string representation"""
-        return f"<Stream {self.stream} from {self.tarfile}"
+        return f"<Stream {self.stream} from {self.tarfile}>"
 
     def __iter__(self):
         """Allow iterating through lines in the buffer"""
-        self.stream.seek(0)
         return self
 
     def __next__(self):
@@ -537,16 +535,11 @@ class Tarball:
                 raise CacheExtractBadPath(tarball_path, path)
             return Inventory(stream, tar)
 
-    def filestream(self, path: str) -> Optional[JSONOBJECT]:
+    def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
         """Access the file stream of a tarball member file.
 
         Args:
             path: relative path within the tarball of a file
-
-        Returns:
-            An inventory object that mimics an IO[bytes] object while also
-            maintaining a reference to the tarfile TarFile object to be
-            closed later.
 
         Returns:
             Dictionary with file info and file stream
@@ -574,7 +567,7 @@ class Tarball:
         """
         name = Dataset.stem(tarball_path)
         try:
-            data: IO[bytes] = Tarball.extract(tarball_path, f"{name}/metadata.log")
+            data = Tarball.extract(tarball_path, f"{name}/metadata.log")
         except CacheExtractBadPath:
             return None
         else:
@@ -1119,7 +1112,7 @@ class CacheManager:
         tmap = tarball.get_info(path)
         return tmap
 
-    def filestream(self, dataset_id: str, target: str) -> Optional[JSONOBJECT]:
+    def get_inventory(self, dataset_id: str, target: str) -> Optional[JSONOBJECT]:
         """Return filestream data for a file within a dataset tarball
 
             {
@@ -1136,7 +1129,7 @@ class CacheManager:
             File info including a byte stream for a regular file
         """
         tarball = self.find_dataset(dataset_id)
-        return tarball.filestream(target)
+        return tarball.get_inventory(target)
 
     def uncache(self, dataset_id: str):
         """Remove the unpacked tarball tree.
