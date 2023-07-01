@@ -54,13 +54,7 @@ def oidc_admin(server_client: PbenchServerClient):
 
 def register_user(oidc_admin: OIDCAdmin, user: JSONOBJECT):
     try:
-        response = oidc_admin.create_new_user(
-            username=user["username"],
-            email=user["email"],
-            password=user["password"],
-            first_name=user["first_name"],
-            last_name=user["last_name"],
-        )
+        response = oidc_admin.create_new_user(**user)
     except OpenIDClientError as e:
         # To allow testing outside our transient CI containers, allow the tester
         # user to already exist.

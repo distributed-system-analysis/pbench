@@ -654,7 +654,7 @@ class TestAuthModule:
         assert user.roles == []
         assert user.username == "dummy"
 
-        # Generate a new token with a role for the same user
+        # Generate a token with a new username for the same UUID
         token, expected_payload = gen_rsa_token(
             client_id,
             rsa_keys["private_key"],
@@ -689,7 +689,7 @@ class TestAuthModule:
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
         server_config._conf.set("pbench-server", "admin-role", "friend,dummy,admin")
 
-        app = Flask("test-verify-auth-oidc-user-update")
+        app = Flask("test-verify-auth-oidc-user-admin")
         app.logger = make_logger
         app.server_config = server_config
         with app.app_context():
@@ -699,7 +699,7 @@ class TestAuthModule:
         assert user.roles == ["ADMIN"]
         assert user.username == "dummy"
 
-        # Generate a new token with a role for the same user
+        # Generate a token with a role and new username for the same UUID
         token, expected_payload = gen_rsa_token(
             client_id,
             rsa_keys["private_key"],

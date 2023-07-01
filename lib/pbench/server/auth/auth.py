@@ -159,12 +159,11 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
         audiences = token_payload.get("resource_access", {})
         pb_aud = audiences.get(oidc_client.client_id, {})
         roles = pb_aud.get("roles", [])
-        admin_users = current_app.server_config.get(
-            "pbench-server", "admin-role", fallback=""
-        )
         if Roles.ADMIN.name not in roles:
-            users = admin_users.split(",")
-            if username in users:
+            admin_users = current_app.server_config.get(
+                "pbench-server", "admin-role", fallback=""
+            )
+            if username in admin_users.split(","):
                 roles.append(Roles.ADMIN.name)
 
         # Create or update the user in our cache

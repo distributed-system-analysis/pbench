@@ -8,6 +8,9 @@ export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 export PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"${PB_POD_NAME}-pbenchserver"}
 
+# For functional testing, assign ADMIN role to the testadmin username
+export PB_ADMIN_NAMES=${PB_ADMIN_NAMES:-testadmin}
+
 SERVER_URL="https://localhost:8443"
 SERVER_API_ENDPOINTS="${SERVER_URL}/api/v1/endpoints"
 
@@ -95,7 +98,6 @@ function cleanup {
 }
 trap cleanup INT QUIT TERM EXIT
 
-export PB_ADMIN_NAMES=${PB_ADMIN_NAMES:-testadmin}
 server/pbenchinacan/run-pbench-in-a-can
 exit_status=${?}
 if [[ ${exit_status} -ne 0 ]]; then
