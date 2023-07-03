@@ -107,9 +107,6 @@ curl -si -f -X POST \
       ]
     }'
 
-echo "Setting redirect [ ${KEYCLOAK_DEV_REDIRECT}, ${KEYCLOAK_REDIRECT_URI} ]"
-
-set -vx
 CLIENT_CONF=$(curl -si -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
@@ -123,10 +120,7 @@ CLIENT_CONF=$(curl -si -f -X POST \
        "attributes": {"post.logout.redirect.uris": "+"},
        "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'", "'${KEYCLOAK_DEV_REDIRECT}'"]}')
 
-echo "client ${?}, output ${CLIENT_CONF}"
-
 CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
-echo "CLIENT_ID: ${CLIENT_ID}"
 if [[ -z "${CLIENT_ID}" ]]; then
   echo "${CLIENT} id is empty"
   exit 1
