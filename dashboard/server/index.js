@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const https = require('https')
 require('dotenv').config()
 
 
@@ -8,7 +9,12 @@ app.get('/api/v1/endpoints', (_req, res) => {
     console.log('Mirror engaged: ', process.env.PBENCH_SERVER)
     axios.get(
             `${process.env.PBENCH_SERVER}/api/v1/endpoints`,
-            { headers: { 'Accept': 'application/json' } })
+        {
+            headers: { 'Accept': 'application/json' },
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false
+            })
+        })
         .then(endpoints => {
             res.setHeader('Content-Type', 'application/json');
             res.send(endpoints.data);
