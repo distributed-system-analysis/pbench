@@ -205,6 +205,11 @@ class OpenIDClient:
         """
         try:
             oidc_server = server_config.get("openid", "server_url")
+            oidc_realm = server_config.get("openid", "realm")
+            # Get a custom cert location to verify Keycloak ssl if its define
+            # in the config file. Otherwise, we default to using system-wide
+            # certificates.
+            cert = server_config.get("openid", "cert_location", fallback=True)
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
@@ -224,18 +229,20 @@ class OpenIDClient:
             status_forcelist=tuple(int(x) for x in HTTPStatus if x != 200),
         )
         adapter = HTTPAdapter(max_retries=retry)
-        session.mount("http://", adapter)
         session.mount("https://", adapter)
 
         # We will also need to retry the connection if the health status is not UP.
         connected = False
         for _ in range(5):
             try:
-                response = session.get(f"{oidc_server}/health")
+                response = session.get(
+                    f"{oidc_server}/realms/{oidc_realm}/.well-known/openid-configuration",
+                    verify=cert,
+                )
                 response.raise_for_status()
             except Exception as exc:
                 raise OpenIDClient.ServerConnectionError() from exc
-            if response.json().get("status") == "UP":
+            if response.json().get("issuer") == f"{oidc_server}/realms/{oidc_realm}":
                 logger.debug("OIDC server connection verified")
                 connected = True
                 break

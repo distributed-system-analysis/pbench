@@ -131,9 +131,10 @@ podman run \
     -addext "authorityKeyIdentifier = keyid,issuer" \
     -addext "basicConstraints=CA:FALSE" \
     -addext "keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment" \
-    -addext "subjectAltName = IP.2:${PB_HOST_IP}" \
+    -addext "subjectAltName = IP.2:${PB_HOST_IP}, DNS:localhost" \
     2>&1 | sed -E -e '/^[.+*-]*$/ d'
 
+chmod 0640 ${PB_DEPLOY_FILES}/pbench-server.key
 #+
 # Start the services which the Pbench Server depends upon and then start the
 # Pbench Server itself.

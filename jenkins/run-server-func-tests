@@ -8,15 +8,7 @@ export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 export PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"${PB_POD_NAME}-pbenchserver"}
 
-# Note:  the value of PB_HOST_IP will be used to generate the TLS certificate
-# and so it (not `localhost`) must also be used to access the Pbench Server;
-# otherwise, the TLS validation will fail due to a host mismatch.
-if [[ -z "${PB_HOST_IP}" ]]; then
-    host_ip_list=$(hostname -I)
-    PB_HOST_IP=${host_ip_list%% *}
-    export PB_HOST_IP
-fi
-SERVER_URL="https://${PB_HOST_IP}:8443"
+SERVER_URL="https://localhost:8443"
 SERVER_API_ENDPOINTS="${SERVER_URL}/api/v1/endpoints"
 
 # Have Curl use the Pbench CA certificate to validate the TLS/SSL connection

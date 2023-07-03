@@ -17,7 +17,7 @@
 # "https://localhost:8443/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
 # env variable.
 
-KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"http://localhost:8090"}
+KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"https://localhost:8090"}
 KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"https://localhost:8443/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
@@ -26,13 +26,19 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 REALM=${KEYCLOAK_REALM:-"pbench-server"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
 
+TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
+PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
+
+export CURL_CA_BUNDLE=${CURL_CA_BUNDLE:-"${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt"}
+
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
 # Run the custom configuration
 
 ADMIN_TOKEN=""
 while true; do
-  ADMIN_TOKEN=$(curl -s -f -X POST "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
+  ADMIN_TOKEN=$(curl -s -f -X POST \
+    "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "username=${ADMIN_USERNAME}" \
     -d "password=${ADMIN_PASSWORD}" \
@@ -53,7 +59,8 @@ echo
 echo "Keycloak connection successful on : ${KEYCLOAK_HOST_PORT}"
 echo
 
-status_code=$(curl -f -s -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms" \
+status_code=$(curl -f -s -o /dev/null -w "%{http_code}" -X POST \
+  "${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"realm": "'${REALM}'", "enabled": true}')
@@ -70,7 +77,8 @@ fi
 # a token from Keycloak using a <client_id>.
 # Having <client_id> in the aud claim of the token is essential for the token
 # to be validated.
-curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" \
+curl -si -f -X POST \
+  "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -99,7 +107,8 @@ curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" 
     }'
 
 
-CLIENT_CONF=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
+CLIENT_CONF=$(curl -si -f -X POST \
+  "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"clientId": "'${CLIENT}'",
@@ -111,7 +120,7 @@ CLIENT_CONF=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/c
        "attributes": {"post.logout.redirect.uris": "'${KEYCLOAK_REDIRECT_URI}'"},
        "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
 
-CLIENT_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
+CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
 if [[ -z "${CLIENT_ID}" ]]; then
   echo "${CLIENT} id is empty"
   exit 1
@@ -119,7 +128,8 @@ else
   echo "Created ${CLIENT} client"
 fi
 
-status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
+status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+  "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"name": "ADMIN"}')
@@ -139,12 +149,13 @@ if [[ -z "${ROLE_ID}" ]]; then
   exit 1
 fi
 
-USER=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users" \
+USER=$(curl -si -f -X POST \
+  "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "123", "temporary": false}]}')
 
-USER_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${USER} | sed -e 's|.*/||')
+USER_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${USER} | sed -e 's|.*/||')
 
 if [[ -z "${USER_ID}" ]]; then
   echo "User id is empty"
@@ -153,7 +164,8 @@ else
   echo "Created an 'admin' user inside ${REALM} realm"
 fi
 
-status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
+status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+  "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]')

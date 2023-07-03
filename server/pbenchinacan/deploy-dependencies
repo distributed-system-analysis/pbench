@@ -91,10 +91,14 @@ podman run \
   --name "${PB_POD_NAME}-keycloak" \
   --pull ${PB_KEYCLOAK_IMAGE_PULL_POLICY} \
   --restart no \
+  -v ${PB_DEPLOY_FILES}/pbench-server.crt:/opt/keycloak/conf/keycloak.crt:Z \
+  -v ${PB_DEPLOY_FILES}/pbench-server.key:/opt/keycloak/conf/keycloak.key:Z \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD=admin \
   -d \
   ${PB_KEYCLOAK_IMAGE} \
-  start-dev --health-enabled=true --http-port=8090
+  start-dev --health-enabled=true --https-port=8090 \
+  --https-certificate-file=/opt/keycloak/conf/keycloak.crt \
+  --https-certificate-key-file=/opt/keycloak/conf/keycloak.key
 
 server/pbenchinacan/load_keycloak.sh

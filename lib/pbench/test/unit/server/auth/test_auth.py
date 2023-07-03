@@ -293,29 +293,36 @@ class TestOpenIDClient:
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.wait_for_oidc_server(config, make_logger)
         # Missing "server_url"
-        section = {}
-        config["openid"] = section
+        config["openid"] = {}
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.wait_for_oidc_server(config, make_logger)
 
-        section = {"server_url": "https://example.com"}
-        config["openid"] = section
+        config["openid"] = {
+            "server_url": "https://example.com",
+            "realm": "realm",
+            "cert_location": "/ca.crt",
+        }
 
-        # Keycloak health returning response but status is not UP
+        # Keycloak well-known endpoint without any response
+        with pytest.raises(OpenIDClient.ServerConnectionError):
+            OpenIDClient.wait_for_oidc_server(config, make_logger)
+
+        # Keycloak well-known endpoint returning response without a valid issuer
         responses.add(
             responses.GET,
-            "https://example.com/health",
-            body='{"status": "DOWN","checks": []}',
+            "https://example.com/realms/realm/.well-known/openid-configuration",
+            body="{}",
             content_type="application/json",
         )
 
         with pytest.raises(OpenIDClient.ServerConnectionTimedOut):
             OpenIDClient.wait_for_oidc_server(config, make_logger)
 
-        # Keycloak health returning network exception and no content
+        # Keycloak well-known endpoint returning network exception and no
+        # content
         responses.add(
             responses.GET,
-            "https://example.com/health",
+            "https://example.com/realms/realm/.well-known/openid-configuration",
             body=Exception("some network exception"),
         )
 
@@ -327,14 +334,18 @@ class TestOpenIDClient:
         """Verify .wait_for_oidc_server() success mode"""
 
         config = configparser.ConfigParser()
-        section = {"server_url": "https://example.com"}
-        config["openid"] = section
 
-        # Keycloak health returning response with status UP
+        config["openid"] = {
+            "server_url": "https://example.com",
+            "realm": "realm",
+            "cert_location": "/ca.crt",
+        }
+
+        # Keycloak well-known endpoint returning response with valid issuer
         responses.add(
             responses.GET,
-            "https://example.com/health",
-            body='{"status": "UP","checks": []}',
+            "https://example.com/realms/realm/.well-known/openid-configuration",
+            body='{"issuer": "https://example.com/realms/realm"}',
             content_type="application/json",
         )
 

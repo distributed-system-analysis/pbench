@@ -44,6 +44,7 @@ PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${HOME}/Deploy}
 SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
 PB_SSL_CERT_FILE=${PB_SSL_CERT_FILE:-${PB_DEPLOY_FILES}/pbench-server.crt}
 PB_SSL_KEY_FILE=${PB_SSL_KEY_FILE:-${PB_DEPLOY_FILES}/pbench-server.key}
+PB_SSL_CA_FILE=${PB_SSL_CA_FILE:-${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt}
 
 # Locations inside the container
 #
