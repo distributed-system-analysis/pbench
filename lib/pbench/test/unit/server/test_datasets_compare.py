@@ -7,7 +7,7 @@ import pytest
 import requests
 
 from pbench.server import JSON
-from pbench.server.cache_manager import CacheExtractBadPath, CacheManager
+from pbench.server.cache_manager import CacheExtractBadPath, CacheManager, Inventory
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.server.database.models.users import User
 
@@ -62,7 +62,7 @@ class TestCompareDatasets:
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
         def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
-            return {"stream": BytesIO(b"IncorrectData")}
+            return {"stream": Inventory(BytesIO(b"IncorrectData"))}
 
         class MockQuisby:
             def compare_csv_to_json(self, _b, _i, _d) -> JSON:
@@ -75,7 +75,7 @@ class TestCompareDatasets:
         )
         query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    def test_tarball_unpack_exception(self, query_get_as, monkeypatch):
+    def test_get_inventory_exception(self, query_get_as, monkeypatch):
         def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
             raise CacheExtractBadPath(Path("tarball"), _path)
 
@@ -132,7 +132,7 @@ class TestCompareDatasets:
                 return {"status": "success", "json_data": "quisby_data"}
 
         def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
-            return {"stream": BytesIO(b"IncorrectData")}
+            return {"stream": Inventory(BytesIO(b"IncorrectData"))}
 
         monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)

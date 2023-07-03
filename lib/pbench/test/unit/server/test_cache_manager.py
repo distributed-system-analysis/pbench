@@ -885,9 +885,10 @@ class TestCacheManager:
             ("", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
             (None, CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
             ("f1.json", CacheType.FILE, io.BytesIO(b"file_as_a_byte_stream")),
+            ("subdir1/f12_sym", CacheType.FILE, io.BytesIO(b"file1_as_a_byte_stream")),
         ],
     )
-    def test_filestream(
+    def test_get_inventory(
         self, monkeypatch, tmp_path, file_path, exp_file_type, exp_stream
     ):
         """Test to extract file contents/stream from a file"""

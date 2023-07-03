@@ -520,7 +520,7 @@ class TestInventory:
             )
             assert (
                 response.ok
-            ), f"CONTENTS failed with {response.status_code}:{response.json()['message']}"
+            ), f"CONTENTS {dataset.name} failed {response.status_code}:{response.json()['message']}"
             json = response.json()
 
             # assert that we have directories and/or files: an empty root
@@ -531,12 +531,11 @@ class TestInventory:
             assert json["directories"] or json["files"] or archive
 
             # Unless archiveonly, we need a metadata.log
-            files = set(f["name"] for f in json["files"])
-            assert archive or "metadata.log" in files
+            assert archive or "metadata.log" in (f["name"] for f in json["files"])
 
-    @pytest.mark.dependency(name="vizualize", depends=["upload"], scope="session")
+    @pytest.mark.dependency(name="visualize", depends=["upload"], scope="session")
     def test_visualize(self, server_client: PbenchServerClient, login_user):
-        """Check that we can retrieve inventory files from a tarball
+        """Check that we can generate visualization data from a dataset
 
         Identify all "uperf" runs (pbench-uperf wrapper script) as that's all
         we can currently support.
@@ -552,16 +551,16 @@ class TestInventory:
             )
             assert (
                 response.ok
-            ), f"VISUALIZE failed with {response.status_code}:{response.json()['message']}"
+            ), f"VISUALIZE {dataset.name} failed {response.status_code}:{response.json()['message']}"
             json = response.json()
             assert json["status"] == "success"
             assert "csv_data" in json
             assert json["json_data"]["dataset_name"] == dataset.name
             assert isinstance(json["json_data"]["data"], list)
 
-    @pytest.mark.dependency(name="vizualize", depends=["upload"], scope="session")
+    @pytest.mark.dependency(name="compare", depends=["upload"], scope="session")
     def test_compare(self, server_client: PbenchServerClient, login_user):
-        """Check that we can retrieve inventory files from a tarball
+        """Check that we can compare two datasets.
 
         Identify all "uperf" runs (pbench-uperf wrapper script) as that's all
         we can currently support.
@@ -578,13 +577,15 @@ class TestInventory:
         if len(candidates) == 1:
             candidates.append(candidates[0])
 
+        # In the unlikely event we find multiple uperf datasets, compare only
+        # the first two.
         response = server_client.get(
-            API.DATASETS_COMPARE, params={"datasets": candidates}
+            API.DATASETS_COMPARE, params={"datasets": candidates[:2]}
         )
         json = response.json()
         assert (
             response.ok
-        ), f"COMPARE failed with {response.status_code}:{json['message']}"
+        ), f"COMPARE {candidates[:2]} failed {response.status_code}:{json['message']}"
         assert json["status"] == "success"
         assert isinstance(json["json_data"]["data"], list)
 
@@ -617,7 +618,7 @@ class TestInventory:
             )
             assert (
                 response.ok
-            ), f"INVENTORY {dataset.name} failed with {response.status_code}:{response.json()['message']}"
+            ), f"INVENTORY {dataset.name} failed {response.status_code}:{response.json()['message']}"
             meta = read_metadata(response)
             assert meta == dataset.metadata["dataset.metalog"]
 
