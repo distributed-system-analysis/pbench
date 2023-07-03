@@ -43,14 +43,6 @@ class TestDatasetsAccess:
 
         return query_api
 
-    def mock_get_inventory(self, _d: str, _t: str):
-        info = {
-            "name": "f1.json",
-            "type": CacheType.FILE,
-            "stream": io.BytesIO(b"file_as_a_byte_stream"),
-        }
-        return info
-
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(
             "nonexistent-dataset", "metadata.log", HTTPStatus.NOT_FOUND

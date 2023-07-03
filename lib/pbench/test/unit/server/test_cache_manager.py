@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import tarfile
+from typing import IO
 
 import pytest
 
@@ -909,6 +910,28 @@ class TestCacheManager:
             assert file_info["type"] == exp_file_type
             assert file_info["stream"].stream == exp_stream
 
+    def test_tarfile_extract(self, monkeypatch, tmp_path):
+        """Test to check Tarball.extract success"""
+        tar = Path("/mock/result.tar.xz")
+        contents = b"[test]\nfoo=bar\n"
+
+        class MockTarFile:
+            def extractfile(self, path: str) -> IO[bytes]:
+                if path == "metadata.log":
+                    return io.BytesIO(contents)
+                raise Exception("you can't handle exceptions")
+
+        def fake_tarfile_open(tarfile: str, *args):
+            if str(tarfile) == str(tar):
+                return MockTarFile()
+            raise Exception("You didn't see this coming")
+
+        with monkeypatch.context() as m:
+            m.setattr(tarfile, "open", fake_tarfile_open)
+            got = Tarball.extract(tar, Path("metadata.log"))
+            assert isinstance(got, Inventory)
+            assert got.read() == contents
+
     def test_tarfile_open_fails(self, monkeypatch, tmp_path):
         """Test to check non-existent tarfile"""
         tar = Path("/mock/result.tar.xz")
@@ -970,12 +993,10 @@ class TestCacheManager:
 
         @staticmethod
         def fake_extract(t: Path, f: Path):
-            if str(t) == tarball:
-                if str(f) == f"{Dataset.stem(t)}/metadata.log":
-                    if stream:
-                        return io.BytesIO(b"[test]\nfoo = bar\n")
-                    else:
-                        raise CacheExtractBadPath(t, f)
+            if str(t) == tarball and str(f) == f"{Dataset.stem(t)}/metadata.log":
+                if stream:
+                    return Inventory(io.BytesIO(b"[test]\nfoo = bar\n"))
+                raise CacheExtractBadPath(t, f)
             raise Exception(f"Unexpected mock exception with stream:{stream}: {t}, {f}")
 
         with monkeypatch.context() as m:
@@ -1001,7 +1022,7 @@ class TestCacheManager:
         raw = b"abcde\nfghij\n"
         stream = Inventory(io.BytesIO(raw), MockTarFile())
         assert re.match(
-            r"<Stream <_io.BytesIO object at 0x[a-z0-9]+> from <Mock tarfile>",
+            r"^<Stream <_io.BytesIO object at 0x[a-z0-9]+> from <Mock tarfile>>$",
             str(stream),
         )
 
