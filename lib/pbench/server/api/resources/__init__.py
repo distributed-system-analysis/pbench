@@ -1210,6 +1210,19 @@ class ApiSchemaSet:
         return self.schemas[method].authorize(args)
 
 
+class HostSource(Enum):
+    REQUEST = auto()
+    FORWARDED = auto()
+    X_FORWARDED = auto()
+
+
+@dataclass
+class UriBase:
+    host: str
+    host_source: HostSource
+    host_value: str
+
+
 class ApiBase(Resource):
     """A base class for Pbench queries that provides common parameter handling
     behavior for specialized subclasses.
@@ -1627,6 +1640,57 @@ class ApiBase(Resource):
             except MetadataError as e:
                 fail[k] = str(e)
         return fail
+
+    HEADER_FORWARD = re.compile(r";\s*host\s*=\s*(?P<host>[^;\s]+)")
+    X_HEADER_FORWARD = re.compile(r"\s*(?P<host>[^;\s,]+)")
+    PARAM_TEMPLATE = re.compile(r"/<(?P<type>[^:]+):(?P<name>\w+)>")
+
+    def _get_uri_base(self, request: Request) -> UriBase:
+        """Determine the original request URI
+
+        When a request is directed through reverse proxies, the origin we see
+        may not be the URI used by the client to arrive here. When we're
+        providing a follow-up URI, we want to decode the forwarding headers to
+        avoid dropping a proxy (which may provide important infrastructure
+        controls and visibility).
+
+        Args:
+            request: the original HTTP Request
+
+        Return:
+            An object describing the origin and how we got there
+        """
+        current_app.logger.debug(
+            "Received headers: {!r}, access_route {!r}, base_url {!r}, host {!r}, host_url {!r}",
+            request.headers,
+            request.access_route,
+            request.base_url,
+            request.host,
+            request.host_url,
+        )
+        origin = None
+        host_source = HostSource.REQUEST
+        host_value = request.host
+        header = request.headers.get("Forwarded")
+        if header:
+            m = self.HEADER_FORWARD.search(header)
+            if m:
+                origin = m.group("host")
+                host_source = HostSource.FORWARDED
+                host_value = header
+        if not origin:
+            header = request.headers.get("X-Forwarded-Host")
+            if header:
+                m = self.X_HEADER_FORWARD.match(header)
+                if m:
+                    origin = m.group("host")
+                    host_source = HostSource.X_FORWARDED
+                    host_value = header
+        if not origin:
+            origin = host_value
+        proto = request.headers.get("X-Forwarded-Proto", "https")
+        host = f"{proto}://{origin}"
+        return UriBase(host, host_source, host_value)
 
     def _dispatch(
         self,

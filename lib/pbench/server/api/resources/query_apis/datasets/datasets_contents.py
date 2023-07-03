@@ -174,7 +174,10 @@ class DatasetsContents(IndexMapBase):
             {
                 "directories":
                 [
-                    "sample1"
+                    {
+                        "name": "sample1",
+                        "uri": "https://host/api/v1/datasets/id/contents/1-default/sample1"
+                    }
                 ],
                 "files": [
                     {
@@ -183,24 +186,35 @@ class DatasetsContents(IndexMapBase):
                         "size": 0,
                         "mode": "0o777",
                         "type": "sym",
-                        "linkpath": "sample1"
+                        "linkpath": "sample1",
+                        "uri": "https://host/api/v1/datasets/id/inventory/1-default/reference-result"
                     }
                 ]
             }
         """
+        request = context["request"]
+        resource_id = context["dataset"].resource_id
+        target = context["target"]
         if len(es_json["hits"]["hits"]) == 0:
             raise PostprocessError(
                 HTTPStatus.NOT_FOUND,
-                f"No directory '{context['target']}' in '{context['dataset']}' contents.",
+                f"No directory {target!r} in {resource_id!r} contents.",
             )
+
+        origin = f"{self._get_uri_base(request).host}/datasets/{resource_id}"
 
         dir_list = []
         file_list = []
         for val in es_json["hits"]["hits"]:
-            if val["_source"]["directory"] == context["target"]:
+            if val["_source"]["directory"] == target:
                 # Retrieve files list if present else add an empty list.
-                file_list = val["_source"].get("files", [])
-            elif val["_source"]["parent"] == context["target"]:
-                dir_list.append(val["_source"]["name"])
+                for f in val["_source"].get("files", []):
+                    f["uri"] = f"{origin}/inventory{target}/{f['name']}"
+                    file_list.append(f)
+            elif val["_source"]["parent"] == target:
+                name = val["_source"]["name"]
+                dir_list.append(
+                    {"name": name, "uri": f"{origin}/contents{target}/{name}"}
+                )
 
         return {"directories": dir_list, "files": file_list}
