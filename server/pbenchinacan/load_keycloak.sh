@@ -19,7 +19,7 @@
 
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"https://localhost:8090"}
 KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"https://localhost:8443/*"}
-KEYCLOAK_DEV_ORIGIN=${KEYCLOAK_DEV_ORIGIN:-"http://localhost:3000/*"}
+KEYCLOAK_DEV_REDIRECT=${KEYCLOAK_DEV_REDIRECT:-"http://localhost:3000/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # These values must match the options "realm" and "client in the
@@ -107,7 +107,9 @@ curl -si -f -X POST \
       ]
     }'
 
+echo "Setting redirect [ ${KEYCLOAK_DEV_REDIRECT}, ${KEYCLOAK_REDIRECT_URI} ]"
 
+set -vx
 CLIENT_CONF=$(curl -si -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
@@ -118,10 +120,13 @@ CLIENT_CONF=$(curl -si -f -X POST \
        "directAccessGrantsEnabled": true,
        "serviceAccountsEnabled": true,
        "enabled": true,
-       "attributes": {"post.logout.redirect.uris": ["'${KEYCLOAK_REDIRECT_URI}'", "'${KEYCLOAK_DEV_ORIGIN}'"]},
-       "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'", "'${KEYCLOAK_DEV_ORIGIN}'" ]}')
+       "attributes": {"post.logout.redirect.uris": "+"},
+       "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'", "'${KEYCLOAK_DEV_REDIRECT}'"]}')
+
+echo "client ${?}, output ${CLIENT_CONF}"
 
 CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
+echo "CLIENT_ID: ${CLIENT_ID}"
 if [[ -z "${CLIENT_ID}" ]]; then
   echo "${CLIENT} id is empty"
   exit 1
