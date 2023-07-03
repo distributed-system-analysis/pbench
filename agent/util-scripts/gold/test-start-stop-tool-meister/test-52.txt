@@ -26,7 +26,6 @@ pbench-tool-meister-stop: constructed SignalExporter() object
 pbench-tool-meister-stop: constructing SignalExporter() object using host localhost:17001, name: stop-pbench-client
 pbench-tool-meister-stop: publish state signal for state end with metadata: {'group': 'mygroup', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'args': None}
 pbench-tool-meister-stop: publish state signal for state terminate with metadata: {'group': 'mygroup', 'directory': None, 'args': {'interrupt': False}}
-pbench-tool-meister-stop: waiting for tool-data-sink (#####) to exit
 --- Finished test-52 test-start-stop-tool-meister (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

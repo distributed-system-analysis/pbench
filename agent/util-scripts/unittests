@@ -262,7 +262,7 @@ function _verify_output {
            -e 's;v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*;v#.##.##;g' \
            -e 's;"pid": [0-9][0-9]*\([,}]\);"pid": NNNNN\1;g' \
            -e "s;'pid': [0-9][0-9]*\([,}]\);'pid': NNNNN\1;g" \
-           -e "s;\(waiting for tool-data-sink\) ([0-9][0-9]*) \(to exit\);\1 (#####) \2;g" \
+           -e "/waiting for tool-data-sink ([0-9][0-9]*) to exit/ d" \
            -e 's;tar up [0-9][0-9]* bytes;tar up ##### bytes;g' \
            ${_testout}
     if [[ ${?} -ne 0 ]]; then
