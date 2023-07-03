@@ -1,12 +1,10 @@
 lockstat: Error, one of the following options is required, --install|--start|--stop|--postprocess
 
-The following options are available:
+	-h|--help                 display this help message and exit
 
-	--install                 verify this perf tool will work
 
-	--start|stop|postprocess  start/stop/postprocess the data collection
-	-d str|--dir=str          directory to store data collection (required)
+Tool-specific options - these may be specified when you register a tool:
 
-	-h|--help                 display this help message
+	No tool-specific options for this tool
 lockstat: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/lockstat/tools-group/lockstat', missing
 lockstat: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/lockstat/tools-group/lockstat', missing

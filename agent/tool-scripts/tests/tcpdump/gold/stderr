@@ -1,14 +1,11 @@
 tcpdump: Error, one of the following options is required, --install|--start|--stop|--postprocess
 
-The following options are available:
+	-h|--help                 display this help message and exit
 
-	--install                 verify this perf tool will work
 
-	--start|stop|postprocess  start/stop/postprocess the data collection
-	-d str|--dir=str          directory to store data collection (required)
+Tool-specific options - these may be specified when you register a tool:
+
 	--interface=str           the network interface to monitor
 	--packets=int             the number of packets to monitor before exiting
-
-	-h|--help                 display this help message
 tcpdump: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/tcpdump/tools-group/tcpdump', missing
 tcpdump: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/tcpdump/tools-group/tcpdump', missing

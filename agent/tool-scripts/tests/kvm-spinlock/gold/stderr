@@ -1,13 +1,10 @@
 kvm-spinlock: Error, one of the following options is required, --install|--start|--stop|--postprocess
 
-The following options are available:
+	-h|--help                 display this help message and exit
 
-	--install                 verify this perf tool will work
 
-	--start|stop|postprocess  start/stop/postprocess the data collection
-	-d str|--dir=str          directory to store data collection (required)
+Tool-specific options - these may be specified when you register a tool:
+
 	--interval=int            number of seconds between each data collection (optional, default is 10 seconds)
-
-	-h|--help                 display this help message
 kvm-spinlock: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/kvm-spinlock/tools-group/kvm-spinlock', missing
 kvm-spinlock: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/kvm-spinlock/tools-group/kvm-spinlock', missing
