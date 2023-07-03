@@ -24,7 +24,6 @@ PBINC_INACAN=${PBINC_SERVER}/pbenchinacan
 # Locations inside the container
 INSTALL_ROOT=/opt/pbench-server
 SERVER_LIB=${INSTALL_ROOT}/lib
-CONF_PATH=${SERVER_LIB}/config/pbench-server.cfg
 
 #+
 # Configuration verification section.
