@@ -19,6 +19,7 @@
 
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"https://localhost:8090"}
 KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"https://localhost:8443/*"}
+KEYCLOAK_DEV_REDIRECT=${KEYCLOAK_DEV_REDIRECT:-"http://localhost:3000/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # These values must match the options "realm" and "client in the
@@ -106,7 +107,6 @@ curl -si -f -X POST \
       ]
     }'
 
-
 CLIENT_CONF=$(curl -si -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
@@ -117,8 +117,8 @@ CLIENT_CONF=$(curl -si -f -X POST \
        "directAccessGrantsEnabled": true,
        "serviceAccountsEnabled": true,
        "enabled": true,
-       "attributes": {"post.logout.redirect.uris": "'${KEYCLOAK_REDIRECT_URI}'"},
-       "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
+       "attributes": {"post.logout.redirect.uris": "+"},
+       "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'", "'${KEYCLOAK_DEV_REDIRECT}'"]}')
 
 CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
 if [[ -z "${CLIENT_ID}" ]]; then

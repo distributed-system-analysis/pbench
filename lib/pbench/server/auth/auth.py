@@ -8,7 +8,7 @@ from flask_restful import abort
 from pbench.server import PbenchServerConfig
 from pbench.server.auth import OpenIDClient
 from pbench.server.database.models.api_keys import APIKey
-from pbench.server.database.models.users import User
+from pbench.server.database.models.users import Roles, User
 
 # Module public
 token_auth = HTTPTokenAuth("Bearer")
@@ -159,6 +159,12 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
         audiences = token_payload.get("resource_access", {})
         pb_aud = audiences.get(oidc_client.client_id, {})
         roles = pb_aud.get("roles", [])
+        if Roles.ADMIN.name not in roles:
+            admin_users = current_app.server_config.get(
+                "pbench-server", "admin-role", fallback=""
+            )
+            if username in admin_users.split(","):
+                roles.append(Roles.ADMIN.name)
 
         # Create or update the user in our cache
         user = User.query(id=user_id)
