@@ -11,6 +11,7 @@ from typing import IO
 
 import pytest
 
+from pbench.server import JSONOBJECT
 from pbench.server.cache_manager import (
     BadDirpath,
     BadFilename,
@@ -909,6 +910,32 @@ class TestCacheManager:
             file_info = tb.get_inventory(file_path)
             assert file_info["type"] == exp_file_type
             assert file_info["stream"].stream == exp_stream
+
+    def test_cm_inventory(self, monkeypatch, server_config, make_logger):
+        """Verify the happy path of the high level get_inventory"""
+        id = None
+
+        class MockTarball:
+            def get_inventory(self, target: str) -> JSONOBJECT:
+                return {
+                    "name": target,
+                    "type": CacheType.FILE,
+                    "stream": Inventory(io.BytesIO(b"success")),
+                }
+
+        def mock_find_dataset(self, dataset: str) -> MockTarball:
+            nonlocal id
+            id = dataset
+
+            return MockTarball()
+
+        with monkeypatch.context() as m:
+            m.setattr(CacheManager, "find_dataset", mock_find_dataset)
+            cm = CacheManager(server_config, make_logger)
+            inventory = cm.get_inventory("dataset", "target")
+            assert id == "dataset"
+            assert inventory["name"] == "target"
+            assert inventory["stream"].read() == b"success"
 
     def test_tarfile_extract(self, monkeypatch, tmp_path):
         """Test to check Tarball.extract success"""
