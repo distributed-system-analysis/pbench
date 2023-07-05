@@ -410,6 +410,7 @@ class TestUpload:
         information.
         """
         datafile, _, md5 = tarball
+        name = Dataset.stem(datafile)
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
@@ -419,7 +420,15 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response.text)
-        name = Dataset.stem(datafile)
+        assert response.json == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+            "uris": {
+                "tarball": f"https://localhost/api/v1/datasets/{md5}/inventory/",
+                "visualize": f"https://localhost/api/v1/datasets/{md5}/visualize",
+            },
+        }
 
         dataset = Dataset.query(resource_id=md5)
         assert dataset is not None
@@ -658,6 +667,7 @@ class TestUpload:
         """Test a successful upload of a dataset without metadata.log."""
         datafile, _, md5 = tarball
         TestUpload.create_metadata = False
+        name = Dataset.stem(datafile)
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
@@ -667,7 +677,15 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response.data)
-        name = Dataset.stem(datafile)
+        assert response.json == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+            "uris": {
+                "tarball": f"https://localhost/api/v1/datasets/{md5}/inventory/",
+                "visualize": f"https://localhost/api/v1/datasets/{md5}/visualize",
+            },
+        }
 
         dataset = Dataset.query(resource_id=md5)
         assert dataset is not None

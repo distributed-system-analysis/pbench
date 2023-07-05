@@ -61,12 +61,27 @@ class TestPut:
                 metadata = None
 
             cur_access = 0 if cur_access else 1
-            tarballs[Dataset.stem(t)] = Tarball(t, a)
+            name = Dataset.stem(t)
+            md5 = Dataset.md5(t)
+            tarballs[name] = Tarball(t, a)
             response = server_client.upload(t, access=a, metadata=metadata)
             assert (
                 response.status_code == HTTPStatus.CREATED
             ), f"upload returned unexpected status {response.status_code}, {response.text} ({t})"
-            print(f"\t... uploaded {t.name}: {a}")
+            assert response.json() == {
+                "message": "File successfully uploaded",
+                "name": name,
+                "resource_id": md5,
+                "uris": {
+                    "tarball": server_client._uri(
+                        API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
+                    ),
+                    "visualize": server_client._uri(
+                        API.DATASETS_VISUALIZE, {"dataset": md5}
+                    ),
+                },
+            }
+            print(f"\t... uploaded {name}: {a}")
 
         datasets = server_client.get_list(
             metadata=["dataset.access", "server.tarball-path", "dataset.operations"]

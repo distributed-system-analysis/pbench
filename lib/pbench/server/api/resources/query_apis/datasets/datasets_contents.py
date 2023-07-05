@@ -201,7 +201,8 @@ class DatasetsContents(IndexMapBase):
                 f"No directory {target!r} in {resource_id!r} contents.",
             )
 
-        origin = f"{self._get_uri_base(request).host}/datasets/{resource_id}"
+        prefix = current_app.server_config.rest_uri
+        origin = f"{self._get_uri_base(request).host}{prefix}/datasets/{resource_id}"
 
         dir_list = []
         file_list = []

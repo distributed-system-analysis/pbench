@@ -500,6 +500,21 @@ class IntakeBase(ApiBase):
                 except Exception as e:
                     current_app.logger.warning("Error removing {}: {}", tmp_dir, str(e))
 
-        response = jsonify(dict(message="File successfully uploaded"))
+        prefix = current_app.server_config.rest_uri
+        origin = (
+            f"{self._get_uri_base(request).host}{prefix}/datasets/{dataset.resource_id}"
+        )
+
+        response = jsonify(
+            {
+                "message": "File successfully uploaded",
+                "name": dataset.name,
+                "resource_id": dataset.resource_id,
+                "uris": {
+                    "tarball": origin + "/inventory/",
+                    "visualize": origin + "/visualize",
+                },
+            }
+        )
         response.status_code = HTTPStatus.CREATED
         return response
