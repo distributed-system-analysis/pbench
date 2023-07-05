@@ -67,6 +67,7 @@ sed -Ei \
     -e "/^ *realhost/ s/=.*/= $(hostname -f)/" \
     -e "s/<keycloak_realm>/${KEYCLOAK_REALM}/" \
     -e "s/<keycloak_client>/${KEYCLOAK_CLIENT}/" \
+    -e "s/##ADMIN_NAMES##/${PB_ADMIN_NAMES}/" \
     ${PB_DEPLOY_FILES}/pbench-server.cfg
 
 # Set up the /srv/pbench file tree

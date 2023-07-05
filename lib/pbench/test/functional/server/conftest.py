@@ -5,13 +5,24 @@ import pytest
 
 from pbench.client import PbenchServerClient
 from pbench.client.oidc_admin import OIDCAdmin
+from pbench.client.types import JSONOBJECT
 from pbench.server.auth import OpenIDClientError
 
-USERNAME: str = "tester"
-EMAIL: str = "tester@gmail.com"
-PASSWORD: str = "123456"
-FIRST_NAME: str = "Test"
-LAST_NAME: str = "User"
+USER = {
+    "username": "tester",
+    "email": "tester@gmail.com",
+    "password": "123456",
+    "first_name": "Test",
+    "last_name": "User",
+}
+
+ADMIN = {
+    "username": "testadmin",
+    "email": "testadmin@gmail.com",
+    "password": "123456",
+    "first_name": "Admin",
+    "last_name": "Tester",
+}
 
 
 @pytest.fixture(scope="session")
@@ -41,17 +52,9 @@ def oidc_admin(server_client: PbenchServerClient):
     return OIDCAdmin(server_url=server_client.endpoints["openid"]["server"])
 
 
-@pytest.fixture(scope="session")
-def register_test_user(oidc_admin: OIDCAdmin):
-    """Create a test user for functional tests."""
+def register_user(oidc_admin: OIDCAdmin, user: JSONOBJECT):
     try:
-        response = oidc_admin.create_new_user(
-            username=USERNAME,
-            email=EMAIL,
-            password=PASSWORD,
-            first_name=FIRST_NAME,
-            last_name=LAST_NAME,
-        )
+        response = oidc_admin.create_new_user(**user)
     except OpenIDClientError as e:
         # To allow testing outside our transient CI containers, allow the tester
         # user to already exist.
@@ -62,10 +65,31 @@ def register_test_user(oidc_admin: OIDCAdmin):
         assert response.ok, f"Register failed with {response.json()}"
 
 
+@pytest.fixture(scope="session")
+def register_test_user(oidc_admin: OIDCAdmin):
+    """Create a test user for functional tests."""
+    register_user(oidc_admin, USER)
+
+
+@pytest.fixture(scope="session")
+def register_admintest_user(oidc_admin: OIDCAdmin):
+    """Create a test user matching the configured Pbench admin."""
+    register_user(oidc_admin, ADMIN)
+
+
 @pytest.fixture
 def login_user(server_client: PbenchServerClient, register_test_user):
     """Log in the test user and return the authentication token"""
-    server_client.login(USERNAME, PASSWORD)
+    server_client.login(USER["username"], USER["password"])
+    assert server_client.auth_token
+    yield
+    server_client.auth_token = None
+
+
+@pytest.fixture
+def login_admin(server_client: PbenchServerClient, register_admintest_user):
+    """Log in the test user and return the authentication token"""
+    server_client.login(ADMIN["username"], ADMIN["password"])
     assert server_client.auth_token
     yield
     server_client.auth_token = None
