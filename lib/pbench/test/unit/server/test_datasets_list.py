@@ -344,6 +344,33 @@ class TestDatasetsList:
             response.json, ["drb", "fio_1"], {"mine": ""}, server_config
         )
 
+    def test_mine_duplicate_username(
+        self, server_config, client, more_datasets, get_token_func
+    ):
+        """Test "unauthorized" failure when the Keycloak username already has
+        a User record with a different UUID.
+
+        There's no ideal place to perform this test, so it might as well be
+        here.
+        """
+        token = get_token_func("drb")
+
+        user = User.query(username="drb")
+        user.id = "entirely-different-uuid"
+        user.update()
+
+        headers = {"authorization": f"bearer {token}"}
+        response = client.get(
+            f"{server_config.rest_uri}/datasets?mine",
+            headers=headers,
+        )
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.json["message"] == (
+            "The username 'drb' already exists with a different user ID, "
+            "possibly from a different OIDC provider. "
+            "Please report this problem to a system administrator."
+        )
+
     @pytest.mark.parametrize(
         "login,query,results",
         [

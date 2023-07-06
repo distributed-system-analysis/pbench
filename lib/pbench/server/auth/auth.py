@@ -4,11 +4,12 @@ from typing import Optional
 from flask import current_app, Flask, request
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
+from werkzeug.exceptions import Unauthorized
 
 from pbench.server import PbenchServerConfig
 from pbench.server.auth import OpenIDClient
 from pbench.server.database.models.api_keys import APIKey
-from pbench.server.database.models.users import Roles, User
+from pbench.server.database.models.users import Roles, User, UserDuplicate
 
 # Module public
 token_auth = HTTPTokenAuth("Bearer")
@@ -100,6 +101,8 @@ def verify_auth(auth_token: str) -> Optional[User]:
     user = None
     try:
         user = verify_auth_oidc(auth_token)
+    except Unauthorized:
+        raise
     except Exception as e:
         current_app.logger.exception(
             "Unexpected exception occurred while verifying the auth token {!r}: {}",
@@ -169,8 +172,16 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
         # Create or update the user in our cache
         user = User.query(id=user_id)
         if not user:
-            user = User(id=user_id, username=username, roles=roles)
-            user.add()
+            try:
+                user = User(id=user_id, username=username, roles=roles)
+                user.add()
+            except UserDuplicate:
+                raise Unauthorized(
+                    f"The username {username!r} already exists with a "
+                    "different user ID, possibly from a different OIDC "
+                    "provider. Please report this problem to a system "
+                    "administrator."
+                )
         else:
             user.update(username=username, roles=roles)
         return user
