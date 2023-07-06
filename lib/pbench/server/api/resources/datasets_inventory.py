@@ -10,6 +10,7 @@ from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiBase,
     ApiContext,
+    APIInternalError,
     ApiMethod,
     ApiParams,
     ApiSchema,
@@ -53,7 +54,6 @@ class DatasetsInventory(ApiBase):
         Raises:
             APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"
 
-
         GET /api/v1/datasets/{dataset}/inventory/{target}
         """
         dataset = params.uri["dataset"]
@@ -61,29 +61,38 @@ class DatasetsInventory(ApiBase):
 
         cache_m = CacheManager(self.config, current_app.logger)
         try:
-            file_info = cache_m.filestream(dataset, target)
+            file_info = cache_m.get_inventory(dataset.resource_id, target)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
-        if file_info["type"] == CacheType.FILE:
-            # Tell send_file to set `Content-Disposition` to "attachment" if
-            # targeting the large binary tarball. Otherwise we'll recommend the
-            # default "inline": only `is_file()` paths are allowed here, and
-            # most are likely "displayable". While `send_file` will guess the
-            # download_name from the path, setting it explicitly does no harm
-            # and supports a unit test mock with no real file.
-            #
-            # NOTE: we could choose to be "smarter" based on file size, file
-            # type codes (e.g., .csv, .json), and so forth.
-            resp = send_file(
-                file_info["stream"],
-                as_attachment=target is None,
-                download_name=file_info["name"],
-            )
-            file_info["stream"].close()
-            return resp
-        else:
+        if file_info["type"] != CacheType.FILE:
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST,
                 "The specified path does not refer to a regular file",
             )
+
+        # Tell send_file to set `Content-Disposition` to "attachment" if
+        # targeting the large binary tarball. Otherwise we'll recommend the
+        # default "inline": only `is_file()` paths are allowed here, and
+        # most are likely "displayable". While `send_file` will guess the
+        # download_name from the path, setting it explicitly does no harm
+        # and supports a unit test mock with no real file.
+        #
+        # Werkzeug will set the mime type and content encoding based on the
+        # download_name suffix.
+        #
+        # We link a callback to close the file stream and TarFile object on
+        # completion.
+        stream = file_info["stream"]
+        try:
+            resp = send_file(
+                stream, as_attachment=target is None, download_name=file_info["name"]
+            )
+        except Exception as e:
+            if stream:
+                stream.close()
+            raise APIInternalError(
+                f"Problem sending {dataset}:{target} stream {stream}: {str(e)!r}"
+            )
+        resp.call_on_close(stream.close)
+        return resp

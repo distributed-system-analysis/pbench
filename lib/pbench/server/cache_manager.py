@@ -7,7 +7,7 @@ import shlex
 import shutil
 import subprocess
 import tarfile
-from typing import IO, Optional, Union
+from typing import Any, IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, PbenchServerConfig
@@ -40,6 +40,17 @@ class BadFilename(CacheManagerError):
 
     def __str__(self) -> str:
         return f"The file path {self.path!r} is not a tarball"
+
+
+class CacheExtractBadPath(CacheManagerError):
+    """Request to extract a path that's bad or not a file"""
+
+    def __init__(self, tar_name: Path, path: Union[str, Path]):
+        self.name = tar_name.name
+        self.path = str(path)
+
+    def __str__(self) -> str:
+        return f"Unable to extract {self.path} from {self.name}"
 
 
 class TarballNotFound(CacheManagerError):
@@ -171,6 +182,66 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
         size=size,
         type=ftype,
     )
+
+
+class Inventory:
+    """Encapsulate the tarfile TarFile object and file stream
+
+    This encapsulation allows cleaner downstream handling, so that we can close
+    both the extractfile file stream and the tarball object itself when we're
+    done. This eliminates interference with later operations.
+    """
+
+    def __init__(self, stream: IO[bytes], tarfile: Optional[tarfile.TarFile] = None):
+        """Construct an instance to track extracted inventory
+
+        This encapsulates many byte stream operations so that it can be used
+        as if it were a byte stream.
+
+        Args:
+            stream: the data stream of a specific tarball member
+            tarfile: the TarFile object
+        """
+        self.tarfile = tarfile
+        self.stream = stream
+
+    def close(self):
+        """Close both the byte stream and, if open, a tarfile object"""
+        self.stream.close()
+        if self.tarfile:
+            self.tarfile.close()
+
+    def getbuffer(self):
+        """Return the underlying byte buffer (used by send_file)"""
+        return self.stream.getbuffer()
+
+    def read(self, *args, **kwargs) -> bytes:
+        """Encapsulate a read operation"""
+        return self.stream.read(*args, **kwargs)
+
+    def readable(self) -> bool:
+        """Return the readable state of the stream"""
+        return self.stream.readable()
+
+    def seek(self, *args, **kwargs) -> int:
+        """Allow setting the relative position in the stream"""
+        return self.stream.seek(*args, **kwargs)
+
+    def __repr__(self) -> str:
+        """Return a string representation"""
+        return f"<Stream {self.stream} from {self.tarfile}>"
+
+    def __iter__(self):
+        """Allow iterating through lines in the buffer"""
+        return self
+
+    def __next__(self):
+        """Iterate through lines in the buffer"""
+        line = self.stream.readline()
+        if line:
+            return line
+        else:
+            raise StopIteration()
 
 
 class Tarball:
@@ -382,6 +453,12 @@ class Tarball:
     def get_info(self, path: Path) -> JSONOBJECT:
         """Returns the details of the given file/directory in dict format
 
+        NOTE: This requires a call to the cache_map method to build a map that
+        can be traversed. Currently this is done only on unpack, and isn't
+        useful except within the `pbench-index` process. This map needs to
+        either be built dynamically (potentially expensive) or persisted in
+        SQL or perhaps Redis.
+
         Args:
             path: path of the file/sub-directory
 
@@ -429,33 +506,40 @@ class Tarball:
         return fd_info
 
     @staticmethod
-    def extract(tarball_path: Path, path: Path) -> Optional[IO[bytes]]:
-        """Returns the file stream which yields the contents of
-        a file at the specified path in the Tarball
+    def extract(tarball_path: Path, path: Path) -> Inventory:
+        """Returns a file stream for a file within a tarball
 
         Args:
             tarball_path: absolute path of the tarball
             path: relative path within the tarball
 
+        Returns:
+            An inventory object that mimics an IO[bytes] object while also
+            maintaining a reference to the tarfile TarFile object to be
+            closed later.
+
         Raise:
-            BadDirpath on failure extracting the file from tarball
+            TarballNotFound on failure opening the tarball
+            CacheExtractBadPath if the target cannot be extracted
         """
         try:
-            return tarfile.open(tarball_path, "r:*").extractfile(path)
+            tar = tarfile.open(tarball_path, "r:*")
         except Exception as exc:
-            raise BadDirpath(
-                f"A problem occurred processing {str(path)!r} from {str(tarball_path)!r}: {exc}"
-            )
+            raise TarballNotFound(str(tarball_path)) from exc
+        try:
+            stream = tar.extractfile(str(path))
+        except Exception as exc:
+            raise CacheExtractBadPath(tarball_path, path) from exc
+        else:
+            if not stream:
+                raise CacheExtractBadPath(tarball_path, path)
+            return Inventory(stream, tar)
 
-    def filestream(self, path: str) -> Optional[dict]:
-        """Returns a dictionary containing information about the target
-        file and file stream
+    def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
+        """Access the file stream of a tarball member file.
 
         Args:
             path: relative path within the tarball of a file
-
-        Raises:
-            TarballUnpackError on failure to extract the named path
 
         Returns:
             Dictionary with file info and file stream
@@ -464,20 +548,12 @@ class Tarball:
             info = {
                 "name": self.name,
                 "type": CacheType.FILE,
-                "stream": self.tarball_path.open("rb"),
+                "stream": Inventory(self.tarball_path.open("rb"), None),
             }
         else:
             file_path = Path(self.name) / path
-            info = self.get_info(file_path)
-            if info["type"] == CacheType.FILE:
-                try:
-                    info["stream"] = Tarball.extract(self.tarball_path, file_path)
-                except Exception as exc:
-                    raise TarballUnpackError(
-                        self.tarball_path, f"Unable to extract {str(file_path)!r}"
-                    ) from exc
-            else:
-                info["stream"] = None
+            stream = Tarball.extract(self.tarball_path, file_path)
+            info = {"name": file_path.name, "type": CacheType.FILE, "stream": stream}
 
         return info
 
@@ -492,11 +568,12 @@ class Tarball:
         name = Dataset.stem(tarball_path)
         try:
             data = Tarball.extract(tarball_path, f"{name}/metadata.log")
-        except BadDirpath:
+        except CacheExtractBadPath:
             return None
         else:
             metadata_log = MetadataLog()
             metadata_log.read_file(e.decode() for e in data)
+            data.close()
             metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
             return metadata
 
@@ -1021,7 +1098,7 @@ class CacheManager:
         tarball.controller.unpack(dataset_id)
         return tarball
 
-    def get_info(self, dataset_id: str, path: Path) -> dict:
+    def get_info(self, dataset_id: str, path: Path) -> dict[str, Any]:
         """Get information about dataset files from the cache map
 
         Args:
@@ -1035,9 +1112,24 @@ class CacheManager:
         tmap = tarball.get_info(path)
         return tmap
 
-    def filestream(self, dataset, target):
-        tarball = self.find_dataset(dataset.resource_id)
-        return tarball.filestream(target)
+    def get_inventory(self, dataset_id: str, target: str) -> Optional[JSONOBJECT]:
+        """Return filestream data for a file within a dataset tarball
+
+            {
+                "name": "filename",
+                "type": CacheType.FILE,
+                "stream": <byte stream>
+            }
+
+        Args:
+            dataset: Dataset resource ID
+            target: relative file path within the tarball
+
+        Returns:
+            File info including a byte stream for a regular file
+        """
+        tarball = self.find_dataset(dataset_id)
+        return tarball.get_inventory(target)
 
     def uncache(self, dataset_id: str):
         """Remove the unpacked tarball tree.

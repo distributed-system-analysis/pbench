@@ -1,12 +1,14 @@
 from http import HTTPStatus
 import io
 from pathlib import Path
-from typing import Any, Optional
+from typing import Callable, Optional
 
+from flask import Response
 import pytest
 import requests
 
-from pbench.server.cache_manager import CacheManager, CacheType, Controller
+from pbench.server import JSONOBJECT
+from pbench.server.cache_manager import CacheManager, CacheType, Inventory
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -41,25 +43,6 @@ class TestDatasetsAccess:
 
         return query_api
 
-    class MockTarball:
-        def __init__(self, path: Path, controller: Controller):
-            self.name = "dir_name.tar.xz"
-            self.tarball_path = path
-            self.unpacked = None
-
-        def filestream(self, target):
-            info = {
-                "name": "f1.json",
-                "type": CacheType.FILE,
-                "stream": io.BytesIO(b"file_as_a_byte_stream"),
-            }
-            return info
-
-    def mock_find_dataset(self, dataset) -> MockTarball:
-        # Validate the resource_id
-        Dataset.query(resource_id=dataset)
-        return self.MockTarball(Path("/mock/dir_name.tar.xz"), "abc")
-
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(
             "nonexistent-dataset", "metadata.log", HTTPStatus.NOT_FOUND
@@ -80,11 +63,10 @@ class TestDatasetsAccess:
 
     @pytest.mark.parametrize("key", (None, "", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
-        filestream_dict = {"type": CacheType.DIRECTORY, "stream": None}
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(
-            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
-        )
+        def mock_get_inventory(_s, _d: str, _t: str):
+            return {"type": CacheType.DIRECTORY, "stream": None}
+
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
 
@@ -94,11 +76,10 @@ class TestDatasetsAccess:
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
-        filestream_dict = {"type": CacheType.SYMLINK, "stream": None}
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(
-            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
-        )
+        def mock_get_inventory(_s, _d: str, _t: str):
+            return {"type": CacheType.SYMLINK, "stream": None}
+
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: False)
 
@@ -110,30 +91,29 @@ class TestDatasetsAccess:
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
         mock_close = False
 
-        class MockBytesIO(io.BytesIO):
-            def close(self):
-                nonlocal mock_close
-                mock_close = True
-                super().close()
+        def call_on_close(_c: Callable):
+            nonlocal mock_close
+            mock_close = True
 
-        mock_args: Optional[tuple[Path, dict[str, Any]]] = None
-        exp_stream = MockBytesIO(b"file_as_a_byte_stream")
-        filestream_dict = {
-            "name": "f1.json",
-            "type": CacheType.FILE,
-            "stream": exp_stream,
-        }
+        mock_args: Optional[tuple[Path, JSONOBJECT]] = None
+        exp_stream = io.BytesIO(b"file_as_a_byte_stream")
+
+        def mock_get_inventory(_s, _d: str, _t: str):
+            return {
+                "name": "f1.json",
+                "type": CacheType.FILE,
+                "stream": Inventory(exp_stream, None),
+            }
+
+        response = Response()
+        monkeypatch.setattr(response, "call_on_close", call_on_close)
 
         def mock_send_file(path_or_file, *args, **kwargs):
             nonlocal mock_args
-            assert path_or_file == exp_stream
             mock_args = (path_or_file, kwargs)
-            return {"status": "OK"}
+            return response
 
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(
-            self.MockTarball, "filestream", lambda _s, _t: filestream_dict
-        )
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_inventory.send_file", mock_send_file
         )
@@ -143,8 +123,36 @@ class TestDatasetsAccess:
 
         file_content, args = mock_args
 
-        assert isinstance(file_content, io.BytesIO)
-        assert file_content == exp_stream
+        assert isinstance(file_content, Inventory)
+        assert file_content.stream == exp_stream
         assert args["as_attachment"] is False
         assert args["download_name"] == "f1.json"
+        assert mock_close
+
+    def test_send_fail(self, query_get_as, monkeypatch):
+        mock_close = False
+
+        def mock_close(_s):
+            nonlocal mock_close
+            mock_close = True
+
+        exp_stream = io.BytesIO(b"file_as_a_byte_stream")
+
+        def mock_get_inventory(_s, _d: str, _t: str):
+            return {
+                "name": "f1.json",
+                "type": CacheType.FILE,
+                "stream": Inventory(exp_stream, None),
+            }
+
+        def mock_send_file(path_or_file, *args, **kwargs):
+            raise Exception("I'm failing to succeed")
+
+        monkeypatch.setattr(exp_stream, "close", mock_close)
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_inventory.send_file", mock_send_file
+        )
+
+        query_get_as("fio_2", "f1.json", HTTPStatus.INTERNAL_SERVER_ERROR)
         assert mock_close

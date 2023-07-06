@@ -1,14 +1,21 @@
 from http import HTTPStatus
+from io import BytesIO
 from pathlib import Path
+from typing import Optional
 
 from pquisby.lib.post_processing import QuisbyProcessing
 import pytest
 import requests
 
-from pbench.server import JSON
-from pbench.server.api.resources import ApiBase
-from pbench.server.cache_manager import CacheManager, Tarball
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server import JSON, JSONOBJECT
+from pbench.server.cache_manager import (
+    CacheManager,
+    CacheType,
+    Inventory,
+    TarballNotFound,
+)
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
+from pbench.server.database.models.users import User
 
 
 class TestVisualize:
@@ -42,42 +49,49 @@ class TestVisualize:
 
         return query_api
 
-    def mock_find_dataset(self, _dataset: str) -> Tarball:
-        class Tarball(object):
-            tarball_path = Path("/dataset/tarball.tar.xz")
+    def mock_get_inventory(self, _dataset: str, target: str):
+        return {
+            "name": Path(target).name,
+            "type": CacheType.FILE,
+            "stream": Inventory(BytesIO(b"CSV_file_as_a_byte_stream"), None),
+        }
 
-            def extract(_tarball_path: Path, _path: str) -> str:
-                return "CSV_file_as_a_byte_stream"
-
-        return Tarball
-
-    def mock_get_dataset_metadata(self, _dataset, _key) -> JSON:
-        return {"dataset.metalog.pbench.script": "uperf"}
+    @staticmethod
+    def mock_getvalue(_d: Dataset, _k: str, _u: Optional[User] = None) -> JSON:
+        return "uperf"
 
     def test_get_no_dataset(self, query_get_as):
+        """The dataset ID doesn't exist"""
+
         response = query_get_as("nonexistent-dataset", "drb", HTTPStatus.NOT_FOUND)
         assert response.json == {"message": "Dataset 'nonexistent-dataset' not found"}
 
-    def test_dataset_not_present(self, query_get_as):
-        response = query_get_as("fio_2", "drb", HTTPStatus.NOT_FOUND)
-        assert response.json == {
-            "message": "No dataset with ID 'random_md5_string4' found"
-        }
+    def test_dataset_not_cached(self, monkeypatch, query_get_as):
+        """The dataset exists, but isn't in the cache manager"""
+
+        def mock_inventory_not_found(self, d: str, _t: str) -> JSONOBJECT:
+            raise TarballNotFound(d)
+
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_inventory_not_found)
+        query_get_as("fio_2", "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_unauthorized_access(self, query_get_as):
+        """The dataset exists but isn't READABLE"""
+
         response = query_get_as("test", "drb", HTTPStatus.FORBIDDEN)
         assert response.json == {
             "message": "User drb is not authorized to READ a resource owned by test with private access"
         }
 
     def test_successful_get(self, query_get_as, monkeypatch):
+        """Quisby processing succeeds"""
+
         def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
             return {"status": "success", "json_data": "quisby_data"}
 
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(
-            ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
-        )
+        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
 
         response = query_get_as("uperf_1", "test", HTTPStatus.OK)
@@ -85,24 +99,13 @@ class TestVisualize:
         assert response.json["json_data"] == "quisby_data"
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
-        def mock_find_dataset_with_incorrect_data(self, dataset) -> Tarball:
-            class Tarball(object):
-                tarball_path = Path("/dataset/tarball.tar.xz")
-
-                def extract(tarball_path, path) -> str:
-                    return "IncorrectData"
-
-            return Tarball
+        """Quisby processing fails"""
 
         def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
             return {"status": "failed", "exception": "Unsupported Media Type"}
 
-        monkeypatch.setattr(
-            CacheManager, "find_dataset", mock_find_dataset_with_incorrect_data
-        )
-        monkeypatch.setattr(
-            ApiBase, "_get_dataset_metadata", self.mock_get_dataset_metadata
-        )
+        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
         assert response.json["message"].startswith(
@@ -110,18 +113,21 @@ class TestVisualize:
         )
 
     def test_unsupported_benchmark(self, query_get_as, monkeypatch):
-        flag = True
+        """The benchmark name isn't supported"""
+
+        extract_not_called = True
 
         def mock_extract_data(*args, **kwargs) -> JSON:
-            nonlocal flag
-            flag = False
+            nonlocal extract_not_called
+            extract_not_called = False
 
-        def mock_get_metadata(self, dataset, key) -> JSON:
-            return {"dataset.metalog.pbench.script": "hammerDB"}
+        @staticmethod
+        def mock_get_metadata(_d: Dataset, _k: str, _u: Optional[User] = None) -> JSON:
+            return "hammerDB"
 
-        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(ApiBase, "_get_dataset_metadata", mock_get_metadata)
+        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
+        monkeypatch.setattr(Metadata, "getvalue", mock_get_metadata)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
-        response = query_get_as("uperf_1", "test", HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
+        response = query_get_as("uperf_1", "test", HTTPStatus.BAD_REQUEST)
         assert response.json["message"] == "Unsupported Benchmark: HAMMERDB"
-        assert flag is True
+        assert extract_not_called

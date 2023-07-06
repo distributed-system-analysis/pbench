@@ -19,12 +19,8 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.cache_manager import (
-    CacheManager,
-    TarballNotFound,
-    TarballUnpackError,
-)
-from pbench.server.database import Dataset
+from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.datasets import Metadata
 
 
 class DatasetsVisualize(ApiBase):
@@ -63,29 +59,21 @@ class DatasetsVisualize(ApiBase):
         """
 
         dataset = params.uri["dataset"]
-        cache_m = CacheManager(self.config, current_app.logger)
 
-        try:
-            tarball = cache_m.find_dataset(dataset.resource_id)
-        except TarballNotFound as e:
-            raise APIAbort(
-                HTTPStatus.NOT_FOUND, f"No dataset with ID '{e.tarball}' found"
-            ) from e
-
-        metadata = self._get_dataset_metadata(
-            dataset, ["dataset.metalog.pbench.script"]
-        )
-        benchmark = metadata["dataset.metalog.pbench.script"].upper()
+        metadata = Metadata.getvalue(dataset, "dataset.metalog.pbench.script")
+        benchmark = metadata.upper()
         benchmark_type = BenchmarkName.__members__.get(benchmark)
         if not benchmark_type:
             raise APIAbort(
-                HTTPStatus.UNSUPPORTED_MEDIA_TYPE, f"Unsupported Benchmark: {benchmark}"
+                HTTPStatus.BAD_REQUEST, f"Unsupported Benchmark: {benchmark}"
             )
 
-        name = Dataset.stem(tarball.tarball_path)
+        cache_m = CacheManager(self.config, current_app.logger)
         try:
-            file = tarball.extract(tarball.tarball_path, f"{name}/result.csv")
-        except TarballUnpackError as e:
+            info = cache_m.get_inventory(dataset.resource_id, "result.csv")
+            file = info["stream"].read().decode("utf-8")
+            info["stream"].close()
+        except Exception as e:
             raise APIInternalError(str(e)) from e
 
         get_quisby_data = QuisbyProcessing().extract_data(
