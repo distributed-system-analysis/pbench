@@ -5,7 +5,7 @@
 
 - name: Install RPMs
   ansible.builtin.package:
-    name: "{{ item }}"
-  with_items:
-    - pbench-agent
-    - pbench-sysstat
+    name:
+      - pbench-agent
+      - pbench-sysstat
+    state: latest
