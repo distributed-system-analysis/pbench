@@ -138,11 +138,9 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         notifier.notify(f"STATUS=Error initializing database: {exc}")
         return 1
 
-    # Multiple cron jobs will attempt to file reports with the Elasticsearch
-    # instance when they start and finish, causing them to all to try to
-    # initialize the templates in the Indexing sub-system.  To avoid race
-    # conditions that can create stack traces, we initialize the indexing sub-
-    # system before we start the cron jobs.
+    # The server and indexer both attempt to initialize the Elasticsearch
+    # instance, which can cause a race and messy logging. To avoid that,
+    # initialize the indexing sub-system here.
     notifier.notify("STATUS=Initializing Elasticsearch")
     logger.info("Performing Elasticsearch indexing setup")
     try:
