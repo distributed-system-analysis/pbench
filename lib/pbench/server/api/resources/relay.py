@@ -76,7 +76,12 @@ class Relay(IntakeBase):
             APIAbort on failure
         """
         uri = args.uri["uri"]
-        response = requests.get(uri, headers={"Accept": "application/json"})
+        try:
+            response = requests.get(uri, headers={"Accept": "application/json"})
+        except Exception as e:
+            raise APIAbort(
+                HTTPStatus.BAD_GATEWAY, f"Unable to connect to manifest URI: {str(e)!r}"
+            )
         if not response.ok:
             raise APIAbort(
                 HTTPStatus.BAD_GATEWAY,
@@ -121,9 +126,16 @@ class Relay(IntakeBase):
         Raises:
             APIAbort on failure
         """
-        response: requests.Response = requests.get(
-            url=intake.uri, stream=True, headers={"Accept": "application/octet-stream"}
-        )
+        try:
+            response: requests.Response = requests.get(
+                url=intake.uri,
+                stream=True,
+                headers={"Accept": "application/octet-stream"},
+            )
+        except Exception as e:
+            raise APIAbort(
+                HTTPStatus.BAD_GATEWAY, f"Unable to connect to results URI: {str(e)!r}"
+            )
         if not response.ok:
             raise APIAbort(
                 response.status_code,
