@@ -65,7 +65,7 @@ class Connection:
         final_headers = self.headers.copy()
         if headers is not None:
             final_headers.update(headers)
-        url = urljoin(self.server_url, path)
+        url = self.server_url + "/" + path
         request_dict = dict(
             params=kwargs,
             data=data,
