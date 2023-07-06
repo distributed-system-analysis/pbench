@@ -127,11 +127,11 @@ class TestRelay:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
-            "uris": {
-                "tarball": f"https://localhost/api/v1/datasets/{md5}/inventory/",
-                "visualize": f"https://localhost/api/v1/datasets/{md5}/visualize",
-            },
         }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         audit = Audit.query()
         assert len(audit) == 2

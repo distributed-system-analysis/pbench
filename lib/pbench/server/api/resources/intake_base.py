@@ -198,6 +198,9 @@ class IntakeBase(ApiBase):
         username: Optional[str] = None
         tmp_dir: Optional[Path] = None
 
+        prefix = current_app.server_config.rest_uri
+        origin = f"{self._get_uri_base(request).host}{prefix}/datasets/"
+
         try:
             try:
                 authorized_user = Auth.token_auth.current_user()
@@ -284,7 +287,14 @@ class IntakeBase(ApiBase):
                         f"Duplicate dataset {intake.md5!r} ({dataset_name!r}) is missing"
                     ) from e
                 else:
-                    response = jsonify(dict(message="Dataset already exists"))
+                    response = jsonify(
+                        {
+                            "message": "Dataset already exists",
+                            "name": dataset_name,
+                            "resource_id": intake.md5,
+                        }
+                    )
+                    response.headers["location"] = f"{origin}{intake.md5}/inventory/"
                     response.status_code = HTTPStatus.OK
                     return response
             except APIAbort:
@@ -500,21 +510,13 @@ class IntakeBase(ApiBase):
                 except Exception as e:
                     current_app.logger.warning("Error removing {}: {}", tmp_dir, str(e))
 
-        prefix = current_app.server_config.rest_uri
-        origin = (
-            f"{self._get_uri_base(request).host}{prefix}/datasets/{dataset.resource_id}"
-        )
-
         response = jsonify(
             {
                 "message": "File successfully uploaded",
                 "name": dataset.name,
                 "resource_id": dataset.resource_id,
-                "uris": {
-                    "tarball": origin + "/inventory/",
-                    "visualize": origin + "/visualize",
-                },
             }
         )
+        response.headers["location"] = f"{origin}{dataset.resource_id}/inventory/"
         response.status_code = HTTPStatus.CREATED
         return response

@@ -424,11 +424,11 @@ class TestUpload:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
-            "uris": {
-                "tarball": f"https://localhost/api/v1/datasets/{md5}/inventory/",
-                "visualize": f"https://localhost/api/v1/datasets/{md5}/visualize",
-            },
         }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         dataset = Dataset.query(resource_id=md5)
         assert dataset is not None
@@ -520,6 +520,15 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
+        assert response.json == {
+            "message": "File successfully uploaded",
+            "name": Dataset.stem(datafile),
+            "resource_id": md5,
+        }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         # Reset manually since we upload twice in this test
         TestUpload.cachemanager_created = None
@@ -532,7 +541,15 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.OK, repr(response)
-        assert response.json.get("message") == "Dataset already exists"
+        assert response.json == {
+            "message": "Dataset already exists",
+            "name": Dataset.stem(datafile),
+            "resource_id": md5,
+        }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         # We didn't get far enough to create a CacheManager
         assert TestUpload.cachemanager_created is None
@@ -681,11 +698,11 @@ class TestUpload:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
-            "uris": {
-                "tarball": f"https://localhost/api/v1/datasets/{md5}/inventory/",
-                "visualize": f"https://localhost/api/v1/datasets/{md5}/visualize",
-            },
         }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         dataset = Dataset.query(resource_id=md5)
         assert dataset is not None

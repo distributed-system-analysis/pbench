@@ -72,15 +72,10 @@ class TestPut:
                 "message": "File successfully uploaded",
                 "name": name,
                 "resource_id": md5,
-                "uris": {
-                    "tarball": server_client._uri(
-                        API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
-                    ),
-                    "visualize": server_client._uri(
-                        API.DATASETS_VISUALIZE, {"dataset": md5}
-                    ),
-                },
             }
+            assert response.headers["location"] == server_client._uri(
+                API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
+            )
             print(f"\t... uploaded {name}: {a}")
 
         datasets = server_client.get_list(
@@ -109,10 +104,20 @@ class TestPut:
         but with an OK (200) response instead of CREATED (201)
         """
         duplicate = next(iter(TARBALL_DIR.glob("*.tar.xz")))
+        name = Dataset.stem(duplicate)
+        md5 = Dataset.md5(duplicate)
         response = server_client.upload(duplicate)
         assert (
             response.status_code == HTTPStatus.OK
         ), f"upload returned unexpected status {response.status_code}, {response.text}"
+        assert response.json() == {
+            "message": "Dataset already exists",
+            "name": name,
+            "resource_id": md5,
+        }
+        assert response.headers["location"] == server_client._uri(
+            API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
+        )
 
     @staticmethod
     def test_bad_md5(server_client: PbenchServerClient, login_user):
@@ -149,11 +154,20 @@ class TestPut:
         validate that it doesn't get enabled for unpacking or indexing.
         """
         tarball = SPECIAL_DIR / "fio_mock_2020.01.19T00.18.06.tar.xz"
+        name = Dataset.stem(tarball)
         md5 = Dataset.md5(tarball)
         response = server_client.upload(tarball, metadata={"server.archiveonly:y"})
         assert (
             response.status_code == HTTPStatus.CREATED
-        ), f"upload {Dataset.stem(tarball)} returned unexpected status {response.status_code}, {response.text}"
+        ), f"upload {name} returned unexpected status {response.status_code}, {response.text}"
+        assert response.json() == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+        }
+        assert response.headers["location"] == server_client._uri(
+            API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
+        )
         metadata = server_client.get_metadata(
             md5, ["dataset.operations", "server.archiveonly"]
         )
@@ -180,11 +194,20 @@ class TestPut:
         validate that it doesn't get enabled for unpacking or indexing.
         """
         tarball = SPECIAL_DIR / "nometadata.tar.xz"
+        name = Dataset.stem(tarball)
         md5 = Dataset.md5(tarball)
         response = server_client.upload(tarball)
         assert (
             response.status_code == HTTPStatus.CREATED
-        ), f"upload {Dataset.stem(tarball)} returned unexpected status {response.status_code}, {response.text}"
+        ), f"upload {name} returned unexpected status {response.status_code}, {response.text}"
+        assert response.json() == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+        }
+        assert response.headers["location"] == server_client._uri(
+            API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
+        )
         metadata = server_client.get_metadata(
             md5, ["dataset.operations", "dataset.metalog", "server.archiveonly"]
         )
@@ -545,8 +568,26 @@ class TestInventory:
             archive = dataset.metadata["server.archiveonly"]
             assert json["directories"] or json["files"] or archive
 
-            # Unless archiveonly, we need a metadata.log
+            # Even if they're empty, both values must be lists
+            assert isinstance(json["directories"], list)
+            assert isinstance(json["files"], list)
+
+            # Unless archiveonly, we need at least a metadata.log
             assert archive or "metadata.log" in (f["name"] for f in json["files"])
+
+            for d in json["directories"]:
+                uri = server_client._uri(
+                    API.DATASETS_CONTENTS,
+                    {"dataset": dataset.resource_id, "target": d["name"]},
+                )
+                assert d["uri"] == uri, f"{d['name']} uri is incorrect: {d['uri']}"
+
+            for f in json["files"]:
+                uri = server_client._uri(
+                    API.DATASETS_INVENTORY,
+                    {"dataset": dataset.resource_id, "target": f["name"]},
+                )
+                assert f["uri"] == uri, f"{f['name']} uri is incorrect: {f['uri']}"
 
     @pytest.mark.dependency(name="visualize", depends=["upload"], scope="session")
     def test_visualize(self, server_client: PbenchServerClient, login_user):

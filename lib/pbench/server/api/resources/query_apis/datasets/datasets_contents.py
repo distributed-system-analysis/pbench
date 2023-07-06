@@ -203,6 +203,7 @@ class DatasetsContents(IndexMapBase):
 
         prefix = current_app.server_config.rest_uri
         origin = f"{self._get_uri_base(request).host}{prefix}/datasets/{resource_id}"
+        path = "" if target == "/" else target
 
         dir_list = []
         file_list = []
@@ -210,12 +211,12 @@ class DatasetsContents(IndexMapBase):
             if val["_source"]["directory"] == target:
                 # Retrieve files list if present else add an empty list.
                 for f in val["_source"].get("files", []):
-                    f["uri"] = f"{origin}/inventory{target}/{f['name']}"
+                    f["uri"] = f"{origin}/inventory{path}/{f['name']}"
                     file_list.append(f)
             elif val["_source"]["parent"] == target:
                 name = val["_source"]["name"]
                 dir_list.append(
-                    {"name": name, "uri": f"{origin}/contents{target}/{name}"}
+                    {"name": name, "uri": f"{origin}/contents{path}/{name}"}
                 )
 
         return {"directories": dir_list, "files": file_list}
