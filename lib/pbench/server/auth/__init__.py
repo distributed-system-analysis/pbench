@@ -224,6 +224,8 @@ class OpenIDClient:
         # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
         retry = Retry(
             total=8,
+            connect=0,
+            other=0,
             backoff_factor=2,
             status_forcelist=tuple(int(x) for x in HTTPStatus if x != 200),
         )
