@@ -21,3 +21,4 @@ requests # TODO CVE-2023-32681 (>=2.31.0)
 sdnotify
 sqlalchemy>=1.4.23
 sqlalchemy_utils>=0.37.6
+urllib3
