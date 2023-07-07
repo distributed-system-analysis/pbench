@@ -30,13 +30,6 @@ export const menuOptions = [
         submenuOf: "dashboard",
         link: "results",
       },
-      {
-        name: "Relay",
-        submenu: true,
-        key: "relay",
-        submenuOf: "dashboard",
-        link: "relay",
-      },
     ],
   },
   {

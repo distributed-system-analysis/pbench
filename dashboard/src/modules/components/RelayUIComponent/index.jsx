@@ -7,31 +7,41 @@ import {
   CardBody,
   Form,
   FormGroup,
-  Grid,
-  GridItem,
+  Modal,
+  ModalVariant,
   TextInput,
-  Title,
 } from "@patternfly/react-core";
+import {
+  handleInputChange,
+  toggleRelayModal,
+  uploadFile,
+} from "actions/relayActions";
+import { useDispatch, useSelector } from "react-redux";
 
 import React from "react";
-import { sendFileRequest } from "actions/relayActions";
-import { useDispatch } from "react-redux";
 
 const RelayComponent = () => {
-  const [value, setValue] = React.useState("");
+  const { isRelayModalOpen, relayInput } = useSelector(
+    (state) => state.overview
+  );
   const dispatch = useDispatch();
   const pullServerData = () => {
-    dispatch(sendFileRequest(value));
+    dispatch(uploadFile());
+  };
+  const handleClose = () => {
+    dispatch(handleInputChange(""));
+    dispatch(toggleRelayModal(false));
   };
   return (
-    <Grid hasGutter className="relay-ui-container">
-      <Grid>
-        <GridItem span={3} />
-        <GridItem span={9}>
-          <Title headingLevel="h3">Relay </Title>
-        </GridItem>
-      </Grid>
-
+    <Modal
+      className="relay-ui-container"
+      title="Relay"
+      variant={ModalVariant.small}
+      isOpen={isRelayModalOpen}
+      onClose={handleClose}
+    >
+      {/* Need to update the about content */}
+      <div>To pull the dataset</div>
       <div className="card-wrapper">
         <Card>
           <CardBody>
@@ -46,14 +56,14 @@ const RelayComponent = () => {
                   type="text"
                   id="relay-uri"
                   name="relay-uri"
-                  value={value}
-                  onChange={(value) => setValue(value)}
+                  value={relayInput}
+                  onChange={(value) => dispatch(handleInputChange(value))}
                 />
               </FormGroup>
               <ActionGroup>
                 <Button
                   variant="primary"
-                  isDisabled={!value}
+                  isDisabled={!relayInput}
                   onClick={pullServerData}
                 >
                   Submit
@@ -63,7 +73,7 @@ const RelayComponent = () => {
           </CardBody>
         </Card>
       </div>
-    </Grid>
+    </Modal>
   );
 };
 

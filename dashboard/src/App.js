@@ -22,7 +22,6 @@ import NoMatchingPage from "modules/components/EmptyPageComponent/NoMatchingPage
 import OverviewComponent from "modules/components/OverviewComponent";
 import ProfileComponent from "modules/components/ProfileComponent";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
-import RelayComponent from "modules/components/RelayUIComponent";
 import TableOfContent from "modules/components/TableOfContent";
 import TableWithFavorite from "modules/components/TableComponent";
 import favicon from "./assets/logo/favicon.ico";
@@ -96,10 +95,7 @@ const App = () => {
                       path={APP_ROUTES.TABLE_OF_CONTENT}
                       element={<TableOfContent />}
                     />
-                    <Route
-                      path={APP_ROUTES.RELAY}
-                      element={<RelayComponent />}
-                    />
+
                     <Route
                       path={APP_ROUTES.ANALYSIS}
                       element={<ComingSoonPage />}
