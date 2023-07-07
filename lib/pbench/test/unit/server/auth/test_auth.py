@@ -300,7 +300,7 @@ class TestOpenIDClient:
         config["openid"] = {
             "server_url": "https://example.com",
             "realm": "realm",
-            "cert_location": "/ca.crt",
+            "tls_ca_file": "/ca.crt",
         }
 
         # Keycloak well-known endpoint without any response
@@ -338,7 +338,7 @@ class TestOpenIDClient:
         config["openid"] = {
             "server_url": "https://example.com",
             "realm": "realm",
-            "cert_location": "/ca.crt",
+            "tls_ca_file": "/ca.crt",
         }
 
         # Keycloak well-known endpoint returning response with valid issuer

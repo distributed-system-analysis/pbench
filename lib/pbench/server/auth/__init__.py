@@ -205,10 +205,10 @@ class OpenIDClient:
         try:
             oidc_server = server_config.get("openid", "server_url")
             oidc_realm = server_config.get("openid", "realm")
-            # Get a custom cert location to verify Keycloak ssl if its define
-            # in the config file. Otherwise, we default to using system-wide
-            # certificates.
-            cert = server_config.get("openid", "cert_location", fallback=True)
+            # Look for a custom CA to use in the verification of the TLS
+            # connection to the OIDC server.  If it is undefined, the value of
+            # True will result in using the default TLS verification.
+            ca_cert = server_config.get("openid", "tls_ca_file", fallback=True)
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
@@ -238,7 +238,7 @@ class OpenIDClient:
             try:
                 response = session.get(
                     f"{oidc_server}/realms/{oidc_realm}/.well-known/openid-configuration",
-                    verify=cert,
+                    verify=ca_cert,
                 )
                 response.raise_for_status()
             except Exception as exc:
@@ -270,6 +270,10 @@ class OpenIDClient:
             server_url = server_config.get("openid", "server_url")
             client = server_config.get("openid", "client")
             realm = server_config.get("openid", "realm")
+            # Look for a custom CA to use in the verification of the TLS
+            # connection to the OIDC server.  If it is undefined, the value of
+            # True will result in using the default TLS verification.
+            ca_cert = server_config.get("openid", "tls_ca_file", fallback=True)
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
@@ -277,7 +281,7 @@ class OpenIDClient:
             server_url=server_url,
             client_id=client,
             realm_name=realm,
-            verify=False,
+            verify=ca_cert
         )
         oidc_client.set_oidc_public_key()
         return oidc_client
