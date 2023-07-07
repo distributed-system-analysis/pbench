@@ -4,7 +4,6 @@ from configparser import NoOptionError, NoSectionError
 from http import HTTPStatus
 import logging
 from typing import Any, Optional
-from urllib.parse import urljoin
 
 import jwt
 import requests
@@ -54,7 +53,7 @@ class Connection:
 
         Args:
             method : The API HTTP method
-            path : Path for the request.
+            path : Path for the request (must begin with a slash).
             data : Form data to send with the request in case of the POST
             json : JSON data to send with the request in case of the POST
             kwargs : Additional keyword args
@@ -65,7 +64,7 @@ class Connection:
         final_headers = self.headers.copy()
         if headers is not None:
             final_headers.update(headers)
-        url = urljoin(self.server_url, path)
+        url = self.server_url + path
         request_dict = dict(
             params=kwargs,
             data=data,
@@ -322,7 +321,7 @@ class OpenIDClient:
         )
 
     def set_oidc_public_key(self):
-        realm_public_key_uri = f"realms/{self._realm_name}"
+        realm_public_key_uri = f"/realms/{self._realm_name}"
         response_json = self._connection.get(realm_public_key_uri).json()
         public_key = response_json["public_key"]
         pem_public_key = "-----BEGIN PUBLIC KEY-----\n"

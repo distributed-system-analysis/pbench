@@ -10,7 +10,6 @@ import shutil
 from stat import ST_MTIME
 import tarfile
 from typing import Dict, Optional
-from urllib.parse import urljoin
 import uuid
 
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -165,7 +164,7 @@ def add_auth_connection_mock(server_config, rsa_keys):
     with responses.RequestsMock() as mock:
         oidc_server = server_config.get("openid", "server_url")
         oidc_realm = server_config.get("openid", "realm")
-        url = urljoin(oidc_server, f"realms/{oidc_realm}")
+        url = oidc_server + "/realms/" + oidc_realm
 
         mock.add(
             responses.GET,
