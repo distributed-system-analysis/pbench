@@ -278,10 +278,7 @@ class OpenIDClient:
             raise OpenIDClient.NotConfigured() from exc
 
         oidc_client = cls(
-            server_url=server_url,
-            client_id=client,
-            realm_name=realm,
-            verify=ca_cert
+            server_url=server_url, client_id=client, realm_name=realm, verify=ca_cert
         )
         oidc_client.set_oidc_public_key()
         return oidc_client
