@@ -92,11 +92,6 @@ const App = () => {
                       element={<TableOfContent />}
                     />
                     <Route
-                      path={APP_ROUTES.TABLE_OF_CONTENT}
-                      element={<TableOfContent />}
-                    />
-
-                    <Route
                       path={APP_ROUTES.ANALYSIS}
                       element={<ComingSoonPage />}
                     />

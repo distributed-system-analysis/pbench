@@ -1,6 +1,6 @@
 import * as TYPES from "./types";
 
-import { DANGER, ERROR_MSG, SUCCESS } from "assets/constants/toastConstants";
+import { DANGER, SUCCESS } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
 import { getDatasets } from "./overviewActions";
@@ -26,10 +26,9 @@ export const uploadFile = (fileURI) => async (dispatch, getState) => {
       }
     }
   } catch (error) {
-    const toastMessage = error.response
-      ? error.response.data.message
-      : ERROR_MSG;
-    dispatch(showToast(DANGER, toastMessage));
+    dispatch(
+      showToast(DANGER, error?.response?.data?.message ?? `Error: ${error}`)
+    );
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
   dispatch({ type: TYPES.COMPLETED });

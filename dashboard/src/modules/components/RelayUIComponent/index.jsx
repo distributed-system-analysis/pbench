@@ -9,7 +9,9 @@ import {
   FormGroup,
   Modal,
   ModalVariant,
+  Popover,
   TextInput,
+  Title,
 } from "@patternfly/react-core";
 import {
   handleInputChange,
@@ -18,8 +20,40 @@ import {
 } from "actions/relayActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
 import React from "react";
 
+const AboutComponent = () => (
+  <div className="about-container">
+    <p>
+      The Pbench Agent can push datasets to a Pbench Server directly, when the
+      server is accessible from the system where the Pbench Agent is being used.
+    </p>
+    <p>
+      When a firewall prevents this direct access, the Pbench Agent can store a
+      dataset tarball and a manifest file on a file relay server which can be
+      reached by both the Pbench Agent and the Pbench Server.{" "}
+    </p>
+    <p>
+      Enter the relay server URI reported by the Pbench Agent and press Submit
+      to begin the import.
+    </p>
+  </div>
+);
+const PopoverComponent = () => {
+  return (
+    <Popover
+      aria-label="Basic popover"
+      headerContent={<div>About</div>}
+      bodyContent={<AboutComponent />}
+      maxWidth="4vw"
+    >
+      <Button variant="plain" aria-label="About">
+        <OutlinedQuestionCircleIcon />
+      </Button>
+    </Popover>
+  );
+};
 const RelayComponent = () => {
   const { isRelayModalOpen, relayInput } = useSelector(
     (state) => state.overview
@@ -32,16 +66,19 @@ const RelayComponent = () => {
     dispatch(handleInputChange(""));
     dispatch(toggleRelayModal(false));
   };
+
   return (
     <Modal
       className="relay-ui-container"
-      title="Relay"
+      title={""}
       variant={ModalVariant.small}
       isOpen={isRelayModalOpen}
       onClose={handleClose}
     >
-      {/* Need to update the about content */}
-      <div>To pull the dataset</div>
+      <div className="modal-heading">
+        <Title headingLevel="h3">Relay</Title>
+        <PopoverComponent />
+      </div>
       <div className="card-wrapper">
         <Card>
           <CardBody>
