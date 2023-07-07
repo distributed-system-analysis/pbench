@@ -22,6 +22,10 @@ Requires: python39 python39-six python39-urllib3
 # running RHEL 8.
 BuildRequires: python3-rpm-macros python3-devel
 
+%if 0%{?fedora} >= 37
+BuildRequires: python3.9
+%endif
+
 %define __python3  /usr/bin/python3.9
 
 # policycoreutils for semanage and restorecon - used in pbench-server-activate-create-results-dir
