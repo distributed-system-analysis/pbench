@@ -70,7 +70,7 @@ const RelayComponent = () => {
   return (
     <Modal
       className="relay-ui-container"
-      title={""}
+      aria-label="Relay"
       variant={ModalVariant.small}
       isOpen={isRelayModalOpen}
       onClose={handleClose}
