@@ -240,7 +240,7 @@ class OpenIDClient:
                 )
                 response.raise_for_status()
             except Exception as exc:
-                raise OpenIDClient.ServerConnectionError() from exc
+                raise OpenIDClient.ServerConnectionError(str(exc)) from exc
             if response.json().get("issuer") == f"{oidc_server}/realms/{oidc_realm}":
                 logger.debug("OIDC server connection verified")
                 connected = True
