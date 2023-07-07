@@ -4,13 +4,12 @@ from configparser import NoOptionError, NoSectionError
 from http import HTTPStatus
 import logging
 from typing import Any, Optional
-from urllib.parse import urljoin
 
 import jwt
 import requests
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 from requests.structures import CaseInsensitiveDict
+from urllib3.util.retry import Retry
 
 from pbench.server import JSON, PbenchServerConfig
 
