@@ -2,6 +2,7 @@
 Description=Pbench Server indexer timer
 After=pbench-server.service
 Requires=pbench-index.service
+BindsTo=pbench-server.service
 
 [Timer]
 Unit=pbench-index.service
@@ -10,4 +11,3 @@ OnCalendar=*-*-* *:*:15
 
 [Install]
 WantedBy=timers.target
-BindsTo=pbench-server.service
