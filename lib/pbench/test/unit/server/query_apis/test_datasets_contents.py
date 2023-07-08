@@ -162,7 +162,7 @@ class TestDatasetsContents(Commons):
                 "directories": [
                     {
                         "name": "sample1",
-                        "uri": "https://localhost/datasets/random_md5_string1/contents/1-default/sample1",
+                        "uri": "https://localhost/api/v1/datasets/random_md5_string1/contents/1-default/sample1",
                     }
                 ],
                 "files": [
@@ -173,7 +173,7 @@ class TestDatasetsContents(Commons):
                         "mode": "0o777",
                         "type": "sym",
                         "linkpath": "sample1",
-                        "uri": "https://localhost/datasets/random_md5_string1/inventory/1-default/reference-result",
+                        "uri": "https://localhost/api/v1/datasets/random_md5_string1/inventory/1-default/reference-result",
                     }
                 ],
             }
@@ -280,7 +280,7 @@ class TestDatasetsContents(Commons):
                 "directories": [
                     {
                         "name": "sample1",
-                        "uri": "https://localhost/datasets/random_md5_string1/contents/1-default/sample1",
+                        "uri": "https://localhost/api/v1/datasets/random_md5_string1/contents/1-default/sample1",
                     }
                 ],
                 "files": [],
@@ -367,7 +367,7 @@ class TestDatasetsContents(Commons):
                         "size": 122,
                         "mode": "0o644",
                         "type": "reg",
-                        "uri": "https://localhost/datasets/random_md5_string1/inventory/1-default/default.csv",
+                        "uri": "https://localhost/api/v1/datasets/random_md5_string1/inventory/1-default/default.csv",
                     }
                 ],
             }

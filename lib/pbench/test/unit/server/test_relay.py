@@ -95,6 +95,7 @@ class TestRelay:
         relay manifest referencing a secondary relay URI containing a tarball.
         """
         file, md5file, md5 = tarball
+        name = Dataset.stem(file)
         responses.add(
             responses.GET,
             "https://relay.example.com/uri1",
@@ -122,6 +123,15 @@ class TestRelay:
         assert (
             response.status_code == HTTPStatus.CREATED
         ), f"Unexpected result, {response.text}"
+        assert response.json == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+        }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         audit = Audit.query()
         assert len(audit) == 2
@@ -132,7 +142,7 @@ class TestRelay:
         assert audit[0].name == "relay"
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
-        assert audit[0].object_name == Dataset.stem(file)
+        assert audit[0].object_name == name
         assert audit[0].user_id == DRB_USER_ID
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None

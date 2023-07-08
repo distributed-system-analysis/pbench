@@ -410,6 +410,7 @@ class TestUpload:
         information.
         """
         datafile, _, md5 = tarball
+        name = Dataset.stem(datafile)
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
@@ -419,7 +420,15 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response.text)
-        name = Dataset.stem(datafile)
+        assert response.json == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+        }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         dataset = Dataset.query(resource_id=md5)
         assert dataset is not None
@@ -511,6 +520,15 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
+        assert response.json == {
+            "message": "File successfully uploaded",
+            "name": Dataset.stem(datafile),
+            "resource_id": md5,
+        }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         # Reset manually since we upload twice in this test
         TestUpload.cachemanager_created = None
@@ -523,7 +541,15 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.OK, repr(response)
-        assert response.json.get("message") == "Dataset already exists"
+        assert response.json == {
+            "message": "Dataset already exists",
+            "name": Dataset.stem(datafile),
+            "resource_id": md5,
+        }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         # We didn't get far enough to create a CacheManager
         assert TestUpload.cachemanager_created is None
@@ -658,6 +684,7 @@ class TestUpload:
         """Test a successful upload of a dataset without metadata.log."""
         datafile, _, md5 = tarball
         TestUpload.create_metadata = False
+        name = Dataset.stem(datafile)
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
@@ -667,7 +694,15 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response.data)
-        name = Dataset.stem(datafile)
+        assert response.json == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+        }
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
 
         dataset = Dataset.query(resource_id=md5)
         assert dataset is not None
