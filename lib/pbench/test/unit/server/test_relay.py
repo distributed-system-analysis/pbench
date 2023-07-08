@@ -216,6 +216,24 @@ class TestRelay:
         }
 
     @responses.activate
+    def test_relay_manifest_connection(self, client, server_config, pbench_drb_token):
+        """Verify behavior when the primary relay URI doesn't respond"""
+        responses.add(
+            responses.GET,
+            "https://relay.example.com/uri1",
+            body=ConnectionError("nobody holme"),
+        )
+        response = client.post(
+            self.gen_uri(server_config, "https://relay.example.com/uri1"),
+            headers=self.gen_headers(pbench_drb_token),
+        )
+        assert response.status_code == HTTPStatus.BAD_GATEWAY
+        assert (
+            response.json["message"]
+            == "Unable to connect to manifest URI: 'nobody holme'"
+        )
+
+    @responses.activate
     def test_relay_no_manifest(self, client, server_config, pbench_drb_token):
         """Verify behavior when the primary relay URI isn't found"""
         responses.add(
@@ -321,3 +339,37 @@ class TestRelay:
         assert (
             response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
         ), f"Unexpected result, {response.text}"
+
+    @responses.activate
+    def test_relay_tarball_connection(
+        self, client, server_config, pbench_drb_token, monkeypatch
+    ):
+        """Verify behavior when we get a connection error reading the tarball"""
+
+        responses.add(
+            responses.GET,
+            "https://relay.example.com/uri1",
+            status=HTTPStatus.OK,
+            json={
+                "name": "tarball.tar.xz",
+                "md5": "anmd5",
+                "access": "private",
+                "metadata": [],
+                "uri": "https://relay.example.com/uri2",
+            },
+        )
+        responses.add(
+            responses.GET,
+            "https://relay.example.com/uri2",
+            body=ConnectionError("leaky wire"),
+        )
+        response = client.post(
+            self.gen_uri(server_config, "https://relay.example.com/uri1"),
+            headers=self.gen_headers(pbench_drb_token),
+        )
+        assert (
+            response.status_code == HTTPStatus.BAD_GATEWAY
+        ), f"Unexpected result, {response.text}"
+        assert (
+            response.json["message"] == "Unable to connect to results URI: 'leaky wire'"
+        )
