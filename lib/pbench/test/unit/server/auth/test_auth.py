@@ -734,16 +734,22 @@ class TestAuthModule:
         app.logger = make_logger
         app.server_config = server_config
 
+        # The User cache for the OIDC UUID we're using shouldn't exist yet.
+        # Create a User cache entry with the same username, but a different
+        # OIDC UUID.
         assert not User.query(id="12345")
-        User(username="dummy", id="abcde").add()
-        orig = User.query(id="12345")
-        copy = User.query(id="abcde")
-        assert orig != copy, f"{orig} == {copy}"
+        orig = User(username="dummy", id="abcde")
+        orig.add()
         with app.app_context():
             with pytest.raises(
                 Unauthorized, match="The username 'dummy' already exists"
             ):
                 Auth.verify_auth(token)
+
+        # Assert that the "dummy" we created wasn't updated by the conflict,
+        # and that the token's UUID still doesn't exist.
+        assert orig == User.query(id="abcde")
+        assert not User.query(id="12345")
 
     def test_verify_auth_oidc_invalid(
         self, monkeypatch, server_config, rsa_keys, make_logger
