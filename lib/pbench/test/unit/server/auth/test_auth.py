@@ -9,11 +9,13 @@ import pytest
 import requests
 from requests.structures import CaseInsensitiveDict
 import responses
+from werkzeug.exceptions import Unauthorized
 
 from pbench.server import JSON, PbenchServerConfig
 import pbench.server.auth
 from pbench.server.auth import Connection, OpenIDClient, OpenIDClientError
 import pbench.server.auth.auth as Auth
+from pbench.server.database.models.users import User
 from pbench.test.unit.server import DRB_USER_ID
 from pbench.test.unit.server.conftest import jwt_secret
 
@@ -711,6 +713,43 @@ class TestAuthModule:
         assert user.id == "12345"
         assert user.roles == ["ROLE", "ADMIN"]
         assert user.username == "friend"
+
+    def test_verify_auth_oidc_user_duplicate(
+        self, monkeypatch, server_config, db_session, rsa_keys, make_logger
+    ):
+        """Verify behavior when an OIDC username already exists with a
+        different UUID."""
+        client_id = "us"
+        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+
+        # Mock the Connection object and generate an OpenIDClient object,
+        # installing it as Auth module's OIDC client.
+        config = mock_connection(
+            monkeypatch, client_id, public_key=rsa_keys["public_key"]
+        )
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
+
+        app = Flask("test-verify-auth-oidc-user-dup")
+        app.logger = make_logger
+        app.server_config = server_config
+
+        # The User cache for the OIDC UUID we're using shouldn't exist yet.
+        # Create a User cache entry with the same username, but a different
+        # OIDC UUID.
+        assert not User.query(id="12345")
+        orig = User(username="dummy", id="abcde")
+        orig.add()
+        with app.app_context():
+            with pytest.raises(
+                Unauthorized, match="The username 'dummy' already exists"
+            ):
+                Auth.verify_auth(token)
+
+        # Assert that the "dummy" we created wasn't updated by the conflict,
+        # and that the token's UUID still doesn't exist.
+        assert orig == User.query(id="abcde")
+        assert not User.query(id="12345")
 
     def test_verify_auth_oidc_invalid(
         self, monkeypatch, server_config, rsa_keys, make_logger
