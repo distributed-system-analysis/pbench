@@ -82,7 +82,7 @@ ${_DISTROS:%=image-rpmbuild-%}: image-rpmbuild-%:
 		buildah run $$container ${PKGMGR} install -y ${RPMBUILD_PACKAGES} && \
 		buildah run $$container ${PKGMGR} clean all && \
 		buildah run $$container python3 -m pip install jinja2-cli && \
-		buildah commit $$container ${PB_CONTAINER_REG}/pbench-rpmbuild:${*}
+		buildah commit --rm $$container ${PB_CONTAINER_REG}/pbench-rpmbuild:${*}
 
 ci.fedora.Dockerfile: ci.Dockerfile.j2
 	jinja2 ci.Dockerfile.j2 \

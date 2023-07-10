@@ -84,4 +84,4 @@ buildah run $container systemctl enable pbench-server
 buildah run $container systemctl enable pbench-index.timer
 
 # Create the container image.
-buildah commit $container ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+buildah commit --rm $container ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}

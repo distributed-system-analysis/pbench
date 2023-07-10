@@ -130,6 +130,7 @@ pipeline {
                     | sort -u \
                     | xargs podman image rm -f \
                     || true'
+            sh 'buildah rm --all'
         }
     }
 }
