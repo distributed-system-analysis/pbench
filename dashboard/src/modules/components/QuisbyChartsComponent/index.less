@@ -31,7 +31,26 @@
 .chart-container {
   width: 100%;
   padding: 1vh;
- 
+  .pf-c-sidebar__panel {
+    padding: 1vh;
+    margin-right: 2.5vh;
+  }
+  .pf-c-sidebar {
+    .heading {
+      margin-bottom: 0.5vh;
+      font-weight: 600;
+    }
+    .dataset-item {
+      padding-top: 15px;
+    }
+    .active-item {
+      border-left: 4px solid #06c;
+      padding-left: 10px;
+      margin-left: 0px;
+      background-color: #f0f0f0;
+      margin-top: 0;
+    }
+  }
   .chart-card {
     display: flex;
     align-items: center;
@@ -53,4 +72,7 @@
       text-align: center;
     }
   }
+}
+.dataset-item:hover {
+  cursor: pointer;
 }

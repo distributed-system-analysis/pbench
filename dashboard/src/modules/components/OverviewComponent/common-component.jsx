@@ -30,14 +30,11 @@ import {
   SERVER_DELETION,
 } from "assets/constants/overviewConstants";
 import React, { useState } from "react";
-import {
-  constructQuisbyRequest,
-  getQuisbyData,
-} from "actions/quisbyChartActions";
 import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import { formatDateTime } from "utils/dateFunctions";
+import { getQuisbyData } from "actions/quisbyChartActions";
 import { useNavigate } from "react-router-dom";
 
 export const Heading = (props) => {
@@ -109,18 +106,14 @@ const actions = [
 export const NewRunsHeading = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { selectedRuns } = useSelector((state) => state.overview);
   const dropdownItems = actions.map((item) => {
     return (
       <DropdownItem
         key={item.key}
-        onClick={() =>
-          item.key === "quisbyCompare"
-            ? dispatch(constructQuisbyRequest(navigate))
-            : dispatch(updateMultipleDataset(item.key, item.value))
-        }
+        onClick={() => dispatch(updateMultipleDataset(item.key, item.value))}
       >
         {item.name}
       </DropdownItem>

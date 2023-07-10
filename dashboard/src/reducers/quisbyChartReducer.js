@@ -3,7 +3,8 @@ import * as TYPES from "../actions/types";
 const initialState = {
   data: [],
   chartData: [],
-  docLink: "",
+  activeResourceId: "",
+  unsupportedType: "",
 };
 
 const QuisbyChartReducer = (state = initialState, action = {}) => {
@@ -19,10 +20,15 @@ const QuisbyChartReducer = (state = initialState, action = {}) => {
         ...state,
         chartData: payload,
       };
-    case TYPES.SET_QUISBY_DOC_LINK:
+    case TYPES.SET_ACTIVE_RESOURCEID:
       return {
         ...state,
-        docLink: payload,
+        activeResourceId: payload,
+      };
+    case TYPES.IS_UNSUPPORTED_TYPE:
+      return {
+        ...state,
+        unsupportedType: payload,
       };
     default:
       return state;

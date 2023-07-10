@@ -1,104 +1,51 @@
 import "./index.less";
 
-import * as APP_ROUTES from "utils/routeConstants";
-
 import {
-  BarElement,
-  CategoryScale,
-  Chart as ChartJS,
-  Legend,
-  LinearScale,
-  Title,
-  Tooltip,
-} from "chart.js";
-import {
-  Card,
   Divider,
   Flex,
   FlexItem,
-  Gallery,
-  GalleryItem,
+  Sidebar,
+  SidebarContent,
+  SidebarPanel,
 } from "@patternfly/react-core";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
 
-import { Bar } from "react-chartjs-2";
+import ChartGallery from "./ChartGallery";
+import PanelConent from "./PanelContent";
+import { getDatasets } from "actions/overviewActions";
 import { getQuisbyData } from "actions/quisbyChartActions";
-import { showToast } from "actions/toastActions";
-
-ChartJS.register(
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale
-);
+import { useNavigate } from "react-router-dom";
 
 const QuisbyChartsComponent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { datasetName, datasetId } = useParams();
 
-  const { chartData, docLink } = useSelector((state) => state.quisbyChart);
+  const { datasets } = useSelector((state) => state.overview);
 
   useEffect(() => {
-    if (window.location.href.includes("results")) {
-      if (!docLink) {
-        dispatch(getQuisbyData([{ name: datasetName, rid: datasetId }]));
-      }
-    } else if (!docLink) {
-      dispatch(
-        showToast("danger", "Please select runs to compare from Overview page")
-      );
-      setTimeout(() => {
-        navigate("/dashboard/" + APP_ROUTES.OVERVIEW);
-      }, 1000);
+    if (Array.isArray(datasets) && datasets.length > 0) {
+      dispatch(getQuisbyData(datasets[0]));
+    } else {
+      dispatch(getDatasets());
     }
-  }, [datasetId, datasetName, dispatch, docLink, navigate]);
+  }, [datasets, dispatch, navigate]);
   return (
     <div className="chart-container">
       <Flex className="heading-container">
-        <FlexItem className="heading">Quisby Results</FlexItem>
-        <FlexItem align={{ default: "alignRight" }}>
-          {" "}
-          <a href={docLink} rel="noreferrer" target="_blank">
-            View in Google Sheet
-          </a>
-        </FlexItem>
+        <FlexItem className="heading">Data comparison</FlexItem>
       </Flex>
       <Divider component="div" className="header-separator" />
-      {chartData && chartData.length > 0 && (
-        <Gallery
-          className="chart-wrapper"
-          hasGutter
-          minWidths={{
-            default: "100%",
-            md: "30rem",
-            xl: "35rem",
-          }}
-          maxWidths={{
-            md: "40rem",
-            xl: "1fr",
-          }}
-        >
-          {chartData.map((chart) => {
-            return (
-              <Card
-                className="chart-card"
-                isRounded
-                isLarge
-                key={chart.data.id}
-              >
-                <GalleryItem className="galleryItem chart-holder">
-                  <Bar options={chart.options} data={chart.data} width={450} />
-                </GalleryItem>
-              </Card>
-            );
-          })}
-        </Gallery>
-      )}
+      <Sidebar>
+        <SidebarPanel>
+          <div className="heading">Datasets</div>
+          <PanelConent />
+        </SidebarPanel>
+        <SidebarContent>
+          <div className="heading">Results</div>
+          <ChartGallery />
+        </SidebarContent>
+      </Sidebar>
     </div>
   );
 };

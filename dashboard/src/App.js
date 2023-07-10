@@ -101,15 +101,11 @@ const App = () => {
                     path={APP_ROUTES.SEARCH}
                     element={<ComingSoonPage />}
                   />
+                  <Route
+                    path={APP_ROUTES.COMPARISON}
+                    element={<QuisbyChartsComponent />}
+                  />
                 </Route>
-                <Route
-                  path={APP_ROUTES.QUISBY_CHARTS}
-                  element={<QuisbyChartsComponent />}
-                />
-                <Route
-                  path={APP_ROUTES.QUISBY_COMPARE}
-                  element={<QuisbyChartsComponent />}
-                />
 
                 <Route path="*" element={<NoMatchingPage />} />
               </Route>
