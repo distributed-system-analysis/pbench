@@ -7,11 +7,11 @@ import { getDatasets } from "./overviewActions";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "../utils/helper";
 
-export const uploadFile = (fileURI) => async (dispatch, getState) => {
+export const uploadFile = () => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
-
+    const fileURI = getState().overview.relayInput;
     const uri = uriTemplate(endpoints, "relay", { uri: fileURI });
     const response = await API.post(uri, null, null);
     if (response.status >= 200 && response.status < 300) {
