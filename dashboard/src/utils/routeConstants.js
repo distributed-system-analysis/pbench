@@ -10,4 +10,4 @@ export const ANALYSIS = "analysis";
 export const SEARCH = "search";
 export const RESULTS = "results";
 export const EXPLORE = "explore";
-export const COMPARISON = "comparsion";
+export const COMPARISON = "comparison";

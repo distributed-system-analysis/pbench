@@ -7,10 +7,10 @@ const initialState = {
   unsupportedType: "",
 };
 
-const QuisbyChartReducer = (state = initialState, action = {}) => {
+const ComparisonReducer = (state = initialState, action = {}) => {
   const { type, payload } = action;
   switch (type) {
-    case TYPES.GET_QUISBY_DATA:
+    case TYPES.SET_QUISBY_DATA:
       return {
         ...state,
         data: payload,
@@ -35,4 +35,4 @@ const QuisbyChartReducer = (state = initialState, action = {}) => {
   }
 };
 
-export default QuisbyChartReducer;
+export default ComparisonReducer;

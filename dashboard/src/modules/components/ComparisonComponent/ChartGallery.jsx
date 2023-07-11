@@ -36,7 +36,7 @@ const EmptyStateExtraSmall = (props) => (
 );
 const ChartGallery = () => {
   const { chartData, unsupportedType } = useSelector(
-    (state) => state.quisbyChart
+    (state) => state.comparison
   );
   return (
     <>
@@ -58,24 +58,22 @@ const ChartGallery = () => {
                 xl: "1fr",
               }}
             >
-              {chartData.map((chart) => {
-                return (
-                  <Card
-                    className="chart-card"
-                    isRounded
-                    isLarge
-                    key={chart.data.id}
-                  >
-                    <GalleryItem className="galleryItem chart-holder">
-                      <Bar
-                        options={chart.options}
-                        data={chart.data}
-                        width={450}
-                      />
-                    </GalleryItem>
-                  </Card>
-                );
-              })}
+              {chartData.map((chart) => (
+                <Card
+                  className="chart-card"
+                  isRounded
+                  isLarge
+                  key={chart.data.id}
+                >
+                  <GalleryItem className="galleryItem chart-holder">
+                    <Bar
+                      options={chart.options}
+                      data={chart.data}
+                      width={450}
+                    />
+                  </GalleryItem>
+                </Card>
+              ))}
             </Gallery>
           )}
         </>

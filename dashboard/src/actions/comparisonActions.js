@@ -27,7 +27,7 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
     );
     if (response.status === 200 && response.data.json_data) {
       dispatch({
-        type: TYPES.GET_QUISBY_DATA,
+        type: TYPES.SET_QUISBY_DATA,
         payload: response.data.json_data,
       });
       dispatch({
@@ -36,11 +36,12 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
       });
       dispatch(parseChartData());
     }
-    dispatch({ type: TYPES.COMPLETED });
   } catch (error) {
-    if (error?.response) {
-      const errorMsg = error.response.data.message;
-      const isUnsupportedType = errorMsg?.toLowerCase().includes("unsupported");
+    if (error?.response && error.response?.data) {
+      const errorMsg = error.response.data?.message;
+      const isUnsupportedType = errorMsg
+        ?.toLowerCase()
+        .includes("unsupported benchmark");
       if (isUnsupportedType) {
         dispatch({
           type: TYPES.IS_UNSUPPORTED_TYPE,
@@ -50,18 +51,15 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
     } else {
       dispatch(showToast(DANGER, ERROR_MSG));
     }
-
-    dispatch({ type: TYPES.COMPLETED });
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
+  dispatch({ type: TYPES.COMPLETED });
 };
 
 export const parseChartData = () => (dispatch, getState) => {
-  const response = getState().quisbyChart.data.data;
-  const COLORS = ["#8BC1F7", "#0066CC", "#519DE9", "#004B95", "#002F5D"];
-
+  const response = getState().comparison.data.data;
   const chartData = [];
-  const i = 0; // used to iterate over the colors, will be used for comparsion
+
   for (const run of response) {
     const options = {
       responsive: true,
@@ -78,7 +76,7 @@ export const parseChartData = () => (dispatch, getState) => {
 
         title: {
           display: true,
-          text: `Uperf: ${chartTitleMap[run.metrics_unit?.toLowerCase()]} | ${
+          text: `Uperf: ${chartTitleMap[run.metrics_unit.toLowerCase()]} | ${
             run.test_name
           }`,
         },
@@ -102,18 +100,18 @@ export const parseChartData = () => (dispatch, getState) => {
     const datasets = [
       {
         label: run.instances[0].dataset_name,
-        data: run?.instances.map((i) => i.time_taken),
-        backgroundColor: COLORS[i],
+        data: run.instances.map((i) => i.time_taken),
+        backgroundColor: "#8BC1F7",
       },
     ];
 
     const data = {
-      labels: run?.instances.map((i) => i.name),
+      labels: run.instances.map((i) => i.name),
       id: `${run.test_name}_${run.metrics_unit}`,
       datasets,
     };
-    const id = `${run.test_name}_${run.metrics_unit}`;
-    const obj = { options, data, id };
+
+    const obj = { options, data };
     chartData.push(obj);
   }
 

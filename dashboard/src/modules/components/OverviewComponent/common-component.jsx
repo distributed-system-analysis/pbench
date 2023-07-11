@@ -34,8 +34,6 @@ import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import { formatDateTime } from "utils/dateFunctions";
-import { getQuisbyData } from "actions/quisbyChartActions";
-import { useNavigate } from "react-router-dom";
 
 export const Heading = (props) => {
   return (
@@ -95,11 +93,6 @@ const actions = [
     name: "Delete",
     key: "delete",
     value: true,
-  },
-  {
-    name: "Quisby Compare",
-    key: "quisbyCompare",
-    value: false,
   },
 ];
 
@@ -281,9 +274,6 @@ export const NewRunsRow = (props) => {
         }}
       />
       <Td>
-        <QuisbyResultsBtn name={item.name} rId={item.resource_id} />
-      </Td>
-      <Td>
         <EditRow
           item={item}
           toggleEdit={props.toggleEdit}
@@ -344,9 +334,6 @@ export const SavedRunsRow = (props) => {
         }}
       />
       <Td>
-        <QuisbyResultsBtn name={item.name} rId={item.resource_id} />
-      </Td>
-      <Td>
         <EditRow
           item={item}
           toggleEdit={props.toggleEdit}
@@ -365,24 +352,3 @@ export const SelectDateComponent = (props) => (
     <DatePicker value={props.value} onChange={props.onDateSelect} />
   </div>
 );
-export const QuisbyResultsBtn = (props) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const loadData = (newPageUrl) => {
-    const params = [{ name: props.name, rid: props.rId }];
-
-    dispatch(getQuisbyData(params, navigate));
-  };
-  return (
-    <Button
-      variant="link"
-      icon={<FileIcon />}
-      iconPosition="right"
-      onClick={() =>
-        loadData(`/dashboard/quisby-results/${props.name}/${props.id}`)
-      }
-    >
-      Quisby Results
-    </Button>
-  );
-};

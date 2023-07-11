@@ -4,12 +4,12 @@ import { List, ListItem } from "@patternfly/react-core";
 import { useDispatch, useSelector } from "react-redux";
 
 import React from "react";
-import { getQuisbyData } from "actions/quisbyChartActions";
+import { getQuisbyData } from "actions/comparisonActions";
 
 const PanelConent = () => {
   const dispatch = useDispatch();
   const { datasets } = useSelector((state) => state.overview);
-  const { activeResourceId } = useSelector((state) => state.quisbyChart);
+  const { activeResourceId } = useSelector((state) => state.comparison);
 
   return (
     <>

@@ -16,12 +16,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { AuthForm } from "modules/components/AuthComponent/common-components";
 import AuthLayout from "modules/containers/AuthLayout";
 import ComingSoonPage from "modules/components/EmptyPageComponent/ComingSoon";
+import ComparisonComponent from "modules/components/ComparisonComponent";
 import Cookies from "js-cookie";
 import MainLayout from "modules/containers/MainLayout";
 import NoMatchingPage from "modules/components/EmptyPageComponent/NoMatchingPage";
 import OverviewComponent from "modules/components/OverviewComponent";
 import ProfileComponent from "modules/components/ProfileComponent";
-import QuisbyChartsComponent from "modules/components/QuisbyChartsComponent";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
 import TableOfContent from "modules/components/TableOfContent";
 import TableWithFavorite from "modules/components/TableComponent";
@@ -103,7 +103,7 @@ const App = () => {
                   />
                   <Route
                     path={APP_ROUTES.COMPARISON}
-                    element={<QuisbyChartsComponent />}
+                    element={<ComparisonComponent />}
                   />
                 </Route>
 

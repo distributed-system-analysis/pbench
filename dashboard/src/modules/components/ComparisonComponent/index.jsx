@@ -14,17 +14,17 @@ import { useDispatch, useSelector } from "react-redux";
 import ChartGallery from "./ChartGallery";
 import PanelConent from "./PanelContent";
 import { getDatasets } from "actions/overviewActions";
-import { getQuisbyData } from "actions/quisbyChartActions";
+import { getQuisbyData } from "actions/comparisonActions";
 import { useNavigate } from "react-router-dom";
 
-const QuisbyChartsComponent = () => {
+const ComparisonComponent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { datasets } = useSelector((state) => state.overview);
 
   useEffect(() => {
-    if (Array.isArray(datasets) && datasets.length > 0) {
+    if (datasets && datasets.length > 0) {
       dispatch(getQuisbyData(datasets[0]));
     } else {
       dispatch(getDatasets());
@@ -50,4 +50,4 @@ const QuisbyChartsComponent = () => {
   );
 };
 
-export default QuisbyChartsComponent;
+export default ComparisonComponent;

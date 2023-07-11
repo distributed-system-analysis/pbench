@@ -1,10 +1,10 @@
+import ComparisonReducer from "./comparisonReducer";
 import DatasetListReducer from "./datasetListReducer";
 import EndpointReducer from "./endpointReducer";
 import KeyManagementReducer from "./keyManagementReducer";
 import LoadingReducer from "./loadingReducer";
 import NavbarReducer from "./navbarReducer";
 import OverviewReducer from "./overviewReducer";
-import QuisbyChartReducer from "./quisbyChartReducer";
 import SidebarReducer from "./sidebarReducer";
 import TableOfContentReducer from "./tableOfContentReducer";
 import ToastReducer from "./toastReducer";
@@ -20,5 +20,5 @@ export default combineReducers({
   tableOfContent: TableOfContentReducer,
   sidebar: SidebarReducer,
   keyManagement: KeyManagementReducer,
-  quisbyChart: QuisbyChartReducer,
+  comparison: ComparisonReducer,
 });
