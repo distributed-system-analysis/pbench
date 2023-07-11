@@ -15,7 +15,7 @@ import {
 } from "@patternfly/react-core";
 import {
   handleInputChange,
-  toggleRelayModal,
+  setRelayModalState,
   uploadFile,
 } from "actions/relayActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,39 +32,36 @@ const AboutComponent = () => (
     <p>
       When a firewall prevents this direct access, the Pbench Agent can store a
       dataset tarball and a manifest file on a file relay server which can be
-      reached by both the Pbench Agent and the Pbench Server.{" "}
+      reached by both the Pbench Agent and the Pbench Server.
     </p>
     <p>
       Enter the relay server URI reported by the Pbench Agent and press Submit
-      to begin the import.
+      to begin the upload.
     </p>
   </div>
 );
-const PopoverComponent = () => {
-  return (
-    <Popover
-      aria-label="Basic popover"
-      headerContent={<div>About</div>}
-      bodyContent={<AboutComponent />}
-      maxWidth="4vw"
-    >
-      <Button variant="plain" aria-label="About">
-        <OutlinedQuestionCircleIcon />
-      </Button>
-    </Popover>
-  );
-};
+const PopoverComponent = () => (
+  <Popover
+    aria-label="Basic popover"
+    headerContent={<div>About</div>}
+    bodyContent={<AboutComponent />}
+    maxWidth="4vw"
+  >
+    <Button variant="plain" aria-label="About">
+      <OutlinedQuestionCircleIcon />
+    </Button>
+  </Popover>
+);
+
 const RelayComponent = () => {
   const { isRelayModalOpen, relayInput } = useSelector(
     (state) => state.overview
   );
   const dispatch = useDispatch();
-  const pullServerData = () => {
-    dispatch(uploadFile());
-  };
+
   const handleClose = () => {
     dispatch(handleInputChange(""));
-    dispatch(toggleRelayModal(false));
+    dispatch(setRelayModalState(false));
   };
 
   return (
@@ -101,7 +98,7 @@ const RelayComponent = () => {
                 <Button
                   variant="primary"
                   isDisabled={!relayInput}
-                  onClick={pullServerData}
+                  onClick={() => dispatch(uploadFile())}
                 >
                   Submit
                 </Button>

@@ -12,13 +12,11 @@ export const uploadFile = (fileURI) => async (dispatch, getState) => {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
 
-    const uri = uriTemplate(endpoints, "relay", {
-      uri: fileURI,
-    });
+    const uri = uriTemplate(endpoints, "relay", { uri: fileURI });
     const response = await API.post(uri, null, null);
     if (response.status >= 200 && response.status < 300) {
       dispatch(showToast(SUCCESS, response.data.message));
-      dispatch(toggleRelayModal(false));
+      dispatch(setRelayModalState(false));
       dispatch(handleInputChange(""));
       if (response.status === 201) {
         // need to remove once response returns the uploaded dataset
@@ -33,7 +31,7 @@ export const uploadFile = (fileURI) => async (dispatch, getState) => {
   }
   dispatch({ type: TYPES.COMPLETED });
 };
-export const toggleRelayModal = (isOpen) => ({
+export const setRelayModalState = (isOpen) => ({
   type: TYPES.TOGGLE_RELAY_MODAL,
   payload: isOpen,
 });
