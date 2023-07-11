@@ -33,6 +33,7 @@ import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import { formatDateTime } from "utils/dateFunctions";
+import { setRelayModalState } from "actions/relayActions";
 
 export const Heading = (props) => {
   return (
@@ -127,6 +128,14 @@ export const NewRunsHeading = () => {
           onClick={() => dispatch(getDatasets())}
         >
           Refresh results
+        </Button>
+        <Button
+          disabled={Object.keys(endpoints).length <= 0}
+          className="relay-button"
+          variant="primary"
+          onClick={() => dispatch(setRelayModalState(true))}
+        >
+          Pull dataset
         </Button>
         <Dropdown
           onSelect={onSelect}

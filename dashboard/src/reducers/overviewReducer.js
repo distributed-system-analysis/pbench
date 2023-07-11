@@ -10,6 +10,8 @@ const initialState = {
   selectedSavedRuns: [],
   expiringRuns: [],
   loadingDone: !!sessionStorage.getItem("loadingDone"),
+  isRelayModalOpen: false,
+  relayInput: "",
 };
 
 const OverviewReducer = (state = initialState, action = {}) => {
@@ -59,6 +61,16 @@ const OverviewReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         loadingDone: payload,
+      };
+    case TYPES.TOGGLE_RELAY_MODAL:
+      return {
+        ...state,
+        isRelayModalOpen: payload,
+      };
+    case TYPES.SET_RELAY_DATA:
+      return {
+        ...state,
+        relayInput: payload,
       };
     default:
       return state;
