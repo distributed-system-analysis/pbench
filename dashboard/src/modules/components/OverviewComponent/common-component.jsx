@@ -18,7 +18,6 @@ import {
 import {
   CaretDownIcon,
   CheckIcon,
-  FileIcon,
   PencilAltIcon,
   RedoIcon,
   TimesIcon,
