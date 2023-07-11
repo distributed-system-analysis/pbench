@@ -99,6 +99,7 @@ const actions = [
 export const NewRunsHeading = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
+
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { selectedRuns } = useSelector((state) => state.overview);
   const dropdownItems = actions.map((item) => {

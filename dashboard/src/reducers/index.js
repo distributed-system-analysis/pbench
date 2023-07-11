@@ -1,3 +1,4 @@
+import ComparisonReducer from "./comparisonReducer";
 import DatasetListReducer from "./datasetListReducer";
 import EndpointReducer from "./endpointReducer";
 import KeyManagementReducer from "./keyManagementReducer";
@@ -19,4 +20,5 @@ export default combineReducers({
   tableOfContent: TableOfContentReducer,
   sidebar: SidebarReducer,
   keyManagement: KeyManagementReducer,
+  comparison: ComparisonReducer,
 });

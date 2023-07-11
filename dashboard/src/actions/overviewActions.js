@@ -25,7 +25,7 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("metadata", CONSTANTS.USER_FAVORITE);
 
     params.append("mine", "true");
-
+    dispatch(setSelectedRuns([]));
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(uriTemplate(endpoints, "datasets_list"), {
       params,

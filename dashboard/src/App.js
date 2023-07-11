@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AuthForm } from "modules/components/AuthComponent/common-components";
 import AuthLayout from "modules/containers/AuthLayout";
 import ComingSoonPage from "modules/components/EmptyPageComponent/ComingSoon";
+import ComparisonComponent from "modules/components/ComparisonComponent";
 import Cookies from "js-cookie";
 import MainLayout from "modules/containers/MainLayout";
 import NoMatchingPage from "modules/components/EmptyPageComponent/NoMatchingPage";
@@ -100,7 +101,12 @@ const App = () => {
                     path={APP_ROUTES.SEARCH}
                     element={<ComingSoonPage />}
                   />
+                  <Route
+                    path={APP_ROUTES.COMPARISON}
+                    element={<ComparisonComponent />}
+                  />
                 </Route>
+
                 <Route path="*" element={<NoMatchingPage />} />
               </Route>
             </Routes>

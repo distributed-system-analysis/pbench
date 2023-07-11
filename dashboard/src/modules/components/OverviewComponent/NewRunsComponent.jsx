@@ -160,6 +160,7 @@ const NewRunsComponent = () => {
                 <Th width={20}></Th>
                 <Th width={5}></Th>
                 <Th width={2}></Th>
+                <Th width={2}></Th>
               </Tr>
             </Thead>
             <Tbody>

@@ -30,6 +30,13 @@ export const menuOptions = [
         submenuOf: "dashboard",
         link: "results",
       },
+      {
+        name: "Comparison",
+        submenu: true,
+        key: "comparison",
+        submenuOf: "dashboard",
+        link: "comparison",
+      },
     ],
   },
   {
