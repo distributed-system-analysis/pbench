@@ -76,12 +76,13 @@ class DatasetsVisualize(ApiBase):
         except Exception as e:
             raise APIInternalError(str(e)) from e
 
-        get_quisby_data = QuisbyProcessing().extract_data(
+        quisby_response = QuisbyProcessing().extract_data(
             benchmark_type, dataset.name, InputType.STREAM, file
         )
 
-        if get_quisby_data["status"] != "success":
+        if quisby_response["status"] != "success":
             raise APIInternalError(
-                f"Quisby processing failure. Exception: {get_quisby_data['exception']}"
+                f"Quisby processing failure. Exception: {quisby_response['exception']}"
             )
-        return jsonify(get_quisby_data)
+        quisby_response["benchmark"] = benchmark.lower()
+        return jsonify(quisby_response)

@@ -96,6 +96,7 @@ class TestVisualize:
 
         response = query_get_as("uperf_1", "test", HTTPStatus.OK)
         assert response.json["status"] == "success"
+        assert response.json["benchmark"] == "uperf"
         assert response.json["json_data"] == "quisby_data"
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):

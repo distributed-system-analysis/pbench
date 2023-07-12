@@ -109,11 +109,12 @@ class DatasetsCompare(ApiBase):
                 ) from e
             stream_file[dataset.name] = file
 
-        get_quisby_data = QuisbyProcessing().compare_csv_to_json(
+        quisby_response = QuisbyProcessing().compare_csv_to_json(
             benchmark_type, InputType.STREAM, stream_file
         )
-        if get_quisby_data["status"] != "success":
+        if quisby_response["status"] != "success":
             raise APIInternalError(
-                f"Quisby processing failure. Exception: {get_quisby_data['exception']}"
+                f"Quisby processing failure. Exception: {quisby_response['exception']}"
             )
-        return jsonify(get_quisby_data)
+        quisby_response["benchmark"] = benchmark.lower()
+        return jsonify(quisby_response)
