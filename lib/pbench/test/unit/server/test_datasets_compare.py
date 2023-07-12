@@ -143,6 +143,7 @@ class TestCompareDatasets:
         response = query_get_as(datasets, user, exp_status)
         if exp_status == HTTPStatus.OK:
             assert response.json["status"] == "success"
+            assert response.json["benchmark"] == "uperf"
             assert response.json["json_data"] == "quisby_data"
         else:
             assert response.json["message"] == exp_message

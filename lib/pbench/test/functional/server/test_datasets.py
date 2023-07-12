@@ -610,6 +610,7 @@ class TestInventory:
             ), f"VISUALIZE {dataset.name} failed {response.status_code}:{response.json()['message']}"
             json = response.json()
             assert json["status"] == "success"
+            assert json["benchmark"] == "uperf"
             assert "csv_data" in json
             assert json["json_data"]["dataset_name"] == dataset.name
             assert isinstance(json["json_data"]["data"], list)
@@ -643,6 +644,7 @@ class TestInventory:
             response.ok
         ), f"COMPARE {candidates[:2]} failed {response.status_code}:{json['message']}"
         assert json["status"] == "success"
+        assert json["benchmark"] == "uperf"
         assert isinstance(json["json_data"]["data"], list)
 
     @pytest.mark.dependency(name="inventory", depends=["upload"], scope="session")
