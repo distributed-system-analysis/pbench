@@ -1,9 +1,11 @@
+from http import HTTPStatus
 from typing import AnyStr, List, NoReturn, Union
 
 from flask import current_app
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
+    APIAbort,
     ApiAuthorizationType,
     ApiContext,
     APIInternalError,
@@ -119,11 +121,13 @@ class IndexMapBase(ElasticBase):
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as exc:
-            current_app.logger.error("{}", exc)
-            raise APIInternalError(f"Required metadata {Metadata.INDEX_MAP} missing")
+            if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
+                raise APIAbort(HTTPStatus.CONFLICT, "Dataset is not indexed")
+            raise APIInternalError(
+                f"Required metadata {Metadata.INDEX_MAP} missing"
+            ) from exc
 
         if index_map is None:
-            current_app.logger.error("Index map metadata has no value")
             raise APIInternalError(
                 f"Required metadata {Metadata.INDEX_MAP} has no value"
             )

@@ -142,7 +142,9 @@ else
 fi
 
 if [[ ${exit_status} -ne 0 ]]; then
-    dump_journal
+    if (( ${cleanup_flag} )); then
+        dump_journal
+    fi
     printf -- "\nFunctional tests exited with code %s\n" ${exit_status} >&2
 fi
 

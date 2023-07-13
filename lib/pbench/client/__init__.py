@@ -494,14 +494,19 @@ class PbenchServerClient:
         ).json()
 
     def update(
-        self, dataset_id: str, access: Optional[str] = None, owner: Optional[str] = None
-    ) -> JSONOBJECT:
+        self,
+        dataset_id: str,
+        access: Optional[str] = None,
+        owner: Optional[str] = None,
+        **kwargs,
+    ) -> requests.Response:
         """Update the dataset access or owner
 
         Args:
             dataset_id: the resource ID of the targeted dataset
             access: set the access mode of the dataset (private, public)
             owner: set the owning username of the dataset (requires ADMIN)
+            kwargs: additional client options
 
         Returns:
             A JSON document containing the response
@@ -515,7 +520,8 @@ class PbenchServerClient:
             api=API.DATASETS,
             uri_params={"dataset": dataset_id},
             params=params,
-        ).json()
+            **kwargs,
+        )
 
     def get_settings(self, key: str = "") -> JSONOBJECT:
         """Return requested server setting.

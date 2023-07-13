@@ -70,7 +70,7 @@ class DatasetsCompare(ApiBase):
         datasets = params.query.get("datasets")
         benchmark_choice = None
         for dataset in datasets:
-            benchmark = Metadata.getvalue(dataset, "dataset.metalog.pbench.script")
+            benchmark = Metadata.getvalue(dataset, Metadata.SERVER_BENCHMARK)
             # Validate if all the selected datasets is of same benchmark
             if not benchmark_choice:
                 benchmark_choice = benchmark
@@ -116,5 +116,5 @@ class DatasetsCompare(ApiBase):
             raise APIInternalError(
                 f"Quisby processing failure. Exception: {quisby_response['exception']}"
             )
-        quisby_response["benchmark"] = benchmark.lower()
+        quisby_response["benchmark"] = benchmark
         return jsonify(quisby_response)

@@ -638,6 +638,7 @@ class TestUpload:
         assert dataset.name == name
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
         assert Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE) is True
+        assert Metadata.getvalue(dataset, Metadata.SERVER_BENCHMARK) == "unknown"
         assert Metadata.getvalue(dataset, Metadata.SERVER_ORIGIN) == "test"
         assert Metadata.getvalue(dataset, Metadata.SERVER_DELETION) == "1972-01-02"
         assert Metadata.getvalue(dataset, "dataset.operations") == {
@@ -710,13 +711,14 @@ class TestUpload:
         assert dataset.name == name
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
         assert Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE) is True
+        assert Metadata.getvalue(dataset, Metadata.SERVER_BENCHMARK) == "unknown"
         assert Metadata.getvalue(dataset, Metadata.SERVER_ORIGIN) == "test"
         assert Metadata.getvalue(dataset, Metadata.SERVER_DELETION) == "1972-01-02"
         assert Metadata.getvalue(dataset, "dataset.operations") == {
             "UPLOAD": {"state": "OK", "message": None}
         }
         assert Metadata.getvalue(dataset, "dataset.metalog") == {
-            "pbench": {"script": "Foreign"}
+            "pbench": {"name": name, "script": "unknown"}
         }
         assert self.cachemanager_created
         assert dataset.name in self.cachemanager_created
