@@ -29,7 +29,11 @@ image_name=${PB_AGENT_IMAGE_NAME:-quay.io/pbench/pbench-agent-all-centos-8:main}
 config_file=${_PBENCH_AGENT_CONFIG:-${HOME}/.config/pbench/pbench-agent.cfg}
 pbench_run_dir=${PB_AGENT_RUN_DIR:-/var/tmp/${USER}/pbench-agent/run}
 pbench_server=${PB_AGENT_SERVER_LOC}
-pbench_ca=$(readlink -f ${PB_AGENT_CA:-${REQUESTS_CA_BUNDLE}})
+ca=${PB_AGENT_CA:-${REQUESTS_CA_BUNDLE}}
+if [[ ${ca} ]]; then
+    pbench_ca=$(readlink -f )
+fi
+container_ca=/etc/pki/tls/certs/pbench_CA.crt
 other_options=${PB_AGENT_PODMAN_OPTIONS}
 
 if [[ $# == 0 || $1 == "help" || $1 == "-h" || $1 == "--help" ]]; then
@@ -54,17 +58,21 @@ elif [[ -n "${pbench_server}" ]]; then
 		[config]
 		path = %(pbench_install_dir)s/config
 		files = pbench-agent-default.cfg
-		[results]
-		pbench_ca = ${pbench_ca}
 		EOF
+    if [[ -f "${pbench_ca}" ]] ;then
+        cat >> ${config_file} <<- EOF
+			[results]
+			pbench_ca = ${container_ca}
+			EOF
+    fi
 else
     echo "Warning:  the Pbench Agent config file (e.g., ${config_file}) is missing or inaccessible -- using default configuration." >&2
 fi
 
 mkdir -p ${pbench_run_dir}
 if [[ -f "${pbench_ca}" ]]; then
-    other_options="-v ${pbench_ca}:/etc/pki/tls/certs/pbench_CA.crt:z ${other_options}"
-    other_options="-e REQUESTS_CA_BUNDLE=/etc/pki/tls/certs/pbench_CA.crt ${other_options}"
+    other_options="-v ${pbench_ca}:${container_ca}:z ${other_options}"
+    other_options="-e REQUESTS_CA_BUNDLE=${container_ca} ${other_options}"
 fi
 other_options="-v ${pbench_run_dir}:/var/lib/pbench-agent:z ${other_options}"
 
