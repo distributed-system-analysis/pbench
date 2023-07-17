@@ -79,7 +79,13 @@ class TestPut:
             print(f"\t... uploaded {name}: {a}")
 
         datasets = server_client.get_list(
-            metadata=["dataset.access", "server.tarball-path", "dataset.operations"]
+            metadata=[
+                "dataset.access",
+                "dataset.metalog.pbench.script",
+                "server.benchmark",
+                "server.tarball-path",
+                "dataset.operations",
+            ]
         )
         found = frozenset({d.name for d in datasets})
         expected = frozenset(tarballs.keys())
@@ -91,6 +97,10 @@ class TestPut:
                 t = tarballs[dataset.name]
                 assert dataset.name in dataset.metadata["server.tarball-path"]
                 assert dataset.metadata["dataset.operations"]["UPLOAD"]["state"] == "OK"
+                assert (
+                    dataset.metadata["dataset.metalog.pbench.script"]
+                    == dataset.metadata["server.benchmark"]
+                )
                 assert t.access == dataset.metadata["dataset.access"]
         except HTTPError as exc:
             pytest.fail(
@@ -169,9 +179,17 @@ class TestPut:
             API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
         )
         metadata = server_client.get_metadata(
-            md5, ["dataset.operations", "server.archiveonly"]
+            md5,
+            [
+                "dataset.metalog.pbench.script",
+                "dataset.operations",
+                "server.archiveonly",
+                "server.benchmark",
+            ],
         )
+        assert metadata["dataset.metalog.pbench.script"] == "fio"
         assert metadata["server.archiveonly"] is True
+        assert metadata["server.benchmark"] == "fio"
 
         # NOTE: we could wait here; however, the UNPACK operation is only
         # enabled by upload, and INDEX is only enabled by UNPACK: so if they're
@@ -209,9 +227,18 @@ class TestPut:
             API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
         )
         metadata = server_client.get_metadata(
-            md5, ["dataset.operations", "dataset.metalog", "server.archiveonly"]
+            md5,
+            [
+                "dataset.operations",
+                "dataset.metalog",
+                "server.archiveonly",
+                "server.benchmark",
+            ],
         )
-        assert metadata["dataset.metalog"] == {"pbench": {"script": "Foreign"}}
+        assert metadata["dataset.metalog"] == {
+            "pbench": {"name": name, "script": "unknown"}
+        }
+        assert metadata["server.benchmark"] == "unknown"
         assert metadata["server.archiveonly"] is True
 
         # NOTE: we could wait here; however, the UNPACK operation is only
@@ -361,17 +388,21 @@ class TestIndexing:
         )
         for d in datasets:
             print(f"\t... checking run index for {d.name}")
+            indexed = not d.metadata["server.archiveonly"]
             response = server_client.get(
-                API.DATASETS_DETAIL, {"dataset": d.resource_id}
+                API.DATASETS_DETAIL, {"dataset": d.resource_id}, raise_error=False
             )
             detail = response.json()
-            indexed = not d.metadata["server.archiveonly"]
             if indexed:
+                assert (
+                    response.ok
+                ), f"DETAILS for {d.name} failed with {detail['message']}"
                 assert (
                     d.metadata["dataset.metalog.pbench"]["script"]
                     == detail["runMetadata"]["script"]
                 )
             else:
+                assert response.status_code == HTTPStatus.CONFLICT
                 print(f"\t\t... {d.name} is archiveonly")
 
 
@@ -554,8 +585,15 @@ class TestInventory:
 
         for dataset in datasets:
             response = server_client.get(
-                API.DATASETS_CONTENTS, {"dataset": dataset.resource_id, "target": ""}
+                API.DATASETS_CONTENTS,
+                {"dataset": dataset.resource_id, "target": ""},
+                raise_error=False,
             )
+            archive = dataset.metadata["server.archiveonly"]
+            if archive:
+                assert response.status_code == HTTPStatus.CONFLICT
+                return
+
             assert (
                 response.ok
             ), f"CONTENTS {dataset.name} failed {response.status_code}:{response.json()['message']}"
@@ -565,15 +603,14 @@ class TestInventory:
             # directory is technically possible, but not legal unless it's a
             # trivial "archiveonly" dataset. NOTE: this will also fail if
             # either the "directories" or "files" JSON keys are missing.
-            archive = dataset.metadata["server.archiveonly"]
-            assert json["directories"] or json["files"] or archive
+            assert json["directories"] or json["files"]
 
             # Even if they're empty, both values must be lists
             assert isinstance(json["directories"], list)
             assert isinstance(json["files"], list)
 
-            # Unless archiveonly, we need at least a metadata.log
-            assert archive or "metadata.log" in (f["name"] for f in json["files"])
+            # We need at least a metadata.log
+            assert "metadata.log" in (f["name"] for f in json["files"])
 
             for d in json["directories"]:
                 uri = server_client._uri(
@@ -598,7 +635,7 @@ class TestInventory:
         """
         datasets = server_client.get_list(
             owner="tester",
-            filter=["dataset.metalog.pbench.script:uperf"],
+            filter=["server.benchmark:uperf"],
         )
 
         for dataset in datasets:
@@ -624,7 +661,7 @@ class TestInventory:
         """
         datasets = server_client.get_list(
             owner="tester",
-            filter=["dataset.metalog.pbench.script:uperf"],
+            filter=["server.benchmark:uperf"],
         )
 
         candidates = [dataset.resource_id for dataset in datasets]
@@ -686,15 +723,25 @@ class TestUpdate:
     @pytest.mark.parametrize("access", ("public", "private"))
     def test_publish(self, server_client: PbenchServerClient, login_user, access):
         expected = "public" if access == "private" else "private"
-        datasets = server_client.get_list(access=access, mine="true")
+        datasets = server_client.get_list(
+            access=access, mine="true", metadata=["server.archiveonly"]
+        )
         print(f" ... updating {access} datasets to {expected} ...")
         for dataset in datasets:
-            server_client.update(dataset.resource_id, access=expected)
-            print(f"\t ... updating {dataset.name} to {access!r}")
-            meta = server_client.get_metadata(
-                dataset.resource_id, metadata="dataset.access"
+            response = server_client.update(
+                dataset.resource_id, access=expected, raise_error=False
             )
-            assert meta["dataset.access"] == expected
+            print(f"\t ... updating {dataset.name} to {access!r}")
+            if response.ok:
+                assert not dataset.metadata["server.archiveonly"]
+                meta = server_client.get_metadata(
+                    dataset.resource_id, metadata="dataset.access"
+                )
+                assert meta["dataset.access"] == expected
+            else:
+                assert dataset.metadata[
+                    "server.archiveonly"
+                ], f"Indexed dataset {dataset.name} failed to update with {response.json()['message']}"
 
 
 class TestDelete:

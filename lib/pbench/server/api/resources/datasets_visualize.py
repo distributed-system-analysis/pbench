@@ -60,9 +60,8 @@ class DatasetsVisualize(ApiBase):
 
         dataset = params.uri["dataset"]
 
-        metadata = Metadata.getvalue(dataset, "dataset.metalog.pbench.script")
-        benchmark = metadata.upper()
-        benchmark_type = BenchmarkName.__members__.get(benchmark)
+        benchmark = Metadata.getvalue(dataset, Metadata.SERVER_BENCHMARK)
+        benchmark_type = BenchmarkName.__members__.get(benchmark.upper())
         if not benchmark_type:
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST, f"Unsupported Benchmark: {benchmark}"
@@ -84,5 +83,5 @@ class DatasetsVisualize(ApiBase):
             raise APIInternalError(
                 f"Quisby processing failure. Exception: {quisby_response['exception']}"
             )
-        quisby_response["benchmark"] = benchmark.lower()
+        quisby_response["benchmark"] = benchmark
         return jsonify(quisby_response)

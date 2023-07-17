@@ -612,6 +612,13 @@ class Metadata(Database.Base):
     METALOG = "metalog"
     NATIVE_KEYS = [GLOBAL, METALOG, SERVER, USER]
 
+    # BENCHMARK provides a simple identification of the native benchmark where
+    # one can be identified. At the simplest for Pbench Agent tarballs this is
+    # just "dataset.metalog.pbench.script" but will be expanded in the future
+    # for example to identify a "pbench-user-benchmark -- fio" as "fio".
+    SERVER_BENCHMARK = "server.benchmark"
+    SERVER_BENCHMARK_UNKNOWN = "unknown"
+
     # DELETION timestamp for dataset based on user settings and system
     # settings when the dataset is created.
     #

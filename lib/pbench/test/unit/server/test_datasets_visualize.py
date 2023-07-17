@@ -130,5 +130,5 @@ class TestVisualize:
         monkeypatch.setattr(Metadata, "getvalue", mock_get_metadata)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.BAD_REQUEST)
-        assert response.json["message"] == "Unsupported Benchmark: HAMMERDB"
+        assert response.json["message"] == "Unsupported Benchmark: hammerDB"
         assert extract_not_called

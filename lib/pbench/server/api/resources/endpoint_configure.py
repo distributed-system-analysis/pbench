@@ -2,6 +2,7 @@ from typing import Any
 from urllib.parse import urljoin
 
 from flask import current_app, jsonify, Request, Response
+from pquisby.lib.post_processing import BenchmarkName
 
 from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -122,6 +123,9 @@ class EndpointConfig(ApiBase):
         endpoints = {
             "identification": f"Pbench server {self.server_config.COMMIT_ID}",
             "uri": templates,
+            "visualization": {
+                "benchmarks": [m.lower() for m in BenchmarkName.__members__.keys()]
+            },
         }
 
         client = self.server_config.get("openid", "client")

@@ -14,6 +14,7 @@ class TestConnect:
         assert endpoints
         assert "identification" in endpoints
         assert "uri" in endpoints
+        assert endpoints["visualization"]["benchmarks"] == ["uperf"]
 
         # Verify that all expected endpoints are reported
         for a in endpoints["uri"].keys():

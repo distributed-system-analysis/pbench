@@ -419,15 +419,22 @@ class IntakeBase(ApiBase):
             # Add the processed tarball metadata.log file contents, if any.
             #
             # If we were unable to find or parse the tarball's metadata.log
-            # file, construct a minimal metadata context identifying the
-            # dataset as a "foreign" benchmark script, and disable indexing,
-            # which requires the metadata.
+            # file we construct a minimal metadata context identifying the
+            # dataset as an unknown benchmark script, and we disable indexing,
+            # which requires result metadata.
             try:
                 metalog = tarball.metadata
                 if not metalog:
-                    metalog = {"pbench": {"script": "Foreign"}}
+                    benchmark = Metadata.SERVER_BENCHMARK_UNKNOWN
+                    metalog = {"pbench": {"name": dataset.name, "script": benchmark}}
                     metadata[Metadata.SERVER_ARCHIVE] = True
                     attributes["missing_metadata"] = True
+                else:
+                    p = metalog.get("pbench")
+                    if p:
+                        benchmark = p.get("script", Metadata.SERVER_BENCHMARK_UNKNOWN)
+                    else:
+                        benchmark = Metadata.SERVER_BENCHMARK_UNKNOWN
                 Metadata.create(dataset=dataset, key=Metadata.METALOG, value=metalog)
             except Exception as exc:
                 raise APIInternalError(
@@ -447,17 +454,21 @@ class IntakeBase(ApiBase):
             try:
                 retention = datetime.timedelta(days=retention_days)
                 deletion = dataset.uploaded + retention
-                Metadata.setvalue(
-                    dataset=dataset,
-                    key=Metadata.TARBALL_PATH,
-                    value=str(tarball.tarball_path),
+
+                # Make a shallow copy so we can add keys without affecting the
+                # original (which will be recorded in the audit log)
+                meta = metadata.copy()
+                meta.update(
+                    {
+                        Metadata.TARBALL_PATH: str(tarball.tarball_path),
+                        Metadata.SERVER_DELETION: UtcTimeHelper(
+                            deletion
+                        ).to_iso_string(),
+                        Metadata.SERVER_BENCHMARK: benchmark,
+                    }
                 )
-                Metadata.setvalue(
-                    dataset=dataset,
-                    key=Metadata.SERVER_DELETION,
-                    value=UtcTimeHelper(deletion).to_iso_string(),
-                )
-                f = self._set_dataset_metadata(dataset, metadata)
+                current_app.logger.info("Metadata for {}: {}", dataset.name, meta)
+                f = self._set_dataset_metadata(dataset, meta)
                 if f:
                     attributes["failures"] = f
             except Exception as e:
