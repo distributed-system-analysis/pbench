@@ -19,11 +19,26 @@
 # This script checks for the presence of a `~/.ssh` directory, an existing
 # Pbench Agent configuration file, and a Pbench Agent "run directory" and maps
 # them into the container if they exist.  If the configuration file is missing
-# but the location of the Pbench Server is available, then this script will
-# generate the configuration file, and the script creates the run directory if
-# it does not exist.  The script then invokes the Pbench Agent container with
-# these options and any others which the user has specified and passes in the
-# command to be executed.
+# but the location of the Pbench Server is specified with PB_AGENT_SERVER_LOC,
+# then this script will generate the configuration file, and the script creates
+# the run directory if it does not exist.  The script then invokes the Pbench
+# Agent container with these options and any others which the user specifies
+# and passes in the command to be executed.
+#
+# To use a server with a certificate signed by the Pbench development CA bundle
+# define the environment variable PB_AGENT_CA. If the script generates a new
+# ~/.config/pbench/pbench-agent.cfg then the "server_ca" variable will be set.
+# However a simple mode of operation is to use the "--server" and PB_AGENT_CA
+# to avoid reliance on a config file, as
+#
+#  PB_AGENT_CA=server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt \
+#    contrib/containerized-pbench/pbench pbench-results-move \
+#      --server https://<server>:8443 --token <api-token>
+#
+# TODO: if you generate a config file (manually or automatically) including
+# [results] server_ca, the local CA file needs to be mapped into the container,
+# and this is not currently done manually. You can work around that by using
+# the PB_AGENT_CA environment variable.
 
 image_name=${PB_AGENT_IMAGE_NAME:-quay.io/pbench/pbench-agent-all-centos-8:main}
 config_file=${_PBENCH_AGENT_CONFIG:-${HOME}/.config/pbench/pbench-agent.cfg}
@@ -31,9 +46,9 @@ pbench_run_dir=${PB_AGENT_RUN_DIR:-/var/tmp/${USER}/pbench-agent/run}
 pbench_server=${PB_AGENT_SERVER_LOC}
 ca=${PB_AGENT_CA:-${REQUESTS_CA_BUNDLE}}
 if [[ ${ca} ]]; then
-    pbench_ca=$(readlink -f )
+    pbench_ca=$(readlink -f ${ca})  # expand path outside container
 fi
-container_ca=/etc/pki/tls/certs/pbench_CA.crt
+container_ca=/etc/pki/tls/certs/pbench_CA.crt  # path inside container
 other_options=${PB_AGENT_PODMAN_OPTIONS}
 
 if [[ $# == 0 || $1 == "help" || $1 == "-h" || $1 == "--help" ]]; then
@@ -41,6 +56,8 @@ if [[ $# == 0 || $1 == "help" || $1 == "-h" || $1 == "--help" ]]; then
     exit 2
 fi
 
+# TODO: I think we only need this for Server 0.69; not really sure how we
+# want to manage this going forward.
 if [[ -d "${HOME}/.ssh" && -r "${HOME}/.ssh" ]]; then
     other_options="--security-opt=label=disable -v ${HOME}/.ssh:/root/.ssh ${other_options}"
 fi
