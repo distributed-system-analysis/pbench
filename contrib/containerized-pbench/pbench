@@ -1,52 +1,42 @@
 #! /bin/bash
 #
 # This script is a wrapper to facilitate the invocation of a Pbench Agent
-# command using a containerized deployment of the Pbench Agent.  Simply prefix
+# command using a containerized deployment of the Pbench Agent. Simply prefix
 # a Pbench Agent command line with the path to this script to run it inside a
 # container, without needing to install the Agent on the host system.
 #
 # Invocation options are provided as environment variables:
 #    PB_AGENT_IMAGE_NAME: the full image name for the containerized Pbench Agent
-#    _PBENCH_AGENT_CONFIG: the location of the Pbench Agent configuration file
 #    PB_AGENT_RUN_DIR: the directory for use as the Pbench Agent "run directory"
-#    PB_AGENT_SERVER_LOC: the host and port for the Pbench Server
 #    PB_AGENT_CA: a CA bundle to verify Pbench Server PUTs
 #    PB_AGENT_PODMAN_OPTIONS: Additional options to be supplied to Podman run
 #
 # In all cases, reasonable defaults are supplied if the environment variables
 # are not defined.
 #
-# This script checks for the presence of a `~/.ssh` directory, an existing
-# Pbench Agent configuration file, and a Pbench Agent "run directory" and maps
-# them into the container if they exist.  If the configuration file is missing
-# but the location of the Pbench Server is specified with PB_AGENT_SERVER_LOC,
-# then this script will generate the configuration file, and the script creates
-# the run directory if it does not exist.  The script then invokes the Pbench
-# Agent container with these options and any others which the user specifies
-# and passes in the command to be executed.
+# This script manages a persistent host Pbench Agent "run directory", which
+# defaults to /var/tmp/{USER}/pbench-agent/run, and maps that directory into
+# the container so that multiple runs can be generated and uploaded at once.
+#
+# To upload results to a Pbench Server, use this script to execute the
+# pbench-results-move command within the container, specifying either --relay
+# with the address of a Pbench Relay Server, or --server with the address of a
+# Pbench Server and --token to specify a Pbench Server API key for user
+# authentication.
 #
 # To use a server with a certificate signed by the Pbench development CA bundle
-# define the environment variable PB_AGENT_CA. If the script generates a new
-# ~/.config/pbench/pbench-agent.cfg then the "server_ca" variable will be set.
-# However a simple mode of operation is to use the "--server" and PB_AGENT_CA
-# to avoid reliance on a config file, as
+# define the environment variable PB_AGENT_CA to cause the CA to be mapped into
+# the container and defined using REQUESTS_CA_BUNDLE:
 #
 #  PB_AGENT_CA=server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt \
 #    contrib/containerized-pbench/pbench pbench-results-move \
 #      --server https://<server>:8443 --token <api-token>
-#
-# TODO: if you generate a config file (manually or automatically) including
-# [results] server_ca, the local CA file needs to be mapped into the container,
-# and this is not currently done manually. You can work around that by using
-# the PB_AGENT_CA environment variable.
 
 image_name=${PB_AGENT_IMAGE_NAME:-quay.io/pbench/pbench-agent-all-centos-8:main}
-config_file=${_PBENCH_AGENT_CONFIG:-${HOME}/.config/pbench/pbench-agent.cfg}
 pbench_run_dir=${PB_AGENT_RUN_DIR:-/var/tmp/${USER}/pbench-agent/run}
-pbench_server=${PB_AGENT_SERVER_LOC}
 ca=${PB_AGENT_CA:-${REQUESTS_CA_BUNDLE}}
 if [[ ${ca} ]]; then
-    pbench_ca=$(readlink -f ${ca})  # expand path outside container
+    pbench_ca=$(realpath ${ca})  # expand path outside container
 fi
 container_ca=/etc/pki/tls/certs/pbench_CA.crt  # path inside container
 other_options=${PB_AGENT_PODMAN_OPTIONS}
@@ -56,42 +46,12 @@ if [[ $# == 0 || $1 == "help" || $1 == "-h" || $1 == "--help" ]]; then
     exit 2
 fi
 
-# TODO: I think we only need this for Server 0.69; not really sure how we
-# want to manage this going forward.
-if [[ -d "${HOME}/.ssh" && -r "${HOME}/.ssh" ]]; then
-    other_options="--security-opt=label=disable -v ${HOME}/.ssh:/root/.ssh ${other_options}"
-fi
-
-if [[ -f "${config_file}" && -r "${config_file}" ]]; then
-    other_options="-v ${config_file}:/opt/pbench-agent/config/pbench-agent.cfg:z ${other_options}"
-elif [[ -n "${pbench_server}" ]]; then
-    echo "Warning:  the Pbench Agent config file is missing; attempting to generate one in ${config_file}" >&2
-    # TODO:  this should be handled by a separate Pbench Agent "configuration wizard".
-    mkdir -p $(dirname ${config_file})
-    cat > ${config_file} <<- EOF
-		[DEFAULT]
-		pbench_install_dir = /opt/pbench-agent
-		pbench_web_server = ${pbench_server}
-		[config]
-		path = %(pbench_install_dir)s/config
-		files = pbench-agent-default.cfg
-		EOF
-    if [[ -f "${pbench_ca}" ]] ;then
-        cat >> ${config_file} <<- EOF
-			[results]
-			pbench_ca = ${container_ca}
-			EOF
-    fi
-else
-    echo "Warning:  the Pbench Agent config file (e.g., ${config_file}) is missing or inaccessible -- using default configuration." >&2
-fi
-
 mkdir -p ${pbench_run_dir}
 if [[ -f "${pbench_ca}" ]]; then
     other_options="-v ${pbench_ca}:${container_ca}:z ${other_options}"
     other_options="-e REQUESTS_CA_BUNDLE=${container_ca} ${other_options}"
 fi
-other_options="-v ${pbench_run_dir}:/var/lib/pbench-agent:z ${other_options}"
+other_options="--security-opt=label=disable -v ${pbench_run_dir}:/var/lib/pbench-agent:z ${other_options}"
 
 podman run \
     -it \

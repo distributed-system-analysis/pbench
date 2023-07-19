@@ -411,8 +411,8 @@ class CopyResultToServer(CopyResult):
             uri = config.get("results", "server_rest_url")
 
             # If the "server_ca" config variable isn't defined, we expect to verify
-            # using a registered CA or via REQUESTS_CA_BUNDLE environment variable.
-            self.ca = config.get("results", "server_ca", fallback=True)
+            # using a registered CA.
+            self.ca = config.get("results", "server_ca", fallback=None)
         self.uri = f"{uri}/upload/{{name}}"
         self.headers.update({"Authorization": f"Bearer {token}"})
 
