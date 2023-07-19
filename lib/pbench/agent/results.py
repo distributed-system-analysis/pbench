@@ -406,7 +406,7 @@ class CopyResultToServer(CopyResult):
         if server:
             path = config.get("results", "rest_endpoint")
             uri = f"{server}/{path}"
-            self.ca = True
+            self.ca = None
         else:
             uri = config.get("results", "server_rest_url")
 
