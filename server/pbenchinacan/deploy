@@ -77,26 +77,26 @@ fi
 # build of the Pbench Dashboard application; however, if it is missing, we
 # deploy the Pbench Server without a Dashboard deployment.  If we do update the
 # Dashboard, then also update the Nginx favicon symlink.
-podman unshare rm -r ${SRV_PBENCH}/public_html/dashboard
+podman unshare rm -r "${SRV_PBENCH}/public_html/dashboard"
 if [[ -d "${PB_DASHBOARD_DIR}" ]]; then
     podman run \
         --rm \
-        --volume ${PB_DASHBOARD_DIR}:/dashboard:Z \
-        --volume ${SRV_PBENCH}:/srv/pbench:Z \
+        --volume "${PB_DASHBOARD_DIR}":/dashboard:Z \
+        --volume "${SRV_PBENCH}":/srv/pbench:Z \
         --entrypoint cp \
         ${PB_SERVER_IMAGE} \
         -r /dashboard /srv/pbench/public_html/dashboard
     podman run \
         --rm \
-        --volume ${SRV_PBENCH}:/srv/pbench:Z \
+        --volume "${SRV_PBENCH}":/srv/pbench:Z \
         --entrypoint ln \
         ${PB_SERVER_IMAGE} \
-        -sf ${NGINX_FAVICON} /srv/pbench/public_html/favicon.ico
+        -sf "${NGINX_FAVICON}" /srv/pbench/public_html/favicon.ico
 else
     echo "Warning:  deploying the Pbench Server without a Dashboard" >&2
     podman run \
         --rm \
-        --volume ${SRV_PBENCH}:/srv/pbench:Z \
+        --volume "${SRV_PBENCH}":/srv/pbench:Z \
         --entrypoint mkdir \
         ${PB_SERVER_IMAGE} \
         -m 0755 -p /srv/pbench/public_html/dashboard
