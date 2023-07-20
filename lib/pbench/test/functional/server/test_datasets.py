@@ -32,6 +32,9 @@ class Tarball:
     access: str
 
 
+def all_tarballs() -> list[Path]:
+    return list(TARBALL_DIR.glob("*.tar.xz")) + list(SPECIAL_DIR.glob("*.tar.xz"))
+
 class TestPut:
     """Test success and failure cases of PUT dataset upload"""
 
@@ -198,12 +201,6 @@ class TestPut:
         assert operations["UPLOAD"]["state"] == "OK"
         assert "INDEX" not in operations
 
-        # Delete it so we can run the test case again without manual cleanup
-        response = server_client.remove(md5)
-        assert (
-            response.ok
-        ), f"delete failed with {response.status_code}, {response.text}"
-
     @staticmethod
     def test_no_metadata(server_client: PbenchServerClient, login_user):
         """Test handling for a tarball without a metadata.log.
@@ -247,12 +244,6 @@ class TestPut:
         operations = metadata["dataset.operations"]
         assert operations["UPLOAD"]["state"] == "OK"
         assert "INDEX" not in operations
-
-        # Delete it so we can run the test case again without manual cleanup
-        response = server_client.remove(md5)
-        assert (
-            response.ok
-        ), f"delete failed with {response.status_code}, {response.text}"
 
     @staticmethod
     def check_indexed(server_client: PbenchServerClient, datasets):
@@ -402,7 +393,7 @@ class TestIndexing:
                     == detail["runMetadata"]["script"]
                 )
             else:
-                assert response.status_code == HTTPStatus.CONFLICT
+                assert response.status_code == HTTPStatus.CONFLICT, f"Unexpected {response.json()['message']}"
                 print(f"\t\t... {d.name} is archiveonly")
 
 
@@ -439,7 +430,7 @@ class TestList:
 
         expected = [
             {"resource_id": Dataset.md5(f), "name": Dataset.stem(f), "metadata": {}}
-            for f in TARBALL_DIR.glob("*.tar.xz")
+            for f in all_tarballs()
         ]
         expected.sort(key=lambda e: e["resource_id"])
         actual = [d.json for d in datasets]
@@ -583,6 +574,8 @@ class TestInventory:
             metadata=["server.archiveonly"],
         )
 
+        with_toc = False
+        without_toc = False
         for dataset in datasets:
             response = server_client.get(
                 API.DATASETS_CONTENTS,
@@ -591,9 +584,12 @@ class TestInventory:
             )
             archive = dataset.metadata["server.archiveonly"]
             if archive:
-                assert response.status_code == HTTPStatus.CONFLICT
-                return
+                assert response.status_code == HTTPStatus.CONFLICT, f"Unexpected {response.json()['message']}"
+                assert response.json()["message"] == "Dataset indexing was disabled"
+                without_toc = True
+                continue
 
+            with_toc = True
             assert (
                 response.ok
             ), f"CONTENTS {dataset.name} failed {response.status_code}:{response.json()['message']}"
@@ -625,6 +621,7 @@ class TestInventory:
                     {"dataset": dataset.resource_id, "target": f["name"]},
                 )
                 assert f["uri"] == uri, f"{f['name']} uri is incorrect: {f['uri']}"
+        assert with_toc and without_toc, "expected archiveonly and indexed datasets"
 
     @pytest.mark.dependency(name="visualize", depends=["upload"], scope="session")
     def test_visualize(self, server_client: PbenchServerClient, login_user):
@@ -778,7 +775,7 @@ class TestDelete:
                 f"Unexpected HTTP error, url = {exc.response.url}, status code"
                 f" = {exc.response.status_code}, text = {exc.response.text!r}"
             )
-        for t in TARBALL_DIR.glob("*.tar.xz"):
+        for t in all_tarballs():
             resource_id = datasets_hash.get(t.name)
             assert resource_id, f"Expected to find tar ball {t.name} to delete"
             response = server_client.remove(resource_id)

@@ -122,12 +122,14 @@ class IndexMapBase(ElasticBase):
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as exc:
             if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
-                raise APIAbort(HTTPStatus.CONFLICT, "Dataset is not indexed")
+                raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
             raise APIInternalError(
                 f"Required metadata {Metadata.INDEX_MAP} missing"
             ) from exc
 
         if index_map is None:
+            if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
+                raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
             raise APIInternalError(
                 f"Required metadata {Metadata.INDEX_MAP} has no value"
             )

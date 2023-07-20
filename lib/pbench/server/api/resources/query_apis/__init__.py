@@ -398,6 +398,8 @@ class ElasticBase(ApiBase):
                 es_request.get("kwargs").get("json"),
             )
         except Exception as e:
+            if isinstance(e, APIAbort):
+                raise
             raise APIInternalError("Elasticsearch assembly error") from e
 
         try:
