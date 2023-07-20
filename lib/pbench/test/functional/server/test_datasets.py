@@ -35,6 +35,7 @@ class Tarball:
 def all_tarballs() -> list[Path]:
     return list(TARBALL_DIR.glob("*.tar.xz")) + list(SPECIAL_DIR.glob("*.tar.xz"))
 
+
 class TestPut:
     """Test success and failure cases of PUT dataset upload"""
 
@@ -393,7 +394,9 @@ class TestIndexing:
                     == detail["runMetadata"]["script"]
                 )
             else:
-                assert response.status_code == HTTPStatus.CONFLICT, f"Unexpected {response.json()['message']}"
+                assert (
+                    response.status_code == HTTPStatus.CONFLICT
+                ), f"Unexpected {response.json()['message']}"
                 print(f"\t\t... {d.name} is archiveonly")
 
 
@@ -584,7 +587,9 @@ class TestInventory:
             )
             archive = dataset.metadata["server.archiveonly"]
             if archive:
-                assert response.status_code == HTTPStatus.CONFLICT, f"Unexpected {response.json()['message']}"
+                assert (
+                    response.status_code == HTTPStatus.CONFLICT
+                ), f"Unexpected {response.json()['message']}"
                 assert response.json()["message"] == "Dataset indexing was disabled"
                 without_toc = True
                 continue
