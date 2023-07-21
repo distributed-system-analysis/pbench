@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from freezegun import freeze_time
 import pytest
@@ -289,19 +289,33 @@ class TestUpload:
     def test_temp_exists(
         self, monkeypatch, client, tmp_path, server_config, pbench_drb_token
     ):
+        """Test behavior of a conflicting upload
+
+        When the MD5-based temporary intake directory exists already, upload
+        will fail with CONFLICT. We want to verify that behavior, and that we
+        don't delete the existing directory during cleanup, which could
+        interfere with a running upload. This can happen, for example, when a
+        large upload times out and the client retries before the original is
+        finished.
+        """
         md5 = "d41d8cd98f00b204e9800998ecf8427e"
+        temp_path: Optional[Path] = None
 
         def td_exists(self, *args, **kwargs):
             """Mock out Path.mkdir()
 
             The trick here is that calling the UPLOAD API results in two calls
             to Path.mkdir: one in the __init__ to be sure that ARCHIVE/UPLOAD
-            exists, and the second for the temporary subdirectory. We want the
-            first to succeed normally so we'll pass the call to the real mkdir
-            if the path doesn't end with our MD5 value.
+            exists, and the second for the temporary subdirectory. We want to
+            create both directories, but for the second (MD5-based intake temp)
+            we want to raise FileExistsError as if it had already existed, to
+            trigger the duplicate upload logic.
             """
+            retval = self.real_mkdir(*args, **kwargs)
             if self.name != md5:
-                return self.real_mkdir(*args, **kwargs)
+                return retval
+            nonlocal temp_path
+            temp_path = self
             raise FileExistsError(str(self))
 
         filename = "tmp.tar.xz"
@@ -317,9 +331,11 @@ class TestUpload:
                     headers=self.gen_headers(pbench_drb_token, md5),
                 )
         assert response.status_code == HTTPStatus.CONFLICT
-        assert (
-            response.json.get("message") == "Temporary upload directory already exists"
-        )
+
+        # Assert that we captured an intake temporary directory path and that
+        # the "duplicate" path wasn't deleted during API cleanup.
+        assert temp_path and temp_path.is_dir()
+        assert response.json.get("message") == "Dataset is currently being uploaded"
         assert not self.cachemanager_created
 
     @pytest.mark.parametrize(

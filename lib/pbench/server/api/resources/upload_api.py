@@ -178,7 +178,7 @@ class Upload(ApiBase):
 
         attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
-        tmp_dir: Optional[Path] = None
+        intake_dir: Optional[Path] = None
 
         try:
             try:
@@ -248,13 +248,15 @@ class Upload(ApiBase):
             try:
                 tmp_dir = self.temporary / md5sum
                 tmp_dir.mkdir()
-            except FileExistsError:
+            except FileExistsError as e:
                 raise CleanupTime(
                     HTTPStatus.CONFLICT,
-                    "Temporary upload directory already exists",
-                )
-            tar_full_path = tmp_dir / filename
-            md5_full_path = tmp_dir / f"{filename}.md5"
+                    "Dataset is currently being uploaded",
+                ) from e
+            else:
+                intake_dir = tmp_dir
+            tar_full_path = intake_dir / filename
+            md5_full_path = intake_dir / f"{filename}.md5"
 
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
@@ -523,9 +525,9 @@ class Upload(ApiBase):
             else:
                 raise APIAbort(status, message) from e
         finally:
-            if tmp_dir:
+            if intake_dir:
                 try:
-                    shutil.rmtree(tmp_dir)
+                    shutil.rmtree(intake_dir)
                 except Exception as e:
                     current_app.logger.warning("Error removing {}: {}", tmp_dir, str(e))
 
