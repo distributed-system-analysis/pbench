@@ -13,12 +13,14 @@
 
 # The script defaults to using master realm username/password as admin/admin
 # unless specified otherwise by 'ADMIN_USERNAME' and 'ADMIN_PASSWORD' env
-# variables. The script also defaults the keycloak redirect URI as
-# "https://localhost:8443/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
-# env variable.
+# variables. The script constructs the Keycloak redirect URI list as
+# "https://<node>:8443/*" from the space-separated list of nodes in
+# the 'KEYCLOAK_REDIRECT_HOSTS' env variable, defaulting to 'localhost' plus
+# whatever we can glean from the 'hostname' command.  It adds to that list the
+# value of 'KEYCLOAK_DEV_REDIRECT' which defaults to "http://localhost:3000/*".
 
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"https://localhost:8090"}
-KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"https://localhost:8443/*"}
+KEYCLOAK_REDIRECT_HOSTS=${KEYCLOAK_REDIRECT_HOSTS:-"localhost $(hostname -I) $(hostname -A) $(hostname -f)"}
 KEYCLOAK_DEV_REDIRECT=${KEYCLOAK_DEV_REDIRECT:-"http://localhost:3000/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
@@ -33,6 +35,13 @@ PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 export CURL_CA_BUNDLE=${CURL_CA_BUNDLE:-"${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt"}
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
+
+keycloak_redirect_uris="\"${KEYCLOAK_DEV_REDIRECT}\""
+for n in ${KEYCLOAK_REDIRECT_HOSTS}; do
+  keycloak_redirect_uris="${keycloak_redirect_uris}, \"https://${n}:8443/*\""
+done
+
+echo "Keycloak redirect URI list is <${keycloak_redirect_uris}>."
 
 # Run the custom configuration
 
@@ -118,7 +127,7 @@ CLIENT_CONF=$(curl -si -f -X POST \
        "serviceAccountsEnabled": true,
        "enabled": true,
        "attributes": {"post.logout.redirect.uris": "+"},
-       "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'", "'${KEYCLOAK_DEV_REDIRECT}'"]}')
+       "redirectUris": ['"${keycloak_redirect_uris}"']}')
 
 CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< "${CLIENT_CONF}" | sed -e 's|.*/||')
 if [[ -z "${CLIENT_ID}" ]]; then
