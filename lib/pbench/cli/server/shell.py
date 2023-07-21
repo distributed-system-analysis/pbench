@@ -169,6 +169,17 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         "pbench-server",
     ]
 
+    # If PB_PROFILE_DUMP_FILE is defined, enable profiling of the server's
+    # execution of requests.  If defined to an empty string, profiling
+    # results are dumped to the log; otherwise, the value is treated as the
+    # name of a file to receive the data.  (An excellent choice is
+    # "/srv/pbench/public_html/pbench_server.prof", because this is writable
+    # by the server and easily accessed by the user via the browser by hitting
+    # "https://<server>/pbench_server.prof".)  Note that the file is
+    # overwritten for each request.
+    if os.environ.get("PB_PROFILE_DUMP_FILE") is not None:
+        cmd_line += ["--config", "/opt/pbench-server/lib/pbench/profiling.conf.py"]
+
     # When installed via RPM, the shebang in the gunicorn script includes a -s
     # which prevents Python from implicitly including the user site packages in
     # the sys.path configuration.  (Note that, when installed via Pip, the
