@@ -248,7 +248,7 @@ class Upload(ApiBase):
             try:
                 tmp_dir = self.temporary / md5sum
                 tmp_dir.mkdir()
-            except FileExistsError:
+            except FileExistsError as e:
                 raise CleanupTime(
                     HTTPStatus.CONFLICT,
                     "Dataset is currently being uploaded",
