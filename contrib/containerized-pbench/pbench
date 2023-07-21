@@ -48,15 +48,15 @@ fi
 
 mkdir -p ${pbench_run_dir}
 if [[ -f "${pbench_ca}" ]]; then
-    other_options="-v ${pbench_ca}:${container_ca}:z ${other_options}"
+    other_options="-v ${pbench_ca}:${container_ca}:Z ${other_options}"
     other_options="-e REQUESTS_CA_BUNDLE=${container_ca} ${other_options}"
 fi
-other_options="--security-opt=label=disable -v ${pbench_run_dir}:/var/lib/pbench-agent:z ${other_options}"
 
 podman run \
     -it \
     --rm \
     --network host \
     --name pbench-agent \
+    -v ${pbench_run_dir}:/var/lib/pbench-agent:Z \
     ${other_options} \
     ${image_name} "${@}"
