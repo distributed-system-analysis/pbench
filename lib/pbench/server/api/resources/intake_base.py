@@ -196,7 +196,7 @@ class IntakeBase(ApiBase):
 
         audit: Optional[Audit] = None
         username: Optional[str] = None
-        tmp_dir: Optional[Path] = None
+        intake_dir: Optional[Path] = None
 
         prefix = current_app.server_config.rest_uri
         origin = f"{self._get_uri_base(request).host}{prefix}/datasets/"
@@ -245,10 +245,12 @@ class IntakeBase(ApiBase):
             except FileExistsError as e:
                 raise APIAbort(
                     HTTPStatus.CONFLICT,
-                    "Temporary upload directory already exists",
+                    "Dataset is currently being uploaded",
                 ) from e
-            tar_full_path = tmp_dir / filename
-            md5_full_path = tmp_dir / f"{filename}.md5"
+            else:
+                intake_dir = tmp_dir
+            tar_full_path = intake_dir / filename
+            md5_full_path = intake_dir / f"{filename}.md5"
 
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
@@ -515,11 +517,13 @@ class IntakeBase(ApiBase):
             recovery.cleanup()
             raise exception from e
         finally:
-            if tmp_dir:
+            if intake_dir:
                 try:
-                    shutil.rmtree(tmp_dir)
+                    shutil.rmtree(intake_dir)
                 except Exception as e:
-                    current_app.logger.warning("Error removing {}: {}", tmp_dir, str(e))
+                    current_app.logger.warning(
+                        "Error removing {}: {}", intake_dir, str(e)
+                    )
 
         response = jsonify(
             {
