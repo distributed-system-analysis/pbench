@@ -64,7 +64,7 @@ status_code=$(curl -f -s -o /dev/null -w "%{http_code}" -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"realm": "'${REALM}'", "enabled": true}')
+  -d '{"realm": "'"${REALM}"'", "enabled": true}')
 
 if [[ "${status_code}" != "201" ]]; then
   echo "Realm creation failed with ${status_code}"
@@ -99,7 +99,7 @@ curl -si -f -X POST \
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "'${CLIENT}'",
+            "included.client.audience": "'"${CLIENT}"'",
             "id.token.claim": "false",
             "access.token.claim": "true"
           }
@@ -111,7 +111,7 @@ CLIENT_CONF=$(curl -si -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"clientId": "'${CLIENT}'",
+  -d '{"clientId": "'"${CLIENT}"'",
        "publicClient": true,
        "defaultClientScopes": ["pbench", "openid", "profile", "email"],
        "directAccessGrantsEnabled": true,
@@ -120,7 +120,7 @@ CLIENT_CONF=$(curl -si -f -X POST \
        "attributes": {"post.logout.redirect.uris": "+"},
        "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'", "'${KEYCLOAK_DEV_REDIRECT}'"]}')
 
-CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
+CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< "${CLIENT_CONF}" | sed -e 's|.*/||')
 if [[ -z "${CLIENT_ID}" ]]; then
   echo "${CLIENT} id is empty"
   exit 1
@@ -155,7 +155,7 @@ USER=$(curl -si -f -X POST \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "123", "temporary": false}]}')
 
-USER_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${USER} | sed -e 's|.*/||')
+USER_ID=$(grep -o -e 'https://[^[:space:]]*' <<< "${USER}" | sed -e 's|.*/||')
 
 if [[ -z "${USER_ID}" ]]; then
   echo "User id is empty"
@@ -168,7 +168,7 @@ status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]')
+  -d '[{"id":"'"${ROLE_ID}"'","name":"ADMIN"}]')
 
 if [[ "${status_code}" != "204" ]]; then
   echo "Assigning 'ADMIN' client role to the user 'admin' failed with ${status_code}"
