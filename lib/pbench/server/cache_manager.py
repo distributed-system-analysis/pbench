@@ -7,6 +7,7 @@ import shlex
 import shutil
 import subprocess
 import tarfile
+from time import sleep
 from typing import Any, IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
@@ -521,19 +522,59 @@ class Tarball:
         Raise:
             TarballNotFound on failure opening the tarball
             CacheExtractBadPath if the target cannot be extracted
+            Any exception raised by subprocess.Popen()
+            RuntimeError on unexpected failures (see message)
         """
-        try:
-            tar = tarfile.open(tarball_path, "r:*")
-        except Exception as exc:
-            raise TarballNotFound(str(tarball_path)) from exc
-        try:
-            stream = tar.extractfile(str(path))
-        except Exception as exc:
-            raise CacheExtractBadPath(tarball_path, path) from exc
-        else:
-            if not stream:
-                raise CacheExtractBadPath(tarball_path, path)
-            return Inventory(stream, tar)
+        tar_path = shutil.which("tar")
+        if tar_path is None:
+            raise RuntimeError("External 'tar' executable not found")
+
+        # The external tar utility offers better capabilities than the
+        # Standard Library package, so run it in a subprocess:  extract
+        # the target member from the specified tar archive and direct it to
+        # stdout; we expect only one occurrence of the target member, so stop
+        # processing as soon as we find it instead of looking for additional
+        # instances of it later in the archive -- this is a huge savings when
+        # the archive is very large.
+        tarproc = subprocess.Popen(
+            [str(tar_path), "xOf", tarball_path, "--occurrence=1", path],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        # Wait for one of two things to happen:  either the subprocess produces
+        # some output or it exits.
+        while not tarproc.stdout.peek() and tarproc.poll() is None:
+            sleep(0.02)
+
+        # If the return code is None (meaning the command is still running) or
+        # is zero (meaning it completed successfully), then return the stream
+        # containing the extracted file to our caller.
+        if not tarproc.returncode:
+            # Since we own the `tarproc` object, we don't need to return a
+            # value for the second part of the Inventory object (this is an
+            # artifact from when we used the Standard Library tarfile
+            # package).
+            return Inventory(tarproc.stdout, None)
+
+        # The tar command was invoked successfully (otherwise, the Popen()
+        # constructor would have raised an exception), but it exited with
+        # an error code.  We have to glean what went wrong by looking at
+        # stderror, which is fragile but the only option.  Rather than
+        # relying on looking for specific text, we assume that, if the
+        # error references the tar file, the file was not found (or is
+        # otherwise inaccessible) and if the error references the archive
+        # member, then it was a bad path.  (Failing those, report a generic
+        # failure.)
+        error_text = tarproc.stderr.read().decode()
+        if str(tarball_path) in error_text:
+            # "tar: /path/to/bad_tarball.tar.xz: Cannot open: No such file or directory"
+            raise TarballNotFound(str(tarball_path))
+        if path in error_text:
+            # "tar: missing_member.txt: Not found in archive"
+            raise CacheExtractBadPath(tarball_path, path)
+        raise RuntimeError(f"Unexpected error from {tar_path}: {error_text!r}")
 
     def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
         """Access the file stream of a tarball member file.
