@@ -97,28 +97,8 @@ export const parseChartData = () => (dispatch, getState) => {
         },
       },
     };
-    /* for single */
-    // const datasets = [
-    //   {
-    //     label: run.instances[0].dataset_name,
-    //     data: run.instances.map((i) => i.time_taken),
-    //     backgroundColor: "#8BC1F7",
-    //   },
-    // ];
-    /* for single */
-    const datasets = [];
-    /* mutilple happy path*/
-    // for (const item of run.instances) {
-    //   const obj = {
-    //     label: item.dataset_name,
-    //     data: item.time_taken.trim(),
-    //     backgroundColor: COLORS[i],
-    //   };
-    //   i++;
-    //   datasets.push(obj);
-    // }
-    /* mutilple happy path*/
 
+    const datasets = [];
     const data = {
       labels: [...new Set(run.instances.map((i) => i.name))],
       id: `${run.test_name}_${run.metrics_unit}`,
