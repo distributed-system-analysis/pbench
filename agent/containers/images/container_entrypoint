@@ -8,4 +8,16 @@
 
 source /opt/pbench-agent/profile
 
+if [[ -z "${*}" ]]; then
+  echo "No command supplied" >&2
+  exit 127
+fi
+
+# If the exec is successful, control won't return to this script, so the
+# commands following it are only for reporting the error (so disable the
+# lint check).
+# shellcheck disable=SC2093
 exec "${@}"
+rc=${?}
+echo "exec ${@} failed with status ${rc}"
+exit ${rc}
