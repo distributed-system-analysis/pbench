@@ -150,8 +150,8 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
 
     if path.is_symlink():
         ftype = CacheType.SYMLINK
+        link_path = path.readlink()
         try:
-            link_path = path.readlink()
             if link_path.is_absolute():
                 raise ValueError("symlink path is absolute")
             r_path = path.resolve(strict=True)
