@@ -85,7 +85,7 @@ class MetadataError(CacheManagerError):
 
 
 class TarballUnpackError(CacheManagerError):
-    """An error occured trying to unpack a tarball."""
+    """An error occurred trying to unpack a tarball."""
 
     def __init__(self, tarball: Path, error: str):
         self.tarball = tarball
@@ -192,7 +192,7 @@ class Inventory:
     done. This eliminates interference with later operations.
     """
 
-    def __init__(self, stream: IO[bytes], tarfile: Optional[tarfile.TarFile] = None):
+    def __init__(self, stream: IO[bytes], tar_ref: Optional[tarfile.TarFile] = None):
         """Construct an instance to track extracted inventory
 
         This encapsulates many byte stream operations so that it can be used
@@ -200,9 +200,9 @@ class Inventory:
 
         Args:
             stream: the data stream of a specific tarball member
-            tarfile: the TarFile object
+            tar_ref: the TarFile object
         """
-        self.tarfile = tarfile
+        self.tarfile = tar_ref
         self.stream = stream
 
     def close(self):
@@ -423,8 +423,8 @@ class Tarball:
         relative path reference
 
         Args:
-            path: relative path of the sub-directory/file
-            cachemap: dictionary mapping of the root Dicrectory
+            path: relative path of the subdirectory/file
+            cachemap: dictionary mapping of the root directory
 
         Raises:
             BadDirpath if the directory/file path is not valid
@@ -454,13 +454,13 @@ class Tarball:
         """Returns the details of the given file/directory in dict format
 
         NOTE: This requires a call to the cache_map method to build a map that
-        can be traversed. Currently this is done only on unpack, and isn't
+        can be traversed. Currently, this is done only on unpack, and isn't
         useful except within the `pbench-index` process. This map needs to
         either be built dynamically (potentially expensive) or persisted in
         SQL or perhaps Redis.
 
         Args:
-            path: path of the file/sub-directory
+            path: path of the file/subdirectory
 
         Raises:
             BadDirpath on bad directory path
@@ -506,7 +506,7 @@ class Tarball:
         return fd_info
 
     @staticmethod
-    def extract(tarball_path: Path, path: Path) -> Inventory:
+    def extract(tarball_path: Path, path: str) -> Inventory:
         """Returns a file stream for a file within a tarball
 
         Args:
@@ -552,7 +552,7 @@ class Tarball:
             }
         else:
             file_path = Path(self.name) / path
-            stream = Tarball.extract(self.tarball_path, file_path)
+            stream = Tarball.extract(self.tarball_path, str(file_path))
             info = {"name": file_path.name, "type": CacheType.FILE, "stream": stream}
 
         return info
@@ -629,14 +629,15 @@ class Tarball:
         Rather than passing the indexer the root `/srv/pbench/.cache` or trying
         to update all of the indexer code (which still jumps back and forth
         between the tarball and the unpacked files), we maintain the "cache"
-        directory as two paths: self.cache which is the directory we manage
+        directory as two paths:  self.cache which is the directory we manage
         here and pass to the indexer (/srv/pbench/.cache/<resource_id>) and
         the actual unpacked root (/srv/pbench/.cache/<resource_id>/<name>).
         """
         self.cache.mkdir(parents=True)
 
         try:
-            tar_command = f"tar -x --no-same-owner --delay-directory-restore --force-local --file='{str(self.tarball_path)}'"
+            tar_command = "tar -x --no-same-owner --delay-directory-restore "
+            tar_command += f"--force-local --file='{str(self.tarball_path)}'"
             self.subprocess_run(
                 tar_command, self.cache, TarballUnpackError, self.tarball_path
             )
@@ -770,18 +771,18 @@ class Controller:
         controller_dir.mkdir(exist_ok=True, mode=0o755)
         return cls(controller_dir, options.CACHE, logger)
 
-    def create_tarball(self, tarfile: Path) -> Tarball:
+    def create_tarball(self, tarfile_path: Path) -> Tarball:
         """Create a new dataset tarball object under the controller
 
         The new tarball object is linked to the controller so we can find it.
 
         Args:
-            tarfile: Path to source tarball file
+            tarfile_path: Path to source tarball file
 
         Returns:
             Tarball object
         """
-        tarball = Tarball.create(tarfile, self)
+        tarball = Tarball.create(tarfile_path, self)
         self.datasets[tarball.resource_id] = tarball
         self.tarballs[tarball.name] = tarball
         return tarball
@@ -974,7 +975,7 @@ class CacheManager:
         """Build a representation of the ARCHIVE tree
 
         Record all controllers (top level directories), and the tarballs that
-        that represent datasets within them.
+        represent datasets within them.
         """
         for file in self.archive_root.iterdir():
             if file.is_dir() and file.name != CacheManager.TEMPORARY:
@@ -1008,12 +1009,12 @@ class CacheManager:
 
         # The dataset isn't already known; so search for it in the ARCHIVE tree
         # and (if found) discover the controller containing that dataset.
-        for dir in self.archive_root.iterdir():
-            if dir.is_dir() and dir.name != self.TEMPORARY:
-                for file in dir.glob(f"*{Dataset.TARBALL_SUFFIX}"):
+        for dir_entry in self.archive_root.iterdir():
+            if dir_entry.is_dir() and dir_entry.name != self.TEMPORARY:
+                for file in dir_entry.glob(f"*{Dataset.TARBALL_SUFFIX}"):
                     md5 = get_tarball_md5(file)
                     if md5 == dataset_id:
-                        self._add_controller(dir)
+                        self._add_controller(dir_entry)
                         return self.datasets[dataset_id]
         raise TarballNotFound(dataset_id)
 
@@ -1037,7 +1038,7 @@ class CacheManager:
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
     #   unpacked directory tree.
 
-    def create(self, tarfile: Path) -> Tarball:
+    def create(self, tarfile_path: Path) -> Tarball:
         """Bring a new tarball under cache manager management.
 
         Move a dataset tarball and companion MD5 file into the specified
@@ -1045,8 +1046,7 @@ class CacheManager:
         necessary.
 
         Args:
-            controller: associated controller name
-            tarfile: dataset tarball path
+            tarfile_path: dataset tarball path
 
         Raises
             BadDirpath: Failure on extracting the file from tarball
@@ -1059,19 +1059,19 @@ class CacheManager:
             Tarball object
         """
         try:
-            metadata = Tarball._get_metadata(tarfile)
+            metadata = Tarball._get_metadata(tarfile_path)
             if metadata:
                 controller_name = metadata["run"]["controller"]
             else:
                 controller_name = "unknown"
         except Exception as exc:
-            raise MetadataError(tarfile, exc)
+            raise MetadataError(tarfile_path, exc)
 
         if not controller_name:
-            raise MetadataError(tarfile, "no controller value")
-        if not tarfile.is_file():
-            raise BadFilename(tarfile)
-        name = Dataset.stem(tarfile)
+            raise MetadataError(tarfile_path, ValueError("no controller value"))
+        if not tarfile_path.is_file():
+            raise BadFilename(tarfile_path)
+        name = Dataset.stem(tarfile_path)
         if name in self.tarballs:
             raise DuplicateTarball(name)
         if controller_name in self.controllers:
@@ -1079,7 +1079,7 @@ class CacheManager:
         else:
             controller = Controller.create(controller_name, self.options, self.logger)
             self.controllers[controller_name] = controller
-        tarball = controller.create_tarball(tarfile)
+        tarball = controller.create_tarball(tarfile_path)
         tarball.metadata = metadata
         self.tarballs[tarball.name] = tarball
         self.datasets[tarball.resource_id] = tarball
@@ -1122,7 +1122,7 @@ class CacheManager:
             }
 
         Args:
-            dataset: Dataset resource ID
+            dataset_id: Dataset resource ID
             target: relative file path within the tarball
 
         Returns:
