@@ -10,6 +10,7 @@ import {
   SidebarPanel,
   Switch,
 } from "@patternfly/react-core";
+import { MainContent, SearchByName } from "./common-components";
 import React, { useEffect } from "react";
 import {
   compareMultipleDatasets,
@@ -18,10 +19,7 @@ import {
 } from "actions/comparisonActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import ChartModal from "./ChartModal";
-import { MainContent } from "./common-components";
 import PanelConent from "./PanelContent";
-import { SearchByName } from "./common-components";
 import { getDatasets } from "actions/overviewActions";
 import { useNavigate } from "react-router-dom";
 
@@ -30,8 +28,9 @@ const ComparisonComponent = () => {
   const navigate = useNavigate();
 
   const { datasets } = useSelector((state) => state.overview);
-  const { isCompareSwitchChecked, selectedResourceIds, activeChart } =
-    useSelector((state) => state.comparison);
+  const { isCompareSwitchChecked, selectedResourceIds } = useSelector(
+    (state) => state.comparison
+  );
   useEffect(() => {
     if (datasets && datasets.length > 0) {
       dispatch(getQuisbyData(datasets[0]));
