@@ -118,11 +118,16 @@ class IndexMapBase(ElasticBase):
         """Retrieve the list of ES indices from the metadata table based on a
         given root_index_name.
         """
+
+        # Datasets marked "archiveonly" aren't indexed, and can't be referenced
+        # in APIs that rely on Elasticsearch. Instead, we'll raise a CONFLICT
+        # error.
+        if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
+            raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
+
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as exc:
-            if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
-                raise APIAbort(HTTPStatus.CONFLICT, "Dataset is not indexed")
             raise APIInternalError(
                 f"Required metadata {Metadata.INDEX_MAP} missing"
             ) from exc
