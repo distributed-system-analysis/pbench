@@ -6,7 +6,6 @@ from pathlib import Path
 import shlex
 import shutil
 import subprocess
-import tarfile
 from time import sleep
 from typing import Any, IO, Optional, Union
 
@@ -186,14 +185,14 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
 
 
 class Inventory:
-    """Encapsulate the tarfile TarFile object and file stream
+    """Encapsulate the file stream and subprocess.Popen object
 
     This encapsulation allows cleaner downstream handling, so that we can close
-    both the extractfile file stream and the tarball object itself when we're
-    done. This eliminates interference with later operations.
+    both the extracted file stream and the Popen object itself when we're done.
+    This eliminates interference with later operations.
     """
 
-    def __init__(self, stream: IO[bytes], tar_ref: Optional[tarfile.TarFile] = None):
+    def __init__(self, stream: IO[bytes], subproc: Optional[subprocess.Popen] = None):
         """Construct an instance to track extracted inventory
 
         This encapsulates many byte stream operations so that it can be used
@@ -201,16 +200,40 @@ class Inventory:
 
         Args:
             stream: the data stream of a specific tarball member
-            tar_ref: the TarFile object
+            subproc: the subprocess producing the stream, if any
         """
-        self.tarfile = tar_ref
+        self.subproc = subproc
         self.stream = stream
 
     def close(self):
-        """Close both the byte stream and, if open, a tarfile object"""
+        """Close the byte stream and clean up the Popen object"""
+        if self.subproc:
+            try:
+                if self.subproc.poll() is None:
+                    # The subprocess is still running: kill it, drain the outputs,
+                    # and wait for its termination.  (If the timeout on the wait()
+                    # is exceeded, it will raise subprocess.TimeoutExpired rather
+                    # than waiting forever...it's not clear what will happen after
+                    # that, but there's not a good alternative, so I hope this
+                    # never actually happens.)
+                    self.subproc.kill()
+                    if self.subproc.stdout:
+                        while self.subproc.stdout.read(4096):
+                            pass
+                    if self.subproc.stderr:
+                        while self.subproc.stderr.read(4096):
+                            pass
+                    self.subproc.wait(60.0)
+            finally:
+                # Release our reference to the subprocess.Popen object so that the
+                # object can be reclaimed.
+                self.subproc = None
+
+        # Explicitly close the stream, in case there never was an associated
+        # subprocess.  (If there was an associated subprocess, the streams are
+        # now empty, and we'll assume that they are closed when the Popen
+        # object is reclaimed.)
         self.stream.close()
-        if self.tarfile:
-            self.tarfile.close()
 
     def getbuffer(self):
         """Return the underlying byte buffer (used by send_file)"""
@@ -230,7 +253,7 @@ class Inventory:
 
     def __repr__(self) -> str:
         """Return a string representation"""
-        return f"<Stream {self.stream} from {self.tarfile}>"
+        return f"<Stream {self.stream} from {self.subproc}>"
 
     def __iter__(self):
         """Allow iterating through lines in the buffer"""
@@ -516,18 +539,19 @@ class Tarball:
 
         Returns:
             An inventory object that mimics an IO[bytes] object while also
-            maintaining a reference to the tarfile TarFile object to be
-            closed later.
+            maintaining a reference to the subprocess.Popen object to be
+            cleaned up later.
 
         Raise:
-            TarballNotFound on failure opening the tarball
             CacheExtractBadPath if the target cannot be extracted
+            TarballUnpackError on other tar-command failures
             Any exception raised by subprocess.Popen()
-            RuntimeError on unexpected failures (see message)
         """
         tar_path = shutil.which("tar")
         if tar_path is None:
-            raise RuntimeError("External 'tar' executable not found")
+            raise TarballUnpackError(
+                tarball_path, "External 'tar' executable not found"
+            )
 
         # The external tar utility offers better capabilities than the
         # Standard Library package, so run it in a subprocess:  extract
@@ -537,7 +561,7 @@ class Tarball:
         # instances of it later in the archive -- this is a huge savings when
         # the archive is very large.
         tarproc = subprocess.Popen(
-            [str(tar_path), "xOf", tarball_path, "--occurrence=1", path],
+            [str(tar_path), "xf", tarball_path, "--to-stdout", "--occurrence=1", path],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -550,31 +574,27 @@ class Tarball:
 
         # If the return code is None (meaning the command is still running) or
         # is zero (meaning it completed successfully), then return the stream
-        # containing the extracted file to our caller.
+        # containing the extracted file to our caller, and return the Popen
+        # object to ensure it stays "alive" until our caller is done with the
+        # stream.
         if not tarproc.returncode:
-            # Since we own the `tarproc` object, we don't need to return a
-            # value for the second part of the Inventory object (this is an
-            # artifact from when we used the Standard Library tarfile
-            # package).
-            return Inventory(tarproc.stdout, None)
+            return Inventory(tarproc.stdout, tarproc)
 
         # The tar command was invoked successfully (otherwise, the Popen()
         # constructor would have raised an exception), but it exited with
         # an error code.  We have to glean what went wrong by looking at
-        # stderror, which is fragile but the only option.  Rather than
-        # relying on looking for specific text, we assume that, if the
-        # error references the tar file, the file was not found (or is
-        # otherwise inaccessible) and if the error references the archive
-        # member, then it was a bad path.  (Failing those, report a generic
-        # failure.)
+        # stderr, which is fragile but the only option.  Rather than
+        # relying on looking for specific text, we assume that, if the error
+        # references the archive member, then it was a bad path; otherwise, it
+        # was some sort of error unpacking it.
         error_text = tarproc.stderr.read().decode()
-        if str(tarball_path) in error_text:
-            # "tar: /path/to/bad_tarball.tar.xz: Cannot open: No such file or directory"
-            raise TarballNotFound(str(tarball_path))
         if path in error_text:
             # "tar: missing_member.txt: Not found in archive"
             raise CacheExtractBadPath(tarball_path, path)
-        raise RuntimeError(f"Unexpected error from {tar_path}: {error_text!r}")
+        # "tar: /path/to/bad_tarball.tar.xz: Cannot open: No such file or directory"
+        raise TarballUnpackError(
+            tarball_path, f"Unexpected error from {tar_path}: {error_text!r}"
+        )
 
     def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
         """Access the file stream of a tarball member file.
@@ -592,9 +612,9 @@ class Tarball:
                 "stream": Inventory(self.tarball_path.open("rb"), None),
             }
         else:
-            file_path = Path(self.name) / path
-            stream = Tarball.extract(self.tarball_path, str(file_path))
-            info = {"name": file_path.name, "type": CacheType.FILE, "stream": stream}
+            file_path = f"{self.name}/{path}"
+            stream = Tarball.extract(self.tarball_path, file_path)
+            info = {"name": file_path, "type": CacheType.FILE, "stream": stream}
 
         return info
 
