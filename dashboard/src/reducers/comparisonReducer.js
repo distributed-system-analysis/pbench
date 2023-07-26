@@ -5,6 +5,13 @@ const initialState = {
   chartData: [],
   activeResourceId: "",
   unsupportedType: "",
+  isCompareSwitchChecked: false,
+  selectedResourceIds: [],
+  unmatchedMessage: "",
+  isChartModalOpen: false,
+  activeChart: "",
+  compareChartData: [],
+  searchValue: "",
 };
 
 const ComparisonReducer = (state = initialState, action = {}) => {
@@ -29,6 +36,41 @@ const ComparisonReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         unsupportedType: payload,
+      };
+    case TYPES.TOGGLE_COMPARE_SWITCH:
+      return {
+        ...state,
+        isCompareSwitchChecked: payload,
+      };
+    case TYPES.SET_SELECTED_RESOURCE_ID:
+      return {
+        ...state,
+        selectedResourceIds: payload,
+      };
+    case TYPES.UNMATCHED_BENCHMARK_TYPES:
+      return {
+        ...state,
+        unmatchedMessage: payload,
+      };
+    case TYPES.SET_CHART_MODAL:
+      return {
+        ...state,
+        isChartModalOpen: payload,
+      };
+    case TYPES.SET_CURRENT_CHARTID:
+      return {
+        ...state,
+        activeChart: payload,
+      };
+    case TYPES.SET_COMPARE_DATA:
+      return {
+        ...state,
+        compareChartData: payload,
+      };
+    case TYPES.SET_SEARCH_VALUE:
+      return {
+        ...state,
+        searchValue: payload,
       };
     default:
       return state;

@@ -37,17 +37,16 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
       dispatch(parseChartData());
     }
   } catch (error) {
-    if (error?.response && error.response?.data) {
-      const errorMsg = error.response.data?.message;
-      const isUnsupportedType = errorMsg
+    if (
+      error?.response?.data &&
+      error.response.data?.message
         ?.toLowerCase()
-        .includes("unsupported benchmark");
-      if (isUnsupportedType) {
-        dispatch({
-          type: TYPES.IS_UNSUPPORTED_TYPE,
-          payload: errorMsg,
-        });
-      }
+        .includes("unsupported benchmark")
+    ) {
+      dispatch({
+        type: TYPES.IS_UNSUPPORTED_TYPE,
+        payload: error.response.data.message,
+      });
     } else {
       dispatch(showToast(DANGER, ERROR_MSG));
     }
@@ -55,10 +54,12 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
   }
   dispatch({ type: TYPES.COMPLETED });
 };
-
+const COLORS = ["#8BC1F7", "#0066CC", "#519DE9", "#004B95", "#002F5D"];
 export const parseChartData = () => (dispatch, getState) => {
   const response = getState().comparison.data.data;
+  const isCompareSwitchChecked = getState().comparison.isCompareSwitchChecked;
   const chartData = [];
+  let i = 0;
 
   for (const run of response) {
     const options = {
@@ -97,26 +98,130 @@ export const parseChartData = () => (dispatch, getState) => {
       },
     };
 
-    const datasets = [
-      {
-        label: run.instances[0].dataset_name,
-        data: run.instances.map((i) => i.time_taken),
-        backgroundColor: "#8BC1F7",
-      },
-    ];
-
+    const datasets = [];
     const data = {
-      labels: run.instances.map((i) => i.name),
+      labels: [...new Set(run.instances.map((i) => i.name))],
       id: `${run.test_name}_${run.metrics_unit}`,
       datasets,
     };
+    const result = run.instances.reduce(function (r, a) {
+      r[a.dataset_name] = r[a.dataset_name] || [];
+      r[a.dataset_name].push(a);
+      return r;
+    }, Object.create(null));
+
+    for (const [key, value] of Object.entries(result)) {
+      console.log(key);
+
+      const map = {};
+      for (const element of value) {
+        map[element.name] = element.time_taken.trim();
+      }
+      const mappedData = data.labels.map((label) => {
+        return map[label];
+      });
+      const obj = { label: key, backgroundColor: COLORS[i], data: mappedData };
+      i++;
+      datasets.push(obj);
+    }
 
     const obj = { options, data };
     chartData.push(obj);
+    i = 0;
   }
+  const type = isCompareSwitchChecked
+    ? TYPES.SET_COMPARE_DATA
+    : TYPES.SET_PARSED_DATA;
 
   dispatch({
-    type: TYPES.SET_PARSED_DATA,
+    type,
     payload: chartData,
   });
 };
+
+export const toggleCompareSwitch = () => (dispatch, getState) => {
+  dispatch({
+    type: TYPES.TOGGLE_COMPARE_SWITCH,
+    payload: !getState().comparison.isCompareSwitchChecked,
+  });
+};
+
+export const setSelectedId = (isChecked, rId) => (dispatch, getState) => {
+  let selectedIds = [...getState().comparison.selectedResourceIds];
+  if (isChecked) {
+    selectedIds = [...selectedIds, rId];
+  } else {
+    selectedIds = selectedIds.filter((item) => item !== rId);
+  }
+  dispatch({
+    type: TYPES.SET_SELECTED_RESOURCE_ID,
+    payload: selectedIds,
+  });
+};
+
+export const compareMultipleDatasets = () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: TYPES.LOADING });
+
+    const endpoints = getState().apiEndpoint.endpoints;
+    const selectedIds = [...getState().comparison.selectedResourceIds];
+
+    const params = new URLSearchParams();
+    params.append("datasets", selectedIds.toString());
+    const response = await API.get(
+      uriTemplate(endpoints, "datasets_compare", {}),
+      { params }
+    );
+    if (response.status === 200 && response.data.json_data) {
+      dispatch({
+        type: TYPES.SET_QUISBY_DATA,
+        payload: response.data.json_data,
+      });
+      dispatch({
+        type: TYPES.UNMATCHED_BENCHMARK_TYPES,
+        payload: "",
+      });
+      dispatch(parseChartData());
+    }
+  } catch (error) {
+    if (
+      error?.response?.data &&
+      error.response.data?.message
+        ?.toLowerCase()
+        .includes("benchmarks must match")
+    ) {
+      dispatch({
+        type: TYPES.UNMATCHED_BENCHMARK_TYPES,
+        payload: error.response.data.message,
+      });
+    } else {
+      dispatch(showToast(DANGER, ERROR_MSG));
+    }
+    dispatch({ type: TYPES.NETWORK_ERROR });
+  }
+  dispatch({ type: TYPES.COMPLETED });
+};
+
+export const setChartModalContent = (chartId) => (dispatch, getState) => {
+  const isCompareSwitchChecked = getState().comparison.isCompareSwitchChecked;
+  const data = isCompareSwitchChecked
+    ? getState().comparison.compareChartData
+    : getState().comparison.chartData;
+
+  const activeChart = data.filter((item) => item.data.id === chartId)[0];
+
+  dispatch({
+    type: TYPES.SET_CURRENT_CHARTID,
+    payload: activeChart,
+  });
+};
+
+export const setChartModal = (isOpen) => ({
+  type: TYPES.SET_CHART_MODAL,
+  payload: isOpen,
+});
+
+export const setSearchValue = (value) => ({
+  type: TYPES.SET_SEARCH_VALUE,
+  payload: value,
+});
