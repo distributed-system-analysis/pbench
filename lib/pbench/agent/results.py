@@ -406,8 +406,13 @@ class CopyResultToServer(CopyResult):
         if server:
             path = config.get("results", "rest_endpoint")
             uri = f"{server}/{path}"
+            self.ca = None
         else:
             uri = config.get("results", "server_rest_url")
+
+            # If the "server_ca" config variable isn't defined, we expect to verify
+            # using a registered CA.
+            self.ca = config.get("results", "server_ca", fallback=None)
         self.uri = f"{uri}/upload/{{name}}"
         self.headers.update({"Authorization": f"Bearer {token}"})
 
@@ -430,7 +435,11 @@ class CopyResultToServer(CopyResult):
         tar_uri = self.uri.format(name=tarball.name)
         with tarball.open("rb") as f:
             return requests.put(
-                tar_uri, data=f, headers=self.headers, params=self.params
+                tar_uri,
+                data=f,
+                headers=self.headers,
+                params=self.params,
+                verify=self.ca,
             )
 
 
