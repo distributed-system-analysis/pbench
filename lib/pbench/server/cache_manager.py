@@ -10,7 +10,7 @@ from time import sleep
 from typing import Any, IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
-from pbench.server import JSONOBJECT, PbenchServerConfig
+from pbench.server import JSONOBJECT, PathLike, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.utils import get_tarball_md5
 
@@ -35,7 +35,7 @@ class BadDirpath(CacheManagerError):
 class BadFilename(CacheManagerError):
     """A bad tarball path was given."""
 
-    def __init__(self, path: Union[str, Path]):
+    def __init__(self, path: PathLike):
         self.path = str(path)
 
     def __str__(self) -> str:
@@ -45,7 +45,7 @@ class BadFilename(CacheManagerError):
 class CacheExtractBadPath(CacheManagerError):
     """Request to extract a path that's bad or not a file"""
 
-    def __init__(self, tar_name: Path, path: Union[str, Path]):
+    def __init__(self, tar_name: Path, path: PathLike):
         self.name = tar_name.name
         self.path = str(path)
 
@@ -132,6 +132,14 @@ class CacheObject:
     resolve_type: Optional[CacheType]
     size: Optional[int]
     type: CacheType
+
+
+# Type hint definitions for the cache map.
+#
+# CacheMapEntry: { "details": CacheObject, "children": CacheMap }
+# CacheMap: { "<directory_entry>": CacheMapEntry, ... }
+CacheMapEntry = dict[str, Union[CacheObject, "CacheMap"]]
+CacheMap = dict[str, CacheMapEntry]
 
 
 def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
@@ -306,7 +314,7 @@ class Tarball:
         self.cache: Path = controller.cache / self.resource_id
 
         # Record hierarchy of a Tar ball
-        self.cachemap: Optional[JSONOBJECT] = None
+        self.cachemap: Optional[CacheMap] = None
 
         # Record the base of the unpacked files for cache management, which
         # is (self.cache / self.name) and will be None when the cache is
@@ -386,11 +394,11 @@ class Tarball:
         except Exception as e:
             try:
                 md5_destination.unlink()
-            except Exception as e:
+            except Exception as md5_e:
                 controller.logger.error(
                     "Unable to recover by removing {} MD5 after tarball copy failure: {}",
                     name,
-                    e,
+                    md5_e,
                 )
             controller.logger.error(
                 "ERROR copying dataset {} tarball {}: {}", name, tarball, e
@@ -423,13 +431,15 @@ class Tarball:
             dir_path: root directory
         """
         root_dir_path = dir_path.parent
-        cmap = {dir_path.name: {"details": make_cache_object(root_dir_path, dir_path)}}
-        dir_queue = deque([(dir_path, cmap)])
+        cmap: CacheMap = {
+            dir_path.name: {"details": make_cache_object(root_dir_path, dir_path)}
+        }
+        dir_queue = deque(((dir_path, cmap),))
         while dir_queue:
             dir_path, parent_map = dir_queue.popleft()
             tar_n = dir_path.name
 
-            curr = {}
+            curr: CacheMapEntry = {}
             for l_path in dir_path.glob("*"):
                 tar_info = make_cache_object(root_dir_path, l_path)
                 curr[l_path.name] = {"details": tar_info}
@@ -442,7 +452,7 @@ class Tarball:
         self.cachemap = cmap
 
     @staticmethod
-    def traverse_cmap(path: Path, cachemap: dict) -> dict[str, dict]:
+    def traverse_cmap(path: Path, cachemap: CacheMap) -> CacheMapEntry:
         """Sequentially traverses the cachemap to find the leaf of a
         relative path reference
 
@@ -461,9 +471,9 @@ class Tarball:
 
         try:
             for file_l in file_list:
-                info = f_entries[file_l]
+                info: CacheMapEntry = f_entries[file_l]
                 if info["details"].type == CacheType.DIRECTORY:
-                    f_entries = info["children"]
+                    f_entries: CacheMap = info["children"]
                 else:
                     raise BadDirpath(
                         f"Found a file {file_l!r} where a directory was expected in path {str(path)!r}"
@@ -640,7 +650,10 @@ class Tarball:
 
     @staticmethod
     def subprocess_run(
-        command: str, working_dir: Path, exception: type[CacheManagerError], ctx: Path
+        command: str,
+        working_dir: PathLike,
+        exception: type[CacheManagerError],
+        ctx: Path,
     ):
         """Runs a command as a subprocess.
 

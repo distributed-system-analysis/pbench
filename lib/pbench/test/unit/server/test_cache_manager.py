@@ -6,7 +6,6 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-import tarfile
 from typing import IO
 
 import pytest
@@ -71,7 +70,7 @@ def selinux_enabled(monkeypatch):
     monkeypatch.setattr("pbench.common.selinux.restorecon", lambda a: None)
 
 
-def fake_get_metadata(tb_path):
+def fake_get_metadata(_tb_path):
     return {"pbench": {"date": "2002-05-16T00:00:00"}, "run": {"controller": "ABC"}}
 
 
@@ -137,13 +136,13 @@ class TestCacheManager:
     ):
         """Test behavior with metadata.log access errors."""
 
-        def fake_metadata(tar_path):
+        def fake_metadata(_tar_path):
             return {"pbench": {"date": "2002-05-16T00:00:00"}}
 
-        def fake_metadata_run(tar_path):
+        def fake_metadata_run(_tar_path):
             return {"pbench": {"date": "2002-05-16T00:00:00"}, "run": {}}
 
-        def fake_metadata_controller(tar_path):
+        def fake_metadata_controller(_tar_path):
             return {
                 "pbench": {"date": "2002-05-16T00:00:00"},
                 "run": {"controller": ""},
@@ -168,7 +167,8 @@ class TestCacheManager:
                 cm.create(source_tarball)
             assert str(exc.value) == expected_metaerror
 
-        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'no controller value'"
+        expected_metaerror = "A problem occurred processing metadata.log "
+        expected_metaerror += f"from {source_tarball!s}: 'no controller value'"
         with monkeypatch.context() as m:
             m.setattr(Tarball, "_get_metadata", fake_metadata_controller)
             with pytest.raises(MetadataError) as exc:
@@ -210,7 +210,7 @@ class TestCacheManager:
 
         cm.create(source_tarball)
 
-        # The create will remove the source files, so trying again should
+        # The create call will remove the source files, so trying again should
         # result in an error.
         with pytest.raises(BadFilename) as exc:
             cm.create(source_md5)
@@ -221,10 +221,8 @@ class TestCacheManager:
         tarball = cm.find_dataset(md5)
         with pytest.raises(DuplicateTarball) as exc:
             cm.create(tarball.tarball_path)
-        assert (
-            str(exc.value)
-            == "A dataset tarball named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present"
-        )
+        msg = "A dataset tarball named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present"
+        assert str(exc.value) == msg
         assert tarball.metadata == fake_get_metadata(tarball.tarball_path)
         assert exc.value.tarball == tarball.name
 
@@ -253,10 +251,10 @@ class TestCacheManager:
 
     def test_tarball_subprocess_run_with_exception(self, monkeypatch):
         """Test to check the subprocess_run functionality of the Tarball when
-        an Exception occured"""
+        an Exception occurred"""
         my_command = "mycommand"
 
-        def mock_run(args, **kwargs):
+        def mock_run(args, **_kwargs):
             assert args[0] == my_command
             raise subprocess.TimeoutExpired(my_command, 43)
 
@@ -266,18 +264,18 @@ class TestCacheManager:
             my_dir = "my_dir"
 
             with pytest.raises(TarballUnpackError) as exc:
-                Tarball.subprocess_run(command, my_dir, TarballUnpackError, my_dir)
-            assert (
-                str(exc.value)
-                == f"An error occurred while unpacking {my_dir}: Command '{my_command}' timed out after 43 seconds"
-            )
+                Tarball.subprocess_run(
+                    command, my_dir, TarballUnpackError, Path(my_dir)
+                )
+            msg = f"An error occurred while unpacking {my_dir}: Command '{my_command}' timed out after 43 seconds"
+            assert str(exc.value) == msg
 
     def test_tarball_subprocess_run_with_returncode(self, monkeypatch):
         """Test to check the subprocess_run functionality of the Tarball when
         returncode value is not zero"""
         my_command = "mycommand"
 
-        def mock_run(args, **kwargs):
+        def mock_run(args, **_kwargs):
             assert args[0] == my_command
             return subprocess.CompletedProcess(
                 args, returncode=1, stdout=None, stderr="Some error unpacking tarball\n"
@@ -290,10 +288,10 @@ class TestCacheManager:
 
             with pytest.raises(TarballUnpackError) as exc:
                 Tarball.subprocess_run(command, my_dir, TarballUnpackError, my_dir)
-            assert (
-                str(exc.value)
-                == f"An error occurred while unpacking {my_dir.name}: {my_command} exited with status 1:  'Some error unpacking tarball'"
-            )
+
+            msg = f"An error occurred while unpacking {my_dir.name}: {my_command} "
+            msg += "exited with status 1:  'Some error unpacking tarball'"
+            assert str(exc.value) == msg
 
     def test_tarball_subprocess_run_success(self, monkeypatch):
         """Test to check the successful run of subprocess_run functionality of the Tarball."""
@@ -340,7 +338,7 @@ class TestCacheManager:
                         subdir11/
                         subdir12/
                             f121_sym -> ../../subdir1/subdir15
-                            f122_sym -> ./bad_subdir/nonexixtent_file.txt
+                            f122_sym -> ./bad_subdir/nonexistent_file.txt
                         subdir13/
                             f131_sym -> /etc/passwd
                         subdir14/
@@ -437,7 +435,7 @@ class TestCacheManager:
             self.cache = controller.cache / "ABC"
             self.unpacked = None
 
-    def test_unpack_tar_subprocess_exception(self, monkeypatch):
+    def test_unpack_tar_subprocess_exception(self, make_logger, monkeypatch):
         """Show that, when unpacking of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
@@ -451,7 +449,7 @@ class TestCacheManager:
             assert ignore_errors
             assert path == cache / "ABC"
 
-        def mock_run(command, dir_path, exception, dir_p):
+        def mock_run(command, _dir_path, exception, dir_p):
             verb = "tar"
             assert command.startswith(verb)
             raise exception(dir_p, subprocess.TimeoutExpired(verb, 43))
@@ -462,17 +460,15 @@ class TestCacheManager:
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
             with pytest.raises(TarballUnpackError) as exc:
                 tb.unpack()
-            assert (
-                str(exc.value)
-                == f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
-            )
+            msg = f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
+            assert str(exc.value) == msg
             assert exc.type == TarballUnpackError
             assert rmtree_called
 
-    def test_unpack_find_subprocess_exception(self, monkeypatch):
+    def test_unpack_find_subprocess_exception(self, make_logger, monkeypatch):
         """Show that, when permission change of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
@@ -486,7 +482,7 @@ class TestCacheManager:
             assert ignore_errors
             assert path == cache / "ABC"
 
-        def mock_run(command, dir_path, exception, dir_p):
+        def mock_run(command, _dir_path, exception, dir_p):
             verb = "find"
             if command.startswith(verb):
                 raise exception(dir_p, subprocess.TimeoutExpired(verb, 43))
@@ -499,24 +495,23 @@ class TestCacheManager:
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
 
             with pytest.raises(TarballModeChangeError) as exc:
                 tb.unpack()
-            assert (
-                str(exc.value)
-                == f"An error occurred while changing file permissions of {cache / 'ABC'}: Command 'find' timed out after 43 seconds"
-            )
+            msg = "An error occurred while changing file permissions of "
+            msg += f"{cache / 'ABC'}: Command 'find' timed out after 43 seconds"
+            assert str(exc.value) == msg
             assert exc.type == TarballModeChangeError
             assert rmtree_called
 
-    def test_unpack_success(self, monkeypatch):
+    def test_unpack_success(self, make_logger, monkeypatch):
         """Test to check the unpacking functionality of the CacheManager"""
         tar = Path("/mock/A.tar.xz")
         cache = Path("/mock/.cache")
         call = list()
 
-        def mock_run(args, **kwargs):
+        def mock_run(args, **_kwargs):
             call.append(args[0])
 
             tar_target = "--file=" + str(tar)
@@ -525,18 +520,23 @@ class TestCacheManager:
                 args, returncode=0, stdout="Successfully Unpacked!", stderr=None
             )
 
+        def mock_resolve(_path, _strict=False):
+            """In this scenario, there are no symlinks,
+            so resolve() should never be called."""
+            raise AssertionError("Unexpected call to Path.resolve()")
+
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents: None)
             m.setattr(subprocess, "run", mock_run)
-            m.setattr(Path, "resolve", lambda path, strict: path)
+            m.setattr(Path, "resolve", mock_resolve)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
             tb.unpack()
             assert call == ["tar", "find"]
             assert tb.unpacked == cache / "ABC" / tb.name
 
-    def test_cache_map_success(self, monkeypatch, tmp_path):
+    def test_cache_map_success(self, make_logger, monkeypatch, tmp_path):
         """Test to build the cache map of the root directory"""
         tar = Path("/mock/dir_name.tar.xz")
         cache = Path("/mock/.cache")
@@ -544,28 +544,25 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
             tb.cache_map(tar_dir)
-            assert (
-                tb.cachemap["dir_name"]["children"]["subdir1"]["details"].name
-                == "subdir1"
-            )
-            assert (
-                tb.cachemap["dir_name"]["children"]["subdir1"]["children"]["subdir14"][
-                    "children"
-                ]["subdir141"]["children"]["f1412_sym"]["details"].type
-                == CacheType.SYMLINK
-            )
+
+            sd1 = tb.cachemap["dir_name"]["children"]["subdir1"]
+            assert sd1["details"].name == "subdir1"
+
+            sd141 = sd1["children"]["subdir14"]["children"]["subdir141"]
+            assert sd141["children"]["f1412_sym"]["details"].type == CacheType.SYMLINK
 
     @pytest.mark.parametrize(
         "file_path, expected_msg",
         [
             (
                 "/dir_name/subdir1/f11.txt",
-                "The path '/dir_name/subdir1/f11.txt' is an absolute path, we expect relative path to the root directory.",
+                "The path '/dir_name/subdir1/f11.txt' is an absolute path, "
+                "we expect relative path to the root directory.",
             ),
             (
                 "dir_name/subdir1/subdir11/../f11.txt",
@@ -593,12 +590,13 @@ class TestCacheManager:
             ),
             (
                 "dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file",
-                "Found a file 'f1412_sym' where a directory was expected in path 'dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file'",
+                "Found a file 'f1412_sym' where a directory was expected "
+                "in path 'dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file'",
             ),
         ],
     )
     def test_cache_map_bad_dir_path(
-        self, monkeypatch, tmp_path, file_path, expected_msg
+        self, make_logger, monkeypatch, tmp_path, file_path, expected_msg
     ):
         """Test to check bad directory or file path"""
         tar = Path("/mock/dir_name.tar.xz")
@@ -607,7 +605,7 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -768,6 +766,7 @@ class TestCacheManager:
     )
     def test_cache_map_traverse_cmap(
         self,
+        make_logger,
         monkeypatch,
         tmp_path,
         file_path,
@@ -785,7 +784,7 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -862,7 +861,7 @@ class TestCacheManager:
         ],
     )
     def test_cache_map_get_info_cmap(
-        self, monkeypatch, tmp_path, file_path, expected_msg
+        self, make_logger, monkeypatch, tmp_path, file_path, expected_msg
     ):
         """Test to check if the info returned by the cachemap is correct"""
         tar = Path("/mock/dir_name.tar.xz")
@@ -871,7 +870,7 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -891,7 +890,7 @@ class TestCacheManager:
         ],
     )
     def test_get_inventory(
-        self, monkeypatch, tmp_path, file_path, exp_file_type, exp_stream
+        self, make_logger, monkeypatch, tmp_path, file_path, exp_file_type, exp_stream
     ):
         """Test to extract file contents/stream from a file"""
         tar = Path("/mock/dir_name.tar.xz")
@@ -902,7 +901,7 @@ class TestCacheManager:
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             m.setattr(Tarball, "extract", lambda _t, _p: Inventory(exp_stream))
             m.setattr(Path, "open", lambda _s, _m="rb": exp_stream)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -913,7 +912,7 @@ class TestCacheManager:
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
-        id = None
+        dataset_id = None
 
         class MockTarball:
             def get_inventory(self, target: str) -> JSONOBJECT:
@@ -923,9 +922,9 @@ class TestCacheManager:
                     "stream": Inventory(io.BytesIO(b"success")),
                 }
 
-        def mock_find_dataset(self, dataset: str) -> MockTarball:
-            nonlocal id
-            id = dataset
+        def mock_find_dataset(_self, dataset: str) -> MockTarball:
+            nonlocal dataset_id
+            dataset_id = dataset
 
             return MockTarball()
 
@@ -933,7 +932,7 @@ class TestCacheManager:
             m.setattr(CacheManager, "find_dataset", mock_find_dataset)
             cm = CacheManager(server_config, make_logger)
             inventory = cm.get_inventory("dataset", "target")
-            assert id == "dataset"
+            assert dataset_id == "dataset"
             assert inventory["name"] == "target"
             assert inventory["stream"].read() == b"success"
 
@@ -948,14 +947,14 @@ class TestCacheManager:
                     return io.BytesIO(contents)
                 raise Exception("you can't handle exceptions")
 
-        def fake_tarfile_open(tarfile: str, *args):
+        def fake_tarfile_open(tarfile: str, *_args):
             if str(tarfile) == str(tar):
                 return MockTarFile()
             raise Exception("You didn't see this coming")
 
         with monkeypatch.context() as m:
-            m.setattr(tarfile, "open", fake_tarfile_open)
-            got = Tarball.extract(tar, Path("metadata.log"))
+            # plugh m.setattr(tarfile, "open", fake_tarfile_open)
+            got = Tarball.extract(tar, "metadata.log")
             assert isinstance(got, Inventory)
             assert got.read() == contents
 
@@ -963,31 +962,31 @@ class TestCacheManager:
         """Test to check non-existent tarfile"""
         tar = Path("/mock/result.tar.xz")
 
-        def fake_tarfile_open(self, path):
-            raise tarfile.TarError("Invalid Tarfile")
+        # def fake_tarfile_open(self, path):
+        #     raise tarfile.TarError("Invalid Tarfile")
 
         with monkeypatch.context() as m:
-            m.setattr(tarfile, "open", fake_tarfile_open)
+            # plugh m.setattr(tarfile, "open", fake_tarfile_open)
 
             expected_error_msg = f"The dataset tarball named '{tar}' is not found"
             with pytest.raises(TarballNotFound) as exc:
-                Tarball.extract(tar, Path("subdir1/f11.txt"))
+                Tarball.extract(tar, "subdir1/f11.txt")
             assert str(exc.value) == expected_error_msg
 
     def test_tarfile_extractfile_fails(self, monkeypatch, tmp_path):
         """Test to check non-existent path in tarfile"""
         tar = Path("/mock/result.tar.xz")
-        path = Path("subdir/f11.txt")
+        path = "subdir/f11.txt"
 
         class MockTarFile:
-            def extractfile(self, path):
+            def extractfile(self, _path):
                 raise Exception("Mr Robot refuses trivial human command")
 
-        def fake_tarfile_open(self, path):
+        def fake_tarfile_open(_self, _path):
             return MockTarFile()
 
         with monkeypatch.context() as m:
-            m.setattr(tarfile, "open", fake_tarfile_open)
+            # plugh m.setattr(tarfile, "open", fake_tarfile_open)
             expected_error_msg = f"Unable to extract {path} from {tar.name}"
             with pytest.raises(CacheExtractBadPath) as exc:
                 Tarball.extract(tar, path)
@@ -996,17 +995,17 @@ class TestCacheManager:
     def test_tarfile_extractfile_notfile(self, monkeypatch, tmp_path):
         """Test to check target that's not a file"""
         tar = Path("/mock/result.tar.xz")
-        path = Path("subdir/f11.txt")
+        path = "subdir/f11.txt"
 
         class MockTarFile:
-            def extractfile(self, path):
+            def extractfile(self, _path):
                 return None
 
-        def fake_tarfile_open(self, path):
+        def fake_tarfile_open(_self, _path):
             return MockTarFile()
 
         with monkeypatch.context() as m:
-            m.setattr(tarfile, "open", fake_tarfile_open)
+            # plugh m.setattr(tarfile, "open", fake_tarfile_open)
             expected_error_msg = f"Unable to extract {path} from {tar.name}"
             with pytest.raises(CacheExtractBadPath) as exc:
                 Tarball.extract(tar, path)
@@ -1018,7 +1017,6 @@ class TestCacheManager:
     def test_get_metadata(self, monkeypatch, tarball, stream):
         """Verify access and processing of `metadata.log`"""
 
-        @staticmethod
         def fake_extract(t: Path, f: Path):
             if str(t) == tarball and str(f) == f"{Dataset.stem(t)}/metadata.log":
                 if stream:
@@ -1027,7 +1025,7 @@ class TestCacheManager:
             raise Exception(f"Unexpected mock exception with stream:{stream}: {t}, {f}")
 
         with monkeypatch.context() as m:
-            m.setattr(Tarball, "extract", fake_extract)
+            m.setattr(Tarball, "extract", staticmethod(fake_extract))
             metadata = Tarball._get_metadata(Path(tarball))
 
         if stream:
@@ -1072,12 +1070,6 @@ class TestCacheManager:
         through the various supported methods.
         """
 
-        def mock_run(args, **kwargs):
-            """Prevents the Tarball contents from actually being unpacked"""
-            return subprocess.CompletedProcess(
-                args, returncode=0, stdout="Success!", stderr=None
-            )
-
         monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
         source_tarball, source_md5, md5 = tarball
         dataset_name = Dataset.stem(source_tarball)
@@ -1096,7 +1088,7 @@ class TestCacheManager:
         # Test __getitem__
         assert tarball == cm[md5]
         with pytest.raises(TarballNotFound) as exc:
-            cm["foobar"]
+            _ = cm["foobar"]
         assert str(exc.value) == "The dataset tarball named 'foobar' is not found"
 
         # Test __contains__
@@ -1150,12 +1142,6 @@ class TestCacheManager:
         delete it.
         """
 
-        def mock_run(args, **kwargs):
-            """Prevents the Tarball contents from actually being unpacked"""
-            return subprocess.CompletedProcess(
-                args, returncode=0, stdout="Success!", stderr=None
-            )
-
         source_tarball, source_md5, md5 = tarball
         cm = CacheManager(server_config, make_logger)
         archive = cm.archive_root / "ABC"
@@ -1184,9 +1170,9 @@ class TestCacheManager:
         assert md5file.exists()
 
         assert md5 == md5file.read_text()
-        hash = hashlib.md5()
-        hash.update(tarfile.read_bytes())
-        assert md5 == hash.hexdigest()
+        md5_hash = hashlib.md5()
+        md5_hash.update(tarfile.read_bytes())
+        assert md5 == md5_hash.hexdigest()
 
         assert list(cm.controllers.keys()) == ["ABC"]
         dataset_name = source_tarball.name[:-7]

@@ -5,6 +5,7 @@ from configparser import NoOptionError, NoSectionError
 from datetime import datetime, timedelta, tzinfo
 from enum import auto, Enum
 from logging import Logger
+import os
 from pathlib import Path
 from time import time as _time
 from typing import Dict, List, Optional, Union
@@ -20,6 +21,10 @@ JSONVALUE = Union["JSONOBJECT", "JSONARRAY", JSONSTRING, JSONNUMBER, bool, None]
 JSONARRAY = List[JSONVALUE]
 JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
 JSON = JSONVALUE
+
+# Define a type hint for "Path-like" parameters, so the cumbersomeness of the
+# type won't discourage us from using it where it is warranted.
+PathLike = Union[str, bytes, os.PathLike]
 
 
 class OperationCode(Enum):
