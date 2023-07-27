@@ -21,13 +21,42 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.cache_manager import CacheManager
-from pbench.server.database.models.datasets import Metadata
+from pbench.server.database.models.datasets import Dataset, Metadata
 
 
 class DatasetsCompare(ApiBase):
     """
     This class implements the Server API used to retrieve comparison data for visualization.
     """
+
+    @staticmethod
+    def get_benchmark_name(dataset: Dataset) -> str:
+        """Convenience function to get dataset's benchmark
+
+        The Pbench Server intake constructs a server.benchmark metadata key to
+        represent the benchmark type. This helper implements a fallback for
+        datasets processed prior to the implementation of server.benchmark to
+        avoid null values, by using the Pbench Agent metadata.log "script"
+        value if that exists and then a constant fallback value.
+
+        TODO: This is a workaround from the transition to server.benchmark in
+        order to cleanly support earlier datasets on the staging server. This
+        can be removed at some point, but it's not critical.
+
+        Args:
+            dataset: Dataset object
+
+        Returns:
+            A lowercase benchmark identifer string, including the value defined
+            by Metadata.SERVER_BENCHMARK_UNKNOWN if we can't find a value.
+        """
+        benchmark = Metadata.getvalue(dataset, Metadata.SERVER_BENCHMARK)
+
+        if not benchmark:
+            benchmark = Metadata.getvalue(dataset, "dataset.metalog.pbench.script")
+            if not benchmark:
+                benchmark = Metadata.SERVER_BENCHMARK_UNKNOWN
+        return benchmark
 
     def __init__(self, config: PbenchServerConfig):
         super().__init__(
@@ -70,17 +99,8 @@ class DatasetsCompare(ApiBase):
         datasets = params.query.get("datasets")
         benchmark_choice = None
         for dataset in datasets:
-            benchmark = Metadata.getvalue(dataset, Metadata.SERVER_BENCHMARK)
-            # Validate if all the selected datasets is of same benchmark
-            if not benchmark_choice:
-                benchmark_choice = benchmark
-            elif benchmark != benchmark_choice:
-                raise APIAbort(
-                    HTTPStatus.BAD_REQUEST,
-                    f"Selected dataset benchmarks must match: {benchmark_choice} and {benchmark} cannot be compared.",
-                )
 
-            # Validate if the user is authorized to access the selected datasets
+            # Check that the user is authorized to read each dataset
             self._check_authorization(
                 ApiAuthorization(
                     ApiAuthorizationType.USER_ACCESS,
@@ -89,6 +109,16 @@ class DatasetsCompare(ApiBase):
                     dataset.access,
                 )
             )
+
+            # Determine the dataset benchmark and check consistency
+            benchmark = DatasetsCompare.get_benchmark_name(dataset)
+            if not benchmark_choice:
+                benchmark_choice = benchmark
+            elif benchmark != benchmark_choice:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    f"Selected dataset benchmarks must match: {benchmark_choice} and {benchmark} cannot be compared.",
+                )
 
         benchmark_type = BenchmarkName.__members__.get(benchmark.upper())
         if not benchmark_type:

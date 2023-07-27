@@ -132,3 +132,39 @@ class TestVisualize:
         response = query_get_as("uperf_1", "test", HTTPStatus.BAD_REQUEST)
         assert response.json["message"] == "Unsupported Benchmark: hammerDB"
         assert extract_not_called
+
+    @pytest.mark.parametrize(
+        "script,result", (("hammerDB", "hammerDB"), (None, "unknown"))
+    )
+    def test_benchmark_fallback(self, query_get_as, monkeypatch, script, result):
+        """Test benchmark metadata fallback.
+
+        If server.benchmark isn't defined, try dataset.metalog.pbench.script,
+        then fall back to "unknown".
+
+        NOTE: This is deliberately not merged with test_unsupported_benchmark,
+        which it closely resembles, because the benchmark identification
+        tested here is intended to be a transitional workaround.
+        """
+
+        extract_not_called = True
+
+        def mock_extract_data(*args, **kwargs) -> JSON:
+            nonlocal extract_not_called
+            extract_not_called = False
+
+        @staticmethod
+        def mock_get_metadata(_d: Dataset, k: str, _u: Optional[User] = None) -> JSON:
+            if k == Metadata.SERVER_BENCHMARK:
+                return None
+            elif k == "dataset.metalog.pbench.script":
+                return script
+            else:
+                return "Not what you expected?"
+
+        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
+        monkeypatch.setattr(Metadata, "getvalue", mock_get_metadata)
+        monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
+        response = query_get_as("uperf_1", "test", HTTPStatus.BAD_REQUEST)
+        assert response.json["message"] == f"Unsupported Benchmark: {result}"
+        assert extract_not_called
