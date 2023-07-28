@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
-from typing import IO
+from typing import Optional
 
 import pytest
 
@@ -917,7 +917,7 @@ class TestCacheManager:
         class MockTarball:
             def get_inventory(self, target: str) -> JSONOBJECT:
                 return {
-                    "name": target,
+                    "name": target if self else None,  # Quiet the linter
                     "type": CacheType.FILE,
                     "stream": Inventory(io.BytesIO(b"success")),
                 }
@@ -936,80 +936,138 @@ class TestCacheManager:
             assert inventory["name"] == "target"
             assert inventory["stream"].read() == b"success"
 
-    def test_tarfile_extract(self, monkeypatch, tmp_path):
-        """Test to check Tarball.extract success"""
+    @pytest.mark.parametrize(
+        (
+            "tar_path",
+            "popen_fail",
+            "wait_cnt",
+            "peek_return",
+            "poll_return",
+            "proc_return",
+            "stderr_contents",
+        ),
+        (
+            (None, False, 0, b"", None, 2, b""),  # No tar executable
+            (None, True, 0, b"", None, 2, b""),  # Popen failure
+            # Success, output in peek
+            ("/usr/bin/tar", False, 0, b"[test]", None, 0, b""),
+            ("/usr/bin/tar", False, 0, b"", 0, 0, b""),  # Success, poll() show success
+            # Loop/sleep twice, then success
+            ("/usr/bin/tar", False, 2, b"[test]", None, 0, b""),
+            # Member path failure
+            (
+                "/usr/bin/tar",
+                False,
+                0,
+                b"",
+                1,
+                1,
+                b"mock-tar: metadata.log: Not found in mock-archive",
+            ),
+            # Archive access failure
+            (
+                "/usr/bin/tar",
+                False,
+                0,
+                b"",
+                1,
+                1,
+                b"mock-tar: /mock/result.tar.xz: Cannot open: No such mock-file or mock-directory",
+            ),
+            # Unexpected failure
+            ("/usr/bin/tar", False, 0, b"", 1, 1, b"mock-tar: bolt out of the blue!"),
+        ),
+    )
+    def test_tarfile_extract(
+        self,
+        monkeypatch,
+        tmp_path,
+        tar_path: str,
+        popen_fail: bool,
+        wait_cnt: int,
+        peek_return: Optional[bytes],
+        poll_return: Optional[int],
+        proc_return: int,
+        stderr_contents: Optional[bytes],
+    ):
+        """Test to check Tarball.extract behaviors"""
         tar = Path("/mock/result.tar.xz")
-        contents = b"[test]\nfoo=bar\n"
+        path = "metadata.log"
+        stdout_contents = b"[test]\nfoo=bar\n"
 
-        class MockTarFile:
-            def extractfile(self, path: str) -> IO[bytes]:
-                if path == "metadata.log":
-                    return io.BytesIO(contents)
-                raise Exception("you can't handle exceptions")
+        class MockBufferedReader(io.BufferedReader):
+            def __init__(self, contents: bytes):
+                # No effect, other than to quiet the linter
+                None if True else super().__init__(io.RawIOBase())
+                self.contents = contents
+                self.loop_count = wait_cnt
 
-        def fake_tarfile_open(tarfile: str, *_args):
-            if str(tarfile) == str(tar):
-                return MockTarFile()
-            raise Exception("You didn't see this coming")
+            def close(self) -> None:
+                pass
+
+            def peek(self, size=0) -> bytes:
+                if self.loop_count > 0:
+                    self.loop_count -= 1
+                    return b""
+                return peek_return
+
+            def read(self, _size: int = -1) -> bytes:
+                return self.contents
+
+        class MockPopen(subprocess.Popen):
+            def __init__(self, *_args, **_kwargs):
+                # No effect, other than to quiet the linter
+                None if True else super().__init__([])
+                if popen_fail:
+                    raise ValueError(
+                        "MockPopen pretending it was called with invalid arguments"
+                    )
+                self.stdout = MockBufferedReader(stdout_contents)
+                self.stderr = MockBufferedReader(stderr_contents)
+                self.returncode = None
+                self.loop_count = wait_cnt
+
+            def poll(self) -> Optional[int]:
+                if self.loop_count > 0:
+                    self.loop_count -= 1
+                    return None
+                self.returncode = poll_return
+                return poll_return
+
+            def __repr__(self):
+                return self.__class__.__name__
+
+        def mock_shutil_which(
+            cmd: str, _mode: int = os.F_OK | os.X_OK, _path: Optional[str] = None
+        ):
+            assert cmd == "tar"
+            return tar_path
 
         with monkeypatch.context() as m:
-            # plugh m.setattr(tarfile, "open", fake_tarfile_open)
-            got = Tarball.extract(tar, "metadata.log")
-            assert isinstance(got, Inventory)
-            assert got.read() == contents
+            m.setattr(shutil, "which", mock_shutil_which)
+            m.setattr(subprocess, "Popen", MockPopen)
 
-    def test_tarfile_open_fails(self, monkeypatch, tmp_path):
-        """Test to check non-existent tarfile"""
-        tar = Path("/mock/result.tar.xz")
-
-        # def fake_tarfile_open(self, path):
-        #     raise tarfile.TarError("Invalid Tarfile")
-
-        with monkeypatch.context() as m:
-            # plugh m.setattr(tarfile, "open", fake_tarfile_open)
-
-            expected_error_msg = f"The dataset tarball named '{tar}' is not found"
-            with pytest.raises(TarballNotFound) as exc:
-                Tarball.extract(tar, "subdir1/f11.txt")
-            assert str(exc.value) == expected_error_msg
-
-    def test_tarfile_extractfile_fails(self, monkeypatch, tmp_path):
-        """Test to check non-existent path in tarfile"""
-        tar = Path("/mock/result.tar.xz")
-        path = "subdir/f11.txt"
-
-        class MockTarFile:
-            def extractfile(self, _path):
-                raise Exception("Mr Robot refuses trivial human command")
-
-        def fake_tarfile_open(_self, _path):
-            return MockTarFile()
-
-        with monkeypatch.context() as m:
-            # plugh m.setattr(tarfile, "open", fake_tarfile_open)
-            expected_error_msg = f"Unable to extract {path} from {tar.name}"
-            with pytest.raises(CacheExtractBadPath) as exc:
-                Tarball.extract(tar, path)
-            assert str(exc.value) == expected_error_msg
-
-    def test_tarfile_extractfile_notfile(self, monkeypatch, tmp_path):
-        """Test to check target that's not a file"""
-        tar = Path("/mock/result.tar.xz")
-        path = "subdir/f11.txt"
-
-        class MockTarFile:
-            def extractfile(self, _path):
-                return None
-
-        def fake_tarfile_open(_self, _path):
-            return MockTarFile()
-
-        with monkeypatch.context() as m:
-            # plugh m.setattr(tarfile, "open", fake_tarfile_open)
-            expected_error_msg = f"Unable to extract {path} from {tar.name}"
-            with pytest.raises(CacheExtractBadPath) as exc:
-                Tarball.extract(tar, path)
-            assert str(exc.value) == expected_error_msg
+            try:
+                got = Tarball.extract(tar, path)
+            except TarballUnpackError as exc:
+                if tar_path is None:
+                    msg = "External 'tar' executable not found"
+                else:
+                    assert not popen_fail
+                    msg = f"Unexpected error from {tar_path}: {stderr_contents.decode()!r}"
+                assert str(exc) == f"An error occurred while unpacking {tar}: {msg}"
+            except ValueError:
+                assert tar_path
+                assert popen_fail
+            except CacheExtractBadPath as exc:
+                assert tar_path
+                assert not popen_fail
+                assert str(exc) == f"Unable to extract {path} from {tar.name}"
+            else:
+                assert tar_path
+                assert not popen_fail
+                assert isinstance(got, Inventory)
+                assert got.read() == stdout_contents
 
     @pytest.mark.parametrize(
         "tarball,stream", (("hasmetalog.tar.xz", True), ("nometalog.tar.xz", False))
@@ -1033,34 +1091,232 @@ class TestCacheManager:
         else:
             assert metadata is None
 
-    def test_inventory(self):
-        closed = False
+    def test_inventory_without_subprocess(self):
+        """Test the Inventory class when used without a subprocess
 
-        class MockTarFile:
-            def close(self):
-                nonlocal closed
-                closed = True
+        This tests the Inventory class functions other than close(), which are
+        unaffected by whether a subprocess is driving the stream, and it also
+        tests the behavior of close() when there is no subprocess.
+        """
+        calls = []
+        my_buffer = bytes()
 
-            def __repr__(self) -> str:
-                return "<Mock tarfile>"
+        class MockBufferedReader(io.BufferedReader):
+            def __init__(self):
+                # No effect, other than to quiet the linter
+                None if True else super().__init__(io.RawIOBase())
 
-        raw = b"abcde\nfghij\n"
-        stream = Inventory(io.BytesIO(raw), MockTarFile())
-        assert re.match(
-            r"^<Stream <_io.BytesIO object at 0x[a-z0-9]+> from <Mock tarfile>>$",
-            str(stream),
+            def close(self) -> None:
+                calls.append("close")
+
+            def getbuffer(self):
+                calls.append("getbuffer") if self else None  # Quiet the linter
+                return my_buffer
+
+            def read(self, _size: int = -1) -> bytes:
+                calls.append("read")
+                return b"read"
+
+            def readable(self) -> bool:
+                calls.append("readable")
+                return True
+
+            def readline(self, _size: int = -1) -> bytes:
+                """Return a non-empty byte-string on the first call; return an
+                empty string on subsequent calls."""
+                calls.append("readline")
+                return b"readline" if len(calls) < 2 else b""
+
+            def seek(self, offset: int, _whence: int = io.SEEK_SET) -> int:
+                calls.append("seek")
+                return offset
+
+        # Invoke the CUT
+        stream = Inventory(MockBufferedReader(), None)
+
+        assert stream.subproc is None
+
+        # Test Inventory.getbuffer()
+        calls.clear()
+        assert stream.getbuffer() is my_buffer and calls == ["getbuffer"]
+
+        # Test Inventory.read()
+        calls.clear()
+        assert stream.read() == b"read" and calls == ["read"]
+
+        # Test Inventory.readable()
+        calls.clear()
+        assert stream.readable() and calls == ["readable"]
+
+        # Test Inventory.seek()
+        calls.clear()
+        assert stream.seek(12345) == 12345 and calls == ["seek"]
+
+        # Test Inventory.__iter__() and Inventory.__next__()
+        calls.clear()
+        contents = [b for b in stream]
+        assert contents == [b"readline"] and calls == ["readline", "readline"]
+
+        # Test Inventory.__repr__()
+        assert str(stream) == "<Stream <MockBufferedReader> from None>"
+
+        # Test Inventory.close()
+        calls.clear()
+        stream.close()
+        assert calls == ["close"]
+
+    @pytest.mark.parametrize(
+        ("poll_val", "stdout_size", "stderr_size", "wait_timeout", "exp_calls"),
+        (
+            (0, 0, None, None, ["poll", "close"]),
+            (None, 0, None, False, ["poll", "kill", "stdout", "wait", "close"]),
+            (None, 0, 0, False, ["poll", "kill", "stdout", "stderr", "wait", "close"]),
+            (
+                None,
+                2000,
+                2000,
+                False,
+                [
+                    "poll",
+                    "kill",
+                    "stdout",
+                    "stdout",
+                    "stderr",
+                    "stderr",
+                    "wait",
+                    "close",
+                ],
+            ),
+            (
+                None,
+                6000,
+                6000,
+                False,
+                [
+                    "poll",
+                    "kill",
+                    "stdout",
+                    "stdout",
+                    "stdout",
+                    "stderr",
+                    "stderr",
+                    "stderr",
+                    "wait",
+                    "close",
+                ],
+            ),
+            (
+                None,
+                9000,
+                9000,
+                False,
+                [
+                    "poll",
+                    "kill",
+                    "stdout",
+                    "stdout",
+                    "stdout",
+                    "stdout",
+                    "stderr",
+                    "stderr",
+                    "stderr",
+                    "stderr",
+                    "wait",
+                    "close",
+                ],
+            ),
+            (None, 0, None, True, ["poll", "kill", "stdout", "wait"]),
+        ),
+    )
+    def test_inventory(
+        self, poll_val, stdout_size, stderr_size, wait_timeout, exp_calls
+    ):
+        """Test the Inventory class when used with a subprocess
+
+        This test focuses on the behavior of the close() function, since the
+        behavior of the other functions are checked in the previous test.
+        """
+        my_calls = []
+
+        class MockPopen(subprocess.Popen):
+            def __init__(
+                self,
+                stdout: Optional[io.BufferedReader],
+                stderr: Optional[io.BufferedReader],
+            ):
+                # No effect, other than to quiet the linter.
+                None if True else super().__init__([])
+                self.stdout = stdout
+                self.stderr = stderr
+                self.returncode = None
+
+            def kill(self):
+                my_calls.append("kill")
+
+            def poll(self) -> Optional[int]:
+                my_calls.append("poll")
+                if self.returncode is None:
+                    self.returncode = poll_val
+                return self.returncode
+
+            def wait(self, timeout: Optional[float] = None) -> Optional[int]:
+                my_calls.append("wait")
+                if self.returncode is None:
+                    self.returncode = 0
+                if wait_timeout:
+                    raise subprocess.TimeoutExpired(
+                        cmd="mock_subprocess",
+                        timeout=timeout,
+                        output=b"I'm dead!",
+                        stderr=b"No, really, I'm dead!",
+                    )
+                return self.returncode
+
+            def __repr__(self):
+                return self.__class__.__name__
+
+        class MockBufferedReader(io.BufferedReader):
+            def __init__(self, size: int, name: str):
+                # No effect, other than to quiet the linter
+                None if True else super().__init__(io.RawIOBase())
+                self.size = size
+                self.stream_name = name
+
+            def close(self) -> None:
+                my_calls.append("close")
+                pass
+
+            def read(self, size: int = -1) -> bytes:
+                my_calls.append(self.stream_name)
+                if self.size <= 0:
+                    return b""
+                if size < 0 or size >= self.size:
+                    self.size = 0
+                else:
+                    self.size -= size
+                return b"read"
+
+        assert stdout_size is not None, "Test bug:  stdout size must not be None"
+        my_stdout = MockBufferedReader(stdout_size, "stdout")
+        my_stderr = (
+            None if stderr_size is None else MockBufferedReader(stderr_size, "stderr")
         )
 
-        assert stream.getbuffer() == raw
-        assert stream.readable()
-        assert stream.read(5) == b"abcde"
-        assert stream.read() == b"\nfghij\n"
-        assert stream.seek(0) == 0
-        assert [b for b in stream] == [b"abcde\n", b"fghij\n"]
-        stream.close()
-        assert closed
-        with pytest.raises(ValueError):
-            stream.read()
+        # Invoke the CUT
+        stream = Inventory(my_stdout, MockPopen(my_stdout, my_stderr))
+
+        # Test Inventory.__repr__()
+        assert str(stream) == "<Stream <MockBufferedReader> from MockPopen>"
+
+        try:
+            stream.close()
+        except subprocess.TimeoutExpired:
+            assert wait_timeout, "wait() timed out unexpectedly"
+        else:
+            assert not wait_timeout, "wait() failed to time out as expected"
+
+        assert stream.subproc is None
+        assert my_calls == exp_calls
 
     def test_find(
         self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
