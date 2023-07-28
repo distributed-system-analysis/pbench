@@ -19,8 +19,8 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
+from pbench.server.api.resources.datasets_compare import DatasetsCompare
 from pbench.server.cache_manager import CacheManager
-from pbench.server.database.models.datasets import Metadata
 
 
 class DatasetsVisualize(ApiBase):
@@ -59,8 +59,7 @@ class DatasetsVisualize(ApiBase):
         """
 
         dataset = params.uri["dataset"]
-
-        benchmark = Metadata.getvalue(dataset, Metadata.SERVER_BENCHMARK)
+        benchmark = DatasetsCompare.get_benchmark_name(dataset)
         benchmark_type = BenchmarkName.__members__.get(benchmark.upper())
         if not benchmark_type:
             raise APIAbort(
