@@ -32,7 +32,7 @@ def pre_request(worker: base.Worker, req: Request):
     worker object (ain't Python grand!?), and we use the worker's log.)
     """
     worker.profile = cProfile.Profile()
-    worker.log.info(f"PROFILING {worker.pid}: {req.uri}")
+    worker.log.info(f"PROFILING: {req.method} {req.uri}")
     worker.start_time = time.time()
     worker.profile.enable()
 
@@ -50,9 +50,7 @@ def post_request(worker: base.Worker, req: Request, *_args):
     worker.profile.disable()
 
     total_time = time.time() - worker.start_time
-    worker.log.info(
-        f"\n[{worker.pid}] [INFO] [{req.method}] Load Time: {total_time:.3}s URI {req.uri}"
-    )
+    worker.log.info(f"Load Time: {total_time:.3}s {req.method} {req.uri}")
 
     # If PB_PROFILE_DUMP_FILE is defined to a true-y value, assume that it is a
     # file into which to dump the profile data.  (An excellent choice is
@@ -69,4 +67,4 @@ def post_request(worker: base.Worker, req: Request, *_args):
         s = StringIO()
         ps = pstats.Stats(worker.profile, stream=s).sort_stats("cumulative")
         ps.print_stats(30)  # Limit the number of lines output
-        worker.log.info(f"[{worker.pid}] [INFO] {s.getvalue()}")
+        worker.log.info(s.getvalue())
