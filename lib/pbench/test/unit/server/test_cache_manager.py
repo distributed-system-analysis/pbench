@@ -948,7 +948,7 @@ class TestCacheManager:
         ),
         (
             (None, False, 0, b"", None, 2, b""),  # No tar executable
-            (None, True, 0, b"", None, 2, b""),  # Popen failure
+            ("/usr/bin/tar", True, 0, b"", None, 2, b""),  # Popen failure
             # Success, output in peek
             ("/usr/bin/tar", False, 0, b"[test]", None, 0, b""),
             ("/usr/bin/tar", False, 0, b"", 0, 0, b""),  # Success, poll() show success
@@ -1003,7 +1003,9 @@ class TestCacheManager:
                 self.loop_count = wait_cnt
 
             def close(self) -> None:
-                pass
+                raise AssertionError(
+                    "This test doesn't expect the stream to be closed."
+                )
 
             def peek(self, size=0) -> bytes:
                 if self.loop_count > 0:
@@ -1034,8 +1036,10 @@ class TestCacheManager:
                 self.returncode = poll_return
                 return poll_return
 
-            def __repr__(self):
-                return self.__class__.__name__
+            def kill(self) -> None:
+                raise AssertionError(
+                    "This test doesn't expect the stream to be closed."
+                )
 
         def mock_shutil_which(
             cmd: str, _mode: int = os.F_OK | os.X_OK, _path: Optional[str] = None
@@ -1049,6 +1053,10 @@ class TestCacheManager:
 
             try:
                 got = Tarball.extract(tar, path)
+            except CacheExtractBadPath as exc:
+                assert tar_path
+                assert not popen_fail
+                assert str(exc) == f"Unable to extract {path} from {tar.name}"
             except TarballUnpackError as exc:
                 if tar_path is None:
                     msg = "External 'tar' executable not found"
@@ -1059,13 +1067,10 @@ class TestCacheManager:
             except ValueError:
                 assert tar_path
                 assert popen_fail
-            except CacheExtractBadPath as exc:
-                assert tar_path
-                assert not popen_fail
-                assert str(exc) == f"Unable to extract {path} from {tar.name}"
             else:
                 assert tar_path
                 assert not popen_fail
+                assert peek_return or poll_return is not None
                 assert isinstance(got, Inventory)
                 assert got.read() == stdout_contents
 
@@ -1168,9 +1173,20 @@ class TestCacheManager:
     @pytest.mark.parametrize(
         ("poll_val", "stdout_size", "stderr_size", "wait_timeout", "exp_calls"),
         (
+            # The subprocess completed before the close() call
             (0, 0, None, None, ["poll", "close"]),
+            # The subprocess is still running when close() is called, the wait
+            # does not time out, stdout is empty and there is no stderr.
             (None, 0, None, False, ["poll", "kill", "stdout", "wait", "close"]),
+            # The subprocess is still running when close() is called, the wait
+            # does not time out, stderr is empty and there is no stdout.
+            (None, None, 0, False, ["poll", "kill", "stderr", "wait", "close"]),
+            # The subprocess is still running when close() is called, the wait
+            # does not time out, both stdout and stderr are present and empty.
             (None, 0, 0, False, ["poll", "kill", "stdout", "stderr", "wait", "close"]),
+            # The subprocess is still running when close() is called, the wait
+            # does not time out, stdout and stderr each require one read to
+            # drain them (and a second to see that they are empty).
             (
                 None,
                 2000,
@@ -1187,6 +1203,9 @@ class TestCacheManager:
                     "close",
                 ],
             ),
+            # The subprocess is still running when close() is called, the wait
+            # does not time out, stdout and stderr each require two reads to
+            # drain them (and a third to see that they are empty).
             (
                 None,
                 6000,
@@ -1205,6 +1224,9 @@ class TestCacheManager:
                     "close",
                 ],
             ),
+            # The subprocess is still running when close() is called, the wait
+            # does not time out, stdout and stderr each require three reads to
+            # drain them (and a fourth to see that they are empty).
             (
                 None,
                 9000,
@@ -1225,6 +1247,8 @@ class TestCacheManager:
                     "close",
                 ],
             ),
+            # The subprocess is still running when close() is called, stdout is
+            # empty, there is no stderr, and the wait times out.
             (None, 0, None, True, ["poll", "kill", "stdout", "wait"]),
         ),
     )
@@ -1255,14 +1279,17 @@ class TestCacheManager:
 
             def poll(self) -> Optional[int]:
                 my_calls.append("poll")
-                if self.returncode is None:
-                    self.returncode = poll_val
+                assert (
+                    self.returncode is None
+                ), "returncode is unexpectedly set...test bug?"
+                self.returncode = poll_val
                 return self.returncode
 
             def wait(self, timeout: Optional[float] = None) -> Optional[int]:
                 my_calls.append("wait")
-                if self.returncode is None:
-                    self.returncode = 0
+                assert (
+                    self.returncode is None
+                ), "returncode is unexpectedly set...test bug?"
                 if wait_timeout:
                     raise subprocess.TimeoutExpired(
                         cmd="mock_subprocess",
@@ -1270,6 +1297,7 @@ class TestCacheManager:
                         output=b"I'm dead!",
                         stderr=b"No, really, I'm dead!",
                     )
+                self.returncode = 0
                 return self.returncode
 
             def __repr__(self):
@@ -1296,14 +1324,17 @@ class TestCacheManager:
                     self.size -= size
                 return b"read"
 
-        assert stdout_size is not None, "Test bug:  stdout size must not be None"
-        my_stdout = MockBufferedReader(stdout_size, "stdout")
+        my_stdout = (
+            None if stdout_size is None else MockBufferedReader(stdout_size, "stdout")
+        )
         my_stderr = (
             None if stderr_size is None else MockBufferedReader(stderr_size, "stderr")
         )
+        my_stream = my_stdout if my_stdout is not None else my_stderr
+        assert my_stream, "Test bug:  we need at least one of stdout and stderr"
 
         # Invoke the CUT
-        stream = Inventory(my_stdout, MockPopen(my_stdout, my_stderr))
+        stream = Inventory(my_stream, MockPopen(my_stdout, my_stderr))
 
         # Test Inventory.__repr__()
         assert str(stream) == "<Stream <MockBufferedReader> from MockPopen>"
