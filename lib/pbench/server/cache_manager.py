@@ -600,6 +600,10 @@ class Tarball:
 
             elapsed = time.time() - start
             if elapsed > Tarball.TAR_EXEC_TIMEOUT:
+                # No signs of life from the subprocess.  Kill it to ensure that
+                # the Python runtime can clean it up after we leave, and report
+                # the failure.
+                tarproc.kill()
                 raise subprocess.TimeoutExpired(
                     cmd=tar_command,
                     timeout=elapsed,

@@ -74,6 +74,12 @@ def fake_get_metadata(_tb_path):
     return {"pbench": {"date": "2002-05-16T00:00:00"}, "run": {"controller": "ABC"}}
 
 
+MEMBER_NOT_FOUND_MSG = b"mock-tar: metadata.log: Not found in mock-archive"
+CANNOT_OPEN_MSG = (
+    b"mock-tar: /mock/result.tar.xz: Cannot open: No such mock-file or mock-directory"
+)
+
+
 class TestCacheManager:
     def test_create(self, server_config, make_logger):
         """
@@ -955,25 +961,9 @@ class TestCacheManager:
             # Loop/sleep twice, then success
             ("/usr/bin/tar", False, 2, b"[test]", None, 0, b""),
             # Member path failure
-            (
-                "/usr/bin/tar",
-                False,
-                0,
-                b"",
-                1,
-                1,
-                b"mock-tar: metadata.log: Not found in mock-archive",
-            ),
+            ("/usr/bin/tar", False, 0, b"", 1, 1, MEMBER_NOT_FOUND_MSG),
             # Archive access failure
-            (
-                "/usr/bin/tar",
-                False,
-                0,
-                b"",
-                1,
-                1,
-                b"mock-tar: /mock/result.tar.xz: Cannot open: No such mock-file or mock-directory",
-            ),
+            ("/usr/bin/tar", False, 0, b"", 1, 1, CANNOT_OPEN_MSG),
             # Unexpected failure
             ("/usr/bin/tar", False, 0, b"", 1, 1, b"mock-tar: bolt out of the blue!"),
             # Hang, never returning output nor an exit code
@@ -1058,6 +1048,7 @@ class TestCacheManager:
             except CacheExtractBadPath as exc:
                 assert tar_path
                 assert not popen_fail
+                assert stderr_contents == MEMBER_NOT_FOUND_MSG
                 assert str(exc) == f"Unable to extract {path} from {tar.name}"
             except subprocess.TimeoutExpired as exc:
                 assert tar_path
@@ -1071,6 +1062,7 @@ class TestCacheManager:
                 else:
                     assert not popen_fail
                     msg = f"Unexpected error from {tar_path}: {stderr_contents.decode()!r}"
+                assert stderr_contents != MEMBER_NOT_FOUND_MSG
                 assert str(exc) == f"An error occurred while unpacking {tar}: {msg}"
             except ValueError:
                 assert tar_path
