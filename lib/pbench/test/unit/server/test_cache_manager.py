@@ -976,6 +976,8 @@ class TestCacheManager:
             ),
             # Unexpected failure
             ("/usr/bin/tar", False, 0, b"", 1, 1, b"mock-tar: bolt out of the blue!"),
+            # Hang, never returning output nor an exit code
+            ("/usr/bin/tar", False, 0, b"", None, None, b""),
         ),
     )
     def test_tarfile_extract(
@@ -1057,6 +1059,12 @@ class TestCacheManager:
                 assert tar_path
                 assert not popen_fail
                 assert str(exc) == f"Unable to extract {path} from {tar.name}"
+            except subprocess.TimeoutExpired as exc:
+                assert tar_path
+                assert not popen_fail
+                assert (
+                    not peek_return and not poll_return
+                ), f"Unexpected test timeout: {exc}"
             except TarballUnpackError as exc:
                 if tar_path is None:
                     msg = "External 'tar' executable not found"

@@ -6,7 +6,7 @@ from pathlib import Path
 import shlex
 import shutil
 import subprocess
-from time import sleep
+import time
 from typing import Any, IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
@@ -287,6 +287,11 @@ class Tarball:
     database representations of a dataset.
     """
 
+    # Wait no more than a minute for the tar(1) command to start producing
+    # output; perform the wait in 0.02s increments.
+    TAR_EXEC_TIMEOUT = 60.0
+    TAR_EXEC_WAIT = 0.02
+
     def __init__(self, path: Path, controller: "Controller"):
         """Construct a `Tarball` object instance
 
@@ -556,6 +561,7 @@ class Tarball:
             CacheExtractBadPath if the target cannot be extracted
             TarballUnpackError on other tar-command failures
             Any exception raised by subprocess.Popen()
+            subprocess.TimeoutExpired if the tar command hangs
         """
         tar_path = shutil.which("tar")
         if tar_path is None:
@@ -570,23 +576,43 @@ class Tarball:
         # processing as soon as we find it instead of looking for additional
         # instances of it later in the archive -- this is a huge savings when
         # the archive is very large.
+        tar_command = [
+            str(tar_path),
+            "xf",
+            tarball_path,
+            "--to-stdout",
+            "--occurrence=1",
+            path,
+        ]
         tarproc = subprocess.Popen(
-            [str(tar_path), "xf", tarball_path, "--to-stdout", "--occurrence=1", path],
+            tar_command,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
 
-        # Wait for one of two things to happen:  either the subprocess produces
-        # some output or it exits.
-        while not tarproc.stdout.peek() and tarproc.poll() is None:
-            sleep(0.02)
+        # Wait for the tar(1) command to start producing output, but stop
+        # waiting if the subprocess exits or if it takes too long.
+        start = time.time()
+        while not tarproc.stdout.peek():
+            if tarproc.poll() is not None:
+                break
+
+            elapsed = time.time() - start
+            if elapsed > Tarball.TAR_EXEC_TIMEOUT:
+                raise subprocess.TimeoutExpired(
+                    cmd=tar_command,
+                    timeout=elapsed,
+                    output=tarproc.stdout,
+                    stderr=tarproc.stderr,
+                )
+
+            time.sleep(Tarball.TAR_EXEC_WAIT)
 
         # If the return code is None (meaning the command is still running) or
         # is zero (meaning it completed successfully), then return the stream
         # containing the extracted file to our caller, and return the Popen
-        # object to ensure it stays "alive" until our caller is done with the
-        # stream.
+        # object so that we can clean it up when the Inventory object is closed.
         if not tarproc.returncode:
             return Inventory(tarproc.stdout, tarproc)
 
