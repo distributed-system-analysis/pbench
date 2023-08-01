@@ -24,19 +24,41 @@ export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_I
 # Directory to use for the fully built dashboard code.
 export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
 
+# Keycloak realm and client IDs to be used by the load_keycloak.sh script and
+# the pbench-server.cfg file.
 export KEYCLOAK_REALM=${KEYCLOAK_REALM:-"pbench-server"}
 export KEYCLOAK_CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
 
-# Note:  the value of PB_HOST_IP will be used to generate the TLS certificate
-# and so it (not `localhost`) must also be used to access the Pbench Server;
-# otherwise, the TLS validation will fail due to a host mismatch.
-if [[ -z "${PB_HOST_IP}" ]]; then
-    host_ip_list=$(hostname -I)
-    PB_HOST_IP=${host_ip_list%% *}
-    export PB_HOST_IP
-fi
+# Name or IP address to be used by the client to access the Pbench Server, to
+# load the Dashboard, and to interface with the canned Keycloak server
+host_name=${PB_HOST:-localhost}
 
-host_name=${PB_HOST_NAME:-$(hostname --fqdn)}
+# Set a value for the -addext "subjectAltName=..." option to the cert creation.
+# Set the initial value "manually" and skip the "dummy" value to make the
+# comma-separated concatenations work nicely.
+#
+# Notes about the use of `readarray`:  in order for the output array to be
+# visible to the rest of the commands, the `readarray` command must not be
+# executed in a subprocess, and therefore it cannot be on the receiving end
+# of a pipe.  Instead we execute the `hostname` command in a "command
+# expansion" inside a "here string".  Unfortunately, this causes a newline
+# to be appended to the output, so that if we divide the result on spaces
+# we end up with an extra array entry containing just a newline.  So, instead
+# we translate the spaces into newlines ("squeezing" out any repeated
+# delimiters) and use the `readarray` default delimiter which is the newline.
+subj_alt_name="DNS.1:localhost"
+readarray -t cert_hostnames <<< "$(echo "dummy $(hostname -A)" | tr -s ' ' '\n')"
+for ((i=1; i < ${#cert_hostnames[*]}; i++)); do
+  subj_alt_name+=", DNS.$((i+1)):${cert_hostnames[i]}"
+done
+readarray -t cert_ipaddrs <<< "$(echo "127.0.0.1 $(hostname -I)" | tr -s ' ' '\n')"
+for ((i=0; i < ${#cert_ipaddrs[*]}; i++)); do
+  subj_alt_name+=", IP.$((i+1)):${cert_ipaddrs[i]}"
+done
+echo "subjectAltName is <${subj_alt_name}>."
+
+grep -q ${host_name} <<< ${subj_alt_name} \
+  || echo "Warning: requested host name/addr (${host_name}) is not covered by the TLS cert." >&2
 
 # Set up TMP_DIR, if it's not already defined, to point to WORKSPACE_TMP, if it
 # is defined (e.g., by the CI), or to `/var/tmp/pbench` as a fallback.
@@ -65,8 +87,9 @@ cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
 # Customize the Pbench Server config file for canned operation
 sed -Ei \
     -e "/^ *realhost/ s/=.*/= $(hostname -f)/" \
-    -e "s/<keycloak_realm>/${KEYCLOAK_REALM}/" \
-    -e "s/<keycloak_client>/${KEYCLOAK_CLIENT}/" \
+    -e "s|##KEYCLOAK_SERVER_URL##|https://${host_name}:8090|" \
+    -e "s/##KEYCLOAK_REALM##/${KEYCLOAK_REALM}/" \
+    -e "s/##KEYCLOAK_CLIENT##/${KEYCLOAK_CLIENT}/" \
     -e "s/##ADMIN_NAMES##/${PB_ADMIN_NAMES}/" \
     ${PB_DEPLOY_FILES}/pbench-server.cfg
 
@@ -132,7 +155,7 @@ podman run \
     -addext "authorityKeyIdentifier = keyid,issuer" \
     -addext "basicConstraints=CA:FALSE" \
     -addext "keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment" \
-    -addext "subjectAltName = IP.2:${PB_HOST_IP}, DNS:localhost" \
+    -addext "subjectAltName = ${subj_alt_name}" \
     2>&1 | sed -E -e '/^[.+*-]*$/ d'
 
 chmod 0640 ${PB_DEPLOY_FILES}/pbench-server.key
