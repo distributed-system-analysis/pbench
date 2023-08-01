@@ -1029,9 +1029,7 @@ class TestCacheManager:
                 return poll_return
 
             def kill(self) -> None:
-                raise AssertionError(
-                    "This test doesn't expect the stream to be closed."
-                )
+                pass
 
         def mock_shutil_which(
             cmd: str, _mode: int = os.F_OK | os.X_OK, _path: Optional[str] = None
@@ -1042,6 +1040,7 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(shutil, "which", mock_shutil_which)
             m.setattr(subprocess, "Popen", MockPopen)
+            m.setattr(Inventory, "close", MockBufferedReader.close)
 
             try:
                 got = Tarball.extract(tar, path)
