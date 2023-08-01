@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router";
 import "./index.less";
+
+import { AngleLeftIcon, FolderIcon } from "@patternfly/react-icons";
 import {
   BadgeToggle,
   Breadcrumb,
-  BreadcrumbItem,
   BreadcrumbHeading,
+  BreadcrumbItem,
   Divider,
   DrilldownMenu,
   Dropdown,
@@ -15,9 +15,8 @@ import {
   MenuContent,
   MenuItem,
   MenuList,
-  Page,
-  Spinner,
 } from "@patternfly/react-core";
+import React, { useEffect, useState } from "react";
 import {
   TableComposable,
   Tbody,
@@ -26,21 +25,21 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
-import FolderIcon from "@patternfly/react-icons/dist/esm/icons/folder-icon";
-import NavbarDrawer from "../NavbarDrawerComponent";
-import Sidebar from "../SidebarComponent";
-import TablePagination from "../PaginationComponent";
-import { SearchTOC } from "./common-components";
-import { EmptyTable } from "../TableComponent/common-components";
-import { fetchTOC } from "actions/tableOfContentActions";
+import {
+  fetchTOC,
+  updateCurrData,
+  updateSearchSpace,
+  updateStack,
+  updateTOCLoader,
+  updateTableData,
+} from "actions/tableOfContentActions";
 import { useDispatch, useSelector } from "react-redux";
-import { updateTableData } from "actions/tableOfContentActions";
-import { updateSearchSpace } from "actions/tableOfContentActions";
-import { updateStack } from "actions/tableOfContentActions";
-import { updateCurrData } from "actions/tableOfContentActions";
-import { updateTOCLoader } from "actions/tableOfContentActions";
+
 import { DEFAULT_PER_PAGE } from "assets/constants/paginationConstants";
+import { EmptyTable } from "../TableComponent/common-components";
+import { SearchTOC } from "./common-components";
+import TablePagination from "../PaginationComponent";
+import { useParams } from "react-router";
 
 const TableOfContent = () => {
   const { endpoints } = useSelector((state) => state.apiEndpoint);
@@ -61,8 +60,9 @@ const TableOfContent = () => {
     if (Object.keys(endpoints).length > 0)
       dispatch(fetchTOC(params["dataset_id"], "", false));
   }, [dispatch, endpoints, params]);
-  const { stack, searchSpace, tableData, contentData, currData, isLoading } =
-    useSelector((state) => state.tableOfContent);
+  const { stack, searchSpace, tableData, contentData, currData } = useSelector(
+    (state) => state.tableOfContent
+  );
   const setTableData = (data) => {
     dispatch(updateTableData(data));
   };
@@ -95,7 +95,7 @@ const TableOfContent = () => {
     setMenuDrilledIn(menuDrilledInSansLast);
     setDrillDownPath(pathSansLast);
     setActiveMenu(toMenuId);
-    setBreadCrumb(breadCrumb);
+    setBreadCrumb(breadcrumb);
   };
   const drillIn = (fromMenuId, toMenuId, pathId) => {
     setMenuDrilledIn([...menuDrilledIn, fromMenuId]);
@@ -209,169 +209,159 @@ const TableOfContent = () => {
   };
   return (
     <>
-      <Page header={<NavbarDrawer />} sidebar={<Sidebar />}>
-        <div className="toc">
-          <br />
+      <div className="toc">
+        <Menu
+          id="rootMenu"
+          containsDrilldown
+          drilldownItemPath={drilldownPath}
+          drilledInMenus={menuDrilledIn}
+          activeMenu={activeMenu}
+          onDrillIn={drillIn}
+          onDrillOut={drillOut}
+        >
+          {breadCrumb && (
+            <>
+              <MenuBreadcrumb>{breadCrumb}</MenuBreadcrumb>
+              <Divider component="li" />
+            </>
+          )}
 
-          <Menu
-            id="rootMenu"
-            containsDrilldown
-            drilldownItemPath={drilldownPath}
-            drilledInMenus={menuDrilledIn}
-            activeMenu={activeMenu}
-            onDrillIn={drillIn}
-            onDrillOut={drillOut}
-          >
-            {breadCrumb && (
-              <>
-                <MenuBreadcrumb>{breadCrumb}</MenuBreadcrumb>
-                <Divider component="li" />
-              </>
-            )}
-            {isLoading ? (
-              <Spinner className="spinner"></Spinner>
-            ) : (
-              <MenuContent>
-                <MenuList>
-                  {contentData?.directories?.map((data, index) => {
-                    return (
-                      <MenuItem
-                        itemId="group:start_rollout"
-                        id="d_down_parent"
-                        key={index}
-                        direction="down"
-                        onClick={() => {
-                          attachBreadCrumbs(data.name, true);
-                        }}
-                        drilldownMenu={
-                          <DrilldownMenu id="drilldownMenuStart">
-                            {currData?.directories?.map((data, index) => {
-                              if (dirCount < currData.directories.length) {
-                                dirCount = dirCount + 1;
-                                return (
-                                  <MenuItem
-                                    itemId="dir_info"
-                                    id="d_down"
-                                    key={index}
-                                    direction="down"
-                                    onClick={() => {
-                                      attachBreadCrumbs(data.name, false);
-                                    }}
-                                  >
-                                    <FolderIcon />
-                                    {data.name}
-                                  </MenuItem>
-                                );
-                              } else {
-                                return <></>;
-                              }
-                            })}
-
-                            {currData?.files?.map((data, index) => {
-                              if (fileCount < currData.files.length) {
-                                fileCount = fileCount + 1;
-                                return (
-                                  <MenuItem
-                                    key={index}
-                                    onClick={() => {
-                                      updateHighlightedRow(index);
-                                    }}
-                                  >
-                                    {data.name}
-                                  </MenuItem>
-                                );
-                              } else {
-                                return <></>;
-                              }
-                            })}
-                          </DrilldownMenu>
-                        }
-                      >
-                        <FolderIcon />
-                        {data.name}
-                      </MenuItem>
-                    );
-                  })}
-                  {contentData?.files?.map((data, index) => {
-                    return (
-                      <MenuItem
-                        key={index}
-                        onClick={() => {
-                          updateHighlightedRow(index);
-                        }}
-                      >
-                        {data.name}
-                      </MenuItem>
-                    );
-                  })}
-                </MenuList>
-              </MenuContent>
-            )}
-          </Menu>
-          <div className="tableTOC">
-            <div className="searchTOCContainer">
-              <SearchTOC
-                dataArray={searchSpace}
-                setTableData={setTableData}
-              ></SearchTOC>
-            </div>
-            <TableComposable
-              aria-label="Simple table"
-              variant="compact"
-              className="tocBody"
-            >
-              {isLoading ? (
-                <Spinner className="spinner"></Spinner>
-              ) : (
-                <>
-                  <Thead>
-                    <Tr>
-                      <Th>name</Th>
-                      <Th>mtime</Th>
-                      <Th>size</Th>
-                      <Th>mode</Th>
-                      <Th>type</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {visibleTableFiles.length > 0 ? (
-                      visibleTableFiles?.map((file, index) => (
-                        <Tr
-                          key={file.name}
-                          className={
-                            activeFile === index + (page - 1) * perPage
-                              ? "active"
-                              : ""
+          <MenuContent>
+            <MenuList>
+              {contentData?.directories?.map((data, index) => {
+                return (
+                  <MenuItem
+                    itemId="group:start_rollout"
+                    id="d_down_parent"
+                    key={index}
+                    icon={<FolderIcon aria-hidden />}
+                    direction="down"
+                    onClick={() => {
+                      attachBreadCrumbs(data.name, true);
+                    }}
+                    drilldownMenu={
+                      <DrilldownMenu id="drilldownMenuStart">
+                        {currData?.directories?.map((data, index) => {
+                          if (dirCount < currData.directories.length) {
+                            dirCount = dirCount + 1;
+                            return (
+                              <MenuItem
+                                itemId="dir_info"
+                                id="d_down"
+                                key={index}
+                                direction="down"
+                                icon={<FolderIcon aria-hidden />}
+                                onClick={() => {
+                                  attachBreadCrumbs(data.name, false);
+                                }}
+                              >
+                                {data.name}
+                              </MenuItem>
+                            );
+                          } else {
+                            return <></>;
                           }
-                        >
-                          <Td dataLabel={file.name}>{file.name}</Td>
-                          <Td dataLabel={file.mtime}>{file.mtime}</Td>
-                          <Td dataLabel={file.size}>{file.size}</Td>
-                          <Td dataLabel={file.mode}>{file.mode}</Td>
-                          <Td dataLabel={file.type}>{file.type}</Td>
-                        </Tr>
-                      ))
-                    ) : (
-                      <Tr>
-                        <Td colSpan={8}>
-                          <EmptyTable />
-                        </Td>
-                      </Tr>
-                    )}
-                  </Tbody>
-                </>
-              )}
-            </TableComposable>
-            <TablePagination
-              numberOfRows={tableData.length}
-              page={page}
-              setPage={setPage}
-              perPage={perPage}
-              setPerPage={setPerPage}
-            />
+                        })}
+
+                        {currData?.files?.map((data, index) => {
+                          if (fileCount < currData.files.length) {
+                            fileCount = fileCount + 1;
+                            return (
+                              <MenuItem
+                                key={index}
+                                icon={<FolderIcon aria-hidden />}
+                                onClick={() => {
+                                  updateHighlightedRow(index);
+                                }}
+                              >
+                                {data.name}
+                              </MenuItem>
+                            );
+                          } else {
+                            return <></>;
+                          }
+                        })}
+                      </DrilldownMenu>
+                    }
+                  >
+                    {data.name}
+                  </MenuItem>
+                );
+              })}
+              {contentData?.files?.map((data, index) => {
+                return (
+                  <MenuItem
+                    key={index}
+                    onClick={() => {
+                      updateHighlightedRow(index);
+                    }}
+                  >
+                    {data.name}
+                  </MenuItem>
+                );
+              })}
+            </MenuList>
+          </MenuContent>
+        </Menu>
+        <div className="tableTOC">
+          <div className="searchTOCContainer">
+            <SearchTOC
+              dataArray={searchSpace}
+              setTableData={setTableData}
+            ></SearchTOC>
           </div>
+          <TableComposable
+            aria-label="Simple table"
+            variant="compact"
+            className="tocBody"
+          >
+            <>
+              <Thead>
+                <Tr>
+                  <Th>Name</Th>
+                  <Th>mtime</Th>
+                  <Th>Size</Th>
+                  <Th>Mode</Th>
+                  <Th>Type</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {visibleTableFiles.length > 0 ? (
+                  visibleTableFiles?.map((file, index) => (
+                    <Tr
+                      key={file.name}
+                      className={
+                        activeFile === index + (page - 1) * perPage
+                          ? "active"
+                          : ""
+                      }
+                    >
+                      <Td dataLabel={file.name}>{file.name}</Td>
+                      <Td dataLabel={file.mtime}>{file.mtime}</Td>
+                      <Td dataLabel={file.size}>{file.size}</Td>
+                      <Td dataLabel={file.mode}>{file.mode}</Td>
+                      <Td dataLabel={file.type}>{file.type}</Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr>
+                    <Td colSpan={8}>
+                      <EmptyTable />
+                    </Td>
+                  </Tr>
+                )}
+              </Tbody>
+            </>
+          </TableComposable>
+          <TablePagination
+            numberOfRows={tableData.length}
+            page={page}
+            setPage={setPage}
+            perPage={perPage}
+            setPerPage={setPerPage}
+          />
         </div>
-      </Page>
+      </div>
     </>
   );
 };

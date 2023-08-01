@@ -2,16 +2,16 @@
   width: 500px;
   height: 100%;
   box-shadow: none;
-  border-right: 2px solid black;
-  border-bottom: 2px solid black;
+  border-right: 2px solid #d2d2d2;
 }
 
 .toc {
   display: flex;
+  height: 100%;
 }
 
 .active {
-  background-color: #b3cde0;
+  background-color: #efefef;
 }
 
 .dropDown {
@@ -23,13 +23,13 @@
 .tableTOC {
   display: flex;
   flex-direction: column;
-  width: 60%;
-  margin-left: 2vw;
+  width: 100%;
+  padding: 2vh;
 }
 
 .searchTOCContainer {
   display: flex;
-  flex-flow: row-reverse;
+  justify-content: flex-end;
 }
 
 .tocBody {
@@ -40,11 +40,9 @@
   width: 25vw !important;
 }
 
-.spinner {
-  position: absolute;
-  top: 25%;
-  left: 50%;
-  height: 100%;
-  width: 100%;
-  color: aqua;
+#d_down_parent {
+  svg {
+    fill: #6a6e73;
+  }
 }
+
