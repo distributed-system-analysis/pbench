@@ -127,6 +127,10 @@ class TestRelay:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
+            "notes": [
+                "Identified benchmark workload 'unknown'",
+                "Expected expiration date is 2025-07-31",
+            ],
         }
         assert (
             response.headers["location"]
@@ -164,6 +168,10 @@ class TestRelay:
         assert audit[1].attributes == {
             "access": "private",
             "metadata": {"global.pbench.test": "data"},
+            "notes": [
+                "Identified benchmark workload 'unknown'",
+                "Expected expiration date is 2025-07-31",
+            ],
         }
 
     @responses.activate

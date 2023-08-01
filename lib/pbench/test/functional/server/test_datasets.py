@@ -72,10 +72,17 @@ class TestPut:
             assert (
                 response.status_code == HTTPStatus.CREATED
             ), f"upload returned unexpected status {response.status_code}, {response.text} ({t})"
+            benchmark = server_client.get_metadata(md5, ["server.benchmark"])[
+                "server.benchmark"
+            ]
             assert response.json() == {
                 "message": "File successfully uploaded",
                 "name": name,
                 "resource_id": md5,
+                "notes": [
+                    f"Identified benchmark workload {benchmark!r}",
+                    "Expected expiration date is 2025-07-31",
+                ],
             }
             assert response.headers["location"] == server_client._uri(
                 API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
@@ -178,6 +185,10 @@ class TestPut:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
+            "notes": [
+                "Identified benchmark workload 'fio'",
+                "Expected expiration date is 2025-07-31",
+            ],
         }
         assert response.headers["location"] == server_client._uri(
             API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
@@ -220,6 +231,11 @@ class TestPut:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
+            "notes": [
+                "Results archive is missing 'nometadata/metadata.log'",
+                "Identified benchmark workload 'unknown'",
+                "Expected expiration date is 2025-07-31",
+            ],
         }
         assert response.headers["location"] == server_client._uri(
             API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}

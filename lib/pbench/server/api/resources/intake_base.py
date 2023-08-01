@@ -79,7 +79,6 @@ class IntakeBase(ApiBase):
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
         method = list(self.schemas.schemas.keys())[0]
         self.name = self.schemas[method].audit_name
-        current_app.logger.info("INTAKE temporary directory is {}", self.temporary)
 
     @staticmethod
     def process_metadata(metas: list[str]) -> JSONOBJECT:
@@ -197,6 +196,7 @@ class IntakeBase(ApiBase):
         audit: Optional[Audit] = None
         username: Optional[str] = None
         intake_dir: Optional[Path] = None
+        notes = []
 
         prefix = current_app.server_config.rest_uri
         origin = f"{self._get_uri_base(request).host}{prefix}/datasets/"
@@ -253,17 +253,12 @@ class IntakeBase(ApiBase):
             md5_full_path = intake_dir / f"{filename}.md5"
 
             bytes_received = 0
-            usage = shutil.disk_usage(tar_full_path.parent)
             current_app.logger.info(
-                "{} {} (pre): {:.3}% full, {} remaining",
+                "INTAKE (pre) {} {} for {} to {}",
                 self.name,
-                tar_full_path.name,
-                float(usage.used) / float(usage.total) * 100.0,
-                humanize.naturalsize(usage.free),
-            )
-
-            current_app.logger.info(
-                "{} {} for {} to {}", self.name, filename, username, tar_full_path
+                filename,
+                username,
+                tar_full_path,
             )
 
             # Create a tracking dataset object; it'll begin in UPLOADING state
@@ -407,11 +402,12 @@ class IntakeBase(ApiBase):
 
             usage = shutil.disk_usage(tar_full_path.parent)
             current_app.logger.info(
-                "{} {} (post): {:.3}% full, {} remaining",
+                "INTAKE (post) {} {}: {:.3}% full, {} remaining: dataset is {}",
                 self.name,
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
                 humanize.naturalsize(usage.free),
+                humanize.naturalsize(stream.length),
             )
 
             # From this point, failure will remove the tarball from the cache
@@ -430,6 +426,9 @@ class IntakeBase(ApiBase):
                     benchmark = Metadata.SERVER_BENCHMARK_UNKNOWN
                     metalog = {"pbench": {"name": dataset.name, "script": benchmark}}
                     metadata[Metadata.SERVER_ARCHIVE] = True
+                    notes.append(
+                        f"Results archive is missing '{dataset.name}/metadata.log'"
+                    )
                     attributes["missing_metadata"] = True
                 else:
                     p = metalog.get("pbench")
@@ -437,6 +436,7 @@ class IntakeBase(ApiBase):
                         benchmark = p.get("script", Metadata.SERVER_BENCHMARK_UNKNOWN)
                     else:
                         benchmark = Metadata.SERVER_BENCHMARK_UNKNOWN
+                notes.append(f"Identified benchmark workload {benchmark!r}")
                 Metadata.create(dataset=dataset, key=Metadata.METALOG, value=metalog)
             except Exception as exc:
                 raise APIInternalError(
@@ -456,6 +456,7 @@ class IntakeBase(ApiBase):
             try:
                 retention = datetime.timedelta(days=retention_days)
                 deletion = dataset.uploaded + retention
+                notes.append(f"Expected expiration date is {deletion:%Y-%m-%d}")
 
                 # Make a shallow copy so we can add keys without affecting the
                 # original (which will be recorded in the audit log)
@@ -469,7 +470,6 @@ class IntakeBase(ApiBase):
                         Metadata.SERVER_BENCHMARK: benchmark,
                     }
                 )
-                current_app.logger.info("Metadata for {}: {}", dataset.name, meta)
                 f = self._set_dataset_metadata(dataset, meta)
                 if f:
                     attributes["failures"] = f
@@ -484,6 +484,8 @@ class IntakeBase(ApiBase):
                 Sync(current_app.logger, OperationName.UPLOAD).update(
                     dataset=dataset, state=OperationState.OK, enabled=enable_next
                 )
+                if notes:
+                    attributes["notes"] = notes
                 Audit.create(
                     root=audit, status=AuditStatus.SUCCESS, attributes=attributes
                 )
@@ -530,6 +532,7 @@ class IntakeBase(ApiBase):
                 "message": "File successfully uploaded",
                 "name": dataset.name,
                 "resource_id": dataset.resource_id,
+                "notes": notes,
             }
         )
         response.headers["location"] = f"{origin}{dataset.resource_id}/inventory/"
