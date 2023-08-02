@@ -21,7 +21,27 @@ SHORT_EXPIRATION_DAYS = 10
 
 
 def utc_from_str(date: str) -> datetime:
+    """Convert a date string to a UTC datetime
+
+    Args:
+        date: date/time string
+
+    Returns:
+        UTC datetime object
+    """
     return dateutil.parser.parse(date).replace(tzinfo=timezone.utc)
+
+
+def expiration() -> str:
+    """Calculate a datetime for dataset deletion from "now".
+
+    Returns:
+        A "YYYY-MM-DD" string representing the day when a dataset uploaded
+        "now" would be deleted.
+    """
+    retention = timedelta(days=730)
+    d = datetime.now(timezone.utc) + retention
+    return f"{d:%Y-%m-%d}"
 
 
 @dataclass
@@ -72,16 +92,15 @@ class TestPut:
             assert (
                 response.status_code == HTTPStatus.CREATED
             ), f"upload returned unexpected status {response.status_code}, {response.text} ({t})"
-            benchmark = server_client.get_metadata(md5, ["server.benchmark"])[
-                "server.benchmark"
-            ]
+            metabench = server_client.get_metadata(md5, ["server.benchmark"])
+            benchmark = metabench["server.benchmark"]
             assert response.json() == {
                 "message": "File successfully uploaded",
                 "name": name,
                 "resource_id": md5,
                 "notes": [
-                    f"Identified benchmark workload {benchmark!r}",
-                    "Expected expiration date is 2025-07-31",
+                    f"Identified benchmark workload {benchmark!r}.",
+                    f"Expected expiration date is {expiration()}.",
                 ],
             }
             assert response.headers["location"] == server_client._uri(
@@ -186,8 +205,9 @@ class TestPut:
             "name": name,
             "resource_id": md5,
             "notes": [
-                "Identified benchmark workload 'fio'",
-                "Expected expiration date is 2025-07-31",
+                "Identified benchmark workload 'fio'.",
+                f"Expected expiration date is {expiration()}.",
+                "Indexing is disabled by 'archive only' setting.",
             ],
         }
         assert response.headers["location"] == server_client._uri(
@@ -227,14 +247,16 @@ class TestPut:
         assert (
             response.status_code == HTTPStatus.CREATED
         ), f"upload {name} returned unexpected status {response.status_code}, {response.text}"
+
         assert response.json() == {
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
             "notes": [
-                "Results archive is missing 'nometadata/metadata.log'",
-                "Identified benchmark workload 'unknown'",
-                "Expected expiration date is 2025-07-31",
+                "Results archive is missing 'nometadata/metadata.log'.",
+                "Identified benchmark workload 'unknown'.",
+                f"Expected expiration date is {expiration()}.",
+                "Indexing is disabled by 'archive only' setting.",
             ],
         }
         assert response.headers["location"] == server_client._uri(
