@@ -38,6 +38,9 @@ end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
 keycloak_redirect_uris="\"${KEYCLOAK_DEV_REDIRECT}\""
 for n in ${KEYCLOAK_REDIRECT_HOSTS}; do
+  if [[ $n =~ ^[0-9a-f]{0,4}(:[0-9a-f]{0,4}){1,8}$ ]]; then
+    n="[$n]"  # IPv6 addresses must be wrapped in square-brackets
+  fi
   keycloak_redirect_uris="${keycloak_redirect_uris}, \"https://${n}:8443/*\""
 done
 
