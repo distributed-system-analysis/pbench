@@ -1,11 +1,11 @@
 import {
   GET_SUB_DIR_DATA,
   GET_TOC_DATA,
+  UPDATE_CONTENT_DATA,
   UPDATE_CURR_DATA,
   UPDATE_SEARCH_SPACE,
   UPDATE_STACK,
   UPDATE_TABLE_DATA,
-  UPDATE_TOC_LOADING,
 } from "actions/types";
 
 const initialState = {
@@ -14,7 +14,6 @@ const initialState = {
   tableData: [],
   contentData: [],
   currData: [],
-  isLoading: true,
 };
 
 const TableOfContentReducer = (state = initialState, action = {}) => {
@@ -27,7 +26,6 @@ const TableOfContentReducer = (state = initialState, action = {}) => {
         searchSpace: payload.files,
         tableData: payload.files,
         contentData: payload,
-        isLoading: false,
       };
 
     case GET_SUB_DIR_DATA:
@@ -45,7 +43,11 @@ const TableOfContentReducer = (state = initialState, action = {}) => {
         ...state,
         tableData: payload,
       };
-
+    case UPDATE_CONTENT_DATA:
+      return {
+        ...state,
+        contentData: payload,
+      };
     case UPDATE_SEARCH_SPACE:
       return {
         ...state,
@@ -62,12 +64,6 @@ const TableOfContentReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         currData: payload,
-      };
-
-    case UPDATE_TOC_LOADING:
-      return {
-        ...state,
-        isLoading: payload,
       };
     default:
       return state;

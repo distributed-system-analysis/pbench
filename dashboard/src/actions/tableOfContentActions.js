@@ -1,12 +1,14 @@
 import * as TYPES from "./types";
+
 import API from "../utils/axiosInstance";
-import { uriTemplate } from "../utils/helper";
-import { showToast } from "./toastActions";
 import { DANGER } from "assets/constants/toastConstants";
+import { showToast } from "./toastActions";
+import { uriTemplate } from "../utils/helper";
 
 export const fetchTOC =
   (param, parent, callForSubData) => async (dispatch, getState) => {
     try {
+      dispatch({ type: TYPES.LOADING });
       const endpoints = getState().apiEndpoint.endpoints;
       const uri = uriTemplate(endpoints, "datasets_contents", {
         dataset: param,
@@ -23,39 +25,30 @@ export const fetchTOC =
       const msg = error.response?.data?.message;
       dispatch(showToast(DANGER, msg ?? `Error response: ${error}`));
     }
+    dispatch({ type: TYPES.COMPLETED });
   };
 
-export const updateTableData = (data) => {
-  return {
-    type: TYPES.UPDATE_TABLE_DATA,
-    payload: data,
-  };
-};
+export const updateTableData = (data) => ({
+  type: TYPES.UPDATE_TABLE_DATA,
+  payload: data,
+});
 
-export const updateSearchSpace = (data) => {
-  return {
-    type: TYPES.UPDATE_SEARCH_SPACE,
-    payload: data,
-  };
-};
+export const updateContentData = (data) => ({
+  type: TYPES.UPDATE_CONTENT_DATA,
+  payload: data,
+});
 
-export const updateStack = (length) => {
-  return {
-    type: TYPES.UPDATE_STACK,
-    payload: length,
-  };
-};
+export const updateSearchSpace = (data) => ({
+  type: TYPES.UPDATE_SEARCH_SPACE,
+  payload: data,
+});
 
-export const updateCurrData = (data) => {
-  return {
-    type: TYPES.UPDATE_CURR_DATA,
-    payload: data,
-  };
-};
+export const updateStack = (length) => ({
+  type: TYPES.UPDATE_STACK,
+  payload: length,
+});
 
-export const updateTOCLoader = (data) => {
-  return {
-    type: TYPES.UPDATE_TOC_LOADING,
-    payload: data,
-  };
-};
+export const updateCurrData = (data) => ({
+  type: TYPES.UPDATE_CURR_DATA,
+  payload: data,
+});

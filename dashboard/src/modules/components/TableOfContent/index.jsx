@@ -27,10 +27,10 @@ import {
 } from "@patternfly/react-table";
 import {
   fetchTOC,
+  updateContentData,
   updateCurrData,
   updateSearchSpace,
   updateStack,
-  updateTOCLoader,
   updateTableData,
 } from "actions/tableOfContentActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,8 +46,8 @@ const TableOfContent = () => {
   const [menuDrilledIn, setMenuDrilledIn] = useState([]);
   const [drilldownPath, setDrillDownPath] = useState([]);
   const [activeMenu, setActiveMenu] = useState("rootMenu");
-  const [breadCrumb, setBreadCrumb] = useState(undefined);
-  const [activeFile, setActiveFile] = useState(undefined);
+  const [breadCrumb, setBreadCrumb] = useState(null);
+  const [activeFile, setActiveFile] = useState(null);
   const [breadCrumbLabels, setBreadCrumbLabels] = useState([]);
   const [param, setParam] = useState("");
   const [page, setPage] = useState(1);
@@ -75,9 +75,7 @@ const TableOfContent = () => {
   const setCurrData = (data) => {
     dispatch(updateCurrData(data));
   };
-  const setIsLoading = (data) => {
-    dispatch(updateTOCLoader(data));
-  };
+
   const onToggle = (isOpen, key, moreBreadCrumbs) => {
     if (key === "app") {
       setBreadCrumb(appGroupingBreadcrumb(isOpen, moreBreadCrumbs));
@@ -179,6 +177,7 @@ const TableOfContent = () => {
     drillOut("rootMenu", "group:start_rollout", null);
     setStack(1);
     setTableData(stack[0].files);
+    dispatch(updateContentData(stack[0]));
     setSearchSpace(stack[0].files);
     setBreadCrumb(initialBreadcrumb([]));
     setParam("");
@@ -190,6 +189,7 @@ const TableOfContent = () => {
   const attachBreadCrumbs = (data, firstHierarchyLevel) => {
     breadCrumbLabels.push(data);
     setBreadCrumbLabels(breadCrumbLabels);
+
     setBreadCrumb(
       firstHierarchyLevel
         ? initialBreadcrumb(breadCrumbLabels)
@@ -197,7 +197,6 @@ const TableOfContent = () => {
     );
     const dirPath = param.concat(firstHierarchyLevel ? "" : "/", data);
     setParam(dirPath);
-    setIsLoading(true);
     getSubFolderData(dirPath);
   };
   const updateHighlightedRow = (index) => {
