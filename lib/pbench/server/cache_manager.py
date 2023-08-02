@@ -6,11 +6,11 @@ from pathlib import Path
 import shlex
 import shutil
 import subprocess
-import tarfile
+import time
 from typing import Any, IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
-from pbench.server import JSONOBJECT, PbenchServerConfig
+from pbench.server import JSONOBJECT, PathLike, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.utils import get_tarball_md5
 
@@ -35,7 +35,7 @@ class BadDirpath(CacheManagerError):
 class BadFilename(CacheManagerError):
     """A bad tarball path was given."""
 
-    def __init__(self, path: Union[str, Path]):
+    def __init__(self, path: PathLike):
         self.path = str(path)
 
     def __str__(self) -> str:
@@ -45,7 +45,7 @@ class BadFilename(CacheManagerError):
 class CacheExtractBadPath(CacheManagerError):
     """Request to extract a path that's bad or not a file"""
 
-    def __init__(self, tar_name: Path, path: Union[str, Path]):
+    def __init__(self, tar_name: Path, path: PathLike):
         self.name = tar_name.name
         self.path = str(path)
 
@@ -85,7 +85,7 @@ class MetadataError(CacheManagerError):
 
 
 class TarballUnpackError(CacheManagerError):
-    """An error occured trying to unpack a tarball."""
+    """An error occurred trying to unpack a tarball."""
 
     def __init__(self, tarball: Path, error: str):
         self.tarball = tarball
@@ -132,6 +132,14 @@ class CacheObject:
     resolve_type: Optional[CacheType]
     size: Optional[int]
     type: CacheType
+
+
+# Type hint definitions for the cache map.
+#
+# CacheMapEntry: { "details": CacheObject, "children": CacheMap }
+# CacheMap: { "<directory_entry>": CacheMapEntry, ... }
+CacheMapEntry = dict[str, Union[CacheObject, "CacheMap"]]
+CacheMap = dict[str, CacheMapEntry]
 
 
 def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
@@ -185,14 +193,14 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
 
 
 class Inventory:
-    """Encapsulate the tarfile TarFile object and file stream
+    """Encapsulate the file stream and subprocess.Popen object
 
     This encapsulation allows cleaner downstream handling, so that we can close
-    both the extractfile file stream and the tarball object itself when we're
-    done. This eliminates interference with later operations.
+    both the extracted file stream and the Popen object itself when we're done.
+    This eliminates interference with later operations.
     """
 
-    def __init__(self, stream: IO[bytes], tarfile: Optional[tarfile.TarFile] = None):
+    def __init__(self, stream: IO[bytes], subproc: Optional[subprocess.Popen] = None):
         """Construct an instance to track extracted inventory
 
         This encapsulates many byte stream operations so that it can be used
@@ -200,16 +208,40 @@ class Inventory:
 
         Args:
             stream: the data stream of a specific tarball member
-            tarfile: the TarFile object
+            subproc: the subprocess producing the stream, if any
         """
-        self.tarfile = tarfile
+        self.subproc = subproc
         self.stream = stream
 
     def close(self):
-        """Close both the byte stream and, if open, a tarfile object"""
+        """Close the byte stream and clean up the Popen object"""
+        if self.subproc:
+            try:
+                if self.subproc.poll() is None:
+                    # The subprocess is still running: kill it, drain the outputs,
+                    # and wait for its termination.  (If the timeout on the wait()
+                    # is exceeded, it will raise subprocess.TimeoutExpired rather
+                    # than waiting forever...it's not clear what will happen after
+                    # that, but there's not a good alternative, so I hope this
+                    # never actually happens.)
+                    self.subproc.kill()
+                    if self.subproc.stdout:
+                        while self.subproc.stdout.read(4096):
+                            pass
+                    if self.subproc.stderr:
+                        while self.subproc.stderr.read(4096):
+                            pass
+                    self.subproc.wait(60.0)
+            finally:
+                # Release our reference to the subprocess.Popen object so that the
+                # object can be reclaimed.
+                self.subproc = None
+
+        # Explicitly close the stream, in case there never was an associated
+        # subprocess.  (If there was an associated subprocess, the streams are
+        # now empty, and we'll assume that they are closed when the Popen
+        # object is reclaimed.)
         self.stream.close()
-        if self.tarfile:
-            self.tarfile.close()
 
     def getbuffer(self):
         """Return the underlying byte buffer (used by send_file)"""
@@ -229,7 +261,7 @@ class Inventory:
 
     def __repr__(self) -> str:
         """Return a string representation"""
-        return f"<Stream {self.stream} from {self.tarfile}>"
+        return f"<Stream {self.stream} from {self.subproc}>"
 
     def __iter__(self):
         """Allow iterating through lines in the buffer"""
@@ -254,6 +286,11 @@ class Tarball:
     dataset's on-disk representation. This class does not interact with the
     database representations of a dataset.
     """
+
+    # Wait no more than a minute for the tar(1) command to start producing
+    # output; perform the wait in 0.02s increments.
+    TAR_EXEC_TIMEOUT = 60.0
+    TAR_EXEC_WAIT = 0.02
 
     def __init__(self, path: Path, controller: "Controller"):
         """Construct a `Tarball` object instance
@@ -282,7 +319,7 @@ class Tarball:
         self.cache: Path = controller.cache / self.resource_id
 
         # Record hierarchy of a Tar ball
-        self.cachemap: Optional[JSONOBJECT] = None
+        self.cachemap: Optional[CacheMap] = None
 
         # Record the base of the unpacked files for cache management, which
         # is (self.cache / self.name) and will be None when the cache is
@@ -362,11 +399,11 @@ class Tarball:
         except Exception as e:
             try:
                 md5_destination.unlink()
-            except Exception as e:
+            except Exception as md5_e:
                 controller.logger.error(
                     "Unable to recover by removing {} MD5 after tarball copy failure: {}",
                     name,
-                    e,
+                    md5_e,
                 )
             controller.logger.error(
                 "ERROR copying dataset {} tarball {}: {}", name, tarball, e
@@ -399,13 +436,15 @@ class Tarball:
             dir_path: root directory
         """
         root_dir_path = dir_path.parent
-        cmap = {dir_path.name: {"details": make_cache_object(root_dir_path, dir_path)}}
-        dir_queue = deque([(dir_path, cmap)])
+        cmap: CacheMap = {
+            dir_path.name: {"details": make_cache_object(root_dir_path, dir_path)}
+        }
+        dir_queue = deque(((dir_path, cmap),))
         while dir_queue:
             dir_path, parent_map = dir_queue.popleft()
             tar_n = dir_path.name
 
-            curr = {}
+            curr: CacheMapEntry = {}
             for l_path in dir_path.glob("*"):
                 tar_info = make_cache_object(root_dir_path, l_path)
                 curr[l_path.name] = {"details": tar_info}
@@ -418,13 +457,13 @@ class Tarball:
         self.cachemap = cmap
 
     @staticmethod
-    def traverse_cmap(path: Path, cachemap: dict) -> dict[str, dict]:
+    def traverse_cmap(path: Path, cachemap: CacheMap) -> CacheMapEntry:
         """Sequentially traverses the cachemap to find the leaf of a
         relative path reference
 
         Args:
-            path: relative path of the sub-directory/file
-            cachemap: dictionary mapping of the root Dicrectory
+            path: relative path of the subdirectory/file
+            cachemap: dictionary mapping of the root directory
 
         Raises:
             BadDirpath if the directory/file path is not valid
@@ -437,9 +476,9 @@ class Tarball:
 
         try:
             for file_l in file_list:
-                info = f_entries[file_l]
+                info: CacheMapEntry = f_entries[file_l]
                 if info["details"].type == CacheType.DIRECTORY:
-                    f_entries = info["children"]
+                    f_entries: CacheMap = info["children"]
                 else:
                     raise BadDirpath(
                         f"Found a file {file_l!r} where a directory was expected in path {str(path)!r}"
@@ -454,13 +493,13 @@ class Tarball:
         """Returns the details of the given file/directory in dict format
 
         NOTE: This requires a call to the cache_map method to build a map that
-        can be traversed. Currently this is done only on unpack, and isn't
+        can be traversed. Currently, this is done only on unpack, and isn't
         useful except within the `pbench-index` process. This map needs to
         either be built dynamically (potentially expensive) or persisted in
         SQL or perhaps Redis.
 
         Args:
-            path: path of the file/sub-directory
+            path: path of the file/subdirectory
 
         Raises:
             BadDirpath on bad directory path
@@ -506,7 +545,7 @@ class Tarball:
         return fd_info
 
     @staticmethod
-    def extract(tarball_path: Path, path: Path) -> Inventory:
+    def extract(tarball_path: Path, path: str) -> Inventory:
         """Returns a file stream for a file within a tarball
 
         Args:
@@ -515,25 +554,87 @@ class Tarball:
 
         Returns:
             An inventory object that mimics an IO[bytes] object while also
-            maintaining a reference to the tarfile TarFile object to be
-            closed later.
+            maintaining a reference to the subprocess.Popen object to be
+            cleaned up later.
 
         Raise:
-            TarballNotFound on failure opening the tarball
             CacheExtractBadPath if the target cannot be extracted
+            TarballUnpackError on other tar-command failures
+            Any exception raised by subprocess.Popen()
+            subprocess.TimeoutExpired if the tar command hangs
         """
-        try:
-            tar = tarfile.open(tarball_path, "r:*")
-        except Exception as exc:
-            raise TarballNotFound(str(tarball_path)) from exc
-        try:
-            stream = tar.extractfile(str(path))
-        except Exception as exc:
-            raise CacheExtractBadPath(tarball_path, path) from exc
-        else:
-            if not stream:
-                raise CacheExtractBadPath(tarball_path, path)
-            return Inventory(stream, tar)
+        tar_path = shutil.which("tar")
+        if tar_path is None:
+            raise TarballUnpackError(
+                tarball_path, "External 'tar' executable not found"
+            )
+
+        # The external tar utility offers better capabilities than the
+        # Standard Library package, so run it in a subprocess:  extract
+        # the target member from the specified tar archive and direct it to
+        # stdout; we expect only one occurrence of the target member, so stop
+        # processing as soon as we find it instead of looking for additional
+        # instances of it later in the archive -- this is a huge savings when
+        # the archive is very large.
+        tar_command = [
+            str(tar_path),
+            "xf",
+            tarball_path,
+            "--to-stdout",
+            "--occurrence=1",
+            path,
+        ]
+        tarproc = subprocess.Popen(
+            tar_command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        # Wait for the tar(1) command to start producing output, but stop
+        # waiting if the subprocess exits or if it takes too long.
+        start = time.time()
+        while not tarproc.stdout.peek():
+            if tarproc.poll() is not None:
+                break
+
+            elapsed = time.time() - start
+            if elapsed > Tarball.TAR_EXEC_TIMEOUT:
+                # No signs of life from the subprocess.  Kill it to ensure that
+                # the Python runtime can clean it up after we leave, and report
+                # the failure.
+                tarproc.kill()
+                raise subprocess.TimeoutExpired(
+                    cmd=tar_command,
+                    timeout=elapsed,
+                    output=tarproc.stdout,
+                    stderr=tarproc.stderr,
+                )
+
+            time.sleep(Tarball.TAR_EXEC_WAIT)
+
+        # If the return code is None (meaning the command is still running) or
+        # is zero (meaning it completed successfully), then return the stream
+        # containing the extracted file to our caller, and return the Popen
+        # object so that we can clean it up when the Inventory object is closed.
+        if not tarproc.returncode:
+            return Inventory(tarproc.stdout, tarproc)
+
+        # The tar command was invoked successfully (otherwise, the Popen()
+        # constructor would have raised an exception), but it exited with
+        # an error code.  We have to glean what went wrong by looking at
+        # stderr, which is fragile but the only option.  Rather than
+        # relying on looking for specific text, we assume that, if the error
+        # references the archive member, then it was a bad path; otherwise, it
+        # was some sort of error unpacking it.
+        error_text = tarproc.stderr.read().decode()
+        if path in error_text:
+            # "tar: missing_member.txt: Not found in archive"
+            raise CacheExtractBadPath(tarball_path, path)
+        # "tar: /path/to/bad_tarball.tar.xz: Cannot open: No such file or directory"
+        raise TarballUnpackError(
+            tarball_path, f"Unexpected error from {tar_path}: {error_text!r}"
+        )
 
     def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
         """Access the file stream of a tarball member file.
@@ -551,9 +652,9 @@ class Tarball:
                 "stream": Inventory(self.tarball_path.open("rb"), None),
             }
         else:
-            file_path = Path(self.name) / path
+            file_path = f"{self.name}/{path}"
             stream = Tarball.extract(self.tarball_path, file_path)
-            info = {"name": file_path.name, "type": CacheType.FILE, "stream": stream}
+            info = {"name": file_path, "type": CacheType.FILE, "stream": stream}
 
         return info
 
@@ -579,7 +680,10 @@ class Tarball:
 
     @staticmethod
     def subprocess_run(
-        command: str, working_dir: Path, exception: type[CacheManagerError], ctx: Path
+        command: str,
+        working_dir: PathLike,
+        exception: type[CacheManagerError],
+        ctx: Path,
     ):
         """Runs a command as a subprocess.
 
@@ -629,14 +733,15 @@ class Tarball:
         Rather than passing the indexer the root `/srv/pbench/.cache` or trying
         to update all of the indexer code (which still jumps back and forth
         between the tarball and the unpacked files), we maintain the "cache"
-        directory as two paths: self.cache which is the directory we manage
+        directory as two paths:  self.cache which is the directory we manage
         here and pass to the indexer (/srv/pbench/.cache/<resource_id>) and
         the actual unpacked root (/srv/pbench/.cache/<resource_id>/<name>).
         """
         self.cache.mkdir(parents=True)
 
         try:
-            tar_command = f"tar -x --no-same-owner --delay-directory-restore --force-local --file='{str(self.tarball_path)}'"
+            tar_command = "tar -x --no-same-owner --delay-directory-restore "
+            tar_command += f"--force-local --file='{str(self.tarball_path)}'"
             self.subprocess_run(
                 tar_command, self.cache, TarballUnpackError, self.tarball_path
             )
@@ -770,18 +875,18 @@ class Controller:
         controller_dir.mkdir(exist_ok=True, mode=0o755)
         return cls(controller_dir, options.CACHE, logger)
 
-    def create_tarball(self, tarfile: Path) -> Tarball:
+    def create_tarball(self, tarfile_path: Path) -> Tarball:
         """Create a new dataset tarball object under the controller
 
         The new tarball object is linked to the controller so we can find it.
 
         Args:
-            tarfile: Path to source tarball file
+            tarfile_path: Path to source tarball file
 
         Returns:
             Tarball object
         """
-        tarball = Tarball.create(tarfile, self)
+        tarball = Tarball.create(tarfile_path, self)
         self.datasets[tarball.resource_id] = tarball
         self.tarballs[tarball.name] = tarball
         return tarball
@@ -974,7 +1079,7 @@ class CacheManager:
         """Build a representation of the ARCHIVE tree
 
         Record all controllers (top level directories), and the tarballs that
-        that represent datasets within them.
+        represent datasets within them.
         """
         for file in self.archive_root.iterdir():
             if file.is_dir() and file.name != CacheManager.TEMPORARY:
@@ -1008,12 +1113,12 @@ class CacheManager:
 
         # The dataset isn't already known; so search for it in the ARCHIVE tree
         # and (if found) discover the controller containing that dataset.
-        for dir in self.archive_root.iterdir():
-            if dir.is_dir() and dir.name != self.TEMPORARY:
-                for file in dir.glob(f"*{Dataset.TARBALL_SUFFIX}"):
+        for dir_entry in self.archive_root.iterdir():
+            if dir_entry.is_dir() and dir_entry.name != self.TEMPORARY:
+                for file in dir_entry.glob(f"*{Dataset.TARBALL_SUFFIX}"):
                     md5 = get_tarball_md5(file)
                     if md5 == dataset_id:
-                        self._add_controller(dir)
+                        self._add_controller(dir_entry)
                         return self.datasets[dataset_id]
         raise TarballNotFound(dataset_id)
 
@@ -1037,7 +1142,7 @@ class CacheManager:
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
     #   unpacked directory tree.
 
-    def create(self, tarfile: Path) -> Tarball:
+    def create(self, tarfile_path: Path) -> Tarball:
         """Bring a new tarball under cache manager management.
 
         Move a dataset tarball and companion MD5 file into the specified
@@ -1045,8 +1150,7 @@ class CacheManager:
         necessary.
 
         Args:
-            controller: associated controller name
-            tarfile: dataset tarball path
+            tarfile_path: dataset tarball path
 
         Raises
             BadDirpath: Failure on extracting the file from tarball
@@ -1059,19 +1163,19 @@ class CacheManager:
             Tarball object
         """
         try:
-            metadata = Tarball._get_metadata(tarfile)
+            metadata = Tarball._get_metadata(tarfile_path)
             if metadata:
                 controller_name = metadata["run"]["controller"]
             else:
                 controller_name = "unknown"
         except Exception as exc:
-            raise MetadataError(tarfile, exc)
+            raise MetadataError(tarfile_path, exc)
 
         if not controller_name:
-            raise MetadataError(tarfile, "no controller value")
-        if not tarfile.is_file():
-            raise BadFilename(tarfile)
-        name = Dataset.stem(tarfile)
+            raise MetadataError(tarfile_path, ValueError("no controller value"))
+        if not tarfile_path.is_file():
+            raise BadFilename(tarfile_path)
+        name = Dataset.stem(tarfile_path)
         if name in self.tarballs:
             raise DuplicateTarball(name)
         if controller_name in self.controllers:
@@ -1079,7 +1183,7 @@ class CacheManager:
         else:
             controller = Controller.create(controller_name, self.options, self.logger)
             self.controllers[controller_name] = controller
-        tarball = controller.create_tarball(tarfile)
+        tarball = controller.create_tarball(tarfile_path)
         tarball.metadata = metadata
         self.tarballs[tarball.name] = tarball
         self.datasets[tarball.resource_id] = tarball
@@ -1122,7 +1226,7 @@ class CacheManager:
             }
 
         Args:
-            dataset: Dataset resource ID
+            dataset_id: Dataset resource ID
             target: relative file path within the tarball
 
         Returns:
