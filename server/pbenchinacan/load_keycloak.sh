@@ -20,7 +20,7 @@
 # value of 'KEYCLOAK_DEV_REDIRECT' which defaults to "http://localhost:3000/*".
 
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"https://localhost:8090"}
-KEYCLOAK_REDIRECT_HOSTS=${KEYCLOAK_REDIRECT_HOSTS:-"localhost $(hostname -I) $(hostname -A) $(hostname -f)"}
+KEYCLOAK_REDIRECT_HOSTS=${KEYCLOAK_REDIRECT_HOSTS:-"localhost $(hostname -A) $(hostname -f) 127.0.0.1 ::1 $(hostname -I)"}
 KEYCLOAK_DEV_REDIRECT=${KEYCLOAK_DEV_REDIRECT:-"http://localhost:3000/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}

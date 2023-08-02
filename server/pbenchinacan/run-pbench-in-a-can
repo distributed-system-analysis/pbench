@@ -51,7 +51,7 @@ readarray -t cert_hostnames <<< "$(echo "dummy $(hostname -A)" | tr -s ' ' '\n')
 for ((i=1; i < ${#cert_hostnames[*]}; i++)); do
   subj_alt_name+=", DNS.$((i+1)):${cert_hostnames[i]}"
 done
-readarray -t cert_ipaddrs <<< "$(echo "127.0.0.1 $(hostname -I)" | tr -s ' ' '\n')"
+readarray -t cert_ipaddrs <<< "$(echo "127.0.0.1 ::1 $(hostname -I)" | tr -s ' ' '\n')"
 for ((i=0; i < ${#cert_ipaddrs[*]}; i++)); do
   subj_alt_name+=", IP.$((i+1)):${cert_ipaddrs[i]}"
 done
