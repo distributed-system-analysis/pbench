@@ -153,6 +153,21 @@ class IntakeBase(ApiBase):
         """
         raise NotImplementedError()
 
+    def _cleanup(self, args: ApiParams, intake: Intake) -> list[str]:
+        """Clean up after a completed upload
+
+        Default behavior is to do nothing: each subclass can provide a custom
+        behavior for cleanup after successful transfer.
+
+        Args:
+            intake: The intake object
+            args: API parameters
+
+        Returns:
+            A list of error strings if any problems occur
+        """
+        return []
+
     def _intake(
         self, args: ApiParams, request: Request, context: ApiContext
     ) -> Response:
@@ -477,6 +492,7 @@ class IntakeBase(ApiBase):
                 enable_next = [OperationName.INDEX] if should_index else None
                 if not should_index:
                     notes.append("Indexing is disabled by 'archive only' setting.")
+                notes += self._cleanup(args, intake)
                 Sync(current_app.logger, OperationName.UPLOAD).update(
                     dataset=dataset, state=OperationState.OK, enabled=enable_next
                 )

@@ -13,7 +13,7 @@ export const uploadFile = () => async (dispatch, getState) => {
     const endpoints = getState().apiEndpoint.endpoints;
     const fileURI = getState().overview.relayInput;
     const uri = uriTemplate(endpoints, "relay", { uri: fileURI });
-    const response = await API.post(uri, null, null);
+    const response = await API.post(uri, null, { params: { delete: "t" } });
     if (response.status >= 200 && response.status < 300) {
       dispatch(showToast(SUCCESS, response.data.message));
       dispatch(setRelayModalState(false));

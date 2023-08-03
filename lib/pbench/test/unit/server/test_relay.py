@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
+from typing import Union
 
 from flask import Request
 import pytest
@@ -87,13 +88,16 @@ class TestRelay:
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert not self.cachemanager_created
 
-    @responses.activate
     @pytest.mark.freeze_time("2023-07-01")
-    def test_relay(self, client, server_config, pbench_drb_token, tarball):
+    @pytest.mark.parametrize("delete", ("false", "true"))
+    @responses.activate
+    def test_relay(self, client, server_config, pbench_drb_token, tarball, delete):
         """Verify the success path
 
         Ensure successful completion when the primary relay URI returns a valid
         relay manifest referencing a secondary relay URI containing a tarball.
+
+        Also check that the DELETE requests happen when `?delete` is specified.
         """
         file, md5file, md5 = tarball
         name = Dataset.stem(file)
@@ -117,22 +121,34 @@ class TestRelay:
             headers={"content-length": f"{file.stat().st_size}"},
             content_type="application/octet-stream",
         )
+        if delete:
+            responses.add(
+                responses.DELETE, "https://relay.example.com/uri1", status=HTTPStatus.OK
+            )
+            responses.add(
+                responses.DELETE, "https://relay.example.com/uri2", status=HTTPStatus.OK
+            )
         response = client.post(
             self.gen_uri(server_config, "https://relay.example.com/uri1"),
+            query_string={"delete": "true"} if delete else None,
             headers=self.gen_headers(pbench_drb_token),
         )
         assert (
             response.status_code == HTTPStatus.CREATED
         ), f"Unexpected result, {response.text}"
+        expected_notes = [
+            "Identified benchmark workload 'unknown'.",
+            "Expected expiration date is 2025-06-30.",
+        ]
+        if delete:
+            expected_notes.append("Relay files were successfully removed.")
         assert response.json == {
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
-            "notes": [
-                "Identified benchmark workload 'unknown'.",
-                "Expected expiration date is 2025-06-30.",
-            ],
+            "notes": expected_notes,
         }
+        assert len(responses.calls) == 4 if delete else 2
         assert (
             response.headers["location"]
             == f"https://localhost/api/v1/datasets/{md5}/inventory/"
@@ -169,10 +185,7 @@ class TestRelay:
         assert audit[1].attributes == {
             "access": "private",
             "metadata": {"global.pbench.test": "data"},
-            "notes": [
-                "Identified benchmark workload 'unknown'.",
-                "Expected expiration date is 2025-06-30.",
-            ],
+            "notes": expected_notes,
         }
 
     @responses.activate
@@ -392,3 +405,140 @@ class TestRelay:
         assert (
             response.json["message"] == "Unable to connect to results URI: 'leaky wire'"
         )
+
+    @pytest.mark.freeze_time("2023-07-01")
+    @pytest.mark.parametrize(
+        "status1,status2",
+        (
+            ((HTTPStatus.OK, None), ((HTTPStatus.BAD_REQUEST, "Bad Request"))),
+            ((HTTPStatus.BAD_REQUEST, "Bad Request"), (HTTPStatus.OK, None)),
+            (
+                (HTTPStatus.BAD_REQUEST, "Bad Request"),
+                (HTTPStatus.BAD_REQUEST, "Bad Request"),
+            ),
+            ((ConnectionError("testing"), "testing"), (HTTPStatus.OK, None)),
+            ((HTTPStatus.OK, None), (ConnectionError("testing"), "testing")),
+            (
+                (ConnectionError("testing1"), "testing1"),
+                (ConnectionError("testing2"), "testing2"),
+            ),
+        ),
+    )
+    @responses.activate
+    def test_delete_failures(
+        self,
+        client,
+        server_config,
+        pbench_drb_token,
+        tarball,
+        status1: tuple[Union[HTTPStatus,Exception], str],
+        status2: tuple[Union[HTTPStatus,Exception], str],
+    ):
+        """Verify reporting of delete failures
+
+        Ensure successful completion with appropriate notes when deletion of
+        the relay files fails.
+        """
+        file, md5file, md5 = tarball
+        name = Dataset.stem(file)
+        responses.add(
+            responses.GET,
+            "https://relay.example.com/uri1",
+            status=HTTPStatus.OK,
+            json={
+                "uri": "https://relay.example.com/uri2",
+                "name": file.name,
+                "md5": md5,
+                "access": "private",
+                "metadata": ["global.pbench.test:data"],
+            },
+        )
+        responses.add(
+            responses.GET,
+            "https://relay.example.com/uri2",
+            status=HTTPStatus.OK,
+            body=file.open("rb"),
+            headers={"content-length": f"{file.stat().st_size}"},
+            content_type="application/octet-stream",
+        )
+        responses.add(
+            responses.DELETE,
+            "https://relay.example.com/uri1",
+            status=status1[0]
+            if isinstance(status1[0], int)
+            else HTTPStatus.ALREADY_REPORTED,
+            body=status1[0] if isinstance(status1[0], Exception) else None,
+        )
+        responses.add(
+            responses.DELETE,
+            "https://relay.example.com/uri2",
+            status=status2[0]
+            if isinstance(status2[0], int)
+            else HTTPStatus.ALREADY_REPORTED,
+            body=status2[0] if isinstance(status2[0], Exception) else None,
+        )
+        response = client.post(
+            self.gen_uri(server_config, "https://relay.example.com/uri1"),
+            query_string={"delete": "true"},
+            headers=self.gen_headers(pbench_drb_token),
+        )
+        assert (
+            response.status_code == HTTPStatus.CREATED
+        ), f"Unexpected result, {response.text}"
+        expected_notes = [
+            "Identified benchmark workload 'unknown'.",
+            "Expected expiration date is 2025-06-30.",
+        ]
+        if status1[0] != HTTPStatus.OK:
+            expected_notes.append(
+                f"Unable to remove relay file https://relay.example.com/uri1: '{status1[1]}'"
+            )
+        if status2[0] != HTTPStatus.OK:
+            expected_notes.append(
+                f"Unable to remove relay file https://relay.example.com/uri2: '{status2[1]}'"
+            )
+        assert response.json == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+            "notes": expected_notes,
+        }
+        assert len(responses.calls) == 4
+        assert (
+            response.headers["location"]
+            == f"https://localhost/api/v1/datasets/{md5}/inventory/"
+        )
+
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].id == 1
+        assert audit[0].root_id is None
+        assert audit[0].operation == OperationCode.CREATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "relay"
+        assert audit[0].object_type == AuditType.DATASET
+        assert audit[0].object_id == md5
+        assert audit[0].object_name == name
+        assert audit[0].user_id == DRB_USER_ID
+        assert audit[0].user_name == "drb"
+        assert audit[0].reason is None
+        assert audit[0].attributes == {
+            "access": "private",
+            "metadata": {"global.pbench.test": "data"},
+        }
+        assert audit[1].id == 2
+        assert audit[1].root_id == 1
+        assert audit[1].operation == OperationCode.CREATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "relay"
+        assert audit[1].object_type == AuditType.DATASET
+        assert audit[1].object_id == md5
+        assert audit[1].object_name == Dataset.stem(file)
+        assert audit[1].user_id == DRB_USER_ID
+        assert audit[1].user_name == "drb"
+        assert audit[1].reason is None
+        assert audit[1].attributes == {
+            "access": "private",
+            "metadata": {"global.pbench.test": "data"},
+            "notes": expected_notes,
+        }

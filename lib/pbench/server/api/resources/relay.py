@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import Response
+from flask import current_app, Response
 from flask.wrappers import Request
 import requests
 
@@ -33,6 +33,7 @@ class Relay(IntakeBase):
                 uri_schema=Schema(Parameter("filename", ParamType.STRING)),
                 query_schema=Schema(
                     Parameter("access", ParamType.ACCESS),
+                    Parameter("delete", ParamType.BOOLEAN),
                     Parameter(
                         "metadata",
                         ParamType.LIST,
@@ -107,6 +108,10 @@ class Relay(IntakeBase):
                 HTTPStatus.BAD_GATEWAY, f"Relay info missing {str(e)!r}"
             ) from e
 
+        # If the API client specified metadata, add it to the manifest
+        # metadata list. When the common code processes the list into a dict,
+        # any later duplicate keys will override the earlier values.
+        metadata += args.query.get("metadata", [])
         return Intake(name, md5, access, metadata, uri)
 
     def _stream(self, intake: Intake, request: Request) -> Access:
@@ -148,6 +153,44 @@ class Relay(IntakeBase):
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST, f"Unable to retrieve relay tarball: {str(e)!r}"
             ) from e
+
+    def _cleanup(self, args: ApiParams, intake: Intake) -> list[str]:
+        """Clean up after a completed upload
+
+        When pulling datasets from a relay, the client can ask that the relay
+        files be deleted on successful completion to avoid accumulating storage
+        on the relay server.
+
+        We capture all HTTP errors here, since there's not much we can do to
+        clean up, and the dataset has already been successfully transferred.
+        We just note the problems so they can be investigated.
+
+        Args:
+            args: API parameters
+            intake: The intake object containing the tarball URI
+
+        Returns:
+            A list of error strings if any problems occur
+        """
+        current_app.logger.info("Cleanup {} and {}", args.uri["uri"], intake.uri)
+        notes = []
+        if args.query.get("delete"):
+            for uri in (args.uri["uri"], intake.uri):
+                reason = None
+                try:
+                    response = requests.delete(uri)
+                    current_app.logger.info("DEL {}: {}", uri, response.reason)
+                    if not response.ok:
+                        reason = response.reason
+                except ConnectionError as e:
+                    reason = str(e)
+                if reason:
+                    msg = f"Unable to remove relay file {uri}: {reason!r}"
+                    current_app.logger.warning("INTAKE relay {}: {}", intake.name, msg)
+                    notes.append(msg)
+            if not notes:
+                notes.append("Relay files were successfully removed.")
+        return notes
 
     def _post(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """Launch the Relay operation from an HTTP POST"""
