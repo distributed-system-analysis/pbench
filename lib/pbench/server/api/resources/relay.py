@@ -154,7 +154,7 @@ class Relay(IntakeBase):
                 HTTPStatus.BAD_REQUEST, f"Unable to retrieve relay tarball: {str(e)!r}"
             ) from e
 
-    def _cleanup(self, args: ApiParams, intake: Intake) -> list[str]:
+    def _cleanup(self, args: ApiParams, intake: Intake, notes: list[str]):
         """Clean up after a completed upload
 
         When pulling datasets from a relay, the client can ask that the relay
@@ -168,29 +168,25 @@ class Relay(IntakeBase):
         Args:
             args: API parameters
             intake: The intake object containing the tarball URI
-
-        Returns:
-            A list of error strings if any problems occur
+            notes: A list of error strings to report problems.
         """
-        current_app.logger.info("Cleanup {} and {}", args.uri["uri"], intake.uri)
-        notes = []
+        errors = 0
         if args.query.get("delete"):
             for uri in (args.uri["uri"], intake.uri):
                 reason = None
                 try:
                     response = requests.delete(uri)
-                    current_app.logger.info("DEL {}: {}", uri, response.reason)
                     if not response.ok:
                         reason = response.reason
                 except ConnectionError as e:
                     reason = str(e)
                 if reason:
+                    errors += 1
                     msg = f"Unable to remove relay file {uri}: {reason!r}"
                     current_app.logger.warning("INTAKE relay {}: {}", intake.name, msg)
                     notes.append(msg)
-            if not notes:
+            if not errors:
                 notes.append("Relay files were successfully removed.")
-        return notes
 
     def _post(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """Launch the Relay operation from an HTTP POST"""

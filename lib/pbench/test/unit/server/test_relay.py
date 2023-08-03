@@ -89,7 +89,7 @@ class TestRelay:
         assert not self.cachemanager_created
 
     @pytest.mark.freeze_time("2023-07-01")
-    @pytest.mark.parametrize("delete", ("false", "true"))
+    @pytest.mark.parametrize("delete", ("false", "true", None))
     @responses.activate
     def test_relay(self, client, server_config, pbench_drb_token, tarball, delete):
         """Verify the success path
@@ -121,7 +121,7 @@ class TestRelay:
             headers={"content-length": f"{file.stat().st_size}"},
             content_type="application/octet-stream",
         )
-        if delete:
+        if delete == "true":
             responses.add(
                 responses.DELETE, "https://relay.example.com/uri1", status=HTTPStatus.OK
             )
@@ -130,7 +130,7 @@ class TestRelay:
             )
         response = client.post(
             self.gen_uri(server_config, "https://relay.example.com/uri1"),
-            query_string={"delete": "true"} if delete else None,
+            query_string={"delete": delete} if delete else None,
             headers=self.gen_headers(pbench_drb_token),
         )
         assert (
@@ -140,7 +140,7 @@ class TestRelay:
             "Identified benchmark workload 'unknown'.",
             "Expected expiration date is 2025-06-30.",
         ]
-        if delete:
+        if delete == "true":
             expected_notes.append("Relay files were successfully removed.")
         assert response.json == {
             "message": "File successfully uploaded",
@@ -148,7 +148,7 @@ class TestRelay:
             "resource_id": md5,
             "notes": expected_notes,
         }
-        assert len(responses.calls) == 4 if delete else 2
+        assert len(responses.calls) == 4 if delete == "true" else 2
         assert (
             response.headers["location"]
             == f"https://localhost/api/v1/datasets/{md5}/inventory/"
@@ -178,7 +178,7 @@ class TestRelay:
         assert audit[1].name == "relay"
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
-        assert audit[1].object_name == Dataset.stem(file)
+        assert audit[1].object_name == name
         assert audit[1].user_id == DRB_USER_ID
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
@@ -192,6 +192,7 @@ class TestRelay:
     def test_relay_tar_fail(self, client, server_config, pbench_drb_token, tarball):
         """Verify failure when secondary relay URI is not found"""
         file, md5file, md5 = tarball
+        name = Dataset.stem(file)
         responses.add(
             responses.GET,
             "https://relay.example.com/uri1",
@@ -224,7 +225,7 @@ class TestRelay:
         assert audit[0].name == "relay"
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
-        assert audit[0].object_name == Dataset.stem(file)
+        assert audit[0].object_name == name
         assert audit[0].user_id == DRB_USER_ID
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None
@@ -239,7 +240,7 @@ class TestRelay:
         assert audit[1].name == "relay"
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
-        assert audit[1].object_name == Dataset.stem(file)
+        assert audit[1].object_name == name
         assert audit[1].user_id == DRB_USER_ID
         assert audit[1].user_name == "drb"
         assert audit[1].reason == AuditReason.CONSISTENCY
@@ -431,8 +432,8 @@ class TestRelay:
         server_config,
         pbench_drb_token,
         tarball,
-        status1: tuple[Union[HTTPStatus,Exception], str],
-        status2: tuple[Union[HTTPStatus,Exception], str],
+        status1: tuple[Union[HTTPStatus, Exception], str],
+        status2: tuple[Union[HTTPStatus, Exception], str],
     ):
         """Verify reporting of delete failures
 
@@ -533,7 +534,7 @@ class TestRelay:
         assert audit[1].name == "relay"
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
-        assert audit[1].object_name == Dataset.stem(file)
+        assert audit[1].object_name == name
         assert audit[1].user_id == DRB_USER_ID
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
