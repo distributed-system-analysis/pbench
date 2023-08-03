@@ -440,6 +440,10 @@ class TestUpload:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
+            "notes": [
+                "Identified benchmark workload 'unknown'.",
+                "Expected expiration date is 1972-01-01.",
+            ],
         }
         assert (
             response.headers["location"]
@@ -491,6 +495,10 @@ class TestUpload:
         assert audit[1].attributes == {
             "access": "private",
             "metadata": {"global.pbench.test": "data"},
+            "notes": [
+                "Identified benchmark workload 'unknown'.",
+                "Expected expiration date is 1972-01-01.",
+            ],
         }
 
     @pytest.mark.freeze_time("1970-01-01")
@@ -526,6 +534,7 @@ class TestUpload:
             ],
         }
 
+    @pytest.mark.freeze_time("2023-07-01")
     def test_upload_duplicate(self, client, server_config, pbench_drb_token, tarball):
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
@@ -540,6 +549,10 @@ class TestUpload:
             "message": "File successfully uploaded",
             "name": Dataset.stem(datafile),
             "resource_id": md5,
+            "notes": [
+                "Identified benchmark workload 'unknown'.",
+                "Expected expiration date is 2025-06-30.",
+            ],
         }
         assert (
             response.headers["location"]
@@ -694,6 +707,11 @@ class TestUpload:
         assert audit[1].attributes == {
             "access": "private",
             "metadata": {"server.archiveonly": True, "server.origin": "test"},
+            "notes": [
+                "Identified benchmark workload 'unknown'.",
+                "Expected expiration date is 1972-01-01.",
+                "Indexing is disabled by 'archive only' setting.",
+            ],
         }
 
     @pytest.mark.freeze_time("1970-01-01")
@@ -715,6 +733,12 @@ class TestUpload:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
+            "notes": [
+                f"Results archive is missing '{name}/metadata.log'.",
+                "Identified benchmark workload 'unknown'.",
+                "Expected expiration date is 1972-01-01.",
+                "Indexing is disabled by 'archive only' setting.",
+            ],
         }
         assert (
             response.headers["location"]
@@ -771,4 +795,10 @@ class TestUpload:
             "access": "private",
             "metadata": {"server.archiveonly": True, "server.origin": "test"},
             "missing_metadata": True,
+            "notes": [
+                f"Results archive is missing '{name}/metadata.log'.",
+                "Identified benchmark workload 'unknown'.",
+                "Expected expiration date is 1972-01-01.",
+                "Indexing is disabled by 'archive only' setting.",
+            ],
         }

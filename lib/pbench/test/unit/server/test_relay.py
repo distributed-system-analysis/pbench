@@ -88,6 +88,7 @@ class TestRelay:
         assert not self.cachemanager_created
 
     @responses.activate
+    @pytest.mark.freeze_time("2023-07-01")
     def test_relay(self, client, server_config, pbench_drb_token, tarball):
         """Verify the success path
 
@@ -127,6 +128,10 @@ class TestRelay:
             "message": "File successfully uploaded",
             "name": name,
             "resource_id": md5,
+            "notes": [
+                "Identified benchmark workload 'unknown'.",
+                "Expected expiration date is 2025-06-30.",
+            ],
         }
         assert (
             response.headers["location"]
@@ -164,6 +169,10 @@ class TestRelay:
         assert audit[1].attributes == {
             "access": "private",
             "metadata": {"global.pbench.test": "data"},
+            "notes": [
+                "Identified benchmark workload 'unknown'.",
+                "Expected expiration date is 2025-06-30.",
+            ],
         }
 
     @responses.activate
