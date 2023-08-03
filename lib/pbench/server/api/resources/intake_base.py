@@ -153,7 +153,7 @@ class IntakeBase(ApiBase):
         """
         raise NotImplementedError()
 
-    def _cleanup(self, args: ApiParams, intake: Intake, notes: list[str]) -> list[str]:
+    def _cleanup(self, args: ApiParams, intake: Intake, notes: list[str]):
         """Clean up after a completed upload
 
         Default behavior is to do nothing: each subclass can provide a custom

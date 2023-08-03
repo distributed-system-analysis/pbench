@@ -170,7 +170,7 @@ class Relay(IntakeBase):
             intake: The intake object containing the tarball URI
             notes: A list of error strings to report problems.
         """
-        errors = 0
+        errors = False
         if args.query.get("delete"):
             for uri in (args.uri["uri"], intake.uri):
                 reason = None
@@ -181,7 +181,7 @@ class Relay(IntakeBase):
                 except ConnectionError as e:
                     reason = str(e)
                 if reason:
-                    errors += 1
+                    errors = True
                     msg = f"Unable to remove relay file {uri}: {reason!r}"
                     current_app.logger.warning("INTAKE relay {}: {}", intake.name, msg)
                     notes.append(msg)
