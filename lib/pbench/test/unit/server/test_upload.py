@@ -260,18 +260,32 @@ class TestUpload:
         self.verify_logs(caplog)
         assert not self.cachemanager_created
 
-    @pytest.mark.parametrize("error", (errno.ENOSPC, errno.ENFILE, None))
+    @pytest.mark.parametrize(
+        "error,http_status,message",
+        (
+            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space on "),
+            (
+                errno.ENFILE,
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                "Internal Pbench Server Error:",
+            ),
+            (None, HTTPStatus.INTERNAL_SERVER_ERROR, "Internal Pbench Server Error:"),
+        ),
+    )
     def test_bad_stream_read(
-        self, client, server_config, pbench_drb_token, monkeypatch, error
+        self,
+        client,
+        server_config,
+        pbench_drb_token,
+        monkeypatch,
+        error,
+        http_status,
+        message,
     ):
         """Test handling of errors from the intake stream read
 
-        The intake code handles errno.ENOSPC specially; however although the
-        code tried to raise an APIAbort with HTTPStatus.INSUFFICIENT_SPACE
-        (50), the werkzeug abort() doesn't support this and ends up with
-        a generic internal server error. Instead, we now have three distinct
-        cases which all result (to the client) in identical internal server
-        errors. Nevertheless, we exercise all three cases here.
+        The intake code reports errno.ENOSPC with 413/REQUEST_ENTITY_TOO_LARGE,
+        but other file create errors are reported as 500/INTERNAL_SERVER_ERROR.
         """
         stream = BytesIO(b"12345")
 
@@ -294,10 +308,71 @@ class TestUpload:
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, "md5sum"),
             )
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json.get("message").startswith(
-            "Internal Pbench Server Error: log reference "
-        )
+        assert response.status_code == http_status
+        assert response.json.get("message").startswith(message)
+
+    @pytest.mark.parametrize(
+        "error,http_status,message",
+        (
+            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space on "),
+            (
+                errno.ENFILE,
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                "Internal Pbench Server Error:",
+            ),
+            (None, HTTPStatus.INTERNAL_SERVER_ERROR, "Internal Pbench Server Error:"),
+        ),
+    )
+    def test_md5_failure(
+        self,
+        monkeypatch,
+        client,
+        pbench_drb_token,
+        server_config,
+        tarball,
+        error,
+        http_status,
+        message,
+    ):
+        """Test handling of errors from MD5 file creation.
+
+        The intake code reports errno.ENOSPC with 413/REQUEST_ENTITY_TOO_LARGE,
+        but other file create errors are reported as 500/INTERNAL_SERVER_ERROR.
+        """
+        path: Optional[Path] = None
+
+        def nogood_write(
+            self, data: str, encoding: str = None, errors: str = None
+        ) -> int:
+            nonlocal path
+            path = self
+            if error:
+                e = OSError(error, "something went badly")
+            else:
+                e = Exception("Nobody expects the Spanish Exception")
+            raise e
+
+        real_unlink = Path.unlink
+        unlinks = []
+
+        def record_unlink(self, missing_ok: bool = False):
+            unlinks.append(self.name)
+            real_unlink(self, missing_ok=missing_ok)
+
+        datafile, md5_file, md5 = tarball
+        monkeypatch.setattr(Path, "write_text", nogood_write)
+        monkeypatch.setattr(Path, "unlink", record_unlink)
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_drb_token, md5),
+            )
+        assert path.name == md5_file.name
+        assert md5_file.name in unlinks
+        assert datafile.name in unlinks
+        assert response.status_code == http_status
+        assert response.json.get("message").startswith(message)
 
     def test_invalid_authorization_upload(
         self, client, caplog, server_config, pbench_drb_token_invalid

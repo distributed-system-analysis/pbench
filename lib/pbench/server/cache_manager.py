@@ -378,24 +378,31 @@ class Tarball:
         # standard .tar.xz
         md5_source = tarball.with_suffix(".xz.md5")
 
+        destination = controller.path / tarball.name
+        md5_destination = controller.path / md5_source.name
+
         # If either expected destination file exists, something is wrong
-        if (controller.path / tarball.name).exists():
+        if destination.exists():
             raise DuplicateTarball(name)
-        if (controller.path / md5_source.name).exists():
+        if md5_destination.exists():
             raise DuplicateTarball(name)
 
-        # Copy the MD5 file first; only if that succeeds, copy the tarball
-        # itself.
+        # Move the MD5 file first; only if that succeeds, move the tarball
+        # itself. Note that we expect the source is usually on the same
+        # filesystem as INTAKE stages the remote byte stream into the
+        # UPLOAD directory within the ARCHIVE tree, and we want to avoid
+        # using double the space by copying large tarballs.
         try:
-            md5_destination = Path(shutil.copy2(md5_source, controller.path))
+            shutil.move(md5_source, md5_destination)
         except Exception as e:
+            md5_destination.unlink(missing_ok=True)
             controller.logger.error(
-                "ERROR copying dataset {} ({}) MD5: {}", name, tarball, e
+                "ERROR moving dataset {} ({}) MD5: {}", name, tarball, e
             )
             raise
 
         try:
-            destination = Path(shutil.copy2(tarball, controller.path))
+            shutil.move(tarball, destination)
         except Exception as e:
             try:
                 md5_destination.unlink()
@@ -405,8 +412,9 @@ class Tarball:
                     name,
                     md5_e,
                 )
+            destination.unlink(missing_ok=True)
             controller.logger.error(
-                "ERROR copying dataset {} tarball {}: {}", name, tarball, e
+                "ERROR moving dataset {} tarball {}: {}", name, tarball, e
             )
             raise
 
