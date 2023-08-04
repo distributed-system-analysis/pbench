@@ -35,7 +35,6 @@ const TableOfContentReducer = (state = initialState, action = {}) => {
         searchSpace: payload.files,
         tableData: payload.files,
         contentData: payload,
-        isLoading: false,
       };
 
     case UPDATE_TABLE_DATA:

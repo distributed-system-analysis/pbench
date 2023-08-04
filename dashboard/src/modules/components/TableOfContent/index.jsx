@@ -89,7 +89,7 @@ const TableOfContent = () => {
   const visibleTableFiles = tableData
     ? tableData.slice((page - 1) * perPage, page * perPage)
     : [];
-  const drillOut = (toMenuId, fromPathId, breadcrumb) => {
+  const drillOut = (toMenuId, fromPathId, newBreadCrumb) => {
     const indexOfMenuId = menuDrilledIn.indexOf(toMenuId);
     const menuDrilledInSansLast = menuDrilledIn.slice(0, indexOfMenuId);
     const indexOfMenuIdPath = drilldownPath.indexOf(fromPathId);
@@ -97,7 +97,7 @@ const TableOfContent = () => {
     setMenuDrilledIn(menuDrilledInSansLast);
     setDrillDownPath(pathSansLast);
     setActiveMenu(toMenuId);
-    setBreadCrumb(breadcrumb);
+    setBreadCrumb(newBreadCrumb);
   };
   const drillIn = (fromMenuId, toMenuId, pathId) => {
     setMenuDrilledIn([...menuDrilledIn, fromMenuId]);
@@ -178,12 +178,11 @@ const TableOfContent = () => {
     );
   };
   const getMyBreadCrumbClick = () => {
-    drillOut("rootMenu", "group:start_rollout", null);
+    drillOut("rootMenu", "group:start_rollout", initialBreadcrumb([]));
     setStack(1);
     setTableData(stack[0].files);
     dispatch(updateContentData(stack[0]));
     setSearchSpace(stack[0].files);
-    setBreadCrumb(initialBreadcrumb([]));
     setParam("");
     setBreadCrumbLabels([]);
   };
