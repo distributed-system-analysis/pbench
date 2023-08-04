@@ -355,9 +355,9 @@ class TestUpload:
         real_unlink = Path.unlink
         unlinks = []
 
-        def record_unlink(self, missing_ok: bool = False):
+        def record_unlink(self, **kwargs):
             unlinks.append(self.name)
-            real_unlink(self, missing_ok=missing_ok)
+            real_unlink(self, **kwargs)
 
         datafile, md5_file, md5 = tarball
         monkeypatch.setattr(Path, "write_text", nogood_write)

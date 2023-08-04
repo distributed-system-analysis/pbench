@@ -382,16 +382,13 @@ class Tarball:
         md5_destination = controller.path / md5_source.name
 
         # If either expected destination file exists, something is wrong
-        if destination.exists():
-            raise DuplicateTarball(name)
-        if md5_destination.exists():
+        if destination.exists() or md5_destination.exists():
             raise DuplicateTarball(name)
 
         # Move the MD5 file first; only if that succeeds, move the tarball
-        # itself. Note that we expect the source is usually on the same
-        # filesystem as INTAKE stages the remote byte stream into the
-        # UPLOAD directory within the ARCHIVE tree, and we want to avoid
-        # using double the space by copying large tarballs.
+        # itself. Note that we expect the source to be on the same
+        # filesystem as the ARCHIVE tree, and we want to avoid using double
+        # the space by copying large tarballs if the file can be moved.
         try:
             shutil.move(md5_source, md5_destination)
         except Exception as e:
@@ -405,7 +402,7 @@ class Tarball:
             shutil.move(tarball, destination)
         except Exception as e:
             try:
-                md5_destination.unlink()
+                md5_destination.unlink(missing_ok=True)
             except Exception as md5_e:
                 controller.logger.error(
                     "Unable to recover by removing {} MD5 after tarball copy failure: {}",

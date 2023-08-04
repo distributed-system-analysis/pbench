@@ -282,16 +282,20 @@ class TestCacheManager:
         source_tarball, source_md5, md5 = tarball
         monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
         cm = CacheManager(server_config, make_logger)
-        real_move = shutil.move
         monkeypatch.setattr("pbench.server.cache_manager.shutil.move", mymove)
         monkeypatch.setattr(Path, "unlink", unlink)
         with pytest.raises(Exception) as e:
             cm.create(source_tarball)
         assert str(e.value) == "I'm broken"
         assert src == [source_md5] + ([source_tarball] if allow else [])
-        for i in range(len(ulink)):
-            assert ulink[i] == dest[i]
-        assert ok
+        assert len(src) == len(dest) == len(ulink) == len(ok) == 2 if allow else 1
+        for i, s in enumerate(src):
+            assert dest[i].name == s.name
+            assert ulink[i].name == s.name
+            assert dest[i] == ulink[i]
+        assert all(
+            o for o in ok
+        ), f"All cleanup unlinks should ignore missing: {ok}, {ulink}"
 
     def test_tarball_subprocess_run_with_exception(self, monkeypatch):
         """Test to check the subprocess_run functionality of the Tarball when

@@ -362,11 +362,11 @@ class IntakeBase(ApiBase):
                         f"Out of space on {tar_full_path.parent}",
                     )
                 raise APIInternalError(
-                    f"Unexpected error {exc.errno} encountered during file upload"
+                    f"Unexpected error encountered during file upload: {str(exc)!r} "
                 ) from exc
             except Exception as e:
                 raise APIInternalError(
-                    "Unexpected error encountered during file upload"
+                    "Unexpected error encountered during file upload: {str(e)!r}"
                 ) from e
 
             if bytes_received != stream.length:
@@ -391,11 +391,11 @@ class IntakeBase(ApiBase):
                         f"Out of space on {md5_full_path.parent}",
                     )
                 raise APIInternalError(
-                    f"Unexpected error {exc.errno} encountered during MD5 creation"
+                    f"Unexpected error encountered during MD5 creation: {str(exc)!r}"
                 ) from exc
             except Exception as e:
                 raise APIInternalError(
-                    f"Failed to write .md5 file '{md5_full_path}'",
+                    f"Failed to write .md5 file '{md5_full_path}': {str(e)!r}",
                 ) from e
 
             # Create a cache manager object
