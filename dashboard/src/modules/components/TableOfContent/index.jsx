@@ -1,6 +1,10 @@
 import "./index.less";
 
-import { AngleLeftIcon, FolderIcon } from "@patternfly/react-icons";
+import {
+  AngleLeftIcon,
+  DownloadIcon,
+  FolderIcon,
+} from "@patternfly/react-icons";
 import {
   BadgeToggle,
   Breadcrumb,
@@ -187,7 +191,7 @@ const TableOfContent = () => {
     dispatch(fetchTOC(params["dataset_id"], data, true));
   };
   const attachBreadCrumbs = (data, firstHierarchyLevel) => {
-    breadCrumbLabels.push(data);
+    breadCrumbLabels.push(data.name);
     setBreadCrumbLabels(breadCrumbLabels);
 
     setBreadCrumb(
@@ -195,9 +199,9 @@ const TableOfContent = () => {
         ? initialBreadcrumb(breadCrumbLabels)
         : appGroupingBreadcrumb(false, breadCrumbLabels)
     );
-    const dirPath = param.concat(firstHierarchyLevel ? "" : "/", data);
+    const dirPath = param.concat(firstHierarchyLevel ? "" : "/", data.name);
     setParam(dirPath);
-    getSubFolderData(dirPath);
+    getSubFolderData(data.uri);
   };
   const updateHighlightedRow = (index) => {
     const newPage = Math.floor(index / perPage);
@@ -206,6 +210,7 @@ const TableOfContent = () => {
     }
     setActiveFile(index);
   };
+
   return (
     <>
       <div className="toc">
@@ -236,7 +241,7 @@ const TableOfContent = () => {
                     icon={<FolderIcon aria-hidden />}
                     direction="down"
                     onClick={() => {
-                      attachBreadCrumbs(data.name, true);
+                      attachBreadCrumbs(data, true);
                     }}
                     drilldownMenu={
                       <DrilldownMenu id="drilldownMenuStart">
@@ -251,7 +256,7 @@ const TableOfContent = () => {
                                 direction="down"
                                 icon={<FolderIcon aria-hidden />}
                                 onClick={() => {
-                                  attachBreadCrumbs(data.name, false);
+                                  attachBreadCrumbs(data, false);
                                 }}
                               >
                                 {data.name}
@@ -322,6 +327,7 @@ const TableOfContent = () => {
                   <Th>Size</Th>
                   <Th>Mode</Th>
                   <Th>Type</Th>
+                  <Th></Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -340,6 +346,16 @@ const TableOfContent = () => {
                       <Td dataLabel={file.size}>{file.size}</Td>
                       <Td dataLabel={file.mode}>{file.mode}</Td>
                       <Td dataLabel={file.type}>{file.type}</Td>
+                      <Td dataLabel={file.uri}>
+                        <a
+                          className="download-icon"
+                          href={file.uri}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <DownloadIcon />
+                        </a>
+                      </Td>
                     </Tr>
                   ))
                 ) : (

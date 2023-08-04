@@ -6,10 +6,11 @@ import { showToast } from "./toastActions";
 import { uriTemplate } from "../utils/helper";
 
 export const fetchTOC =
-  (param, parent, callForSubData) => async (dispatch, getState) => {
+  (param, dataUri, callForSubData) => async (dispatch, getState) => {
     try {
       dispatch({ type: TYPES.LOADING });
       const endpoints = getState().apiEndpoint.endpoints;
+      const parent = dataUri?.split("contents").pop().replace("/", "");
       const uri = uriTemplate(endpoints, "datasets_contents", {
         dataset: param,
         target: parent,
