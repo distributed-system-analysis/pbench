@@ -293,9 +293,7 @@ class TestCacheManager:
             assert dest[i].name == s.name
             assert ulink[i].name == s.name
             assert dest[i] == ulink[i]
-        assert all(
-            o for o in ok
-        ), f"All cleanup unlinks should ignore missing: {ok}, {ulink}"
+        assert all(ok), f"Cleanup unlinks don't ignore missing: {ok}, {ulink}"
 
     def test_tarball_subprocess_run_with_exception(self, monkeypatch):
         """Test to check the subprocess_run functionality of the Tarball when
