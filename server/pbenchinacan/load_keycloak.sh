@@ -13,12 +13,14 @@
 
 # The script defaults to using master realm username/password as admin/admin
 # unless specified otherwise by 'ADMIN_USERNAME' and 'ADMIN_PASSWORD' env
-# variables. The script also defaults the keycloak redirect URI as
-# "https://localhost:8443/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
-# env variable.
+# variables. The script constructs the Keycloak redirect URI list as
+# "https://<node>:8443/*" from the space-separated list of nodes in
+# the 'KEYCLOAK_REDIRECT_HOSTS' env variable, defaulting to 'localhost' plus
+# whatever we can glean from the 'hostname' command.  It adds to that list the
+# value of 'KEYCLOAK_DEV_REDIRECT' which defaults to "http://localhost:3000/*".
 
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"https://localhost:8090"}
-KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"https://localhost:8443/*"}
+KEYCLOAK_REDIRECT_HOSTS=${KEYCLOAK_REDIRECT_HOSTS:-"localhost $(hostname -A) $(hostname -f) 127.0.0.1 ::1 $(hostname -I)"}
 KEYCLOAK_DEV_REDIRECT=${KEYCLOAK_DEV_REDIRECT:-"http://localhost:3000/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
@@ -33,6 +35,16 @@ PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 export CURL_CA_BUNDLE=${CURL_CA_BUNDLE:-"${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt"}
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
+
+keycloak_redirect_uris="\"${KEYCLOAK_DEV_REDIRECT}\""
+for n in ${KEYCLOAK_REDIRECT_HOSTS}; do
+  if [[ $n =~ ^[0-9a-f]{0,4}(:[0-9a-f]{0,4}){1,8}$ ]]; then
+    n="[$n]"  # IPv6 addresses must be wrapped in square-brackets
+  fi
+  keycloak_redirect_uris="${keycloak_redirect_uris}, \"https://${n}:8443/*\""
+done
+
+echo "Keycloak redirect URI list is <${keycloak_redirect_uris}>."
 
 # Run the custom configuration
 
@@ -64,7 +76,7 @@ status_code=$(curl -f -s -o /dev/null -w "%{http_code}" -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"realm": "'${REALM}'", "enabled": true}')
+  -d '{"realm": "'"${REALM}"'", "enabled": true}')
 
 if [[ "${status_code}" != "201" ]]; then
   echo "Realm creation failed with ${status_code}"
@@ -99,7 +111,7 @@ curl -si -f -X POST \
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "'${CLIENT}'",
+            "included.client.audience": "'"${CLIENT}"'",
             "id.token.claim": "false",
             "access.token.claim": "true"
           }
@@ -111,16 +123,16 @@ CLIENT_CONF=$(curl -si -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"clientId": "'${CLIENT}'",
+  -d '{"clientId": "'"${CLIENT}"'",
        "publicClient": true,
        "defaultClientScopes": ["pbench", "openid", "profile", "email"],
        "directAccessGrantsEnabled": true,
        "serviceAccountsEnabled": true,
        "enabled": true,
        "attributes": {"post.logout.redirect.uris": "+"},
-       "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'", "'${KEYCLOAK_DEV_REDIRECT}'"]}')
+       "redirectUris": ['"${keycloak_redirect_uris}"']}')
 
-CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
+CLIENT_ID=$(grep -o -e 'https://[^[:space:]]*' <<< "${CLIENT_CONF}" | sed -e 's|.*/||')
 if [[ -z "${CLIENT_ID}" ]]; then
   echo "${CLIENT} id is empty"
   exit 1
@@ -155,7 +167,7 @@ USER=$(curl -si -f -X POST \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "123", "temporary": false}]}')
 
-USER_ID=$(grep -o -e 'https://[^[:space:]]*' <<< ${USER} | sed -e 's|.*/||')
+USER_ID=$(grep -o -e 'https://[^[:space:]]*' <<< "${USER}" | sed -e 's|.*/||')
 
 if [[ -z "${USER_ID}" ]]; then
   echo "User id is empty"
@@ -168,7 +180,7 @@ status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]')
+  -d '[{"id":"'"${ROLE_ID}"'","name":"ADMIN"}]')
 
 if [[ "${status_code}" != "204" ]]; then
   echo "Assigning 'ADMIN' client role to the user 'admin' failed with ${status_code}"
