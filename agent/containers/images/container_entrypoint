@@ -19,5 +19,5 @@ fi
 # shellcheck disable=SC2093
 exec "${@}"
 rc=${?}
-echo "exec ${@} failed with status ${rc}"
+echo "exec ${*} failed with status ${rc}" >&2
 exit ${rc}
