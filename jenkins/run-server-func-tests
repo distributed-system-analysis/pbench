@@ -1,8 +1,6 @@
 #!/bin/bash
 
 export EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"--pull=newer"}
-export IMAGE_NAME=${IMAGE_NAME:-pbench-ci-fedora}
-export IMAGE_REPO=${IMAGE_REPO:-"quay.io/pbench"}
 
 export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
