@@ -1016,7 +1016,7 @@ def generate_api_key(
 
     Args:
         username: username to include in the token payload.
-        name: name or description of the key.
+        label: name or description of the key.
         user: user attributes will be extracted from the user object to include
             in the token payload.
         offset: If True, 10 min will be added to 'current_utc',to avoid duplicate error

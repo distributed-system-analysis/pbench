@@ -15,9 +15,13 @@
 #   8090 - keycloak authentication server
 #   9200 - Elasticsearch
 
+TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
+PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
+
 # The default container registry to use with the organization name in that
 # registry.  E.g., `quay.io/pbench`.
 PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
+PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-${USER}}
 
 # Default pull policy for all images is to pull the image if the registry has a
 # *different* version (despite the name -- different is assumed to be "newer").

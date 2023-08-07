@@ -8,8 +8,8 @@ from typing import Any, Optional
 import jwt
 import requests
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 from requests.structures import CaseInsensitiveDict
+from urllib3 import Retry
 
 from pbench.server import JSON, PbenchServerConfig
 
