@@ -259,8 +259,10 @@ class TestCacheManager:
         (
             (".md5", errno.ENOSPC),
             (".md5", errno.EEXIST),
+            (".md5", None),
             ("", errno.ENOSPC),
             ("", errno.EACCES),
+            ("", None),
         ),
     )
     def test_move_fails(
@@ -310,9 +312,6 @@ class TestCacheManager:
             assert isinstance(e.value, OSError), f"Wanted OSError, got {type(e.value)}"
             assert e.value.errno == errno
         else:
-            assert isinstance(
-                e.value, Exception
-            ), f"Wanted Exception, got {type(e.value)}"
             assert str(e.value) == "I broke"
         assert src == [source_md5] + ([source_tarball] if allow else [])
         assert len(src) == len(dest) == len(ulink) == len(ok) == 2 if allow else 1

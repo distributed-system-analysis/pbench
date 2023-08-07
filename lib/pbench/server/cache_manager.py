@@ -429,9 +429,12 @@ class Tarball:
         # and we'll ignore that condition silently.
         try:
             tarball.unlink(missing_ok=True)
+        except Exception as e:
+            controller.logger.error("Error removing staged tarball {}: {}", name, e)
+        try:
             md5_source.unlink(missing_ok=True)
         except Exception as e:
-            controller.logger.error("Error removing staged upload {}: {}", name, e)
+            controller.logger.error("Error removing staged MD5 {}: {}", name, e)
 
         return cls(destination, controller)
 
