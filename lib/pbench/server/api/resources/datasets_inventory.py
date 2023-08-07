@@ -82,7 +82,7 @@ class DatasetsInventory(ApiBase):
         # Werkzeug will set the mime type and content encoding based on the
         # download_name suffix.
         #
-        # We link a callback to close the file stream and TarFile object on
+        # We attach a callback to the response to close the file stream on
         # completion.
         stream = file_info["stream"]
         name = Path(file_info["name"]).name
