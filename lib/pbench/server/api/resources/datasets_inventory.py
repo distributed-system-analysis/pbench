@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from pathlib import Path
 from urllib.request import Request
 
 from flask import current_app, send_file
@@ -84,10 +85,9 @@ class DatasetsInventory(ApiBase):
         # We link a callback to close the file stream and TarFile object on
         # completion.
         stream = file_info["stream"]
+        name = Path(file_info["name"]).name
         try:
-            resp = send_file(
-                stream, as_attachment=target is None, download_name=file_info["name"]
-            )
+            resp = send_file(stream, as_attachment=target is None, download_name=name)
         except Exception as e:
             if stream:
                 stream.close()

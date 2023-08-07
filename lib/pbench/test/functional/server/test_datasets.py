@@ -751,6 +751,15 @@ class TestInventory:
                 API.DATASETS_INVENTORY,
                 {"dataset": dataset.resource_id, "target": "metadata.log"},
             )
+
+            # Note that Werkzeug doesn't understand anything special about the
+            # ".log" filetype, but will apply a better content-type header for
+            # file types it understands like ".json".
+            assert response.headers["content-type"] == "application/octet-stream"
+            assert (
+                response.headers["content-disposition"]
+                == "inline; filename=metadata.log"
+            )
             assert (
                 response.ok
             ), f"INVENTORY {dataset.name} failed {response.status_code}:{response.json()['message']}"

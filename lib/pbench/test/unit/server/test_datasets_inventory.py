@@ -156,3 +156,20 @@ class TestDatasetsAccess:
 
         query_get_as("fio_2", "f1.json", HTTPStatus.INTERNAL_SERVER_ERROR)
         assert mock_close
+
+    def test_get_inventory(self, query_get_as, monkeypatch):
+        exp_stream = io.BytesIO(b"file_as_a_byte_stream")
+
+        def mock_get_inventory(_s, _d: str, _t: str):
+            return {
+                "name": "f1.json",
+                "type": CacheType.FILE,
+                "stream": Inventory(exp_stream, None),
+            }
+
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
+        response = query_get_as("fio_2", "f1.json", HTTPStatus.OK)
+        assert response.status_code == HTTPStatus.OK
+        assert response.text == "file_as_a_byte_stream"
+        assert response.headers["content-type"] == "application/json"
+        assert response.headers["content-disposition"] == "inline; filename=f1.json"
