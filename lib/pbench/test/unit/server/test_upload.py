@@ -22,8 +22,10 @@ from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
     Metadata,
-    MetadataProtectedKey,
+    MetadataMissingParameter,
+    MetadataSqlError,
 )
+from pbench.server.database.models.users import User
 from pbench.test.unit.server import DRB_USER_ID
 
 
@@ -260,18 +262,32 @@ class TestUpload:
         self.verify_logs(caplog)
         assert not self.cachemanager_created
 
-    @pytest.mark.parametrize("error", (errno.ENOSPC, errno.ENFILE, None))
+    @pytest.mark.parametrize(
+        "error,http_status,message",
+        (
+            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space on "),
+            (
+                errno.ENFILE,
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                "Internal Pbench Server Error:",
+            ),
+            (None, HTTPStatus.INTERNAL_SERVER_ERROR, "Internal Pbench Server Error:"),
+        ),
+    )
     def test_bad_stream_read(
-        self, client, server_config, pbench_drb_token, monkeypatch, error
+        self,
+        client,
+        server_config,
+        pbench_drb_token,
+        monkeypatch,
+        error,
+        http_status,
+        message,
     ):
         """Test handling of errors from the intake stream read
 
-        The intake code handles errno.ENOSPC specially; however although the
-        code tried to raise an APIAbort with HTTPStatus.INSUFFICIENT_SPACE
-        (50), the werkzeug abort() doesn't support this and ends up with
-        a generic internal server error. Instead, we now have three distinct
-        cases which all result (to the client) in identical internal server
-        errors. Nevertheless, we exercise all three cases here.
+        The intake code reports errno.ENOSPC with 413/REQUEST_ENTITY_TOO_LARGE,
+        but other file create errors are reported as 500/INTERNAL_SERVER_ERROR.
         """
         stream = BytesIO(b"12345")
 
@@ -294,10 +310,71 @@ class TestUpload:
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, "md5sum"),
             )
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json.get("message").startswith(
-            "Internal Pbench Server Error: log reference "
-        )
+        assert response.status_code == http_status
+        assert response.json.get("message").startswith(message)
+
+    @pytest.mark.parametrize(
+        "error,http_status,message",
+        (
+            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space on "),
+            (
+                errno.ENFILE,
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                "Internal Pbench Server Error:",
+            ),
+            (None, HTTPStatus.INTERNAL_SERVER_ERROR, "Internal Pbench Server Error:"),
+        ),
+    )
+    def test_md5_failure(
+        self,
+        monkeypatch,
+        client,
+        pbench_drb_token,
+        server_config,
+        tarball,
+        error,
+        http_status,
+        message,
+    ):
+        """Test handling of errors from MD5 file creation.
+
+        The intake code reports errno.ENOSPC with 413/REQUEST_ENTITY_TOO_LARGE,
+        but other file create errors are reported as 500/INTERNAL_SERVER_ERROR.
+        """
+        path: Optional[Path] = None
+
+        def nogood_write(
+            self, data: str, encoding: str = None, errors: str = None
+        ) -> int:
+            nonlocal path
+            path = self
+            if error:
+                e = OSError(error, "something went badly")
+            else:
+                e = Exception("Nobody expects the Spanish Exception")
+            raise e
+
+        real_unlink = Path.unlink
+        unlinks = []
+
+        def record_unlink(self, **kwargs):
+            unlinks.append(self.name)
+            real_unlink(self, **kwargs)
+
+        datafile, md5_file, md5 = tarball
+        monkeypatch.setattr(Path, "write_text", nogood_write)
+        monkeypatch.setattr(Path, "unlink", record_unlink)
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_drb_token, md5),
+            )
+        assert path.name == md5_file.name
+        assert md5_file.name in unlinks
+        assert datafile.name in unlinks
+        assert response.status_code == http_status
+        assert response.json.get("message").startswith(message)
 
     def test_invalid_authorization_upload(
         self, client, caplog, server_config, pbench_drb_token_invalid
@@ -391,6 +468,14 @@ class TestUpload:
         (
             (Exception("Test"), HTTPStatus.INTERNAL_SERVER_ERROR),
             (DuplicateTarball("x"), HTTPStatus.BAD_REQUEST),
+            (
+                OSError(errno.ENOSPC, "The closet is too small!"),
+                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            ),
+            (
+                OSError(errno.EACCES, "Can't get they-ah from he-ah"),
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            ),
         ),
     )
     def test_upload_cachemanager_error(
@@ -583,19 +668,20 @@ class TestUpload:
         # We didn't get far enough to create a CacheManager
         assert TestUpload.cachemanager_created is None
 
-    def test_upload_metadata_error(
+    def test_upload_metalog_error(
         self, client, monkeypatch, server_config, pbench_drb_token, tarball
     ):
-        """
-        Cause the Metadata.setvalue to fail at the very end of the upload so we
-        can test recovery handling.
+        """Test handling of post-intake error recording metalog
+
+        Cause Metadata.create (which creates the "dataset.metalog" namespace)
+        to fail at the very end of the upload so we can test recovery handling.
         """
         datafile, _, md5 = tarball
 
-        def setvalue(dataset: Dataset, key: str, value: Any):
-            raise MetadataProtectedKey(key)
+        def create(**kwargs):
+            raise MetadataMissingParameter("dataset")
 
-        monkeypatch.setattr(Metadata, "setvalue", setvalue)
+        monkeypatch.setattr(Metadata, "create", create)
 
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -645,6 +731,37 @@ class TestUpload:
             .attributes["message"]
             .startswith("Internal Pbench Server Error: log reference ")
         )
+
+    def test_upload_metadata_error(
+        self, client, monkeypatch, server_config, pbench_drb_token, tarball
+    ):
+        """Test handling of post-intake error setting metadata
+
+        Cause Metadata.setvalue to fail. This should be reported in "failures"
+        without failing the upload.
+        """
+        datafile, _, md5 = tarball
+
+        def setvalue(
+            dataset: Dataset, key: str, value: Any, user: Optional[User] = None
+        ):
+            raise MetadataSqlError("test", dataset, key)
+
+        monkeypatch.setattr(Metadata, "setvalue", setvalue)
+
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_drb_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.CREATED
+        audit = Audit.query()
+        assert len(audit) == 2
+        fails = audit[1].attributes["failures"]
+        assert isinstance(fails, dict)
+        assert fails["server.benchmark"].startswith("Error test ")
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_archive(self, client, pbench_drb_token, server_config, tarball):

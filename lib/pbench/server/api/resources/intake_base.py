@@ -356,17 +356,17 @@ class IntakeBase(ApiBase):
                         ofp.write(chunk)
                         hash_md5.update(chunk)
             except OSError as exc:
-                # NOTE: Werkzeug doesn't support status 509, so the abort call
-                # in _dispatch will fail. Rather than figure out how to fix
-                # that, just report as an internal error.
                 if exc.errno == errno.ENOSPC:
-                    msg = f"Out of space on {tar_full_path.root}"
-                else:
-                    msg = f"Unexpected error {exc.errno} encountered during file upload"
-                raise APIInternalError(msg) from exc
+                    raise APIAbort(
+                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        f"Out of space on {tar_full_path.parent}",
+                    )
+                raise APIInternalError(
+                    f"Unexpected error encountered during file upload: {str(exc)!r} "
+                ) from exc
             except Exception as e:
                 raise APIInternalError(
-                    "Unexpected error encountered during file upload"
+                    "Unexpected error encountered during file upload: {str(e)!r}"
                 ) from e
 
             if bytes_received != stream.length:
@@ -381,12 +381,21 @@ class IntakeBase(ApiBase):
                 )
 
             # From this point attempt to remove the MD5 file on error exit
-            recovery.add(md5_full_path.unlink)
+            recovery.add(lambda: md5_full_path.unlink(missing_ok=True))
             try:
                 md5_full_path.write_text(f"{intake.md5} {filename}\n")
+            except OSError as exc:
+                if exc.errno == errno.ENOSPC:
+                    raise APIAbort(
+                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        f"Out of space on {md5_full_path.parent}",
+                    )
+                raise APIInternalError(
+                    f"Unexpected error encountered during MD5 creation: {str(exc)!r}"
+                ) from exc
             except Exception as e:
                 raise APIInternalError(
-                    f"Failed to write .md5 file '{md5_full_path}'",
+                    f"Failed to write .md5 file '{md5_full_path}': {str(e)!r}",
                 ) from e
 
             # Create a cache manager object
@@ -407,6 +416,15 @@ class IntakeBase(ApiBase):
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
                     f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
+                ) from exc
+            except OSError as exc:
+                if exc.errno == errno.ENOSPC:
+                    raise APIAbort(
+                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        f"Out of space on {tar_full_path.parent}",
+                    )
+                raise APIInternalError(
+                    f"Unexpected error encountered during archive: {str(exc)!r}"
                 ) from exc
             except Exception as exc:
                 raise APIInternalError(

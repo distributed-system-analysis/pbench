@@ -1,3 +1,4 @@
+import errno
 import hashlib
 import io
 from logging import Logger
@@ -244,16 +245,81 @@ class TestCacheManager:
         monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
         cm = CacheManager(server_config, make_logger)
 
-        # Create a tarball file in the expected destination directory
+        # Create a tarball file in the expected destination directory: the
+        # subsequent create should report a duplicate.
         controller = cm.archive_root / "ABC"
         controller.mkdir()
         (controller / source_tarball.name).write_text("Send in the clones")
-
-        # Attempting to create a dataset from the md5 file should result in
-        # a duplicate dataset error
         with pytest.raises(DuplicateTarball) as exc:
             cm.create(source_tarball)
         assert exc.value.tarball == Dataset.stem(source_tarball)
+
+    @pytest.mark.parametrize(
+        "allow,errno",
+        (
+            (".md5", errno.ENOSPC),
+            (".md5", errno.EEXIST),
+            (".md5", None),
+            ("", errno.ENOSPC),
+            ("", errno.EACCES),
+            ("", None),
+        ),
+    )
+    def test_move_fails(
+        self,
+        monkeypatch,
+        selinux_disabled,
+        server_config,
+        make_logger,
+        tarball,
+        allow,
+        errno,
+    ):
+        src: list[Path] = []
+        dest: list[Path] = []
+        real_move = shutil.move
+
+        def mymove(source: Path, destination: Path, *args, **kwargs) -> Path:
+            src.append(source)
+            if destination.is_dir():
+                d = destination / source.name
+            else:
+                d = destination
+            dest.append(d)
+            if source.suffix == allow:
+                return real_move(source, destination, *args, **kwargs)
+            if errno:
+                e = OSError(errno, "something went badly")
+            else:
+                e = Exception("I broke")
+            raise e
+
+        ulink: list[Path] = []
+        ok: list[bool] = []
+
+        def unlink(self, missing_ok: bool = False):
+            ulink.append(self)
+            ok.append(missing_ok)
+
+        source_tarball, source_md5, md5 = tarball
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
+        cm = CacheManager(server_config, make_logger)
+        monkeypatch.setattr("pbench.server.cache_manager.shutil.move", mymove)
+        monkeypatch.setattr(Path, "unlink", unlink)
+        with pytest.raises(Exception) as e:
+            cm.create(source_tarball)
+        if errno:
+            assert isinstance(e.value, OSError), f"Wanted OSError, got {type(e.value)}"
+            assert e.value.errno == errno
+        else:
+            assert str(e.value) == "I broke"
+        assert src == [source_md5] + ([source_tarball] if allow else [])
+        assert len(src) == len(dest) == len(ulink) == len(ok) == (2 if allow else 1)
+        for i, s in enumerate(src):
+            assert dest[i].name == s.name
+            assert ulink[i].name == s.name
+            assert dest[i] == ulink[i]
+        assert all(ok), f"Cleanup unlinks don't ignore missing: {ok}, {ulink}"
 
     def test_tarball_subprocess_run_with_exception(self, monkeypatch):
         """Test to check the subprocess_run functionality of the Tarball when

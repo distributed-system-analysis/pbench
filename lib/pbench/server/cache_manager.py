@@ -378,35 +378,40 @@ class Tarball:
         # standard .tar.xz
         md5_source = tarball.with_suffix(".xz.md5")
 
+        destination = controller.path / tarball.name
+        md5_destination = controller.path / md5_source.name
+
         # If either expected destination file exists, something is wrong
-        if (controller.path / tarball.name).exists():
-            raise DuplicateTarball(name)
-        if (controller.path / md5_source.name).exists():
+        if destination.exists() or md5_destination.exists():
             raise DuplicateTarball(name)
 
-        # Copy the MD5 file first; only if that succeeds, copy the tarball
-        # itself.
+        # Move the MD5 file first; only if that succeeds, move the tarball
+        # itself. Note that we expect the source to be on the same
+        # filesystem as the ARCHIVE tree, and we want to avoid using double
+        # the space by copying large tarballs if the file can be moved.
         try:
-            md5_destination = Path(shutil.copy2(md5_source, controller.path))
+            shutil.move(md5_source, md5_destination)
         except Exception as e:
+            md5_destination.unlink(missing_ok=True)
             controller.logger.error(
-                "ERROR copying dataset {} ({}) MD5: {}", name, tarball, e
+                "ERROR moving dataset {} ({}) MD5: {}", name, tarball, e
             )
             raise
 
         try:
-            destination = Path(shutil.copy2(tarball, controller.path))
+            shutil.move(tarball, destination)
         except Exception as e:
             try:
-                md5_destination.unlink()
+                md5_destination.unlink(missing_ok=True)
             except Exception as md5_e:
                 controller.logger.error(
                     "Unable to recover by removing {} MD5 after tarball copy failure: {}",
                     name,
                     md5_e,
                 )
+            destination.unlink(missing_ok=True)
             controller.logger.error(
-                "ERROR copying dataset {} tarball {}: {}", name, tarball, e
+                "ERROR moving dataset {} tarball {}: {}", name, tarball, e
             )
             raise
 
@@ -419,12 +424,17 @@ class Tarball:
             # log it but do not abort
             controller.logger.error("Unable to set SELINUX context for {}: {}", name, e)
 
-        # If we were able to copy both files, remove the originals
+        # If we were able to copy both files, remove the originals. If we moved
+        # the files above, instead of copying them, these will no longer exist
+        # and we'll ignore that condition silently.
         try:
-            tarball.unlink()
-            md5_source.unlink()
+            tarball.unlink(missing_ok=True)
         except Exception as e:
-            controller.logger.error("Error removing incoming dataset {}: {}", name, e)
+            controller.logger.error("Error removing staged tarball {}: {}", name, e)
+        try:
+            md5_source.unlink(missing_ok=True)
+        except Exception as e:
+            controller.logger.error("Error removing staged MD5 {}: {}", name, e)
 
         return cls(destination, controller)
 
