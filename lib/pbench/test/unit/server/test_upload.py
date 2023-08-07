@@ -22,8 +22,10 @@ from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
     Metadata,
-    MetadataProtectedKey,
+    MetadataMissingParameter,
+    MetadataSqlError,
 )
+from pbench.server.database.models.users import User
 from pbench.test.unit.server import DRB_USER_ID
 
 
@@ -666,19 +668,20 @@ class TestUpload:
         # We didn't get far enough to create a CacheManager
         assert TestUpload.cachemanager_created is None
 
-    def test_upload_metadata_error(
+    def test_upload_metalog_error(
         self, client, monkeypatch, server_config, pbench_drb_token, tarball
     ):
-        """
-        Cause the Metadata.setvalue to fail at the very end of the upload so we
-        can test recovery handling.
+        """Test handling of post-intake error recording metalog
+
+        Cause Metadata.create (which creates the "dataset.metalog" namespace)
+        to fail at the very end of the upload so we can test recovery handling.
         """
         datafile, _, md5 = tarball
 
-        def setvalue(dataset: Dataset, key: str, value: Any):
-            raise MetadataProtectedKey(key)
+        def create(**kwargs):
+            raise MetadataMissingParameter("dataset")
 
-        monkeypatch.setattr(Metadata, "setvalue", setvalue)
+        monkeypatch.setattr(Metadata, "create", create)
 
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -728,6 +731,37 @@ class TestUpload:
             .attributes["message"]
             .startswith("Internal Pbench Server Error: log reference ")
         )
+
+    def test_upload_metadata_error(
+        self, client, monkeypatch, server_config, pbench_drb_token, tarball
+    ):
+        """Test handling of post-intake error setting metadata
+
+        Cause Metadata.setvalue to fail. This should be reported in "failures"
+        without failing the upload.
+        """
+        datafile, _, md5 = tarball
+
+        def setvalue(
+            dataset: Dataset, key: str, value: Any, user: Optional[User] = None
+        ):
+            raise MetadataSqlError("test", dataset, key)
+
+        monkeypatch.setattr(Metadata, "setvalue", setvalue)
+
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_drb_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.CREATED
+        audit = Audit.query()
+        assert len(audit) == 2
+        fails = audit[1].attributes["failures"]
+        assert isinstance(fails, dict)
+        assert fails["server.benchmark"].startswith("Error test ")
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_archive(self, client, pbench_drb_token, server_config, tarball):

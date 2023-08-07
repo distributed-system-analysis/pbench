@@ -314,7 +314,7 @@ class TestCacheManager:
         else:
             assert str(e.value) == "I broke"
         assert src == [source_md5] + ([source_tarball] if allow else [])
-        assert len(src) == len(dest) == len(ulink) == len(ok) == 2 if allow else 1
+        assert len(src) == len(dest) == len(ulink) == len(ok) == (2 if allow else 1)
         for i, s in enumerate(src):
             assert dest[i].name == s.name
             assert ulink[i].name == s.name
