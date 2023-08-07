@@ -466,6 +466,14 @@ class TestUpload:
         (
             (Exception("Test"), HTTPStatus.INTERNAL_SERVER_ERROR),
             (DuplicateTarball("x"), HTTPStatus.BAD_REQUEST),
+            (
+                OSError(errno.ENOSPC, "The closet is too small!"),
+                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            ),
+            (
+                OSError(errno.EACCES, "Can't get they-ah from he-ah"),
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            ),
         ),
     )
     def test_upload_cachemanager_error(

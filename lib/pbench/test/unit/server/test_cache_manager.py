@@ -1,3 +1,4 @@
+import errno
 import hashlib
 import io
 from logging import Logger
@@ -253,9 +254,24 @@ class TestCacheManager:
             cm.create(source_tarball)
         assert exc.value.tarball == Dataset.stem(source_tarball)
 
-    @pytest.mark.parametrize("allow", (".md5", ""))
+    @pytest.mark.parametrize(
+        "allow,errno",
+        (
+            (".md5", errno.ENOSPC),
+            (".md5", errno.EEXIST),
+            ("", errno.ENOSPC),
+            ("", errno.EACCES),
+        ),
+    )
     def test_move_fails(
-        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball, allow
+        self,
+        monkeypatch,
+        selinux_disabled,
+        server_config,
+        make_logger,
+        tarball,
+        allow,
+        errno,
     ):
         src: list[Path] = []
         dest: list[Path] = []
@@ -270,7 +286,11 @@ class TestCacheManager:
             dest.append(d)
             if source.suffix == allow:
                 return real_move(source, destination, *args, **kwargs)
-            raise Exception("I'm broken")
+            if errno:
+                e = OSError(errno, "something went badly")
+            else:
+                e = Exception("I broke")
+            raise e
 
         ulink: list[Path] = []
         ok: list[bool] = []
@@ -286,7 +306,14 @@ class TestCacheManager:
         monkeypatch.setattr(Path, "unlink", unlink)
         with pytest.raises(Exception) as e:
             cm.create(source_tarball)
-        assert str(e.value) == "I'm broken"
+        if errno:
+            assert isinstance(e.value, OSError), f"Wanted OSError, got {type(e.value)}"
+            assert e.value.errno == errno
+        else:
+            assert isinstance(
+                e.value, Exception
+            ), f"Wanted Exception, got {type(e.value)}"
+            assert str(e.value) == "I broke"
         assert src == [source_md5] + ([source_tarball] if allow else [])
         assert len(src) == len(dest) == len(ulink) == len(ok) == 2 if allow else 1
         for i, s in enumerate(src):

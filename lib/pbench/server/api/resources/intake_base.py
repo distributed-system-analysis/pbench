@@ -417,6 +417,15 @@ class IntakeBase(ApiBase):
                     HTTPStatus.BAD_REQUEST,
                     f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
                 ) from exc
+            except OSError as exc:
+                if exc.errno == errno.ENOSPC:
+                    raise APIAbort(
+                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        f"Out of space on {tar_full_path.parent}",
+                    )
+                raise APIInternalError(
+                    f"Unexpected error encountered during archive: {str(exc)!r}"
+                ) from exc
             except Exception as exc:
                 raise APIInternalError(
                     f"Unable to create dataset in file system for {tar_full_path}: {exc}"

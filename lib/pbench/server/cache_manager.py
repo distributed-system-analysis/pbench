@@ -424,12 +424,14 @@ class Tarball:
             # log it but do not abort
             controller.logger.error("Unable to set SELINUX context for {}: {}", name, e)
 
-        # If we were able to copy both files, remove the originals
+        # If we were able to copy both files, remove the originals. If we moved
+        # the files above, instead of copying them, these will no longer exist
+        # and we'll ignore that condition silently.
         try:
-            tarball.unlink()
-            md5_source.unlink()
+            tarball.unlink(missing_ok=True)
+            md5_source.unlink(missing_ok=True)
         except Exception as e:
-            controller.logger.error("Error removing incoming dataset {}: {}", name, e)
+            controller.logger.error("Error removing staged upload {}: {}", name, e)
 
         return cls(destination, controller)
 
