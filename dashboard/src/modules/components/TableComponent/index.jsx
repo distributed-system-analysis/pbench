@@ -4,6 +4,7 @@ import * as APP_ROUTES from "utils/routeConstants";
 import * as CONSTANTS from "assets/constants/browsingPageConstants";
 
 import { EmptyTable, Heading, LoginHint, SearchBox } from "./common-components";
+import { HOME, TOC } from "utils/routeConstants";
 import {
   InnerScrollContainer,
   OuterScrollContainer,
@@ -27,7 +28,6 @@ import { DATASET_UPLOADED } from "assets/constants/overviewConstants";
 import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
 import { RenderPagination } from "../OverviewComponent/common-component";
-import { TOC } from "assets/constants/navigationConstants";
 import TablePagination from "../PaginationComponent";
 import { useKeycloak } from "@react-keycloak/web";
 import { useNavigate } from "react-router";
@@ -52,7 +52,6 @@ const TableWithFavorite = () => {
   const [page, setPage] = useState(CONSTANTS.START_PAGE_NUMBER);
 
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -209,7 +208,7 @@ const TableWithFavorite = () => {
                         <Td
                           dataLabel={columnNames.name}
                           onClick={() =>
-                            navigate(`${TOC}/${repo?.resource_id}`)
+                            navigate(`/${HOME}${TOC}/${repo?.resource_id}`)
                           }
                         >
                           {repo?.name}
