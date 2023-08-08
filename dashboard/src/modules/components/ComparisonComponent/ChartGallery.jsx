@@ -4,6 +4,7 @@ import {
   Chart as ChartJS,
   Legend,
   LinearScale,
+  SubTitle,
   Title,
   Tooltip,
 } from "chart.js";
@@ -20,6 +21,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  SubTitle,
   CategoryScale,
   LinearScale
 );

@@ -19,16 +19,7 @@ const PanelConent = () => {
       if (searchValue === "") {
         return true;
       }
-      let input;
-      try {
-        input = new RegExp(searchValue, "i");
-      } catch (err) {
-        input = new RegExp(
-          searchValue.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-          "i"
-        );
-      }
-      return item.name.search(input) >= 0;
+      return item.name.search(searchValue) >= 0;
     },
     [searchValue]
   );
@@ -43,19 +34,17 @@ const PanelConent = () => {
         <div className="datasets-container">
           {isCompareSwitchChecked ? (
             <div className="dataset-list-checkbox">
-              {filteredDatasets.map((item) => {
-                return (
-                  <Checkbox
-                    key={item.resource_id}
-                    label={item.name}
-                    id={item.resource_id}
-                    isChecked={selectedResourceIds?.includes(item.resource_id)}
-                    onChange={(checked) =>
-                      dispatch(setSelectedId(checked, item.resource_id))
-                    }
-                  />
-                );
-              })}
+              {filteredDatasets.map((item) => (
+                <Checkbox
+                  key={item.resource_id}
+                  label={item.name}
+                  id={item.resource_id}
+                  isChecked={selectedResourceIds?.includes(item.resource_id)}
+                  onChange={(checked) =>
+                    dispatch(setSelectedId(checked, item.resource_id))
+                  }
+                />
+              ))}
             </div>
           ) : (
             <List isBordered>

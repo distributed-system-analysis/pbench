@@ -40,7 +40,7 @@ const ComparisonReducer = (state = initialState, action = {}) => {
     case TYPES.TOGGLE_COMPARE_SWITCH:
       return {
         ...state,
-        isCompareSwitchChecked: payload,
+        isCompareSwitchChecked: !state.isCompareSwitchChecked,
       };
     case TYPES.SET_SELECTED_RESOURCE_ID:
       return {
