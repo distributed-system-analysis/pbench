@@ -91,6 +91,9 @@ function sc_disable {
         fi
     fi
 
+    # Remove the service file, if any.
+    rm -f "${HOME}/.config/systemd/user/pbench-server.service"
+
     # Even though we've disabled it above, the pbench-server service may still
     # be present in systemctl's memory if it failed before or during being
     # disabled.  A side-effect of the command below will purge this entry.
@@ -104,10 +107,7 @@ function sc_disable {
         fi
     fi
 
-    # Remove the service file.
-    rm -f "${HOME}/.config/systemd/user/pbench-server.service"
-
-    return ${r}
+    return 0
 }
 
 function cleanup {
