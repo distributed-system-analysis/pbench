@@ -104,6 +104,9 @@ function sc_disable {
         fi
     fi
 
+    # Remove the service file.
+    rm -f "${HOME}/.config/systemd/user/pbench-server.service"
+
     return ${r}
 }
 
