@@ -70,6 +70,9 @@ const TableOfContent = () => {
   const setTableData = (data) => {
     dispatch(updateTableData(data));
   };
+  const setContnetData = (data) => {
+    dispatch(updateContentData(data));
+  };
   const setSearchSpace = (data) => {
     dispatch(updateSearchSpace(data));
   };
@@ -181,7 +184,7 @@ const TableOfContent = () => {
     drillOut("rootMenu", "group:start_rollout", initialBreadcrumb([]));
     setStack(1);
     setTableData(stack[0].files);
-    dispatch(updateContentData(stack[0]));
+    setContnetData(stack[0]);
     setSearchSpace(stack[0].files);
     setParam("");
     setBreadCrumbLabels([]);
@@ -190,8 +193,7 @@ const TableOfContent = () => {
     dispatch(fetchTOC(params["dataset_id"], data, true));
   };
   const attachBreadCrumbs = (data, firstHierarchyLevel) => {
-    breadCrumbLabels.push(data.name);
-    setBreadCrumbLabels(breadCrumbLabels);
+    setBreadCrumbLabels([...breadCrumbLabels, data.name]);
 
     setBreadCrumb(
       firstHierarchyLevel

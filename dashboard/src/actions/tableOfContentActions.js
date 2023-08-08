@@ -10,7 +10,7 @@ export const fetchTOC =
     try {
       dispatch({ type: TYPES.LOADING });
       const endpoints = getState().apiEndpoint.endpoints;
-      const parent = dataUri?.split("contents").pop().replace("/", "");
+      const parent = dataUri?.split("contents/").pop();
       const uri = uriTemplate(endpoints, "datasets_contents", {
         dataset: param,
         target: parent,
