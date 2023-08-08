@@ -123,13 +123,15 @@ pipeline {
             sh 'rm -f cov/report.xml'
         }
         always {
+            sh 'systemctl --user disable --now pbench-server >/dev/null 2>&1 || true'
+            sh 'systemctl --user reset-failed pbench-server >/dev/null 2>&1 || true'
             sh 'podman image ls \
                     --filter reference="*pbench-agent*" \
                     --filter reference="*pbench-server*" \
                     --format "{{.Id}}" --filter containers=false \
                     | sort -u \
                     | xargs podman image rm -f \
-                    || true'
+                || true'
             sh 'buildah rm --all'
         }
     }

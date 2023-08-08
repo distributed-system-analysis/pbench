@@ -146,4 +146,4 @@ cat >"${PB_DEPLOY_FILES}/pbench-server.service" <<- EOD
 EOD
 
 # Run the Pbench Server.
-systemctl --user --runtime enable --force --now "${PB_DEPLOY_FILES}/pbench-server.service"
+systemctl --user enable --force --now "${PB_DEPLOY_FILES}/pbench-server.service"
