@@ -36,6 +36,8 @@ import {
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import { uid } from "utils/helper";
+
 const NewRunsComponent = () => {
   const dispatch = useDispatch();
   const {
@@ -181,11 +183,11 @@ const NewRunsComponent = () => {
                 return (
                   <>
                     <Tr
-                      key={item.resource_id}
+                      key={uid()}
                       className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
                     >
                       <NewRunsRow
-                        key={item.resource_id}
+                        key={uid()}
                         rowIndex={rowIndex}
                         moreActionItems={moreActionItems}
                         setRunExpanded={setRunExpanded}
@@ -204,12 +206,12 @@ const NewRunsComponent = () => {
                       />
                     </Tr>
                     {checkedItems && checkedItems.length > 0 ? (
-                      <Tr isExpanded={isRunExpanded(item)}>
+                      <Tr isExpanded={isRunExpanded(item)} key={uid()}>
                         <Td colSpan={8}>
                           <ExpandableRowContent>
                             <div className="pf-u-m-md">
                               <MetadataRow
-                                key={item.resource_id}
+                                key={uid()}
                                 checkedItems={checkedItems}
                                 item={item}
                               />

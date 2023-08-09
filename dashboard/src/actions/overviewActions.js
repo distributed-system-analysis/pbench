@@ -456,7 +456,7 @@ export const parseKeySummaryforTree = (keySummary) => (dispatch, getState) => {
       if (!isServerInternal(aggregateKey)) {
         const isChecked = checkedItems.includes(aggregateKey);
         const obj = constructTreeObj(aggregateKey, isChecked);
-        if (keySummary[item][key]) {
+        if (value) {
           /* has children */
           obj["children"] = constructChildTreeObj(aggregateKey, value);
         }

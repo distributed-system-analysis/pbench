@@ -44,6 +44,7 @@ import { useDispatch, useSelector } from "react-redux";
 import MetadataTreeView from "./MetadataTreeComponent";
 import { formatDateTime } from "utils/dateFunctions";
 import { setRelayModalState } from "actions/relayActions";
+import { uid } from "utils/helper";
 
 export const Heading = (props) => {
   return (
@@ -399,7 +400,7 @@ export const MetaDataModal = () => {
 export const MetadataRow = (props) => {
   const { checkedItems, item } = props;
   return (
-    <div className="box" key={item.resource_id}>
+    <div className="box" key={uid()}>
       {checkedItems.map((attr) => {
         const levels = attr.split(CONSTANTS.KEYS_JOIN_BY);
         const showValue = levels.reduce(
@@ -407,9 +408,9 @@ export const MetadataRow = (props) => {
           item.metadata
         );
         return (
-          <>
+          <div key={uid()}>
             {showValue && showValue.constructor !== Object && (
-              <div key={item.resource_id}>
+              <div key={uid()}>
                 <List>
                   <ListItem>
                     <span className="keyClass">
@@ -420,7 +421,7 @@ export const MetadataRow = (props) => {
                 </List>
               </div>
             )}
-          </>
+          </div>
         );
       })}
     </div>
