@@ -1,3 +1,4 @@
+/* eslint-disable guard-for-in */
 import * as CONSTANTS from "assets/constants/overviewConstants";
 import * as TYPES from "./types";
 
@@ -7,7 +8,10 @@ import API from "../utils/axiosInstance";
 import { clearCachedSession } from "./authActions";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
+import store from "store/store";
 import { uriTemplate } from "../utils/helper";
+
+const { dispatch, getState } = store;
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
@@ -442,25 +446,19 @@ export const getKeySummary = async (dispatch, getState) => {
 export const parseKeySummaryforTree = (keySummary) => (dispatch, getState) => {
   const parsedData = [];
 
-  const optionRoles = Object.keys(keySummary);
-
   const checkedItems = getState().overview.checkedItems;
 
-  for (const item of optionRoles) {
+  for (const [item, subitem] of Object.entries(keySummary)) {
     const dataObj = { title: item, options: [] };
-    for (const key in keySummary[item]) {
-      if (!isServerInternal(`${item}${CONSTANTS.KEYS_JOIN_BY}${key}`)) {
-        const aggregateKey = `${item}${CONSTANTS.KEYS_JOIN_BY}${key}`;
-        const isChecked = findItemsCheked(aggregateKey, checkedItems);
+
+    for (const [key, value] of Object.entries(subitem)) {
+      const aggregateKey = `${item}${CONSTANTS.KEYS_JOIN_BY}${key}`;
+      if (!isServerInternal(aggregateKey)) {
+        const isChecked = checkedItems.includes(aggregateKey);
         const obj = constructTreeObj(aggregateKey, isChecked);
         if (keySummary[item][key]) {
           /* has children */
-          obj["children"] = constructChildTreeObj(
-            aggregateKey,
-            keySummary[item][key],
-            checkedItems,
-            dispatch
-          );
+          obj["children"] = constructChildTreeObj(aggregateKey, value);
         }
         dataObj.options.push(obj);
       }
@@ -473,31 +471,22 @@ export const parseKeySummaryforTree = (keySummary) => (dispatch, getState) => {
   });
 };
 
-const constructChildTreeObj = (
-  aggregateKey,
-  entity,
-  checkedItems,
-  dispatch
-) => {
+const constructChildTreeObj = (aggregateKey, entity) => {
   const childObj = [];
+  const checkedItems = getState().overview.checkedItems;
   for (const item in entity) {
-    if (!isServerInternal(`${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`)) {
-      const isParentChecked = findItemsCheked(aggregateKey, checkedItems);
-      const newKey = `${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`;
-      const isChecked =
-        isParentChecked || findItemsCheked(newKey, checkedItems);
+    const newKey = `${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`;
+    if (!isServerInternal(newKey)) {
+      const isParentChecked = checkedItems.includes(aggregateKey);
+
+      const isChecked = isParentChecked || checkedItems.includes(newKey);
       if (isParentChecked && !checkedItems.includes(newKey)) {
         dispatch(updateCheckedItems(newKey));
       }
       const obj = constructTreeObj(newKey, isChecked);
 
       if (entity[item]) {
-        obj["children"] = constructChildTreeObj(
-          newKey,
-          entity[item],
-          checkedItems,
-          dispatch
-        );
+        obj["children"] = constructChildTreeObj(newKey, entity[item]);
       }
       childObj.push(obj);
     }
@@ -515,14 +504,11 @@ const constructTreeObj = (aggregateKey, isChecked) => ({
   },
 });
 
-const updateCheckedItems = (keyToInclude) => (dispatch, getState) => {
-  const checkedItems = [...getState().overview.checkedItems, keyToInclude];
-  dispatch({
-    type: TYPES.SET_METADATA_CHECKED_KEYS,
-    payload: checkedItems,
-  });
-};
-const findItemsCheked = (key, checkedItems) => checkedItems.includes(key);
+const updateCheckedItems = (keyToInclude) => ({
+  type: TYPES.SET_METADATA_CHECKED_KEYS,
+  payload: [...getState().overview.checkedItems, keyToInclude],
+});
+
 const nonEssentialKeys = [
   CONSTANTS.KEY_INDEX_REGEX,
   CONSTANTS.KEY_OPERATIONS_REGEX,
@@ -530,12 +516,6 @@ const nonEssentialKeys = [
   CONSTANTS.KEY_ITERATIONS_REGEX,
   CONSTANTS.KEY_TARBALL_PATH_REGEX,
 ];
-const isServerInternal = (string) => {
-  const len = nonEssentialKeys.length;
-  for (let i = 0; i < len; i++) {
-    if (string.match(nonEssentialKeys[i])) {
-      return true;
-    }
-  }
-  return false;
-};
+
+const isServerInternal = (string) =>
+  nonEssentialKeys.some((e) => string.match(e));

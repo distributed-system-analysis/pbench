@@ -413,9 +413,9 @@ export const MetadataRow = (props) => {
                 <List>
                   <ListItem>
                     <span className="keyClass">
-                      {levels[levels.length - 1]}
-                    </span>{" "}
-                    : {showValue}
+                      {levels[levels.length - 1]} :
+                    </span>
+                    <span className="valueClass"> {showValue}</span>
                   </ListItem>
                 </List>
               </div>

@@ -19,11 +19,11 @@ const areSomeDescendantsChecked = (dataItem, checkedItems) =>
       )
     : isChecked(dataItem, checkedItems);
 const setChildNodes = (childNodes, isChecked) =>
-  childNodes.map((item) => {
-    item.checkProps.checked = isChecked;
-    return item;
-  });
-
+  childNodes.children
+    ? setChildNodes(childNodes.children, isChecked)
+    : childNodes.forEach((element) => {
+        element.checkProps.checked = isChecked;
+      });
 const getCheckedItemsKey = (item) => item.map((i) => i.key);
 const getIndexofKey = (arr, key) => arr.findIndex((item) => item.key === key);
 const updateChildKeysList = (checked, checkedItems, childKeys) =>
@@ -63,13 +63,12 @@ export const onCheck =
     if ("children" in treeViewItem) {
       const childNodes = treeViewItem.children;
       const childKeys = getCheckedItemsKey(childNodes);
-      const modifiedChildNodes = setChildNodes(childNodes, checked);
+      setChildNodes(childNodes, checked);
       const idx = options.findIndex((item) => keys.includes(item.name));
 
       if (idx > -1) {
         const cIdx = getIndexofKey(options[idx]["children"], treeViewItem.key);
         if (cIdx > -1) {
-          options[idx]["children"][cIdx]["children"] = [...modifiedChildNodes];
           options[idx]["children"][cIdx].checkProps.checked = checked;
         }
       }
@@ -85,7 +84,7 @@ export const onCheck =
       const parentKey = parentKeys.join(KEYS_JOIN_BY);
       const childIdx = getIndexofKey(childNodes, parentKey);
 
-      if (childIdx) {
+      if (childIdx > -1) {
         if ("children" in options[parIdx].children[childIdx]) {
           const subNodes = options[parIdx].children[childIdx]["children"];
           const actualNodeIdx = getIndexofKey(subNodes, treeViewItem.key);
@@ -105,6 +104,6 @@ export const onCheck =
     });
     dispatch({
       type: TYPES.SET_METADATA_CHECKED_KEYS,
-      payload: checkedItems.flat(),
+      payload: checkedItems.flat(Infinity),
     });
   };
