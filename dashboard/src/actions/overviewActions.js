@@ -1,4 +1,3 @@
-/* eslint-disable guard-for-in */
 import * as CONSTANTS from "assets/constants/overviewConstants";
 import * as TYPES from "./types";
 
@@ -481,8 +480,8 @@ export const parseKeySummaryforTree = (keySummary) => (dispatch, getState) => {
 const constructChildTreeObj = (aggregateKey, entity, checkedItems) => {
   const childObj = [];
   for (const item in entity) {
-    const newKey = `${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`;
-    if (!isServerInternal(newKey)) {
+    if (!isServerInternal(`${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`)) {
+      const newKey = `${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`;
       const isParentChecked = checkedItems.includes(aggregateKey);
 
       const isChecked = isParentChecked || checkedItems.includes(newKey);
