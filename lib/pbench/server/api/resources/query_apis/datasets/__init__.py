@@ -1,21 +1,19 @@
 from http import HTTPStatus
 from typing import AnyStr, List, NoReturn, Union
 
-from flask import current_app
-
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
     ApiContext,
-    APIInternalError,
     ApiParams,
     ApiSchema,
     ParamType,
     SchemaError,
 )
 from pbench.server.api.resources.query_apis import ElasticBase
-from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.index_map import IndexMap
 from pbench.server.database.models.templates import Template
 
 
@@ -114,9 +112,19 @@ class IndexMapBase(ElasticBase):
         )
         context["dataset"] = dataset
 
-    def get_index(self, dataset: Dataset, root_index_name: AnyStr) -> AnyStr:
-        """Retrieve the list of ES indices from the metadata table based on a
-        given root_index_name.
+    def get_index(self, dataset: Dataset, root_index_name: str) -> str:
+        """Retrieve ES indices based on a given root_index_name.
+
+        Args:
+            dataset: dataset object
+            root_index_name: A root index name like "run-data"
+
+        Raises:
+            APIAbort(CONFLICT) if indexing was disabled on the target dataset.
+
+        Returns:
+            A string that joins all selected indices with ",", suitable for use
+            in an Elasticsearch query URI.
         """
 
         # Datasets marked "archiveonly" aren't indexed, and can't be referenced
@@ -125,21 +133,9 @@ class IndexMapBase(ElasticBase):
         if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
             raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
 
-        try:
-            index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
-        except MetadataError as exc:
-            raise APIInternalError(
-                f"Required metadata {Metadata.INDEX_MAP} missing"
-            ) from exc
-
-        if index_map is None:
-            raise APIInternalError(
-                f"Required metadata {Metadata.INDEX_MAP} has no value"
-            )
-
-        index_keys = [key for key in index_map if root_index_name in key]
+        index_map = IndexMap.find(dataset, root_index_name)
+        index_keys = [i for i in index_map.keys()]
         indices = ",".join(index_keys)
-        current_app.logger.debug(f"Indices from metadata , {indices!r}")
         return indices
 
     def get_aggregatable_fields(

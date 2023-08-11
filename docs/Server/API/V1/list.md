@@ -391,10 +391,6 @@ will return a JSON document with the keys `config`, `date`, `hostname_f`,
         },
         "server": {
             "deletion": null,
-            "index-map": {
-                "container-pbench.v6.run-data.2023-03": null,
-                "container-pbench.v6.run-toc.2023-03": null
-            },
             "origin": null,
             "tarball-path": null
         }

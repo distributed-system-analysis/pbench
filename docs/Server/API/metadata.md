@@ -111,8 +111,8 @@ client.
 
 This defines internal Pbench Server management state related to a dataset
 that's not inherent to the representation of the user's performance metrics.
-These are generally not useful to clients, and some can be large. There are
-three values in this namespace that clients can modify:
+These are generally not useful to clients, but there are three values in this
+namespace that clients can modify:
 
 #### `server.deletion`
 

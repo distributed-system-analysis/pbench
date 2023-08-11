@@ -24,6 +24,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.database.models.index_map import IndexMap
 from pbench.server.indexer import es_index, IdxContext, PbenchTarBall, VERSION
 from pbench.server.report import Report
 from pbench.server.sync import Sync
@@ -486,18 +487,11 @@ class Index:
                                         # accomplish this by overwriting each
                                         # duplicate index key separately.
                                         try:
-                                            map = Metadata.getvalue(
-                                                dataset, Metadata.INDEX_MAP
-                                            )
-                                            assert type(ptb.index_map) is dict
+                                            map = IndexMap.map(dataset)
                                             if map:
-                                                assert type(map) is dict
-                                                map.update(ptb.index_map)
+                                                IndexMap.merge(dataset, ptb.index_map)
                                             else:
-                                                map = ptb.index_map
-                                            Metadata.setvalue(
-                                                dataset, Metadata.INDEX_MAP, map
-                                            )
+                                                IndexMap.create(dataset, ptb.index_map)
                                         except Exception as e:
                                             idxctx.logger.exception(
                                                 "Unexpected Metadata error on {}: {}",

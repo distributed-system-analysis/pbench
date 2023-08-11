@@ -2,12 +2,13 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server.api.resources import APIAbort, ApiMethod
+from pbench.server.api.resources import ApiMethod
 from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
 )
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.index_map import IndexMap
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -764,20 +765,33 @@ class TestSampleValues(Commons):
         indices = self.cls_obj.get_index(drb, self.index_from_metadata)
         assert indices == "unit-test.v5.result-data-sample.2020-08"
 
-    def test_exceptions_on_get_index(self, attach_dataset):
+    def test_get_index_none(self, attach_dataset):
         test = Dataset.query(name="test")
 
-        # When server index_map is None we expect 500
-        with pytest.raises(APIAbort) as exc:
-            self.cls_obj.get_index(test, self.index_from_metadata)
-        assert exc.value.http_status == HTTPStatus.INTERNAL_SERVER_ERROR
-
-        Metadata.setvalue(
-            dataset=test,
-            key=Metadata.INDEX_MAP,
-            value={"unit-test.v6.run-data.2020-08": ["random_md5_string1"]},
-        )
-
-        # When server index_map doesn't have mappings for result-data-sample
-        # documents we expect the indices to an empty string
+        # No index map at all for dataset
         assert self.cls_obj.get_index(test, self.index_from_metadata) == ""
+
+        # An index map that doesn't contain the desired root
+        IndexMap.create(
+            dataset=test,
+            map={
+                "result-data": {
+                    "unit-test.v6.result-data.2020-09": ["random_md5_string"]
+                }
+            },
+        )
+        assert self.cls_obj.get_index(test, self.index_from_metadata) == ""
+
+        # An index map that contains the desired root plus others
+        IndexMap.create(
+            dataset=test,
+            map={
+                "result-data-sample": {
+                    "unit-test.v6.result-data-sample.2020-08": ["random_md5_string1"]
+                }
+            },
+        )
+        assert (
+            self.cls_obj.get_index(test, self.index_from_metadata)
+            == "unit-test.v6.result-data-sample.2020-08"
+        )

@@ -87,14 +87,7 @@ class TestDatasetsMetadataGet:
         )
         assert response.json == {
             "global.seen": None,
-            "server": {
-                "deletion": "2022-12-26",
-                "index-map": {
-                    "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
-                    "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
-                    "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
-                },
-            },
+            "server": {"deletion": "2022-12-26"},
             "dataset.access": "private",
         }
 

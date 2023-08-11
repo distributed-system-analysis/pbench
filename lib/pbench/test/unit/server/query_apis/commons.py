@@ -11,7 +11,8 @@ import requests
 from pbench.server import JSON
 from pbench.server.api.resources import ApiMethod, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.index_map import IndexMap
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -83,8 +84,8 @@ class Commons:
             index name.
         """
         drb = Dataset.query(name="drb")
-        index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
-        index_keys = [key for key in index_map if self.index_from_metadata in key]
+        index_map = IndexMap.map(dataset=drb)
+        index_keys = [key for key in index_map.get(self.index_from_metadata, {})]
         return "/" + ",".join(index_keys)
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:

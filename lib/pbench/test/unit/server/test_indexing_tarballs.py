@@ -24,6 +24,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.database.models.index_map import IndexMapType
 from pbench.server.indexing_tarballs import (
     Index,
     SigIntException,
@@ -48,12 +49,9 @@ class FakeDataset:
 
 
 class FakeMetadata:
-    INDEX_MAP = Metadata.INDEX_MAP
     TARBALL_PATH = Metadata.TARBALL_PATH
-    INDEX_MAP = Metadata.INDEX_MAP
 
     no_tarball: list[str] = []
-    index_map: dict[str, JSONOBJECT] = {}
     set_values: dict[str, dict[str, Any]] = {}
 
     @staticmethod
@@ -63,8 +61,6 @@ class FakeMetadata:
                 return None
             else:
                 return f"{dataset.name}.tar.xz"
-        elif key == Metadata.INDEX_MAP:
-            return __class__.index_map.get(dataset.name)
         else:
             raise MetadataBadKey(key)
 
@@ -80,6 +76,50 @@ class FakeMetadata:
         cls.no_tarball = []
         cls.index_map = {}
         cls.set_values = {}
+
+
+class FakeIndexMap:
+    index_map: dict[str, IndexMapType] = {}
+
+    @staticmethod
+    def map(dataset: FakeDataset) -> IndexMapType:
+        return __class__.index_map[dataset.name]
+
+    @staticmethod
+    def find(dataset: FakeDataset, index: str) -> dict[str, list[str]]:
+        return {
+            i: d
+            for i, d in __class__.index_map.get(dataset.name, {}).items()
+            if i.startswith(index)
+        }
+
+    @staticmethod
+    def create(dataset: FakeDataset, map: JSONOBJECT) -> JSONOBJECT:
+        __class__.index_map[dataset.name] = map
+        return map
+
+    def add(self):
+        pass
+
+    @staticmethod
+    def merge(dataset: Dataset, new_map: IndexMapType):
+        if dataset.name not in __class__.index_map:
+            __class__.index_map[dataset.name] = new_map
+        else:
+            map = __class__.index_map[dataset.name]
+            for r, i in new_map.items():
+                if r not in map:
+                    map[r] = i
+                else:
+                    for i, d in new_map[r].items():
+                        if i not in map[r]:
+                            map[r][i] = d
+                        else:
+                            map[r][i].extend(new_map[r][i])
+
+    @classmethod
+    def reset(cls):
+        cls.index_map = {}
 
 
 class FakePbenchTemplates:
@@ -189,7 +229,7 @@ class FakePbenchTarBall:
         self.name = Path(tbarg).name
         self.username = username
         self.extracted_root = extracted_root
-        self.index_map = {"idx1": ["id1", "id2"]}
+        self.index_map = {"root": {"idx1": ["id1", "id2"]}}
 
     def mk_tool_data_actions(self) -> JSONARRAY:
         __class__.make_tool_called += 1
@@ -311,6 +351,7 @@ def mocks(monkeypatch, make_logger):
         m.setattr("pbench.server.indexing_tarballs.Report", FakeReport)
         m.setattr("pbench.server.indexing_tarballs.Dataset", FakeDataset)
         m.setattr("pbench.server.indexing_tarballs.Metadata", FakeMetadata)
+        m.setattr("pbench.server.indexing_tarballs.IndexMap", FakeIndexMap)
         m.setattr("pbench.server.indexing_tarballs.CacheManager", FakeCacheManager)
         m.setattr("pbench.server.indexing_tarballs.Audit", FakeAudit)
         yield m
@@ -511,7 +552,12 @@ class TestIndexingTarballs:
         def fake_es_index(es, actions, errorsfp, logger, _dbg=0):
             return (1000, 2000, 1, 0, 0, 0)
 
-        FakeMetadata.index_map = {"ds1": {"idx": ["a", "b"]}}
+        FakeIndexMap.index_map = {
+            "ds1": {
+                "root": {"idx3": ["id3", "id4"], "idx1": ["id4"]},
+                "r1": {"idx": ["a", "b"]},
+            }
+        }
         mocks.setattr("pbench.server.indexing_tarballs.es_index", fake_es_index)
         stat = index.process_tb(tarballs=[tarball_1])
         assert (
@@ -519,9 +565,10 @@ class TestIndexingTarballs:
             and FakePbenchTarBall.make_all_called == 1
             and not FakePbenchTarBall.make_tool_called
         )
-        assert FakeMetadata.set_values == {
+        assert FakeIndexMap.index_map == {
             "ds1": {
-                Metadata.INDEX_MAP: {"idx": ["a", "b"], "idx1": ["id1", "id2"]},
+                "root": {"idx1": ["id4", "id1", "id2"], "idx3": ["id3", "id4"]},
+                "r1": {"idx": ["a", "b"]},
             }
         }
 

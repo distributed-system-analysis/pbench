@@ -265,7 +265,7 @@ class TestUpload:
     @pytest.mark.parametrize(
         "error,http_status,message",
         (
-            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space on "),
+            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space"),
             (
                 errno.ENFILE,
                 HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -316,7 +316,7 @@ class TestUpload:
     @pytest.mark.parametrize(
         "error,http_status,message",
         (
-            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space on "),
+            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space"),
             (
                 errno.ENFILE,
                 HTTPStatus.INTERNAL_SERVER_ERROR,

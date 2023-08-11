@@ -357,10 +357,7 @@ class IntakeBase(ApiBase):
                         hash_md5.update(chunk)
             except OSError as exc:
                 if exc.errno == errno.ENOSPC:
-                    raise APIAbort(
-                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                        f"Out of space on {tar_full_path.parent}",
-                    )
+                    raise APIAbort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space")
                 raise APIInternalError(
                     f"Unexpected error encountered during file upload: {str(exc)!r} "
                 ) from exc
@@ -386,10 +383,7 @@ class IntakeBase(ApiBase):
                 md5_full_path.write_text(f"{intake.md5} {filename}\n")
             except OSError as exc:
                 if exc.errno == errno.ENOSPC:
-                    raise APIAbort(
-                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                        f"Out of space on {md5_full_path.parent}",
-                    )
+                    raise APIAbort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space")
                 raise APIInternalError(
                     f"Unexpected error encountered during MD5 creation: {str(exc)!r}"
                 ) from exc
@@ -419,10 +413,7 @@ class IntakeBase(ApiBase):
                 ) from exc
             except OSError as exc:
                 if exc.errno == errno.ENOSPC:
-                    raise APIAbort(
-                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                        f"Out of space on {tar_full_path.parent}",
-                    )
+                    raise APIAbort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space")
                 raise APIInternalError(
                     f"Unexpected error encountered during archive: {str(exc)!r}"
                 ) from exc

@@ -34,12 +34,8 @@ from pbench.server.api.resources import (
 import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.audit import AuditReason, AuditStatus
-from pbench.server.database.models.datasets import (
-    Dataset,
-    Metadata,
-    Operation,
-    OperationState,
-)
+from pbench.server.database.models.datasets import Dataset, Operation, OperationState
+from pbench.server.database.models.index_map import IndexMap, IndexMapType
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
 
@@ -572,7 +568,7 @@ class ElasticBulkBase(ApiBase):
         params: ApiParams,
         dataset: Dataset,
         context: ApiContext,
-        map: dict[str, list[str]],
+        map: IndexMapType,
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk operation actions driven by the
@@ -773,9 +769,9 @@ class ElasticBulkBase(ApiBase):
                 f"Dataset is working on {operation.name.name}",
             )
 
-        map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
+        map = IndexMap.map(dataset=dataset)
 
-        # If we don't have an Elasticsearch index-map, then the dataset isn't
+        # If we don't have an Elasticsearch index map, then the dataset isn't
         # indexed and we skip the Elasticsearch actions.
         if map:
             # Build an Elasticsearch instance to manage the bulk update
