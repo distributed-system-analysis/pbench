@@ -8,10 +8,7 @@ import API from "../utils/axiosInstance";
 import { clearCachedSession } from "./authActions";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
-import store from "store/store";
 import { uriTemplate } from "../utils/helper";
-
-const { dispatch, getState } = store;
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
@@ -29,6 +26,8 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("metadata", CONSTANTS.USER_FAVORITE);
     params.append("metadata", "server");
     params.append("metadata", "dataset");
+    params.append("metadata", "global");
+    params.append("metadata", "user");
 
     params.append("mine", "true");
     dispatch(setSelectedRuns([]));
@@ -446,7 +445,7 @@ export const getKeySummary = async (dispatch, getState) => {
 export const parseKeySummaryforTree = (keySummary) => (dispatch, getState) => {
   const parsedData = [];
 
-  const checkedItems = getState().overview.checkedItems;
+  const checkedItems = [...getState().overview.checkedItems];
 
   for (const [item, subitem] of Object.entries(keySummary)) {
     const dataObj = { title: item, options: [] };
@@ -458,7 +457,11 @@ export const parseKeySummaryforTree = (keySummary) => (dispatch, getState) => {
         const obj = constructTreeObj(aggregateKey, isChecked);
         if (value) {
           /* has children */
-          obj["children"] = constructChildTreeObj(aggregateKey, value);
+          obj["children"] = constructChildTreeObj(
+            aggregateKey,
+            value,
+            checkedItems
+          );
         }
         dataObj.options.push(obj);
       }
@@ -466,14 +469,17 @@ export const parseKeySummaryforTree = (keySummary) => (dispatch, getState) => {
     parsedData.push(dataObj);
   }
   dispatch({
+    type: TYPES.SET_METADATA_CHECKED_KEYS,
+    payload: checkedItems,
+  });
+  dispatch({
     type: TYPES.SET_TREE_DATA,
     payload: parsedData,
   });
 };
 
-const constructChildTreeObj = (aggregateKey, entity) => {
+const constructChildTreeObj = (aggregateKey, entity, checkedItems) => {
   const childObj = [];
-  const checkedItems = getState().overview.checkedItems;
   for (const item in entity) {
     const newKey = `${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`;
     if (!isServerInternal(newKey)) {
@@ -481,12 +487,16 @@ const constructChildTreeObj = (aggregateKey, entity) => {
 
       const isChecked = isParentChecked || checkedItems.includes(newKey);
       if (isParentChecked && !checkedItems.includes(newKey)) {
-        dispatch(updateCheckedItems(newKey));
+        checkedItems.push(newKey);
       }
       const obj = constructTreeObj(newKey, isChecked);
 
       if (entity[item]) {
-        obj["children"] = constructChildTreeObj(newKey, entity[item]);
+        obj["children"] = constructChildTreeObj(
+          newKey,
+          entity[item],
+          checkedItems
+        );
       }
       childObj.push(obj);
     }
@@ -502,11 +512,6 @@ const constructTreeObj = (aggregateKey, isChecked) => ({
     "aria-label": `${aggregateKey}-check`,
     checked: isChecked,
   },
-});
-
-const updateCheckedItems = (keyToInclude) => ({
-  type: TYPES.SET_METADATA_CHECKED_KEYS,
-  payload: [...getState().overview.checkedItems, keyToInclude],
 });
 
 const nonEssentialKeys = [

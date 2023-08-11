@@ -9,7 +9,9 @@ const isChecked = (dataItem, checkedItems) =>
   checkedItems && checkedItems.some((item) => item === dataItem.key);
 const areAllDescendantsChecked = (dataItem, checkedItems) =>
   dataItem.children
-    ? dataItem.children.every((child) => child.checkProps.checked)
+    ? dataItem.children.every((child) =>
+        areAllDescendantsChecked(child, checkedItems)
+      )
     : isChecked(dataItem, checkedItems);
 const areSomeDescendantsChecked = (dataItem, checkedItems) =>
   dataItem.children
@@ -17,20 +19,18 @@ const areSomeDescendantsChecked = (dataItem, checkedItems) =>
         areSomeDescendantsChecked(child, checkedItems)
       )
     : isChecked(dataItem, checkedItems);
-const setChildNodes = (childNodes, isChecked) => {
+const setTreeViewChecked = (childNodes, isChecked) => {
   childNodes.forEach(function iter(a) {
     a.checkProps.checked = isChecked;
     Array.isArray(a.children) && a.children.forEach(iter);
   });
 };
-const getCheckedItemsKey = (ary) => {
-  return ary.reduce(function (a, b) {
-    if ("children" in b) {
-      return a.concat(b.key, getCheckedItemsKey(b.children));
-    }
-    return a.concat(b.key);
-  }, []);
-};
+const getCheckedItemsKey = (ary) =>
+  ary.reduce(
+    (a, b) =>
+      a.concat(b.key, "children" in b ? getCheckedItemsKey(b.children) : []),
+    []
+  );
 const updateChildKeysList = (checked, checkedItems, childKeys) =>
   checked
     ? [...checkedItems, ...childKeys]
@@ -64,12 +64,13 @@ export const onCheck =
       const childNodes = treeViewItem.children;
       const childKeys = getCheckedItemsKey(childNodes);
 
-      setChildNodes(childNodes, checked);
+      setTreeViewChecked(childNodes, checked);
       treeViewItem.checkProps.checked = checked;
 
       checkedItems = updateChildKeysList(checked, checkedItems, childKeys);
     } else if ("children" in options[0]) {
-      /* if first child*/ const childNodes = options[0]["children"];
+      // if first child
+      const childNodes = options[0]["children"];
       const node = childNodes.find((item) => item.key === treeViewItem.key);
       node.checkProps.checked = checked;
       // if only child of the parent, push the parent
@@ -83,7 +84,7 @@ export const onCheck =
         );
       }
     } else {
-      /* leaf node*/
+      // leaf node
       const node = options.find((item) => treeViewItem.key.includes(item.key));
       node.checkProps.checked = checked;
     }

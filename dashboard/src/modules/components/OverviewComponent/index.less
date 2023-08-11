@@ -44,9 +44,6 @@
     }
     .newruns-table-container {
       height: 90%;
-      .pf-c-table__check {
-        border-top: 1px solid #d2d2d2;
-      }
       .pf-c-scroll-outer-wrapper {
         min-height: 100%;
       }
@@ -54,8 +51,15 @@
         background-color: #efefef;
       }
       .keyClass {
-        font-weight: bold;
         padding-right: 5px;
+      }
+      .box {
+        thead {
+          border-bottom: 1px solid #d2d2d2;
+        }
+        th {
+          border-top: none;
+        }
       }
     }
     .pf-c-pagination {

@@ -2,15 +2,21 @@ import "./index.less";
 
 import * as CONSTANTS from "assets/constants/overviewConstants";
 
-import { ActionsColumn, Td } from "@patternfly/react-table";
+import {
+  ActionsColumn,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
 import {
   Button,
   DatePicker,
   Dropdown,
   DropdownItem,
   DropdownToggle,
-  List,
-  ListItem,
   Modal,
   ModalVariant,
   Pagination,
@@ -399,31 +405,38 @@ export const MetaDataModal = () => {
 
 export const MetadataRow = (props) => {
   const { checkedItems, item } = props;
+  const columnNames = {
+    key: "Metadata",
+    value: "Value",
+  };
   return (
-    <div className="box" key={uid()}>
-      {checkedItems.map((attr) => {
-        const levels = attr.split(CONSTANTS.KEYS_JOIN_BY);
-        const showValue = levels.reduce(
-          (a, level) => a?.[level] ?? "",
-          item.metadata
-        );
-        return (
-          <div key={uid()}>
-            {showValue && showValue.constructor !== Object && (
-              <div key={uid()}>
-                <List>
-                  <ListItem>
-                    <span className="keyClass">
-                      {levels[levels.length - 1]} :
-                    </span>
-                    <span className="valueClass"> {showValue}</span>
-                  </ListItem>
-                </List>
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
+    <Table className="box" key={uid()} aria-label="metadata-table">
+      <Thead>
+        <Th width={25} textCenter>
+          {columnNames.key}
+        </Th>
+        <Th width={40}>{columnNames.value}</Th>
+      </Thead>
+      <Tbody>
+        {checkedItems.map((attr) => {
+          const levels = attr.split(CONSTANTS.KEYS_JOIN_BY);
+          const showKey = attr.split(CONSTANTS.KEYS_JOIN_BY).join(".");
+          const showValue = levels.reduce(
+            (a, level) => a?.[level] ?? "",
+            item.metadata
+          );
+          return (
+            <>
+              {showValue && showValue.constructor !== Object && (
+                <Tr key={uid()}>
+                  <Td className="keyClass">{showKey}</Td>
+                  <Td className="valueClass">{showValue}</Td>
+                </Tr>
+              )}
+            </>
+          );
+        })}
+      </Tbody>
+    </Table>
   );
 };
