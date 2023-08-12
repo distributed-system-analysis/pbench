@@ -9,7 +9,7 @@ import re
 import shutil
 from stat import ST_MTIME
 import tarfile
-from typing import Dict, Optional
+from typing import Dict, Iterator, Optional
 import uuid
 
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -29,7 +29,7 @@ from pbench.server.database import init_db
 from pbench.server.database.database import Database
 from pbench.server.database.models.api_keys import APIKey
 from pbench.server.database.models.datasets import Dataset, Metadata
-from pbench.server.database.models.index_map import IndexMap, IndexMapType
+from pbench.server.database.models.index_map import IndexMap, IndexStream
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
 from pbench.test import on_disk_config
@@ -527,15 +527,18 @@ def get_document_map(monkeypatch, attach_dataset):
         },
     }
 
-    def get_document_map(dataset: Dataset) -> IndexMapType:
-        return mapping
+    def exist_map(dataset: Dataset) -> bool:
+        return True
 
-    def find_document_map(dataset: Dataset, index: str) -> dict[str, list[str]]:
-        return {a: b for a, b in mapping[index].items()}
+    def stream_map(dataset: Dataset) -> Iterator[IndexStream]:
+        for i in mapping.values():
+            for idx, ids in i.items():
+                for id in ids:
+                    yield IndexStream(idx, id)
 
     with monkeypatch.context() as m:
-        m.setattr(IndexMap, "map", get_document_map)
-        m.setattr(IndexMap, "find", find_document_map)
+        m.setattr(IndexMap, "stream", stream_map)
+        m.setattr(IndexMap, "exists", exist_map)
         yield mapping
 
 

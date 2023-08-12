@@ -133,8 +133,7 @@ class IndexMapBase(ElasticBase):
         if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
             raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
 
-        index_map = IndexMap.find(dataset, root_index_name)
-        index_keys = [i for i in index_map.keys()]
+        index_keys = IndexMap.indices(dataset, root_index_name)
         indices = ",".join(index_keys)
         return indices
 

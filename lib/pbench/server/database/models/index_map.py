@@ -1,11 +1,11 @@
 import copy
-from typing import NewType, Optional
+from dataclasses import dataclass
+from typing import Iterator, NewType, Optional
 
 from sqlalchemy import Column, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import relationship
 
-from pbench.server import JSONOBJECT
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset
 
@@ -37,17 +37,6 @@ class IndexMapSqlError(IndexMapError):
         return f"Error {self.operation} index {self.dataset}:{self.name}: {self.cause}"
 
 
-class IndexMapNotFound(IndexMapError):
-    """Attempt to find a IndexMap that doesn't exist."""
-
-    def __init__(self, dataset: Dataset, name: str):
-        self.dataset = dataset.name
-        self.name = name
-
-    def __str__(self) -> str:
-        return f"Dataset {self.dataset!r} index {self.name!r} not found"
-
-
 class IndexMapDuplicate(IndexMapError):
     """Attempt to commit a duplicate IndexMap id."""
 
@@ -56,7 +45,7 @@ class IndexMapDuplicate(IndexMapError):
         self.cause = cause
 
     def __str__(self) -> str:
-        return f"Duplicate template {self.name!r}: {self.cause}"
+        return f"Duplicate index map {self.name!r}: {self.cause}"
 
 
 class IndexMapMissingParameter(IndexMapError):
@@ -68,6 +57,12 @@ class IndexMapMissingParameter(IndexMapError):
 
     def __str__(self) -> str:
         return f"Missing required parameters in {self.name!r}: {self.cause}"
+
+
+@dataclass
+class IndexStream:
+    index: str
+    id: str
 
 
 IndexMapType = NewType("IndexMapType", dict[str, dict[str, list[str]]])
@@ -148,78 +143,92 @@ class IndexMap(Database.Base):
                 .filter(IndexMap.dataset == dataset)
                 .all()
             )
-        except SQLAlchemyError as e:
-            raise IndexMapSqlError("finding", dataset, "all", str(e))
 
-        if indices is None:
-            raise IndexMapNotFound(dataset, "all")
+            old_roots = set(i.root for i in indices)
+            new_roots = set(merge_map.keys())
 
-        old_roots = set(i.root for i in indices)
-        new_roots = set(merge_map.keys())
-
-        # Any new roots can just be added to the table
-        for r in new_roots - old_roots:
-            for i, d in merge_map[r].items():
-                Database.db_session.add(
-                    IndexMap(dataset=dataset, root=r, index=i, documents=d)
-                )
-
-        # Roots in both need to be merged
-        for r in old_roots & new_roots:
-            old_indices = set(i.index for i in indices if i.root == r)
-            new_indices = set(merge_map[r].keys())
-
-            # New indices can be added to the table
-            for i in new_indices - old_indices:
-                Database.db_session.add(
-                    IndexMap(
-                        dataset=dataset, root=r, index=i, documents=merge_map[r][i]
+            # Any new roots can just be added to the table
+            for r in new_roots - old_roots:
+                for i, d in merge_map[r].items():
+                    Database.db_session.add(
+                        IndexMap(dataset=dataset, root=r, index=i, documents=d)
                     )
-                )
 
-            # Indices in both need to merge the document ID lists
-            for i in old_indices & new_indices:
-                for index in indices:
-                    if index.index == i:
-                        x = copy.deepcopy(index.documents)
-                        x.extend(merge_map[r][i])
-                        index.documents = x
+            # Roots in both need to be merged
+            for r in old_roots & new_roots:
+                old_indices = set(i.index for i in indices if i.root == r)
+                new_indices = set(merge_map[r].keys())
+
+                # New indices can be added to the table
+                for i in new_indices - old_indices:
+                    Database.db_session.add(
+                        IndexMap(
+                            dataset=dataset, root=r, index=i, documents=merge_map[r][i]
+                        )
+                    )
+
+                # Indices in both need to merge the document ID lists
+                for i in old_indices & new_indices:
+                    for index in indices:
+                        if index.index == i:
+                            x = copy.deepcopy(index.documents)
+                            x.extend(merge_map[r][i])
+                            index.documents = x
+        except SQLAlchemyError as e:
+            raise IndexMapSqlError("merge", dataset, "all", str(e))
 
         cls.commit(dataset, "merge")
 
     @staticmethod
-    def find(dataset: Dataset, index: str) -> Optional[JSONOBJECT]:
+    def indices(dataset: Dataset, root: str) -> list[str]:
         """
-        Return the indices matching the specified root index name. For
-        example, find(dataset, "run-data").
+        Return the indices matching the specified root index name.
 
         Args:
             dataset: Dataset object
-            index: Root index name
+            root: Root index name
 
         Raises:
             IndexMapSqlError: problem interacting with Database
 
         Returns:
-            A JSON object with a list of document IDs for each index associated
-            with the specified dataset and root index name.
+            A list of indices matching the root index name
         """
         try:
             map = (
                 Database.db_session.query(IndexMap)
-                .filter(IndexMap.dataset == dataset, IndexMap.root == index)
+                .filter(IndexMap.dataset == dataset, IndexMap.root == root)
                 .all()
             )
         except SQLAlchemyError as e:
-            raise IndexMapSqlError("finding", dataset, index, str(e))
+            raise IndexMapSqlError("finding", dataset, root, str(e))
 
-        return {i.index: i.documents for i in map}
+        return [i.index for i in map]
 
     @staticmethod
-    def map(dataset: Dataset) -> IndexMapType:
+    def exists(dataset: Dataset) -> bool:
+        """Determine whether the dataset has at least one map entry.
+
+        Args:
+            dataset: Dataset object
+
+        Returns:
+            True if the dataset has at least one index map entry
         """
-        Return a JSON object with a document list for each index associated
-        with the dataset.
+
+        try:
+            c = (
+                Database.db_session.query(IndexMap)
+                .filter(IndexMap.dataset == dataset)
+                .first()
+            )
+            return bool(c)
+        except SQLAlchemyError as e:
+            raise IndexMapSqlError("checkexist", dataset, "any", str(e))
+
+    @staticmethod
+    def stream(dataset: Dataset) -> Optional[Iterator[IndexStream]]:
+        """Stream the index and document ID data
 
         Args:
             dataset: Dataset object
@@ -229,33 +238,20 @@ class IndexMap(Database.Base):
             IndexMapNotFound: the specified template doesn't exist
 
         Returns:
-            A two-level dict with document IDs listed under each index name
-            categorized under root index names.
+            A stream of index info, or None if there's no index map
         """
         try:
-            indices = (
+            indices: Iterator[IndexMap] = (
                 Database.db_session.query(IndexMap)
                 .filter(IndexMap.dataset == dataset)
                 .all()
             )
         except SQLAlchemyError as e:
-            raise IndexMapSqlError("map", dataset, "all", str(e))
+            raise IndexMapSqlError("reporting", dataset, "all", str(e))
 
-        if indices is None:
-            raise IndexMapNotFound(dataset, "all")
-
-        map: IndexMapType = {}
         for m in indices:
-            try:
-                r = map[m.root]
-                try:
-                    r[m.index].extend(m.documents)
-                except KeyError:
-                    r[m.index] = m.documents
-            except KeyError:
-                sub = {m.index: m.documents}
-                map[m.root] = sub
-        return map
+            for id in m.documents:
+                yield IndexStream(index=m.index, id=id)
 
     def __str__(self) -> str:
         """

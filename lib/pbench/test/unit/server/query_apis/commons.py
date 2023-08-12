@@ -84,8 +84,7 @@ class Commons:
             index name.
         """
         drb = Dataset.query(name="drb")
-        index_map = IndexMap.map(dataset=drb)
-        index_keys = [key for key in index_map.get(self.index_from_metadata, {})]
+        index_keys = IndexMap.indices(drb, self.index_from_metadata)
         return "/" + ",".join(index_keys)
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:

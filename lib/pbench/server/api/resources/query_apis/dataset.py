@@ -24,7 +24,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
-from pbench.server.database.models.index_map import IndexMapType
+from pbench.server.database.models.index_map import IndexStream
 from pbench.server.sync import Sync
 
 
@@ -84,7 +84,7 @@ class Datasets(ElasticBulkBase):
         params: ApiParams,
         dataset: Dataset,
         context: ApiContext,
-        map: IndexMapType,
+        map: Iterator[IndexStream],
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk update actions driven by the
@@ -94,7 +94,7 @@ class Datasets(ElasticBulkBase):
             params: API parameters
             dataset: the Dataset object
             context: CONTEXT to pass to complete
-            map: Elasticsearch index document map
+            map: Elasticsearch index document map generator
 
         Returns:
             A generator for Elasticsearch bulk update actions
@@ -128,13 +128,11 @@ class Datasets(ElasticBulkBase):
         # the "access" and/or "owner" field(s) of the "authorization" subdocument:
         # no other data will be modified.
 
-        for root, indices in map.items():
-            for index, ids in indices.items():
-                for id in ids:
-                    es_action = {"_op_type": action, "_index": index, "_id": id}
-                    if es_doc:
-                        es_action["doc"] = es_doc
-                    yield es_action
+        for i in map:
+            es_action = {"_op_type": action, "_index": i.index, "_id": i.id}
+            if es_doc:
+                es_action["doc"] = es_doc
+            yield es_action
 
     def complete(
         self, dataset: Dataset, context: ApiContext, summary: JSONOBJECT
