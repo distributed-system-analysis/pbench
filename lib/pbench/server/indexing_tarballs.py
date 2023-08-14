@@ -487,8 +487,7 @@ class Index:
                                         # accomplish this by overwriting each
                                         # duplicate index key separately.
                                         try:
-                                            map = IndexMap.map(dataset)
-                                            if map:
+                                            if IndexMap.exists(dataset):
                                                 IndexMap.merge(dataset, ptb.index_map)
                                             else:
                                                 IndexMap.create(dataset, ptb.index_map)

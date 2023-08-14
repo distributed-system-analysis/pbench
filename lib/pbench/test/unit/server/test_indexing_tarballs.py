@@ -82,8 +82,8 @@ class FakeIndexMap:
     index_map: dict[str, IndexMapType] = {}
 
     @staticmethod
-    def map(dataset: FakeDataset) -> IndexMapType:
-        return __class__.index_map[dataset.name]
+    def exists(dataset: FakeDataset) -> bool:
+        return bool(__class__.index_map)
 
     @staticmethod
     def find(dataset: FakeDataset, index: str) -> dict[str, list[str]]:
