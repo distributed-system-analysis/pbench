@@ -263,5 +263,5 @@ class TestIndexMapDB:
         monkeypatch.setattr(Database.db_session, "query", fake_query)
 
         with pytest.raises(IndexMapSqlError) as e:
-            [IndexMap.stream(drb)]
+            list(IndexMap.stream(drb))
         assert str(e.value) == "Error streaming index drb:all: That was easy"
