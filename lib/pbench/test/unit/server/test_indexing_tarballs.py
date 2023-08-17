@@ -91,7 +91,7 @@ class FakeIndexMap:
 
     @classmethod
     def merge(cls, dataset: Dataset, new_map: IndexMapType):
-        if dataset.name not in __class__.index_map:
+        if dataset.name not in cls.index_map:
             cls.index_map[dataset.name] = new_map
         else:
             map = cls.index_map[dataset.name]
