@@ -427,7 +427,7 @@ export const MetadataRow = (props) => {
           );
           return (
             <>
-              {showValue && showValue.constructor !== Object && (
+              {showValue !== "" && showValue.constructor !== Object && (
                 <Tr key={uid()}>
                   <Td className="keyClass">{showKey}</Td>
                   <Td className="valueClass">{showValue}</Td>
