@@ -90,14 +90,18 @@ class TestIndexMapDB:
             IndexStream("prefix.run-data.2023-06", "id9"),
         ]
 
-    @pytest.mark.parametrize("to", (False, True))
-    def test_merge_none(self, db_session, attach_dataset, to):
+    @pytest.mark.parametrize(
+        "orig,merge", ((False, True), (True, False), (False, False))
+    )
+    def test_merge_identity(self, db_session, attach_dataset, orig, merge):
         """Test index map merge with an empty map
 
-        We test two cases: one merging a map into an empty map, and then
-        merging an empty map into an existing map.
+        We test four cases: one merging a map into an empty map, then merging
+        an empty map into an existing map, merging a map into itself, and
+        finally merging two empty maps.
 
-        In either case the result should be the single map.
+        In "empty into empty" the result should be empty; in all other cases
+        the result should be the single map.
         """
 
         map = {
@@ -110,19 +114,24 @@ class TestIndexMapDB:
         drb = Dataset.query(name="drb")
         assert not IndexMap.exists(drb)
 
-        if to:
+        if orig:
             IndexMap.create(drb, map)
-            IndexMap.merge(drb, {})
-        else:
-            IndexMap.merge(drb, map)
 
-        assert sorted(IndexMap.stream(drb), key=lambda i: (i.id, i.index)) == [
-            IndexStream("prefix.run-data.2023-07", "id1"),
-            IndexStream("prefix.run-data.2023-07", "id2"),
-            IndexStream("prefix.run-sample.2023-06", "id3"),
-            IndexStream("prefix.run-sample.2023-06", "id4"),
-            IndexStream("prefix.run-data.2023-06", "id8"),
-        ]
+        if merge:
+            IndexMap.merge(drb, map)
+        else:
+            IndexMap.merge(drb, {})
+
+        if orig or merge:
+            assert sorted(IndexMap.stream(drb), key=lambda i: (i.id, i.index)) == [
+                IndexStream("prefix.run-data.2023-07", "id1"),
+                IndexStream("prefix.run-data.2023-07", "id2"),
+                IndexStream("prefix.run-sample.2023-06", "id3"),
+                IndexStream("prefix.run-sample.2023-06", "id4"),
+                IndexStream("prefix.run-data.2023-06", "id8"),
+            ]
+        else:
+            assert list(IndexMap.stream(drb)) == []
 
     @pytest.mark.parametrize(
         "source,expected,message",

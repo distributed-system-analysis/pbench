@@ -133,8 +133,10 @@ class IndexMap(Database.Base):
         Generally the root and index names won't overlap, but we allow for that
         just in case.
 
-        We expect to update the database and SQLAlchemy's change detection is
-        shallow: to be safe, we start with a deep copy of the current map.
+        This does not de-dup document IDs: the use case for this method is to
+        merge a map containing "tool-data-{name}" indices from a tool index
+        pass into a previous general indexing map that will not contain
+        "tool-data-{name}" indices.
 
         Args:
             merge_map: an index map to merge into the indexer map attribute
@@ -190,6 +192,9 @@ class IndexMap(Database.Base):
                 changed = old_indices & new_indices
                 for i in changed:
                     model = map[r][i][0]  # Always update the first
+
+                    # The deep copy ensures that SQLAlchemy will notice the
+                    # change and update the DB row.
                     x = copy.deepcopy(model.documents)
                     x.extend(merge_map[r][i])
                     model.documents = x
@@ -256,7 +261,7 @@ class IndexMap(Database.Base):
             IndexMapNotFound: the specified template doesn't exist
 
         Returns:
-            A stream of index info, or None if there's no index map
+            A stream of index info
         """
         try:
             indices: Iterator[IndexMap] = (

@@ -357,6 +357,13 @@ class IntakeBase(ApiBase):
                         hash_md5.update(chunk)
             except OSError as exc:
                 if exc.errno == errno.ENOSPC:
+                    usage = shutil.disk_usage(tar_full_path.parent)
+                    current_app.logger.error(
+                        "Archive filesystem is {:.3}% full, upload failure {} ({})",
+                        float(usage.used) / float(usage.total) * 100.0,
+                        dataset.name,
+                        humanize.naturalsize(stream.length),
+                    )
                     raise APIAbort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space")
                 raise APIInternalError(
                     f"Unexpected error encountered during file upload: {str(exc)!r} "
