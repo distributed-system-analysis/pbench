@@ -1,6 +1,6 @@
 import copy
 from dataclasses import dataclass
-from typing import Iterator, NewType, Optional
+from typing import Iterator, NewType
 
 from sqlalchemy import Column, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -23,40 +23,33 @@ class IndexMapSqlError(IndexMapError):
     """SQLAlchemy errors reported through IndexMap operations.
 
     The exception will identify the base name of the Elasticsearch index,
-    along with the operation being attempted; the __cause__ will specify the
-    original SQLAlchemy exception.
+    along with the operation being attempted.
     """
 
     def __init__(self, operation: str, dataset: Dataset, name: str, cause: str):
-        self.operation = operation
         self.dataset = dataset.name if dataset else "unknown"
+        super().__init__(f"Error {operation} index {self.dataset}:{name}: {cause}")
+        self.operation = operation
         self.name = name
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Error {self.operation} index {self.dataset}:{self.name}: {self.cause}"
 
 
 class IndexMapDuplicate(IndexMapError):
     """Attempt to commit a duplicate IndexMap id."""
 
     def __init__(self, name: str, cause: str):
+        super().__init__(f"Duplicate index map {name!r}: {cause!r}")
         self.name = name
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Duplicate index map {self.name!r}: {self.cause}"
 
 
 class IndexMapMissingParameter(IndexMapError):
     """Attempt to commit a IndexMap with missing parameters."""
 
     def __init__(self, name: str, cause: str):
+        super().__init__(f"Missing required parameters in {name!r}: {cause}")
         self.name = name
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Missing required parameters in {self.name!r}: {self.cause}"
 
 
 @dataclass
@@ -95,11 +88,21 @@ class IndexMap(Database.Base):
         A simple factory method to construct a set of new index rows from a
         JSON document.
 
-        The source JSON document has a nested structure such as
+        The source JSON document has a nested structure associating a set of
+        "root index" names (such as "run-toc") with a set of fully qualified
+        index names (with prefix and timeseries date suffix) such as
+        "prefix.run-toc.2023-07", where each fully qualified index name has
+        a list of document IDs:
 
         {
-            {"r1": {"i1": ["d1", "d2", ...], "i2": ["d3", "d4", ...]}},
-            {"r2": {"ir1": ["dr1", "dr2", ...], "ir2": ["dr3", "dr4", ...]}},
+            "root-a": {
+                "index-a.1": ["id1", "id2", ...],
+                "index-a.2": ["id3", "id4", ...]
+            },
+            "root-b": {
+                "index-b.1": ["id5", "id6", ...],
+                "index-b.2": ["id7", "id8", ...]
+            }
         }
 
         We usually iterate through all document IDs for a particular root
@@ -144,7 +147,23 @@ class IndexMap(Database.Base):
                 .all()
             )
 
-            old_roots = set(i.root for i in indices)
+            # Cross reference the list of IndexMap entries by root and full
+            # index name in a structure similar to IndexMapType. (But the
+            # leaf nodes point back to the DB model objects to allow updating
+            # them.) Note that we allow for a list of IndexMap model objects
+            # for each fully qualified index name although in theory that
+            # shouldn't happen.
+            map: dict[str, dict[str, list[IndexMap]]] = {}
+            for i in indices:
+                if i.root in map.keys():
+                    if i.index in map[i.root].keys():
+                        map[i.root][i.index].append(i)
+                    else:
+                        map[i.root][i.index] = [i]
+                else:
+                    map[i.root] = {i.index: [i]}
+
+            old_roots = set(map.keys())
             new_roots = set(merge_map.keys())
 
             # Any new roots can just be added to the table
@@ -156,7 +175,7 @@ class IndexMap(Database.Base):
 
             # Roots in both need to be merged
             for r in old_roots & new_roots:
-                old_indices = set(i.index for i in indices if i.root == r)
+                old_indices = set(map[r].keys())
                 new_indices = set(merge_map[r].keys())
 
                 # New indices can be added to the table
@@ -168,21 +187,20 @@ class IndexMap(Database.Base):
                     )
 
                 # Indices in both need to merge the document ID lists
-                for i in old_indices & new_indices:
-                    for index in indices:
-                        if index.index == i:
-                            x = copy.deepcopy(index.documents)
-                            x.extend(merge_map[r][i])
-                            index.documents = x
+                changed = old_indices & new_indices
+                for i in changed:
+                    model = map[r][i][0]  # Always update the first
+                    x = copy.deepcopy(model.documents)
+                    x.extend(merge_map[r][i])
+                    model.documents = x
         except SQLAlchemyError as e:
             raise IndexMapSqlError("merge", dataset, "all", str(e))
 
         cls.commit(dataset, "merge")
 
     @staticmethod
-    def indices(dataset: Dataset, root: str) -> list[str]:
-        """
-        Return the indices matching the specified root index name.
+    def indices(dataset: Dataset, root: str) -> Iterator[str]:
+        """Return the indices matching the specified root index name.
 
         Args:
             dataset: Dataset object
@@ -192,7 +210,7 @@ class IndexMap(Database.Base):
             IndexMapSqlError: problem interacting with Database
 
         Returns:
-            A list of indices matching the root index name
+            The index names matching the root index name
         """
         try:
             map = (
@@ -203,7 +221,7 @@ class IndexMap(Database.Base):
         except SQLAlchemyError as e:
             raise IndexMapSqlError("finding", dataset, root, str(e))
 
-        return [i.index for i in map]
+        return (i.index for i in map)
 
     @staticmethod
     def exists(dataset: Dataset) -> bool:
@@ -220,14 +238,14 @@ class IndexMap(Database.Base):
             c = (
                 Database.db_session.query(IndexMap)
                 .filter(IndexMap.dataset == dataset)
-                .first()
+                .count()
             )
             return bool(c)
         except SQLAlchemyError as e:
             raise IndexMapSqlError("checkexist", dataset, "any", str(e))
 
     @staticmethod
-    def stream(dataset: Dataset) -> Optional[Iterator[IndexStream]]:
+    def stream(dataset: Dataset) -> Iterator[IndexStream]:
         """Stream the index and document ID data
 
         Args:
@@ -247,7 +265,7 @@ class IndexMap(Database.Base):
                 .all()
             )
         except SQLAlchemyError as e:
-            raise IndexMapSqlError("reporting", dataset, "all", str(e))
+            raise IndexMapSqlError("streaming", dataset, "all", str(e))
 
         for m in indices:
             for id in m.documents:
@@ -281,9 +299,9 @@ class IndexMap(Database.Base):
         # Postgres engine returns (code, message) but sqlite3 engine only
         # returns (message); so always take the last element.
         cause = exception.orig.args[-1]
-        if cause.find("UNIQUE constraint") != -1:
+        if "UNIQUE constraint" in cause:
             return IndexMapDuplicate(index, cause)
-        elif cause.find("NOT NULL constraint") != -1:
+        elif "NOT NULL constraint" in cause:
             return IndexMapMissingParameter(index, cause)
         return exception
 

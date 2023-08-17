@@ -27,8 +27,8 @@ class TestIndexMapDB:
         assert IndexMap.exists(drb) is False
         IndexMap.create(drb, map)
         assert IndexMap.exists(drb) is True
-        assert IndexMap.indices(drb, "run-toc") == list(map["run-toc"].keys())
-        assert sorted(list(IndexMap.stream(drb)), key=lambda s: s.id) == [
+        assert list(IndexMap.indices(drb, "run-toc")) == list(map["run-toc"].keys())
+        assert sorted(IndexMap.stream(drb), key=lambda s: s.id) == [
             IndexStream("prefix.run-data.2023-07", "id1"),
             IndexStream("prefix.run-data.2023-07", "id2"),
             IndexStream("prefix.run-toc.2023-06", "id3"),
@@ -37,69 +37,91 @@ class TestIndexMapDB:
             IndexStream("prefix.run-toc.2023-07", "id6"),
         ]
 
-    def test_merge(self, db_session, attach_dataset):
-        """Test index map merge"""
+    @pytest.mark.parametrize("m1,m2", ((0, 1), (1, 0)))
+    def test_merge(self, db_session, attach_dataset, m1, m2):
+        """Test index map merge
 
-        map1 = {
-            "run-data": {"prefix.run-data.2023-07": ["id1", "id2"]},
-            "run-toc": {
-                "prefix.run-toc.2023-06": ["id3", "id4"],
-                "prefix.run-toc.2023-07": ["id5", "id6"],
-            },
-        }
-        map2 = {
-            "run-data": {"prefix.run-data.2023-06": ["id8", "id9"]},
-            "run-toc": {
-                "prefix.run-toc.2023-06": ["id10", "id12", "id13", "id14"],
-                "prefix.run-toc.2023-08": ["id20", "id21"],
-            },
-            "run-sample": {"prefix.run-sample.2023-08": ["id22", "id23"]},
-        }
-        drb = Dataset.query(name="drb")
-        IndexMap.create(drb, map1)
-        IndexMap.merge(drb, map2)
-
-        map = list(IndexMap.stream(drb))
-        ids = [m.id for m in map]
-        indices = set(m.index for m in map)
-        assert sorted(indices) == [
-            "prefix.run-data.2023-06",
-            "prefix.run-data.2023-07",
-            "prefix.run-sample.2023-08",
-            "prefix.run-toc.2023-06",
-            "prefix.run-toc.2023-07",
-            "prefix.run-toc.2023-08",
-        ]
-        assert sorted(ids) == [
-            "id1",
-            "id10",
-            "id12",
-            "id13",
-            "id14",
-            "id2",
-            "id20",
-            "id21",
-            "id22",
-            "id23",
-            "id3",
-            "id4",
-            "id5",
-            "id6",
-            "id8",
-            "id9",
-        ]
-
-    def test_merge_none(self, db_session, attach_dataset):
-        """Test index map merge with no existing map
-
-        The result should be the new map.
+        We merge "a into b" and "b into a" ... the results should be identical.
         """
 
-        map = {"run-data": {"prefix.run-data.2023-06": ["id8"]}}
+        maps = [
+            {
+                "run-data": {"prefix.run-data.2023-07": ["id1", "id2"]},
+                "run-toc": {
+                    "prefix.run-toc.2023-06": ["id3", "id4"],
+                    "prefix.run-toc.2023-07": ["id5", "id6"],
+                },
+                "funky-data": {"prefix.funky-data.1918-02": ["id1", "id2"]},
+            },
+            {
+                "run-data": {"prefix.run-data.2023-06": ["id8", "id9"]},
+                "run-toc": {
+                    "prefix.run-toc.2023-06": ["id10", "id12", "id13", "id14"],
+                    "prefix.run-toc.2023-08": ["id20", "id21"],
+                },
+                "run-sample": {"prefix.run-sample.2023-08": ["id22", "id23"]},
+            },
+        ]
+        dataset = Dataset.query(name="drb")
+        assert not IndexMap.exists(dataset)
+        assert list(IndexMap.stream(dataset)) == []
+
+        IndexMap.create(dataset, maps[m1])
+        IndexMap.merge(dataset, maps[m2])
+
+        assert sorted(IndexMap.stream(dataset), key=lambda i: (i.id, i.index)) == [
+            IndexStream("prefix.funky-data.1918-02", "id1"),
+            IndexStream("prefix.run-data.2023-07", "id1"),
+            IndexStream("prefix.run-toc.2023-06", "id10"),
+            IndexStream("prefix.run-toc.2023-06", "id12"),
+            IndexStream("prefix.run-toc.2023-06", "id13"),
+            IndexStream("prefix.run-toc.2023-06", "id14"),
+            IndexStream("prefix.funky-data.1918-02", "id2"),
+            IndexStream("prefix.run-data.2023-07", "id2"),
+            IndexStream("prefix.run-toc.2023-08", "id20"),
+            IndexStream("prefix.run-toc.2023-08", "id21"),
+            IndexStream("prefix.run-sample.2023-08", "id22"),
+            IndexStream("prefix.run-sample.2023-08", "id23"),
+            IndexStream("prefix.run-toc.2023-06", "id3"),
+            IndexStream("prefix.run-toc.2023-06", "id4"),
+            IndexStream("prefix.run-toc.2023-07", "id5"),
+            IndexStream("prefix.run-toc.2023-07", "id6"),
+            IndexStream("prefix.run-data.2023-06", "id8"),
+            IndexStream("prefix.run-data.2023-06", "id9"),
+        ]
+
+    @pytest.mark.parametrize("to", (False, True))
+    def test_merge_none(self, db_session, attach_dataset, to):
+        """Test index map merge with an empty map
+
+        We test two cases: one merging a map into an empty map, and then
+        merging an empty map into an existing map.
+
+        In either case the result should be the single map.
+        """
+
+        map = {
+            "run-data": {
+                "prefix.run-data.2023-06": ["id8"],
+                "prefix.run-data.2023-07": ["id1", "id2"],
+            },
+            "run-sample": {"prefix.run-sample.2023-06": ["id3", "id4"]},
+        }
         drb = Dataset.query(name="drb")
-        IndexMap.merge(drb, map)
-        assert list(IndexMap.stream(drb)) == [
-            IndexStream("prefix.run-data.2023-06", "id8")
+        assert not IndexMap.exists(drb)
+
+        if to:
+            IndexMap.create(drb, map)
+            IndexMap.merge(drb, {})
+        else:
+            IndexMap.merge(drb, map)
+
+        assert sorted(IndexMap.stream(drb), key=lambda i: (i.id, i.index)) == [
+            IndexStream("prefix.run-data.2023-07", "id1"),
+            IndexStream("prefix.run-data.2023-07", "id2"),
+            IndexStream("prefix.run-sample.2023-06", "id3"),
+            IndexStream("prefix.run-sample.2023-06", "id4"),
+            IndexStream("prefix.run-data.2023-06", "id8"),
         ]
 
     @pytest.mark.parametrize(
@@ -221,3 +243,16 @@ class TestIndexMapDB:
         with pytest.raises(IndexMapSqlError) as e:
             IndexMap.exists(drb)
         assert str(e.value) == "Error checkexist index drb:any: That was easy"
+
+    def test_stream_fail(self, monkeypatch, db_session, attach_dataset):
+        """Test index stream failure"""
+
+        def fake_query(db_type):
+            raise SQLAlchemyError("That was easy")
+
+        drb = Dataset.query(name="drb")
+        monkeypatch.setattr(Database.db_session, "query", fake_query)
+
+        with pytest.raises(IndexMapSqlError) as e:
+            [i for i in IndexMap.stream(drb)]
+        assert str(e.value) == "Error streaming index drb:all: That was easy"

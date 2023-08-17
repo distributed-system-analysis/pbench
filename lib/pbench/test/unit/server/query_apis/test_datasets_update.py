@@ -37,7 +37,7 @@ class TestDatasetsUpdate:
         expected_results = []
         expected_ids = []
 
-        for _r, indices in map.items():
+        for indices in map.values():
             first = True
             for index, docids in indices.items():
                 for docid in docids:

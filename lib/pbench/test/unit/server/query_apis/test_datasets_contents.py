@@ -493,7 +493,7 @@ class TestDatasetsContents(Commons):
 
     def test_get_index(self, attach_dataset, provide_metadata):
         drb = Dataset.query(name="drb")
-        indices = self.cls_obj.get_index(drb, self.index_from_metadata)
+        indices = self.cls_obj.get_index(drb, self.root_index)
         assert indices == "unit-test.v6.run-toc.2020-05"
 
     @pytest.mark.parametrize("name", ("wrong", ""))

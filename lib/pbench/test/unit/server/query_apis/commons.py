@@ -61,7 +61,7 @@ class Commons:
         self.bad_date_payload = bad_date_payload
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
-        self.index_from_metadata = index_from_metadata
+        self.root_index = index_from_metadata
 
     def build_index(self, server_config, dates):
         """Build the index list for query.
@@ -84,7 +84,7 @@ class Commons:
             index name.
         """
         drb = Dataset.query(name="drb")
-        index_keys = IndexMap.indices(drb, self.index_from_metadata)
+        index_keys = IndexMap.indices(drb, self.root_index)
         return "/" + ",".join(index_keys)
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:
@@ -434,7 +434,7 @@ class Commons:
         """Check that an exception in calling Elasticsearch is reported
         correctly.
         """
-        if self.index_from_metadata:
+        if self.root_index:
             index = self.build_index_from_metadata()
         else:
             index = self.build_index(
@@ -467,7 +467,7 @@ class Commons:
         response.raise_for_status() and Pbench handlers.
         """
 
-        if self.index_from_metadata:
+        if self.root_index:
             index = self.build_index_from_metadata()
         else:
             index = self.build_index(

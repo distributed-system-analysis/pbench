@@ -85,28 +85,16 @@ class FakeIndexMap:
     def exists(dataset: FakeDataset) -> bool:
         return bool(__class__.index_map)
 
-    @staticmethod
-    def find(dataset: FakeDataset, index: str) -> dict[str, list[str]]:
-        return {
-            i: d
-            for i, d in __class__.index_map.get(dataset.name, {}).items()
-            if i.startswith(index)
-        }
+    @classmethod
+    def create(cls, dataset: FakeDataset, map: IndexMapType):
+        cls.index_map[dataset.name] = map
 
-    @staticmethod
-    def create(dataset: FakeDataset, map: JSONOBJECT) -> JSONOBJECT:
-        __class__.index_map[dataset.name] = map
-        return map
-
-    def add(self):
-        pass
-
-    @staticmethod
-    def merge(dataset: Dataset, new_map: IndexMapType):
+    @classmethod
+    def merge(cls, dataset: Dataset, new_map: IndexMapType):
         if dataset.name not in __class__.index_map:
-            __class__.index_map[dataset.name] = new_map
+            cls.index_map[dataset.name] = new_map
         else:
-            map = __class__.index_map[dataset.name]
+            map = cls.index_map[dataset.name]
             for r, i in new_map.items():
                 if r not in map:
                     map[r] = i
@@ -116,10 +104,6 @@ class FakeIndexMap:
                             map[r][i] = d
                         else:
                             map[r][i].extend(new_map[r][i])
-
-    @classmethod
-    def reset(cls):
-        cls.index_map = {}
 
 
 class FakePbenchTemplates:

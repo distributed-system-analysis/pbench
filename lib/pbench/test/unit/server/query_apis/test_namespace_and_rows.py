@@ -761,17 +761,23 @@ class TestSampleValues(Commons):
             }
 
     def test_get_index(self, attach_dataset, provide_metadata):
+        """Test various 'get_index' cases"""
+
+        # provide_metadata adds a small index map to the "drb" dataset; verify
+        # the expected index.
         drb = Dataset.query(name="drb")
-        indices = self.cls_obj.get_index(drb, self.index_from_metadata)
+        indices = self.cls_obj.get_index(drb, "result-data-sample")
         assert indices == "unit-test.v5.result-data-sample.2020-08"
 
-    def test_get_index_none(self, attach_dataset):
         test = Dataset.query(name="test")
+        assert not IndexMap.exists(test)
 
-        # No index map at all for dataset
-        assert self.cls_obj.get_index(test, self.index_from_metadata) == ""
+        # The "test" dataset has no index map initially; verify that we get
+        # no indices.
+        assert self.cls_obj.get_index(test, "result-data-sample") == ""
 
-        # An index map that doesn't contain the desired root
+        # Add an index that doesn't have the desired root name, and verify that
+        # we still don't find a match.
         IndexMap.create(
             dataset=test,
             map={
@@ -780,18 +786,19 @@ class TestSampleValues(Commons):
                 }
             },
         )
-        assert self.cls_obj.get_index(test, self.index_from_metadata) == ""
+        assert self.cls_obj.get_index(test, "result-data-sample") == ""
 
-        # An index map that contains the desired root plus others
-        IndexMap.create(
+        # Add an index with the expected root, and verify that we get the one
+        # matching index name.
+        IndexMap.merge(
             dataset=test,
-            map={
+            merge_map={
                 "result-data-sample": {
                     "unit-test.v6.result-data-sample.2020-08": ["random_md5_string1"]
                 }
             },
         )
         assert (
-            self.cls_obj.get_index(test, self.index_from_metadata)
+            self.cls_obj.get_index(test, "result-data-sample")
             == "unit-test.v6.result-data-sample.2020-08"
         )
