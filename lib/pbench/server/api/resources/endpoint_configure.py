@@ -124,7 +124,9 @@ class EndpointConfig(ApiBase):
             "identification": f"Pbench server {self.server_config.COMMIT_ID}",
             "uri": templates,
             "visualization": {
-                "benchmarks": [m.lower() for m in BenchmarkName.__members__.keys()]
+                "benchmarks": sorted(
+                    m.lower() for m in BenchmarkName.__members__.keys()
+                )
             },
         }
 
