@@ -54,7 +54,7 @@ class TestEndpointConfig:
         uri = urljoin(host, uri_prefix)
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
-            "visualization": {"benchmarks": ["uperf"]},
+            "visualization": {"benchmarks": ["fio", "uperf"]},
             "uri": {
                 "datasets": {
                     "template": f"{uri}/datasets/{{dataset}}",
