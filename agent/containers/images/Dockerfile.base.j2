@@ -4,6 +4,15 @@
 # {{ distro_name }} pbench-agent base image
 FROM {{ image_repo }}/{{ image_name }}:{{ image_tag }}
 
+# Since the Pbench Server requires TLS access and it is hosted on an internal
+# Red Hat host, we need the Red Hat CA certificates in order to validate the
+# connection to it when we upload results.
+ADD \
+    https://certs.corp.redhat.com/certs/2015-IT-Root-CA.pem \
+    https://certs.corp.redhat.com/certs/2022-IT-Root-CA.pem \
+    /etc/pki/ca-trust/source/anchors/
+RUN update-ca-trust
+
 # Install the appropriate pbench repository file for {{ distro_name }}.
 COPY ./{{ pbench_repo_file }} /etc/yum.repos.d/pbench.repo
 
