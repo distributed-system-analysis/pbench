@@ -7,11 +7,8 @@ ENTRYPOINT ["/container_entrypoint"]
 {% endif %}
 
 {% if kind in ('tools', 'all') %}
-{% if distro.startswith('fedora') or distro == 'centos-7' or distro == 'centos-8' %}
-COPY ./{{ distro }}-pcp.repo /etc/yum.repos.d/pcp.repo
-{% if distro.startswith('centos') %}
+{% if distro == 'centos-7' or distro == 'centos-8' %}
 COPY ./{{ distro }}-prometheus.repo /etc/yum.repos.d/prometheus.repo
-{% endif %}
 {% endif %}
 {% endif %}
 
