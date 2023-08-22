@@ -146,25 +146,12 @@ class TestInternalMetadata:
     def test_server_full(self, provide_metadata):
         ds = Dataset.query(name="drb")
         metadata = Metadata.getvalue(ds, "server")
-        assert metadata == {
-            "deletion": "2022-12-26",
-            "index-map": {
-                "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
-                "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
-                "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
-            },
-        }
+        assert metadata == {"deletion": "2022-12-26"}
 
     def test_server_keys(self, provide_metadata):
         ds = Dataset.query(name="drb")
         metadata = Metadata.getvalue(ds, "server.deletion")
         assert metadata == "2022-12-26"
-        metadata = Metadata.getvalue(ds, "server.index-map")
-        assert metadata == {
-            "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
-            "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
-            "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
-        }
         metadata = Metadata.getvalue(ds, "server.webbwantsthistest")
         assert metadata is None
 

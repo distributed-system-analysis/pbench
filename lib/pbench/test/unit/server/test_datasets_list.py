@@ -895,11 +895,6 @@ class TestDatasetsList:
                 "global": {"contact": None, "legacy": {"server": None}},
                 "server": {
                     "deletion": None,
-                    "index-map": {
-                        "unit-test.v5.result-data-sample.2020-08": None,
-                        "unit-test.v6.run-data.2020-08": None,
-                        "unit-test.v6.run-toc.2020-05": None,
-                    },
                     "origin": None,
                 },
             }
@@ -1006,11 +1001,6 @@ class TestDatasetsList:
                 "global": {"contact": None},
                 "server": {
                     "deletion": None,
-                    "index-map": {
-                        "unit-test.v5.result-data-sample.2020-08": None,
-                        "unit-test.v6.run-data.2020-08": None,
-                        "unit-test.v6.run-toc.2020-05": None,
-                    },
                 },
             },
         }

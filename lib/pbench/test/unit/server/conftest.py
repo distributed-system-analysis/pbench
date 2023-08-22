@@ -9,7 +9,7 @@ import re
 import shutil
 from stat import ST_MTIME
 import tarfile
-from typing import Dict, Optional
+from typing import Dict, Iterator, Optional
 import uuid
 
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -29,6 +29,7 @@ from pbench.server.database import init_db
 from pbench.server.database.database import Database
 from pbench.server.database.models.api_keys import APIKey
 from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.index_map import IndexMap, IndexStream
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
 from pbench.test import on_disk_config
@@ -460,13 +461,14 @@ def provide_metadata(attach_dataset):
     Metadata.setvalue(
         dataset=drb, key=Metadata.SERVER_DELETION, value="2022-12-25 00:00-04:00"
     )
-    Metadata.setvalue(
+    IndexMap.create(
         dataset=drb,
-        key="server.index-map",
-        value={
-            "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
-            "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
-            "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
+        map={
+            "run-data": {"unit-test.v6.run-data.2020-08": ["random_md5_string1"]},
+            "result-data-sample": {
+                "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"]
+            },
+            "run-toc": {"unit-test.v6.run-toc.2020-05": ["random_md5_string1"]},
         },
     )
     Metadata.create(
@@ -506,7 +508,7 @@ def provide_metadata(attach_dataset):
 @pytest.fixture()
 def get_document_map(monkeypatch, attach_dataset):
     """
-    Mock a Metadata get call to return an Elasticsearch document index
+    Mock the index map to return an Elasticsearch document index
     without requiring a DB query.
 
     Args:
@@ -514,19 +516,29 @@ def get_document_map(monkeypatch, attach_dataset):
         attach_dataset:  create a mock Dataset object
     """
     mapping = {
-        "unit-test.v6.run-data.2021-06": [uuid.uuid4().hex],
-        "unit-test.v6.run-toc.2021-06": [uuid.uuid4().hex for _ in range(10)],
-        "unit-test.v5.result-data-sample.2021-06": [
-            uuid.uuid4().hex for _ in range(20)
-        ],
+        "run-data": {"unit-test.v6.run-data.2021-06": [uuid.uuid4().hex]},
+        "run-toc": {
+            "unit-test.v6.run-toc.2021-06": [uuid.uuid4().hex for _ in range(10)]
+        },
+        "result-data-sample": {
+            "unit-test.v5.result-data-sample.2021-06": [
+                uuid.uuid4().hex for _ in range(20)
+            ]
+        },
     }
 
-    def get_document_map(dataset: Dataset, key: str) -> Metadata:
-        assert key == Metadata.INDEX_MAP
-        return mapping
+    def exist_map(dataset: Dataset) -> bool:
+        return True
+
+    def stream_map(dataset: Dataset) -> Iterator[IndexStream]:
+        for i in mapping.values():
+            for idx, ids in i.items():
+                for id in ids:
+                    yield IndexStream(idx, id)
 
     with monkeypatch.context() as m:
-        m.setattr(Metadata, "getvalue", get_document_map)
+        m.setattr(IndexMap, "stream", stream_map)
+        m.setattr(IndexMap, "exists", exist_map)
         yield mapping
 
 

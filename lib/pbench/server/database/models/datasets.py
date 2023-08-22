@@ -323,6 +323,9 @@ class Dataset(Database.Base):
     operations = relationship(
         "Operation", back_populates="dataset", cascade="all, delete-orphan"
     )
+    indices = relationship(
+        "IndexMap", back_populates="dataset", cascade="all, delete-orphan"
+    )
 
     TARBALL_SUFFIX = ".tar.xz"
 
@@ -640,17 +643,6 @@ class Metadata(Database.Base):
     #       "ctrl/example__2021.05.21T07.15.27.tar.xz"
     # }
     TARBALL_PATH = "server.tarball-path"
-
-    # INDEX_MAP a dict recording the set of MD5 document IDs for each
-    # Elasticsearch index that contains documents for this dataset.
-    #
-    # {
-    #    "server.index-map": {
-    #      "drb.v6.run-data.2021-07": ["MD5"],
-    #      "drb.v6.run-toc.2021-07": ["MD5-1", "MD5-2"]
-    #    }
-    # }
-    INDEX_MAP = "server.index-map"
 
     # --- Standard Metadata keys
 

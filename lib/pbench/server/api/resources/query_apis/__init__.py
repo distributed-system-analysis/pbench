@@ -10,7 +10,7 @@ from urllib.request import Request
 
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
-from elasticsearch import Elasticsearch, helpers, VERSION
+from elasticsearch import Elasticsearch, helpers
 from flask import current_app, jsonify
 from flask.wrappers import Response
 import requests
@@ -40,6 +40,7 @@ from pbench.server.database.models.datasets import (
     Operation,
     OperationState,
 )
+from pbench.server.database.models.index_map import IndexMap, IndexStream
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
 
@@ -572,7 +573,7 @@ class ElasticBulkBase(ApiBase):
         params: ApiParams,
         dataset: Dataset,
         context: ApiContext,
-        map: dict[str, list[str]],
+        map: Iterator[IndexStream],
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk operation actions driven by the
@@ -591,7 +592,7 @@ class ElasticBulkBase(ApiBase):
             params: Type-normalized client request body JSON
             dataset: The associated Dataset object
             context: The operation's ApiContext
-            map: Elasticsearch index document map
+            map: Elasticsearch index document map generator
 
         Returns:
             Sequence of Elasticsearch bulk action dict objects
@@ -773,14 +774,12 @@ class ElasticBulkBase(ApiBase):
                 f"Dataset is working on {operation.name.name}",
             )
 
-        map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
-
-        # If we don't have an Elasticsearch index-map, then the dataset isn't
+        # If we don't have an Elasticsearch index map, then the dataset isn't
         # indexed and we skip the Elasticsearch actions.
-        if map:
+        if IndexMap.exists(dataset):
             # Build an Elasticsearch instance to manage the bulk update
             elastic = Elasticsearch(self.elastic_uri)
-            current_app.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
+            map = IndexMap.stream(dataset=dataset)
 
             # NOTE: because both generate_actions and streaming_bulk return
             # generators, the entire sequence is inside a single try block.
@@ -798,7 +797,11 @@ class ElasticBulkBase(ApiBase):
                 raise APIAbort(e.http_status, str(e))
             except Exception as e:
                 raise APIInternalError("Unexpected backend error") from e
-        elif context["attributes"].require_map:
+        elif context["attributes"].require_map and not Metadata.getvalue(
+            dataset, Metadata.SERVER_ARCHIVE
+        ):
+            # If the dataset has no index map, the bulk operation requires one,
+            # and the dataset isn't marked "archive only", fail.
             raise APIAbort(
                 HTTPStatus.CONFLICT,
                 f"Operation unavailable: dataset {dataset.resource_id} is not indexed.",

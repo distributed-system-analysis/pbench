@@ -37,28 +37,29 @@ class TestDatasetsUpdate:
         expected_results = []
         expected_ids = []
 
-        for index in map:
+        for indices in map.values():
             first = True
-            for docid in map[index]:
-                update = {
-                    "_index": index,
-                    "_type": "_doc",
-                    "_id": docid,
-                    "_version": 11,
-                    "result": "noop",
-                    "_shards": {"total": 2, "successful": 2, "failed": 0},
-                    "_seq_no": 10,
-                    "_primary_term": 3,
-                    "status": 200,
-                }
-                if first and partial_fail:
-                    status = False
-                    first = False
-                    update["error"] = {"reason": "Just kidding", "type": "KIDDING"}
-                else:
-                    status = True
-                expected_results.append((status, {"update": update}))
-                expected_ids.append(docid)
+            for index, docids in indices.items():
+                for docid in docids:
+                    update = {
+                        "_index": index,
+                        "_type": "_doc",
+                        "_id": docid,
+                        "_version": 11,
+                        "result": "noop",
+                        "_shards": {"total": 2, "successful": 2, "failed": 0},
+                        "_seq_no": 10,
+                        "_primary_term": 3,
+                        "status": 200,
+                    }
+                    if first and partial_fail:
+                        status = False
+                        first = False
+                        update["error"] = {"reason": "Just kidding", "type": "KIDDING"}
+                    else:
+                        status = True
+                    expected_results.append((status, {"update": update}))
+                    expected_ids.append(docid)
 
         def fake_bulk(
             elastic: elasticsearch.Elasticsearch,
