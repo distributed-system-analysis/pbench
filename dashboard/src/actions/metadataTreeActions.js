@@ -7,19 +7,7 @@ const { getState } = store;
 // Helper functions
 const isChecked = (dataItem, checkedItems) =>
   checkedItems && checkedItems.some((item) => item === dataItem.key);
-const areAllDescendantsChecked = (dataItem, checkedItems) =>
-  dataItem.children
-    ? dataItem.children.every((child) =>
-        areAllDescendantsChecked(child, checkedItems)
-      )
-    : isChecked(dataItem, checkedItems);
-const areSomeDescendantsChecked = (dataItem, checkedItems) =>
-  dataItem.children
-    ? dataItem.children.some((child) =>
-        areSomeDescendantsChecked(child, checkedItems)
-      )
-    : isChecked(dataItem, checkedItems);
-const setTreeViewChecked = (childNodes, isChecked) => {
+const setChildNodes = (childNodes, isChecked) => {
   childNodes.forEach(function iter(a) {
     a.checkProps.checked = isChecked;
     Array.isArray(a.children) && a.children.forEach(iter);
@@ -37,20 +25,24 @@ const updateChildKeysList = (checked, checkedItems, childKeys) =>
     : checkedItems.filter((x) => !childKeys.includes(x));
 
 export const mapTree = (item) => {
-  const checkedItems = getState().overview.checkedItems;
-
-  item.checkProps.checked = areAllDescendantsChecked(item, checkedItems);
-  if (
-    !item.checkProps.checked &&
-    areSomeDescendantsChecked(item, checkedItems)
-  ) {
-    item.checkProps.checked = null;
-  }
-
   const retVal = { ...item };
   if (item.children) {
     retVal.children = item.children.map((child) => mapTree(child));
+    item.checkProps.checked = null;
+    let seen = undefined;
+    for (const c of item.children) {
+      if (c.checkProps.checked == null) {
+        return retVal;
+      } else if (seen === undefined) {
+        seen = c.checkProps.checked;
+      } else if (seen !== c.checkProps.checked) return retVal;
+    }
+    item.checkProps.checked = seen;
+  } else {
+    const checkedItems = getState().overview.checkedItems;
+    item.checkProps.checked = isChecked(item, checkedItems);
   }
+
   return retVal;
 };
 
@@ -64,7 +56,7 @@ export const onCheck =
       const childNodes = treeViewItem.children;
       const childKeys = getCheckedItemsKey(childNodes);
 
-      setTreeViewChecked(childNodes, checked);
+      setChildNodes(childNodes, checked);
       treeViewItem.checkProps.checked = checked;
 
       checkedItems = updateChildKeysList(checked, checkedItems, childKeys);

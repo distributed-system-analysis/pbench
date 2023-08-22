@@ -149,8 +149,16 @@ export const updateDataset =
         );
 
         for (const key in response.data.metadata) {
-          if (key in item.metadata)
+          if (key in item.metadata) {
             item.metadata[key] = response.data.metadata[key];
+            if (checkNestedPath(key, item.metadata)) {
+              item.metadata = setValueFromPath(
+                key,
+                item.metadata,
+                response.data.metadata[key]
+              );
+            }
+          }
         }
         dispatch({
           type: TYPES.USER_RUNS,
@@ -523,3 +531,42 @@ const nonEssentialKeys = [
 
 const isServerInternal = (string) =>
   nonEssentialKeys.some((e) => string.match(e));
+
+/**
+ * Function to update metadata
+ * @function
+ * @param {String} path - nested key to update
+ * @param {Object} obj - nested object
+ * @param {String} obj - new value to be updated in the object
+ * @return {Object} - updated object with new value
+ */
+
+const setValueFromPath = (path, obj, value) => {
+  const [head, ...rest] = path.split(".");
+
+  return {
+    ...obj,
+    [head]: rest.length
+      ? setValueFromPath(rest.join("."), obj[head], value)
+      : value,
+  };
+};
+
+/**
+ * Function to check if the nested object has the given path of key
+ * @function
+ * @param {String} path - path of key
+ * @param {Object} obj - nested object
+ * @return {Boolean} - true/false if the object has/not the key
+ */
+
+const checkNestedPath = function (path, obj = {}) {
+  const args = path.split(".");
+  for (let i = 0; i < args.length; i++) {
+    if (!obj || !obj.hasOwnProperty(args[i])) {
+      return false;
+    }
+    obj = obj[args[i]];
+  }
+  return true;
+};
