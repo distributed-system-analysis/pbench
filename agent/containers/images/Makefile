@@ -238,10 +238,8 @@ repofix: $(_DEFAULT_DISTROS:%=%-repofix)
 	./apply-tags pbench-agent-tools-$* $*-tags.lis
 
 # CentOS 7 & 8 (but not 9) require an additional .repo file for Prometheus for
-# the tools container; analogously, they as well as Fedora require an additional
-# .repo file for PCP.
+# the tools container.
 centos-7-tools centos-8-tools: centos-%-tools: centos-%-prometheus.repo
-$(_ALL_fedora_VERSIONS:%=%-tools) centos-7-tools centos-8-tools: %-tools: %-pcp.repo
 
 %-tools: %-base-tagged %-tools.Dockerfile %-tags.lis
 	./build-image tools $* $*-tags.lis
@@ -397,9 +395,6 @@ all-tags: pkgmgr-clean $(_DEFAULT_DISTROS:%=%-tags.lis)
 	jinja2 repo.yml.j2 -D name=${_PBENCH_REPO_NAME} -D user=${COPR_USER} \
         -D distro=$(if $(filter centos,${DIST_NAME}),$(subst centos,epel,$*),$*) \
         -D url_prefix=${URL_PREFIX} -o $@
-
-%-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D distro=${DIST_NAME} -D version=${DIST_VERSION} -o $@
 
 %-prometheus.repo:
 	curl -sSf "${_PROMETHEUS_REPO_URL}" > $@
