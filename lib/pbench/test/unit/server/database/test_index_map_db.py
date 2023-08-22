@@ -96,12 +96,11 @@ class TestIndexMapDB:
     def test_merge_identity(self, db_session, attach_dataset, orig, merge):
         """Test index map merge with an empty map
 
-        We test four cases: one merging a map into an empty map, then merging
-        an empty map into an existing map, merging a map into itself, and
-        finally merging two empty maps.
+        We test three cases: one merging a map into an empty map, then merging
+        an empty map into an existing map, and finally merging two empty maps.
 
-        In "empty into empty" the result should be empty; in all other cases
-        the result should be the single map.
+        In "empty into empty" the result should be empty; otherwise the result
+        be the single map.
         """
 
         map = {
