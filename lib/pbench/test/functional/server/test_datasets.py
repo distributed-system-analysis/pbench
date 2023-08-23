@@ -772,25 +772,20 @@ class TestUpdate:
     @pytest.mark.parametrize("access", ("public", "private"))
     def test_publish(self, server_client: PbenchServerClient, login_user, access):
         expected = "public" if access == "private" else "private"
-        datasets = server_client.get_list(
-            access=access, mine="true", metadata=["server.archiveonly"]
-        )
+        datasets = server_client.get_list(access=access, mine="true")
         print(f" ... updating {access} datasets to {expected} ...")
         for dataset in datasets:
             response = server_client.update(
                 dataset.resource_id, access=expected, raise_error=False
             )
-            print(f"\t ... updating {dataset.name} to {access!r}")
-            if response.ok:
-                assert not dataset.metadata["server.archiveonly"]
-                meta = server_client.get_metadata(
-                    dataset.resource_id, metadata="dataset.access"
-                )
-                assert meta["dataset.access"] == expected
-            else:
-                assert dataset.metadata[
-                    "server.archiveonly"
-                ], f"Indexed dataset {dataset.name} failed to update with {response.json()['message']}"
+            print(f"\t ... updating {dataset.name} to {expected!r}")
+            assert (
+                response.ok
+            ), f"Indexed dataset {dataset.name} failed to update with {response.json()['message']}"
+            meta = server_client.get_metadata(
+                dataset.resource_id, metadata="dataset.access"
+            )
+            assert meta["dataset.access"] == expected
 
 
 class TestDelete:

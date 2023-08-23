@@ -5,7 +5,13 @@ import elasticsearch
 import pytest
 
 from pbench.server import JSON
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import (
+    Dataset,
+    Metadata,
+    Operation,
+    OperationName,
+    OperationState,
+)
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -141,7 +147,7 @@ class TestDatasetsUpdate:
         self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
     ):
         """
-        Check the datasets_update API if the dataset has no INDEX_MAP. It should
+        Check the update API if the dataset has no index map. It should
         fail with a CONFLICT error.
         """
         self.fake_elastic(monkeypatch, {}, True)
@@ -158,6 +164,55 @@ class TestDatasetsUpdate:
         assert response.json == {
             "message": "Operation unavailable: dataset random_md5_string1 is not indexed."
         }
+
+    def test_archive_only(
+        self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
+    ):
+        """
+        Check the update API if the dataset has no index map but is
+        marked "server.archiveonly". It should succeed without attempting any
+        Elasticsearch operations.
+        """
+        monkeypatch.setattr(Metadata, "getvalue", lambda d, k: True)
+        self.fake_elastic(monkeypatch, {}, True)
+
+        ds = Dataset.query(name="drb")
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
+            query_string=self.PAYLOAD,
+        )
+
+        # Verify the report and status
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {"failure": 0, "ok": 0}
+
+    def test_index_error(
+        self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
+    ):
+        """
+        Check the update API if the dataset has no index map and is
+        showing an indexing operational error which means it won't be indexed.
+        """
+        monkeypatch.setattr(
+            Operation,
+            "by_operation",
+            lambda d, k: Operation(
+                name=OperationName.INDEX, state=OperationState.FAILED
+            ),
+        )
+        self.fake_elastic(monkeypatch, {}, True)
+
+        ds = Dataset.query(name="drb")
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
+            query_string=self.PAYLOAD,
+        )
+
+        # Verify the report and status
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {"failure": 0, "ok": 0}
 
     def test_exception(
         self,

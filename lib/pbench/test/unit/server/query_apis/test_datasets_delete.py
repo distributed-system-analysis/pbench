@@ -7,7 +7,14 @@ import pytest
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.cache_manager import CacheManager
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetNotFound,
+    Metadata,
+    Operation,
+    OperationName,
+    OperationState,
+)
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -197,7 +204,7 @@ class TestDatasetsDelete:
         self, client, monkeypatch, attach_dataset, pbench_drb_token, server_config
     ):
         """
-        Check the delete API if the dataset has no INDEX_MAP. It should
+        Check the delete API if the dataset has no index map. It should
         succeed without tripping over Elasticsearch.
         """
         self.fake_cache_manager(monkeypatch)
@@ -212,6 +219,53 @@ class TestDatasetsDelete:
         assert response.json == {"ok": 0, "failure": 0}
         with pytest.raises(DatasetNotFound):
             Dataset.query(name="drb")
+
+    def test_archive_only(
+        self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
+    ):
+        """
+        Check the delete API if the dataset has no index map but is
+        marked "server.archiveonly". It should succeed without attempting any
+        Elasticsearch operations.
+        """
+        monkeypatch.setattr(Metadata, "getvalue", lambda d, k: True)
+        self.fake_elastic(monkeypatch, {}, True)
+
+        ds = Dataset.query(name="drb")
+        response = client.delete(
+            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
+        )
+
+        # Verify the report and status
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {"failure": 0, "ok": 0}
+
+    def test_index_error(
+        self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
+    ):
+        """
+        Check the delete API if the dataset has no index map and is
+        showing an indexing operational error which means it won't be indexed.
+        """
+        monkeypatch.setattr(
+            Operation,
+            "by_operation",
+            lambda d, k: Operation(
+                name=OperationName.INDEX, state=OperationState.FAILED
+            ),
+        )
+        self.fake_elastic(monkeypatch, {}, True)
+
+        ds = Dataset.query(name="drb")
+        response = client.delete(
+            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
+        )
+
+        # Verify the report and status
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {"failure": 0, "ok": 0}
 
     def test_exception(
         self,
