@@ -25,11 +25,9 @@ from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
     ApiSchema,
-    MissingParameters,
     ParamType,
     SchemaError,
     UnauthorizedAccess,
-    UnauthorizedAdminAccess,
 )
 import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import AuditReason, AuditStatus
@@ -577,8 +575,8 @@ class ElasticBulkBase(ApiBase):
         ignore the requirement (which is to be sure we don't strand the
         Elasticsearch documents).
 
-        There are several factors that might tell use not to expect an index
-        map to appear:
+        We don't expect an index map (and therefore can proceed with a bulk
+        index operation) if:
 
         1) If the dataset is marked with "server.archiveonly", we won't attempt
            to create an index;
@@ -815,7 +813,7 @@ class ElasticBulkBase(ApiBase):
             context["sync"] = sync
         except Exception as e:
             current_app.logger.warning(
-                "{} {} setting {} operational state: '{}'",
+                "{} {} unable to set {} operational state: '{}'",
                 component,
                 dataset,
                 OperationState.WORKING.name,
@@ -847,12 +845,8 @@ class ElasticBulkBase(ApiBase):
                     raise_on_error=False,
                 )
                 report = self._analyze_bulk(results, context)
-            except UnauthorizedAdminAccess as e:
-                raise APIAbort(e.http_status, str(e))
-            except MissingParameters as e:
-                raise APIAbort(e.http_status, str(e))
             except Exception as e:
-                raise APIInternalError("Unexpected backend error") from e
+                raise APIInternalError("Unexpected backend error '{e}'") from e
         elif context["attributes"].require_map and self.expect_index(dataset):
             # If the dataset has no index map, the bulk operation requires one,
             # and we expect one to appear, fail rather than risking abandoning
@@ -874,7 +868,6 @@ class ElasticBulkBase(ApiBase):
 
         # Let the subclass complete the operation
         try:
-            current_app.logger.info(f"{dataset.name} is completing")
             self.complete(dataset, context, summary)
             if "sync" in context:
                 context["sync"].update(dataset=dataset, state=OperationState.OK)

@@ -77,25 +77,27 @@ class Datasets(ElasticBulkBase):
     def prepare(self, params: ApiParams, dataset: Dataset, context: ApiContext):
         """Prepare for the bulk operation
 
-        This is an empty abstract method that can be overridden by a subclass.
+        Process and validate the API query parameters.
 
         Args:
             params: Type-normalized client request body JSON
             dataset: The associated Dataset object
             context: The operation's ApiContext
         """
-        if context["attributes"].action == "update":
-            access = params.query.get("access")
-            owner = params.query.get("owner")
-            if not access and not owner:
-                raise MissingParameters(["access", "owner"])
-            if access:
-                context["access"] = access
-            if owner:
-                authorized_user = Auth.token_auth.current_user()
-                if not authorized_user.is_admin():
-                    raise UnauthorizedAdminAccess(authorized_user, OperationCode.UPDATE)
-                context["owner"] = owner
+
+        if context["attributes"].action != "update":
+            return
+        access = params.query.get("access")
+        owner = params.query.get("owner")
+        if not access and not owner:
+            raise MissingParameters(["access", "owner"])
+        if access:
+            context["access"] = access
+        if owner:
+            authorized_user = Auth.token_auth.current_user()
+            if not authorized_user.is_admin():
+                raise UnauthorizedAdminAccess(authorized_user, OperationCode.UPDATE)
+            context["owner"] = owner
 
     def generate_actions(
         self,
@@ -118,11 +120,8 @@ class Datasets(ElasticBulkBase):
         action = context["attributes"].action
         es_doc = {}
 
-        if action == "update":
-            if "access" in context:
-                es_doc["access"] = context["access"]
-            if "owner" in context:
-                es_doc["owner"] = context["owner"]
+        for field in {"access", "owner"} & set(context):
+            es_doc[field] = context[field]
 
         # Generate a series of bulk operations, which will be passed to
         # the Elasticsearch bulk helper.

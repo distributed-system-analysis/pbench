@@ -15,6 +15,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.database.models.index_map import IndexMap
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -102,6 +103,40 @@ class TestDatasetsDelete:
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
+    def unelastic(self, monkeypatch):
+        """Cause a failure if the bulk action helper is called.
+
+        Args:
+            monkeypatch: The monkeypatch fixture from the test case
+
+        Raises:
+            an unexpected Exception if called
+        """
+
+        def fake_bulk(
+            elastic: elasticsearch.Elasticsearch,
+            stream: Iterator[dict],
+            raise_on_error: bool = True,
+            raise_on_exception: bool = True,
+        ):
+            """
+            Helper function to mock the Elasticsearch helper streaming_bulk API,
+            which will validate the input actions and generate expected responses.
+
+            Args:
+                elastic: An Elasticsearch object
+                stream: The input stream of bulk action dicts
+                raise_on_error: indicates whether errors should be raised
+                raise_on_exception: indicates whether exceptions should propagate
+                    or be trapped
+
+            Raises:
+                Exception
+            """
+            raise Exception("We aren't allowed to be here")
+
+        monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
+
     def fake_cache_manager(self, monkeypatch):
         def fake_constructor(self, options: PbenchServerConfig, logger: Logger):
             pass
@@ -162,7 +197,6 @@ class TestDatasetsDelete:
     def test_partial(
         self,
         client,
-        capinternal,
         get_document_map,
         monkeypatch,
         server_config,
@@ -185,12 +219,11 @@ class TestDatasetsDelete:
         # Verify that the Dataset still exists
         Dataset.query(name="drb")
 
-    def test_no_dataset(
-        self, client, get_document_map, monkeypatch, pbench_drb_token, server_config
-    ):
+    def test_no_dataset(self, client, monkeypatch, pbench_drb_token, server_config):
         """
         Check the delete API if the dataset doesn't exist.
         """
+        self.unelastic(monkeypatch)
         response = client.delete(
             f"{server_config.rest_uri}/datasets/badwolf",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
@@ -207,6 +240,7 @@ class TestDatasetsDelete:
         Check the delete API if the dataset has no index map. It should
         succeed without tripping over Elasticsearch.
         """
+        self.unelastic(monkeypatch)
         self.fake_cache_manager(monkeypatch)
         ds = Dataset.query(name="drb")
         response = client.delete(
@@ -228,8 +262,9 @@ class TestDatasetsDelete:
         marked "server.archiveonly". It should succeed without attempting any
         Elasticsearch operations.
         """
+
+        self.unelastic(monkeypatch)
         monkeypatch.setattr(Metadata, "getvalue", lambda d, k: True)
-        self.fake_elastic(monkeypatch, {}, True)
 
         ds = Dataset.query(name="drb")
         response = client.delete(
@@ -248,6 +283,8 @@ class TestDatasetsDelete:
         Check the delete API if the dataset has no index map and is
         showing an indexing operational error which means it won't be indexed.
         """
+
+        self.unelastic(monkeypatch)
         monkeypatch.setattr(
             Operation,
             "by_operation",
@@ -255,7 +292,6 @@ class TestDatasetsDelete:
                 name=OperationName.INDEX, state=OperationState.FAILED
             ),
         )
-        self.fake_elastic(monkeypatch, {}, True)
 
         ds = Dataset.query(name="drb")
         response = client.delete(
@@ -273,7 +309,6 @@ class TestDatasetsDelete:
         capinternal,
         client,
         monkeypatch,
-        get_document_map,
         pbench_drb_token,
         server_config,
     ):
@@ -293,11 +328,13 @@ class TestDatasetsDelete:
             raise elasticsearch.helpers.BulkIndexError("test")
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
+        monkeypatch.setattr(IndexMap, "exists", lambda d: True)
 
         response = client.delete(
             f"{server_config.rest_uri}/datasets/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         # Verify the failure
         capinternal("Unexpected backend error", response)
