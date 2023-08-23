@@ -23,6 +23,10 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("metadata", CONSTANTS.DATASET_UPLOADED);
     params.append("metadata", CONSTANTS.SERVER_DELETION);
     params.append("metadata", CONSTANTS.USER_FAVORITE);
+    params.append("metadata", "server");
+    params.append("metadata", "dataset");
+    params.append("metadata", "global");
+    params.append("metadata", "user");
 
     params.append("mine", "true");
     dispatch(setSelectedRuns([]));
@@ -38,7 +42,6 @@ export const getDatasets = () => async (dispatch, getState) => {
           type: TYPES.USER_RUNS,
           payload: data,
         });
-
         dispatch(initializeRuns());
       }
     }
@@ -70,7 +73,6 @@ const initializeRuns = () => (dispatch, getState) => {
 
     clearEditableFields(item);
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
-
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
     item[CONSTANTS.IS_ITEM_FAVORITED] =
       !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
@@ -147,8 +149,16 @@ export const updateDataset =
         );
 
         for (const key in response.data.metadata) {
-          if (key in item.metadata)
+          if (key in item.metadata) {
             item.metadata[key] = response.data.metadata[key];
+            if (checkNestedPath(key, item.metadata)) {
+              item.metadata = setValueFromPath(
+                key,
+                item.metadata,
+                response.data.metadata[key]
+              );
+            }
+          }
         }
         dispatch({
           type: TYPES.USER_RUNS,
@@ -406,4 +416,157 @@ export const getEditedMetadata =
 const clearEditableFields = (item) => {
   item[CONSTANTS.IS_DIRTY_NAME] = false;
   item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
+};
+export const setMetadataModal = (isOpen) => ({
+  type: TYPES.SET_METADATA_MODAL,
+  payload: isOpen,
+});
+/**
+ * Function to get keySummary and send to parse data
+ * @function
+ * @param {Function} dispatch - dispatch method of redux store
+ * @param {Function} getState -   getstate method of redux store
+ * @return {Function} - dispatch the action and update the state
+ */
+export const getKeySummary = async (dispatch, getState) => {
+  try {
+    const endpoints = getState().apiEndpoint.endpoints;
+    const response = await API.get(uriTemplate(endpoints, "datasets_list"), {
+      params: { keysummary: true },
+    });
+    if (response.status === 200) {
+      if (response.data.keys) {
+        dispatch(parseKeySummaryforTree(response.data.keys));
+      }
+    }
+  } catch (error) {
+    dispatch(showToast(DANGER, ERROR_MSG));
+  }
+};
+/**
+ * Function to parse keySummary for the Tree View with checkboxes
+ * @function
+ * @param {Object} keySummary - dataset key summary
+ * @return {Function} - dispatch the action and update the state
+ */
+export const parseKeySummaryforTree = (keySummary) => (dispatch, getState) => {
+  const parsedData = [];
+
+  const checkedItems = [...getState().overview.checkedItems];
+
+  for (const [item, subitem] of Object.entries(keySummary)) {
+    const dataObj = { title: item, options: [] };
+
+    for (const [key, value] of Object.entries(subitem)) {
+      const aggregateKey = `${item}${CONSTANTS.KEYS_JOIN_BY}${key}`;
+      if (!isServerInternal(aggregateKey)) {
+        const isChecked = checkedItems.includes(aggregateKey);
+        const obj = constructTreeObj(aggregateKey, isChecked);
+        if (value) {
+          // has children
+          obj["children"] = constructChildTreeObj(
+            aggregateKey,
+            value,
+            checkedItems
+          );
+        }
+        dataObj.options.push(obj);
+      }
+    }
+    parsedData.push(dataObj);
+  }
+  dispatch({
+    type: TYPES.SET_METADATA_CHECKED_KEYS,
+    payload: checkedItems,
+  });
+  dispatch({
+    type: TYPES.SET_TREE_DATA,
+    payload: parsedData,
+  });
+};
+
+const constructChildTreeObj = (aggregateKey, entity, checkedItems) => {
+  const childObj = [];
+  for (const item in entity) {
+    if (!isServerInternal(`${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`)) {
+      const newKey = `${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`;
+      const isParentChecked = checkedItems.includes(aggregateKey);
+
+      const isChecked = isParentChecked || checkedItems.includes(newKey);
+      if (isParentChecked && !checkedItems.includes(newKey)) {
+        checkedItems.push(newKey);
+      }
+      const obj = constructTreeObj(newKey, isChecked);
+
+      if (entity[item]) {
+        obj["children"] = constructChildTreeObj(
+          newKey,
+          entity[item],
+          checkedItems
+        );
+      }
+      childObj.push(obj);
+    }
+  }
+  return childObj;
+};
+
+const constructTreeObj = (aggregateKey, isChecked) => ({
+  name: aggregateKey.split(CONSTANTS.KEYS_JOIN_BY).pop(),
+  key: aggregateKey,
+  id: aggregateKey,
+  checkProps: {
+    "aria-label": `${aggregateKey}-check`,
+    checked: isChecked,
+  },
+});
+
+const nonEssentialKeys = [
+  CONSTANTS.KEY_INDEX_REGEX,
+  CONSTANTS.KEY_OPERATIONS_REGEX,
+  CONSTANTS.KEY_TOOLS_REGEX,
+  CONSTANTS.KEY_ITERATIONS_REGEX,
+  CONSTANTS.KEY_TARBALL_PATH_REGEX,
+];
+
+const isServerInternal = (string) =>
+  nonEssentialKeys.some((e) => string.match(e));
+
+/**
+ * Function to update metadata
+ * @function
+ * @param {String} path - nested key to update
+ * @param {Object} obj - nested object
+ * @param {String} obj - new value to be updated in the object
+ * @return {Object} - updated object with new value
+ */
+
+const setValueFromPath = (path, obj, value) => {
+  const [head, ...rest] = path.split(".");
+
+  return {
+    ...obj,
+    [head]: rest.length
+      ? setValueFromPath(rest.join("."), obj[head], value)
+      : value,
+  };
+};
+
+/**
+ * Function to check if the nested object has the given path of key
+ * @function
+ * @param {String} path - path of key
+ * @param {Object} obj - nested object
+ * @return {Boolean} - true/false if the object has/not the key
+ */
+
+const checkNestedPath = function (path, obj = {}) {
+  const args = path.split(".");
+  for (let i = 0; i < args.length; i++) {
+    if (!obj || !obj.hasOwnProperty(args[i])) {
+      return false;
+    }
+    obj = obj[args[i]];
+  }
+  return true;
 };

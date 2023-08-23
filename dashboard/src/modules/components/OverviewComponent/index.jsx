@@ -17,6 +17,7 @@ import {
   Separator,
 } from "./common-component";
 import React, { useEffect } from "react";
+import { getDatasets, getKeySummary } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import { EmptyTable } from "../TableComponent/common-components";
@@ -24,7 +25,6 @@ import ExpiringSoonComponent from "./ExpiringSoonComponent";
 import NewRunsComponent from "./NewRunsComponent";
 import RelayComponent from "modules/components/RelayUIComponent";
 import SavedRunsComponent from "./SavedRunsComponent";
-import { getDatasets } from "actions/overviewActions";
 
 const OverviewComponent = () => {
   const dispatch = useDispatch();
@@ -38,6 +38,7 @@ const OverviewComponent = () => {
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
       dispatch(getDatasets());
+      dispatch(getKeySummary);
     }
   }, [dispatch, endpoints]);
 
@@ -84,7 +85,7 @@ const OverviewComponent = () => {
                   </AccordionContent>
                 </AccordionItem>
               </GridItem>
-              <GridItem span={8} className="new-runs-container ">
+              <GridItem span={8} className="new-runs-container">
                 <AccordionItem>
                   <AccordionToggle
                     onClick={() => {
