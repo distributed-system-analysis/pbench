@@ -58,7 +58,7 @@ def main(options, name):
             ids = d[:4]
             if (len(d) - 4) > 0:
                 ids.append(f"...{len(d) - 4}")
-            im = IndexMap(m.dataset, root, i, ids)
+            im = IndexMap(dataset=m.dataset, root=root, index=i, documents=ids)
             new_maps.append(im)
             if options.verify:
                 print(f"IndexMap({im.dataset}, {im.root}, {im.index}, {im.documents})")
