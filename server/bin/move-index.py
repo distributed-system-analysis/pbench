@@ -48,20 +48,23 @@ def main(options, name):
     indices = 0
     documents = 0
     for m in idx:
-        datasets.add(m.dataset)
-        for i, d in m.value["index-map"].items():
-            indices += 1
-            match = pattern.match(i)
-            root = match.group(1) if match else "<unknown>"
-            roots.add(root)
-            documents += len(d)
-            ids = d[:4]
-            if (len(d) - 4) > 0:
-                ids.append(f"...{len(d) - 4}")
-            im = IndexMap(dataset=m.dataset, root=root, index=i, documents=ids)
-            new_maps.append(im)
-            if options.verify:
-                print(f"IndexMap({im.dataset}, {im.root}, {im.index}, {im.documents})")
+        if m.value.get("index-map"):
+            datasets.add(m.dataset)
+            for i, d in m.value["index-map"].items():
+                indices += 1
+                match = pattern.match(i)
+                root = match.group(1) if match else "<unknown>"
+                roots.add(root)
+                documents += len(d)
+                ids = d[:4]
+                if (len(d) - 4) > 0:
+                    ids.append(f"...{len(d) - 4}")
+                im = IndexMap(dataset=m.dataset, root=root, index=i, documents=ids)
+                new_maps.append(im)
+                if options.verify:
+                    print(
+                        f"IndexMap({im.dataset}, {im.root}, {im.index}, {im.documents})"
+                    )
     if options.verify:
         print(
             f"{len(datasets)} datasets have {len(roots)} index roots "
