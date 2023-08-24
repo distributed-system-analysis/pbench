@@ -6,7 +6,7 @@ ifaddr
 jinja2
 python-daemon
 python-pidfile
-redis
+redis<5.0.0
 requests
 sh
 state-signals>=1.0.1
