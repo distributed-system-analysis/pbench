@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 from pbench.server import JSONOBJECT
 from pbench.server.database.database import Database
+from pbench.server.database.models import decode_integrity_error
 
 
 class Roles(enum.Enum):
@@ -28,34 +29,33 @@ class UserSqlError(UserError):
     """
 
     def __init__(self, operation: str, params: JSONOBJECT, cause: str):
+        super().__init__(
+            f"Error {self.operation} {self.params!r}: {self.cause}",
+            operation,
+            params,
+            cause,
+        )
         self.operation = operation
         self.params = params
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Error {self.operation} {self.params!r}: {self.cause}"
 
 
 class UserDuplicate(UserError):
     """Attempt to commit a duplicate unique value."""
 
-    def __init__(self, user: "User", cause: str):
+    def __init__(self, user: "User", cause: Exception):
+        super().__init__(f"Duplicate user entry in {user}: {cause}", user, cause)
         self.user = user
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Duplicate user entry in {self.user.get_json()}: {self.cause}"
 
 
 class UserNullKey(UserError):
     """Attempt to commit a User row with an empty required column."""
 
-    def __init__(self, user: "User", cause: str):
+    def __init__(self, user: "User", cause: Exception):
+        super().__init__(f"Missing required key in {user}: {cause}", user, cause)
         self.user = user
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Missing required key in {self.user.get_json()}: {self.cause}"
 
 
 class User(Database.Base):
@@ -149,7 +149,13 @@ class User(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            raise self._decode(e, "adding") from e
+            raise decode_integrity_error(
+                self,
+                e,
+                on_duplicate=UserDuplicate,
+                on_null=UserNullKey,
+                fallback=UserSqlError,
+            ) from e
 
     def update(self, **kwargs):
         """Update the current user object with given keyword arguments."""
@@ -159,7 +165,13 @@ class User(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            raise self._decode(e, "updating") from e
+            raise decode_integrity_error(
+                self,
+                e,
+                on_duplicate=UserDuplicate,
+                on_null=UserNullKey,
+                fallback=UserSqlError,
+            ) from e
 
     def is_admin(self) -> bool:
         """This method checks whether the given user has an admin role.

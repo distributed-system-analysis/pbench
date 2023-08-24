@@ -1,9 +1,11 @@
 import datetime
-from typing import Callable
+from typing import Callable, Optional
 
 from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.types import TypeDecorator
+
+from pbench.server.database.database import Database
 
 
 class TZDateTime(TypeDecorator):
@@ -55,23 +57,31 @@ class TZDateTime(TypeDecorator):
 
 
 def decode_integrity_error(
-    exception: IntegrityError, on_null: Callable, on_duplicate: Callable
+    model: Database.Base,
+    exception: Exception,
+    on_null: Callable[[Database.Base, Exception], Exception],
+    on_duplicate: Callable[[Database.Base, Exception], Exception],
+    fallback: Optional[Callable[[Database.Base, Exception], Exception]] = None,
 ) -> Exception:
 
-    """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-    or NOT NULL constraint violation.
+    """Analyze IntegrityError for recognizable constraint violation
 
-    Return the original exception if it doesn't match.
+    Return a fallback (defaults to original exception) if no match
 
     Args:
-        exception : An IntegrityError to decode
+        exception: An IntegrityError to decode
+        on_null: Constructor to call with (model, exception) if null contraint
+        on_duplicate: Constructor to call with (model, exception) if duplicate
+        fallback: Constructor to call with (model, exception); return original
+            if None
 
     Returns:
         a more specific exception, or the original if decoding fails
     """
-    cause = exception.orig.args[-1]
-    if "UNIQUE constraint" in cause:
-        return on_duplicate(cause)
-    elif "NOT NULL constraint" in cause:
-        return on_null(cause)
-    return exception
+    if isinstance(exception, IntegrityError):
+        cause = exception.orig.args[-1].lower()
+        if "unique constraint" in cause:
+            return on_duplicate(model, exception)
+        elif "not null constraint" in cause:
+            return on_null(model, exception)
+    return exception if not fallback else fallback(model, exception)
