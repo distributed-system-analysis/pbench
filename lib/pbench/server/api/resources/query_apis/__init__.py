@@ -575,8 +575,7 @@ class ElasticBulkBase(ApiBase):
         ignore the requirement (which is to be sure we don't strand the
         Elasticsearch documents).
 
-        We don't expect an index map (and therefore can proceed with a bulk
-        index operation) if:
+        We don't expect an index map if:
 
         1) If the dataset is marked with "server.archiveonly", we won't attempt
            to create an index;

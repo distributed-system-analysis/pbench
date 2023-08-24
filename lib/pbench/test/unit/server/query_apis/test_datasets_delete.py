@@ -120,8 +120,8 @@ class TestDatasetsDelete:
             raise_on_exception: bool = True,
         ):
             """
-            Helper function to mock the Elasticsearch helper streaming_bulk API,
-            which will validate the input actions and generate expected responses.
+            Helper function to mock the Elasticsearch helper streaming_bulk API
+            to throw an exception.
 
             Args:
                 elastic: An Elasticsearch object
