@@ -3,9 +3,11 @@ import "./index.less";
 import {
   DASHBOARD_SEEN,
   DATASET_ACCESS,
+  DEFAULT_PER_PAGE_SAVED,
   IS_ITEM_SEEN,
   NAME_KEY,
   SERVER_DELETION_KEY,
+  START_PAGE_NUMBER,
 } from "assets/constants/overviewConstants";
 import {
   InnerScrollContainer,
@@ -16,7 +18,8 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
+import { RenderPagination, SavedRunsRow } from "./common-component";
 import {
   deleteDataset,
   editMetadata,
@@ -24,15 +27,14 @@ import {
   getMetaDataActions,
   publishDataset,
   setRowtoEdit,
+  setSavedRows,
   setSelectedSavedRuns,
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import { SavedRunsRow } from "./common-component";
-
 const SavedRunsComponent = () => {
   const dispatch = useDispatch();
-  const { savedRuns, selectedSavedRuns } = useSelector(
+  const { savedRuns, selectedSavedRuns, initSavedRuns } = useSelector(
     (state) => state.overview
   );
 
@@ -91,8 +93,32 @@ const SavedRunsComponent = () => {
   const updateTblValue = (newValue, metadata, rId) => {
     dispatch(editMetadata(newValue, metadata, rId, "savedRuns"));
   };
-
   /* Edit Dataset */
+  /* Pagination */
+  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE_SAVED);
+  const [page, setPage] = useState(START_PAGE_NUMBER);
+
+  const onSetPage = useCallback(
+    (_evt, newPage, _perPage, startIdx, endIdx) => {
+      setPage(newPage);
+      dispatch(setSavedRows(savedRuns.slice(startIdx, endIdx)));
+    },
+    [dispatch, savedRuns]
+  );
+  const perPageOptions = [
+    { title: "10", value: 10 },
+    { title: "15", value: 15 },
+    { title: "20", value: 20 },
+  ];
+  const onPerPageSelect = useCallback(
+    (_evt, newPerPage, newPage, startIdx, endIdx) => {
+      setPerPage(newPerPage);
+      setPage(newPage);
+      dispatch(setSavedRows(savedRuns.slice(startIdx, endIdx)));
+    },
+    [dispatch, savedRuns]
+  );
+  /* Pagination */
   const columnNames = {
     result: "Result",
     uploadedtime: "Uploaded Time",
@@ -126,7 +152,7 @@ const SavedRunsComponent = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {savedRuns.map((item, rowIndex) => {
+              {initSavedRuns.map((item, rowIndex) => {
                 const rowActions = moreActionItems(item);
                 return (
                   <Tr
@@ -159,6 +185,16 @@ const SavedRunsComponent = () => {
               })}
             </Tbody>
           </TableComposable>
+          <RenderPagination
+            items={savedRuns.length}
+            page={page}
+            setPage={setPage}
+            perPage={perPage}
+            setPerPage={setPerPage}
+            onSetPage={onSetPage}
+            perPageOptions={perPageOptions}
+            onPerPageSelect={onPerPageSelect}
+          />
         </InnerScrollContainer>
       </OuterScrollContainer>
     </div>
