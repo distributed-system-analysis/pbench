@@ -149,14 +149,14 @@ export const updateDataset =
         );
 
         for (const key in response.data.metadata) {
-          if (key in item.metadata) {
-            item.metadata[key] = response.data.metadata[key];
-            if (checkNestedPath(key, item.metadata)) {
-              item.metadata = setValueFromPath(
-                key,
-                item.metadata,
-                response.data.metadata[key]
-              );
+          if (checkNestedPath(key, item.metadata)) {
+            item.metadata = setValueFromPath(
+              key,
+              item.metadata,
+              response.data.metadata[key]
+            );
+            if (key in item.metadata) {
+              item.metadata[key] = response.data.metadata[key];
             }
           }
         }
