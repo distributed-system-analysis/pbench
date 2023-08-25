@@ -42,12 +42,12 @@ const AboutComponent = () => (
 );
 const PopoverComponent = () => (
   <Popover
-    aria-label="Basic popover"
+    aria-label="Relay About Popover"
     headerContent={<div>About</div>}
     bodyContent={<AboutComponent />}
     maxWidth="4vw"
   >
-    <Button variant="plain" aria-label="About">
+    <Button variant="plain" aria-label="About" className="popover-btn">
       <OutlinedQuestionCircleIcon />
     </Button>
   </Popover>
@@ -73,9 +73,14 @@ const RelayComponent = () => {
       onClose={handleClose}
     >
       <div className="modal-heading">
-        <Title headingLevel="h3">Relay</Title>
+        <Title headingLevel="h3">Pull Datasets</Title>
         <PopoverComponent />
       </div>
+      <p className="modal-desc">
+        The Pbench Agent can push datasets to a Pbench Server directly, when the
+        server is accessible from the system where the Pbench Agent is being
+        used.
+      </p>
       <div className="card-wrapper">
         <Card>
           <CardBody>
