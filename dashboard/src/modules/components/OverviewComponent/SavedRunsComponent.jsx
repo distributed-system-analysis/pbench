@@ -145,7 +145,7 @@ const SavedRunsComponent = () => {
                         updateTblValue(val, NAME_KEY, item.resource_id)
                       }
                       toggleEdit={toggleEdit}
-                      onDateSelect={(str) =>
+                      onDateSelect={(_event, str) =>
                         updateTblValue(
                           str,
                           SERVER_DELETION_KEY,

@@ -295,7 +295,14 @@ export const NewRunsRow = (props) => {
         )}
       </Td>
       <Td dataLabel={columnNames.endtime}>
-        {formatDateTime(item.metadata[SERVER_DELETION])}
+        {item[CONSTANTS.IS_EDIT] ? (
+          <SelectDateComponent
+            value={item.metadata[SERVER_DELETION]}
+            onDateSelect={props.onDateSelect}
+          />
+        ) : (
+          formatDateTime(item.metadata[SERVER_DELETION])
+        )}
       </Td>
       <Td
         favorites={{
