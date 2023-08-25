@@ -5,6 +5,7 @@ import {
   IS_ITEM_SEEN,
   NAME_KEY,
   ROWS_PER_PAGE,
+  SERVER_DELETION_KEY,
   START_PAGE_NUMBER,
   USER_FAVORITE,
 } from "assets/constants/overviewConstants";
@@ -29,6 +30,7 @@ import React, { useCallback, useState } from "react";
 import {
   deleteDataset,
   editMetadata,
+  getEditedMetadata,
   getMetaDataActions,
   setRows,
   setRowtoEdit,
@@ -97,8 +99,7 @@ const NewRunsComponent = () => {
     dispatch(getMetaDataActions(dataset, "favorite", isFavoriting));
   };
   const saveRowData = (dataset) => {
-    const item = newRuns.find((run) => run.resource_id === dataset.resource_id);
-    dispatch(getMetaDataActions(dataset, "datasetName", item.name));
+    dispatch(getEditedMetadata(dataset, "newRuns"));
   };
   const moreActionItems = (dataset) => [
     {
@@ -200,6 +201,13 @@ const NewRunsComponent = () => {
                         saveRowData={saveRowData}
                         rowActions={rowActions}
                         item={item}
+                        onDateSelect={(_event, str) =>
+                          updateTblValue(
+                            str,
+                            SERVER_DELETION_KEY,
+                            item.resource_id
+                          )
+                        }
                         textInputEdit={(val) =>
                           updateTblValue(val, NAME_KEY, item.resource_id)
                         }
