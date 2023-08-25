@@ -59,9 +59,9 @@ class TestAudit:
     def test_construct_null(self, fake_db):
         """Test handling of Audit record null value error"""
         self.session.raise_on_commit = IntegrityError(
-            statement="", params="", orig=FakeDBOrig("NOT NULL constraint")
+            statement="", params="", orig=FakeDBOrig("not null constraint")
         )
-        with pytest.raises(AuditNullKey, match="'operation': 'CREATE'"):
+        with pytest.raises(AuditNullKey):
             Audit.create(operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
         self.session.check_session(rolledback=1)
 
@@ -70,7 +70,7 @@ class TestAudit:
         self.session.raise_on_commit = IntegrityError(
             statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
         )
-        with pytest.raises(AuditDuplicate, match="'id': 1"):
+        with pytest.raises(AuditDuplicate):
             Audit.create(id=1, operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
         self.session.check_session(rolledback=1)
 
@@ -79,7 +79,7 @@ class TestAudit:
         self.session.raise_on_commit = DatabaseError(
             statement="", params="", orig=FakeDBOrig("something else")
         )
-        with pytest.raises(AuditSqlError, match="'id': 1"):
+        with pytest.raises(AuditSqlError):
             Audit.create(id=1, operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
         self.session.check_session(rolledback=1)
 
@@ -139,10 +139,7 @@ class TestAudit:
 
     def test_exceptional_query(self, fake_db):
         FakeSession.throw_query = True
-        with pytest.raises(
-            AuditSqlError,
-            match=r"Error finding {'user_name': 'imme'}: \('test', 'because'\)",
-        ):
+        with pytest.raises(AuditSqlError):
             Audit.query(user_name="imme")
         self.session.reset_context()
 

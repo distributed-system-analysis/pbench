@@ -2,10 +2,11 @@ import datetime
 from pathlib import Path
 
 from sqlalchemy import Column, event, Integer, String
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.sqltypes import DateTime, JSON
 
 from pbench.server.database.database import Database
+from pbench.server.database.models import decode_sql_error
 
 
 class TemplateError(Exception):
@@ -13,6 +14,8 @@ class TemplateError(Exception):
 
     It is never raised directly, but may be used in "except" clauses.
     """
+
+    pass
 
 
 class TemplateSqlError(TemplateError):
@@ -23,55 +26,50 @@ class TemplateSqlError(TemplateError):
     original SQLAlchemy exception.
     """
 
-    def __init__(self, operation: str, name: str, cause: str):
-        self.operation = operation
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(
+            f"Error {kwargs.get('operation')} index {kwargs.get('name')!r}: '{cause}'"
+        )
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Error {self.operation} index {self.name!r}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class TemplateFileMissing(TemplateError):
     """Template requires a file name."""
 
     def __init__(self, name: str):
+        super().__init__(f"Template {name!r} is missing required file")
         self.name = name
-
-    def __str__(self) -> str:
-        return f"Template {self.name!r} is missing required file"
 
 
 class TemplateNotFound(TemplateError):
     """Attempt to find a Template that doesn't exist."""
 
     def __init__(self, name: str):
+        super().__init__(
+            f"Document template for index {name!r} not found in the database"
+        )
         self.name = name
-
-    def __str__(self) -> str:
-        return f"Document template for index {self.name!r} not found in the database"
 
 
 class TemplateDuplicate(TemplateError):
     """Attempt to commit a duplicate Template."""
 
-    def __init__(self, name: str, cause: str):
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"Duplicate template {kwargs.get('name')!r}: '{cause}'")
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Duplicate template {self.name!r}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class TemplateMissingParameter(TemplateError):
     """Attempt to commit a Template with missing parameters."""
 
-    def __init__(self, name: str, cause: str):
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(
+            f"Missing required parameters in {kwargs.get('name')!r}: '{cause}'"
+        )
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Missing required parameters in {self.name!r}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class Template(Database.Base):
@@ -139,7 +137,7 @@ class Template(Database.Base):
         try:
             template = Database.db_session.query(Template).filter_by(name=name).first()
         except SQLAlchemyError as e:
-            raise TemplateSqlError("finding", name, str(e))
+            raise TemplateSqlError(e, operation="find", name=name)
 
         if template is None:
             raise TemplateNotFound(name)
@@ -153,38 +151,21 @@ class Template(Database.Base):
         """
         return f"{self.name}: {self.index_template}"
 
-    def _decode(self, exception: IntegrityError) -> Exception:
-        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-        or NOT NULL constraint violation.
-
-        Return the original exception if it doesn't match.
-
-        Args:
-            exception : An IntegrityError to decode
-
-        Returns:
-            A more specific exception, or the original if decoding fails.
-        """
-        # Postgres engine returns (code, message) but sqlite3 engine only
-        # returns (message); so always take the last element.
-        cause = exception.orig.args[-1]
-        if cause.find("UNIQUE constraint") != -1:
-            return TemplateDuplicate(self.name, cause)
-        elif cause.find("NOT NULL constraint") != -1:
-            return TemplateMissingParameter(self.name, cause)
-        return exception
-
     def add(self):
         """Add the Template object to the database."""
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
-        except IntegrityError as e:
-            Database.db_session.rollback()
-            raise self._decode(e)
         except Exception as e:
             Database.db_session.rollback()
-            raise TemplateSqlError("adding", self.name, str(e))
+            raise decode_sql_error(
+                e,
+                on_duplicate=TemplateDuplicate,
+                on_null=TemplateMissingParameter,
+                fallback=TemplateSqlError,
+                operation="add",
+                name=self.name,
+            )
 
     def update(self):
         """Update the database row with the modified version of the
@@ -192,12 +173,16 @@ class Template(Database.Base):
         """
         try:
             Database.db_session.commit()
-        except IntegrityError as e:
-            Database.db_session.rollback()
-            raise self._decode(e)
         except Exception as e:
             Database.db_session.rollback()
-            raise TemplateSqlError("updating", self.name, str(e))
+            raise decode_sql_error(
+                e,
+                on_duplicate=TemplateDuplicate,
+                on_null=TemplateMissingParameter,
+                fallback=TemplateSqlError,
+                operation="update",
+                name=self.name,
+            )
 
 
 @event.listens_for(Template, "init")

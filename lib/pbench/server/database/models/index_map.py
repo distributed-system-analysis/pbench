@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from typing import Iterator, NewType
 
 from sqlalchemy import Column, ForeignKey, Integer, JSON, String
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import relationship
 
 from pbench.server.database.database import Database
+from pbench.server.database.models import decode_sql_error
 from pbench.server.database.models.datasets import Dataset
 
 
@@ -26,30 +27,33 @@ class IndexMapSqlError(IndexMapError):
     along with the operation being attempted.
     """
 
-    def __init__(self, operation: str, dataset: Dataset, name: str, cause: str):
-        self.dataset = dataset.name if dataset else "unknown"
-        super().__init__(f"Error {operation} index {self.dataset}:{name}: {cause}")
-        self.operation = operation
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(
+            f"Index SQL error {kwargs.get('operation')} "
+            f"{kwargs.get('dataset')}:{kwargs.get('name')}: '{cause}'"
+        )
         self.cause = cause
+        self.kwargs = kwargs
 
 
 class IndexMapDuplicate(IndexMapError):
     """Attempt to commit a duplicate IndexMap id."""
 
-    def __init__(self, name: str, cause: str):
-        super().__init__(f"Duplicate index map {name!r}: {cause!r}")
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"Duplicate index map {kwargs.get('name')!r}: '{cause}'")
         self.cause = cause
+        self.kwargs = kwargs
 
 
 class IndexMapMissingParameter(IndexMapError):
     """Attempt to commit a IndexMap with missing parameters."""
 
-    def __init__(self, name: str, cause: str):
-        super().__init__(f"Missing required parameters in {name!r}: {cause}")
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(
+            f"Missing required parameters in {kwargs.get('name')!r}: '{cause}'"
+        )
         self.cause = cause
+        self.kwargs = kwargs
 
 
 @dataclass
@@ -122,7 +126,7 @@ class IndexMap(Database.Base):
         try:
             Database.db_session.add_all(instances)
         except Exception as e:
-            raise IndexMapSqlError("add_all", dataset, "all", e)
+            raise IndexMapSqlError(e, operation="create", dataset=dataset, name="all")
 
         cls.commit(dataset, "create")
 
@@ -199,7 +203,7 @@ class IndexMap(Database.Base):
                     x.extend(merge_map[r][i])
                     model.documents = x
         except SQLAlchemyError as e:
-            raise IndexMapSqlError("merge", dataset, "all", str(e))
+            raise IndexMapSqlError(e, operation="merge", dataset=dataset, name="all")
 
         cls.commit(dataset, "merge")
 
@@ -224,7 +228,7 @@ class IndexMap(Database.Base):
                 .all()
             )
         except SQLAlchemyError as e:
-            raise IndexMapSqlError("finding", dataset, root, str(e))
+            raise IndexMapSqlError(e, operation="indices", dataset=dataset, name=root)
 
         return (i.index for i in map)
 
@@ -247,7 +251,7 @@ class IndexMap(Database.Base):
             )
             return bool(c)
         except SQLAlchemyError as e:
-            raise IndexMapSqlError("checkexist", dataset, "any", str(e))
+            raise IndexMapSqlError(e, operation="exists", dataset=dataset, name="any")
 
     @staticmethod
     def stream(dataset: Dataset) -> Iterator[IndexStream]:
@@ -270,7 +274,7 @@ class IndexMap(Database.Base):
                 .all()
             )
         except SQLAlchemyError as e:
-            raise IndexMapSqlError("streaming", dataset, "all", str(e))
+            raise IndexMapSqlError(e, operation="stream", dataset=dataset, name="all")
 
         for m in indices:
             for id in m.documents:
@@ -287,37 +291,19 @@ class IndexMap(Database.Base):
             f"{self.dataset.name} [{self.root}:{self.index}]: {len(self.documents)} IDs"
         )
 
-    @staticmethod
-    def _decode(index: str, exception: IntegrityError) -> Exception:
-        """
-        Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-        or NOT NULL constraint violation. Return the original exception if
-        it doesn't match.
-
-        Args:
-            index: The index name
-            exception: An IntegrityError to decode
-
-        Returns:
-            a more specific exception, or the original if decoding fails
-        """
-        # Postgres engine returns (code, message) but sqlite3 engine only
-        # returns (message); so always take the last element.
-        cause = exception.orig.args[-1]
-        if "UNIQUE constraint" in cause:
-            return IndexMapDuplicate(index, cause)
-        elif "NOT NULL constraint" in cause:
-            return IndexMapMissingParameter(index, cause)
-        return exception
-
     @classmethod
     def commit(cls, dataset: Dataset, operation: str):
         """Commit changes to the database."""
         try:
             Database.db_session.commit()
-        except IntegrityError as e:
-            Database.db_session.rollback()
-            raise cls._decode("any", e)
         except Exception as e:
             Database.db_session.rollback()
-            raise IndexMapSqlError(operation, dataset, "any", str(e))
+            raise decode_sql_error(
+                e,
+                on_duplicate=IndexMapDuplicate,
+                on_null=IndexMapMissingParameter,
+                fallback=IndexMapSqlError,
+                operation=operation,
+                dataset=dataset,
+                name="all",
+            )

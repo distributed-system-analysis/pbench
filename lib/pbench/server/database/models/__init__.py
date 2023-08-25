@@ -5,8 +5,6 @@ from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.types import TypeDecorator
 
-from pbench.server.database.database import Database
-
 
 class TZDateTime(TypeDecorator):
     """Helper type decorator to ensure time stamps are consistent.
@@ -56,15 +54,15 @@ class TZDateTime(TypeDecorator):
         return value
 
 
-def decode_integrity_error(
-    model: Database.Base,
+def decode_sql_error(
     exception: Exception,
-    on_null: Callable[[Database.Base, Exception], Exception],
-    on_duplicate: Callable[[Database.Base, Exception], Exception],
-    fallback: Optional[Callable[[Database.Base, Exception], Exception]] = None,
+    on_null: Callable[[Exception], Exception],
+    on_duplicate: Callable[[Exception], Exception],
+    fallback: Optional[Callable[[Exception], Exception]] = None,
+    **kwargs
 ) -> Exception:
 
-    """Analyze IntegrityError for recognizable constraint violation
+    """Analyze an exception for a SQL constraint violation
 
     Return a fallback (defaults to original exception) if no match
 
@@ -73,15 +71,17 @@ def decode_integrity_error(
         on_null: Constructor to call with (model, exception) if null contraint
         on_duplicate: Constructor to call with (model, exception) if duplicate
         fallback: Constructor to call with (model, exception); return original
-            if None
+            exception if omitted/None
+        kwargs: additional arguments passed to exception constructors
 
     Returns:
-        a more specific exception, or the original if decoding fails
+        a more specific exception, or the original if no matches are found and
+        no fallback template is provided.
     """
     if isinstance(exception, IntegrityError):
         cause = exception.orig.args[-1].lower()
         if "unique constraint" in cause:
-            return on_duplicate(model, exception)
+            return on_duplicate(exception, **kwargs)
         elif "not null constraint" in cause:
-            return on_null(model, exception)
-    return exception if not fallback else fallback(model, exception)
+            return on_null(exception, **kwargs)
+    return exception if not fallback else fallback(exception, **kwargs)

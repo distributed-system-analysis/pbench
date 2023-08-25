@@ -256,7 +256,7 @@ class TestMetadataNamespace:
         with pytest.raises(MetadataBadStructure) as exc:
             Metadata.getvalue(ds, "global.contact.email")
         assert exc.type == MetadataBadStructure
-        assert exc.value.key == "global.contact.email"
+        assert exc.value.path == "global.contact.email"
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
@@ -272,7 +272,7 @@ class TestMetadataNamespace:
         with pytest.raises(MetadataBadStructure) as exc:
             Metadata.setvalue(ds, "global.contact.email", "me@example.com")
         assert exc.type == MetadataBadStructure
-        assert exc.value.key == "global.contact.email"
+        assert exc.value.path == "global.contact.email"
         assert exc.value.element == "contact"
         assert (
             str(exc.value)

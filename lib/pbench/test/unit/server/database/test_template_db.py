@@ -151,5 +151,4 @@ class TestTemplate:
         template.idxname = None
         with pytest.raises(TemplateMissingParameter) as e:
             template.update()
-        assert str(e).find("run") != -1
-        assert str(e).find("idxname") != -1
+        assert str(e.value).startswith("Missing required parameters in 'run'")
