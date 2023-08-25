@@ -1,0 +1,107 @@
+#!/bin/bash -e
+
+#
+# This script re-deploys a Pbench Server instance updating the Dashboard and
+# restarting the container image
+#
+# Steps performed:
+#   - The existing pbench-server service, if any, is stopped.
+#   - The Pbench Dashboard application files are copied from the build directory
+#     into the SRV_PBENCH file system.  (If the build directory does not exist,
+#     an empty directory is created at the output location, a warning is
+#     printed, and the Pbench Server is deployed without a Dashboard.)
+#   - A symbolic link for Nginx favicon file is created at the appropriate
+#     location in the SRV_PBENCH file system.
+#   - The pbench-server service is started.
+#
+# The key inputs are the following environment variables:
+#   - SRV_PBENCH:  the location of the file system (on the host) which will be
+#                       mounted inside the container at /srv/pbench.
+#
+# Other inputs which can be provided by environment variables include:
+#   - the name and pull policy for the Pbench Server container image
+#   - the container image tag or the entire image specification
+#   - the location of the Pbench Dashboard app files and the Nginx Favicon
+#   - the location of the Pbench Git checkout (used to locate the above)
+#
+# In all cases, suitable defaults are provided for any value which is undefined.
+#
+
+#+
+# Configuration
+#-
+
+# Pbench Server container image
+PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"main"}
+PB_SERVER_IMAGE=${PB_SERVER_IMAGE:-"images.paas.redhat.com/pbench/pbench-server:${PB_SERVER_IMAGE_TAG}"}
+PB_SERVER_IMAGE_PULL_POLICY=${PB_SERVER_IMAGE_PULL_POLICY:-"newer"}
+PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"pbench-server"}
+
+# Locations on the host
+GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
+PB_DASHBOARD_DIR=${PB_DASHBOARD_DIR:-${GITTOP}/dashboard/build}
+SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
+
+# Locations inside the container
+#
+# The value of ${NGINX_FAVICON} points to the location where the file will be
+# found inside the container and is used to create a symbolic link; by default,
+# it refers to a file in the Dashboard deployment relative to
+# /srv/pbench/public_html.
+NGINX_FAVICON=${NGINX_FAVICON:-./dashboard/$(realpath --relative-to "${PB_DASHBOARD_DIR}" "${PB_DASHBOARD_DIR}"/static/media/color-square.256x256*.ico)}
+
+#+
+# Deployment
+#-
+
+
+# Stop the currently running Pbench Server, if any.
+systemctl --user stop pbench-server || true
+
+# This is the first invocation of the Podman run command in this script, so we
+# execute a trivial containerized command to make Podman apply the requested
+# pull policy here.  After this invocation (if it doesn't fail...), the
+# container image will be present in the local repository, and so we will use
+# the default Podman policy ("missing") for the subsequent invocations.
+# (Otherwise, we risk pulling a remote image when we shouldn't.)  However, if
+# this script was invoked by the run-pbench-in-a-can script, then _it_ will have
+# done the first pull, and it will have set the policy to "missing" to prompt us
+# to skip it here.  In any case, if the pull policy is set to "missing", then
+# the first Podman run invocation below will do the right thing on its own, so
+# we skip the extra one here.
+if [[ ${PB_SERVER_IMAGE_PULL_POLICY} != "missing" ]]; then
+    podman run --entrypoint true --rm --pull "${PB_SERVER_IMAGE_PULL_POLICY}" "${PB_SERVER_IMAGE}"
+fi
+
+# Update the Dashboard code, removing any existing code and copying in fresh.
+# We expect that the host dashboard directory already exists and contains a
+# build of the Pbench Dashboard application; however, if it is missing, we
+# deploy the Pbench Server without a Dashboard deployment.  If we do update the
+# Dashboard, then also update the Nginx favicon symlink.
+podman unshare rm -r "${SRV_PBENCH}/public_html/dashboard"
+if [[ -d "${PB_DASHBOARD_DIR}" ]]; then
+    podman run \
+        --rm \
+        --volume "${PB_DASHBOARD_DIR}":/dashboard:Z \
+        --volume "${SRV_PBENCH}":/srv/pbench:Z \
+        --entrypoint cp \
+        "${PB_SERVER_IMAGE}" \
+        -r /dashboard /srv/pbench/public_html/dashboard
+    podman run \
+        --rm \
+        --volume "${SRV_PBENCH}":/srv/pbench:Z \
+        --entrypoint ln \
+        "${PB_SERVER_IMAGE}" \
+        -sf "${NGINX_FAVICON}" /srv/pbench/public_html/favicon.ico
+else
+    echo "Warning:  deploying the Pbench Server without a Dashboard" >&2
+    podman run \
+        --rm \
+        --volume "${SRV_PBENCH}":/srv/pbench:Z \
+        --entrypoint mkdir \
+        "${PB_SERVER_IMAGE}" \
+        -m 0755 -p /srv/pbench/public_html/dashboard
+fi
+
+# Run the Pbench Server.
+systemctl --user start pbench-server

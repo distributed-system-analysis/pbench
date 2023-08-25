@@ -33,6 +33,7 @@ function usage {
 }
 
 opts=$(getopt -q -o ckh --longoptions "cleanup,keep,help" -n "run-server-func-tests" -- "${@}")
+# shellcheck disable=SC2181
 if [[ ${?} -ne 0 ]]; then
     printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${0}" "${*}" >&2
     usage >&2
@@ -57,15 +58,15 @@ while true; do
         break
         ;;
     *)
-        printf -- "${0}: unrecognized command line argument, '${arg}'\n" >&2
+        echo "${0}: unrecognized command line argument, '${arg}'" >&2
         usage >&2
         exit 1
         ;;
     esac
 done
 
-if (( ${keep_flag} && ${cleanup_flag} )); then
-    printf -- "${0}: [WARNING] 'keep' option is ineffective with 'cleanup'\n"
+if (( keep_flag && cleanup_flag )); then
+    echo "${0}: [WARNING] 'keep' option is ineffective with 'cleanup'"
 fi
 
 function dump_journal {
@@ -75,11 +76,47 @@ function dump_journal {
     printf -- "\n--- journalctl dump ---\n\n"
 }
 
+function sc_disable {
+    # Run systemctl to disable the Pbench Server unit and clean up after any
+    # resulting failures attempting to do so.
+
+    # Send the command output to the bitbucket; capture stderr in a variable.
+    o=$(systemctl --user disable --now pbench-server 2>&1 >/dev/null)
+    r=${?}
+    if (( r != 0 )); then
+        # Ignore the expected error
+        if [[ ${o} != *"Unit file"*"does not exist"* ]]; then
+            echo "systemctl disable: ${o}"
+            return ${r}
+        fi
+    fi
+
+    # Remove the service file, if any.
+    rm -f "${HOME}/.config/systemd/user/pbench-server.service"
+
+    # Even though we've disabled it above, the pbench-server service may still
+    # be present in systemctl's memory if it failed before or during being
+    # disabled.  A side-effect of the command below will purge this entry.
+    o=$(systemctl --user reset-failed pbench-server 2>&1 >/dev/null)
+    r=${?}
+    if (( r != 0 )); then
+        # Ignore the expected error
+        if [[ ${o} != *"Unit"*"not found"* && ${o} != *"Unit"*"not loaded"* ]]; then
+            echo "systemctl reset-failed: ${o}"
+            return ${r}
+        fi
+    fi
+
+    return 0
+}
+
 function cleanup {
-    if (( ${cleanup_flag} )); then
+    if (( cleanup_flag )); then
         # Remove the Pbench Server container and the dependencies pod which we
         # just created and ran; remove any dangling containers; and then remove
         # any dangling images.
+        echo "Disabling the pbench-server service..." >&2
+        sc_disable
         echo "Forcefully removing the Pbench Server container..." >&2
         podman rm --force --ignore ${PB_SERVER_CONTAINER_NAME}
         echo "Forcefully removing the Pbench Support Services pod..." >&2
@@ -93,6 +130,7 @@ function cleanup {
     else
         echo "No clean up requested -- the Pbench Server container and support services pod likely still running!" >&2
     fi
+    # shellcheck disable=SC2046
     trap - $(trap -p | sed -e 's/.* //')
     exit ${exit_status}
 }
@@ -133,7 +171,7 @@ if [[ "${status_code}" != "200" ]]; then
     curl ${SERVER_API_ENDPOINTS}
     exit_status=2
 else
-    if (( ${keep_flag} )); then
+    if (( keep_flag )); then
         KEEP_DATASETS="keep"
     fi
     EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" \
@@ -142,20 +180,21 @@ else
 fi
 
 if [[ ${exit_status} -ne 0 ]]; then
-    if (( ${cleanup_flag} )); then
+    if (( cleanup_flag )); then
         dump_journal
     fi
     printf -- "\nFunctional tests exited with code %s\n" ${exit_status} >&2
 fi
 
-if (( ! ${cleanup_flag} )); then
+if (( ! cleanup_flag )); then
     echo "No clean up requested -- the Pbench Server container and support services pod are running!"
+    # shellcheck disable=SC2046
     trap - $(trap -p | sed -e 's/.* //')
     exit ${exit_status}
 fi
 
 echo "Stopping the Pbench Server container..."
-podman stop ${PB_SERVER_CONTAINER_NAME}
+sc_disable
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
