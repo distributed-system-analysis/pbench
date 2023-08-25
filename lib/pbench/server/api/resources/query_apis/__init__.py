@@ -25,24 +25,23 @@ from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
     ApiSchema,
-    MissingParameters,
     ParamType,
     SchemaError,
     UnauthorizedAccess,
-    UnauthorizedAdminAccess,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.database.database import Database
 from pbench.server.database.models.audit import AuditReason, AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
     Operation,
+    OperationName,
     OperationState,
 )
 from pbench.server.database.models.index_map import IndexMap, IndexStream
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
+from pbench.server.sync import Sync
 
 
 class MissingBulkSchemaParameters(SchemaError):
@@ -568,9 +567,49 @@ class ElasticBulkBase(ApiBase):
             self.schemas[ApiMethod.POST].authorization == ApiAuthorizationType.DATASET
         ), f"API {self.__class__.__name__} authorization type must be DATASET"
 
+    def expect_index(self, dataset: Dataset) -> bool:
+        """Are we waiting for an index map?
+
+        If a dataset doesn't have an index map, and we require one, we need to
+        know whether we should expect one in the future. If not, we can usually
+        ignore the requirement (which is to be sure we don't strand the
+        Elasticsearch documents).
+
+        We don't expect an index map if:
+
+        1) If the dataset is marked with "server.archiveonly", we won't attempt
+           to create an index;
+        2) If we attempted to index the dataset, but failed, we'd like to be
+           able to publish (or delete) the dataset anyway.
+
+        Args:
+            dataset: a Dataset object
+
+        Returns:
+            True if we should expect an index to appear, or False if not
+        """
+        archive_only = Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE)
+        if archive_only:
+            return False
+        index_state = Operation.by_operation(dataset, OperationName.INDEX)
+        if index_state and index_state.state is OperationState.FAILED:
+            return False
+        return True
+
+    def prepare(self, params: ApiParams, dataset: Dataset, context: ApiContext):
+        """Prepare for the bulk operation
+
+        This is an empty abstract method that can be overridden by a subclass.
+
+        Args:
+            params: Type-normalized client request body JSON
+            dataset: The associated Dataset object
+            context: The operation's ApiContext
+        """
+        pass
+
     def generate_actions(
         self,
-        params: ApiParams,
         dataset: Dataset,
         context: ApiContext,
         map: Iterator[IndexStream],
@@ -589,7 +628,6 @@ class ElasticBulkBase(ApiBase):
         This is an abstract method that must be implemented by a subclass.
 
         Args:
-            params: Type-normalized client request body JSON
             dataset: The associated Dataset object
             context: The operation's ApiContext
             map: Elasticsearch index document map generator
@@ -760,19 +798,34 @@ class ElasticBulkBase(ApiBase):
             ApiMethod.POST, ParamType.DATASET, params
         ).value
 
-        operation = (
-            Database.db_session.query(Operation)
-            .filter(
-                Operation.dataset_ref == dataset.id,
-                Operation.state == OperationState.WORKING,
-            )
-            .first()
-        )
-        if context["attributes"].require_stable and operation:
+        operations = Operation.by_state(dataset, OperationState.WORKING)
+        if context["attributes"].require_stable and operations:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
-                f"Dataset is working on {operation.name.name}",
+                f"Dataset is working on {','.join(o.name.name for o in operations)}",
             )
+
+        component = context["attributes"].operation_name
+        try:
+            sync = Sync(logger=current_app.logger, component=component)
+            sync.update(dataset=dataset, state=OperationState.WORKING)
+            context["sync"] = sync
+        except Exception as e:
+            current_app.logger.warning(
+                "{} {} unable to set {} operational state: '{}'",
+                component,
+                dataset,
+                OperationState.WORKING.name,
+                e,
+            )
+            raise APIAbort(HTTPStatus.CONFLICT, "Unable to set operational state")
+
+        try:
+            self.prepare(params, dataset, context)
+        except APIAbort:
+            raise
+        except Exception as e:
+            raise APIInternalError(f"Prepare {dataset.name} error: '{e}'")
 
         # If we don't have an Elasticsearch index map, then the dataset isn't
         # indexed and we skip the Elasticsearch actions.
@@ -786,22 +839,17 @@ class ElasticBulkBase(ApiBase):
             try:
                 results = helpers.streaming_bulk(
                     elastic,
-                    self.generate_actions(params, dataset, context, map),
+                    self.generate_actions(dataset, context, map),
                     raise_on_exception=False,
                     raise_on_error=False,
                 )
                 report = self._analyze_bulk(results, context)
-            except UnauthorizedAdminAccess as e:
-                raise APIAbort(e.http_status, str(e))
-            except MissingParameters as e:
-                raise APIAbort(e.http_status, str(e))
             except Exception as e:
-                raise APIInternalError("Unexpected backend error") from e
-        elif context["attributes"].require_map and not Metadata.getvalue(
-            dataset, Metadata.SERVER_ARCHIVE
-        ):
+                raise APIInternalError("Unexpected backend error '{e}'") from e
+        elif context["attributes"].require_map and self.expect_index(dataset):
             # If the dataset has no index map, the bulk operation requires one,
-            # and the dataset isn't marked "archive only", fail.
+            # and we expect one to appear, fail rather than risking abandoning
+            # Elasticsearch documents.
             raise APIAbort(
                 HTTPStatus.CONFLICT,
                 f"Operation unavailable: dataset {dataset.resource_id} is not indexed.",
@@ -820,11 +868,13 @@ class ElasticBulkBase(ApiBase):
         # Let the subclass complete the operation
         try:
             self.complete(dataset, context, summary)
+            if "sync" in context:
+                context["sync"].update(dataset=dataset, state=OperationState.OK)
         except Exception as e:
             attributes["message"] = str(e)
             auditing["status"] = AuditStatus.WARNING
             auditing["reason"] = AuditReason.INTERNAL
-            raise APIInternalError("Unexpected completion error") from e
+            raise APIInternalError(f"Unexpected completion error '{e}'") from e
 
         # Return the summary document as the success response, or abort with an
         # internal error if we tried to operate on Elasticsearch documents but

@@ -19,13 +19,8 @@ from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
 import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.audit import AuditType
-from pbench.server.database.models.datasets import (
-    Dataset,
-    OperationName,
-    OperationState,
-)
+from pbench.server.database.models.datasets import Dataset, OperationName
 from pbench.server.database.models.index_map import IndexStream
-from pbench.server.sync import Sync
 
 
 class Datasets(ElasticBulkBase):
@@ -79,9 +74,33 @@ class Datasets(ElasticBulkBase):
             ),
         )
 
+    def prepare(self, params: ApiParams, dataset: Dataset, context: ApiContext):
+        """Prepare for the bulk operation
+
+        Process and validate the API query parameters.
+
+        Args:
+            params: Type-normalized client request body JSON
+            dataset: The associated Dataset object
+            context: The operation's ApiContext
+        """
+
+        if context["attributes"].action != "update":
+            return
+        access = params.query.get("access")
+        owner = params.query.get("owner")
+        if not access and not owner:
+            raise MissingParameters(["access", "owner"])
+        if access:
+            context["access"] = access
+        if owner:
+            authorized_user = Auth.token_auth.current_user()
+            if not authorized_user.is_admin():
+                raise UnauthorizedAdminAccess(authorized_user, OperationCode.UPDATE)
+            context["owner"] = owner
+
     def generate_actions(
         self,
-        params: ApiParams,
         dataset: Dataset,
         context: ApiContext,
         map: Iterator[IndexStream],
@@ -91,7 +110,6 @@ class Datasets(ElasticBulkBase):
         dataset document map.
 
         Args:
-            params: API parameters
             dataset: the Dataset object
             context: CONTEXT to pass to complete
             map: Elasticsearch index document map generator
@@ -100,26 +118,10 @@ class Datasets(ElasticBulkBase):
             A generator for Elasticsearch bulk update actions
         """
         action = context["attributes"].action
-
-        sync = Sync(
-            logger=current_app.logger, component=context["attributes"].operation_name
-        )
-        sync.update(dataset=dataset, state=OperationState.WORKING)
-        context["sync"] = sync
         es_doc = {}
 
-        if action == "update":
-            access = params.query.get("access")
-            owner = params.query.get("owner")
-            if not access and not owner:
-                raise MissingParameters(["access", "owner"])
-            if access:
-                context["access"] = es_doc["access"] = access
-            if owner:
-                authorized_user = Auth.token_auth.current_user()
-                if not authorized_user.is_admin():
-                    raise UnauthorizedAdminAccess(authorized_user, OperationCode.UPDATE)
-                context["owner"] = es_doc["owner"] = owner
+        for field in {"access", "owner"} & set(context):
+            es_doc[field] = context[field]
 
         # Generate a series of bulk operations, which will be passed to
         # the Elasticsearch bulk helper.
@@ -164,11 +166,14 @@ class Datasets(ElasticBulkBase):
                     attributes["owner"] = owner
                     dataset.owner_id = owner
                 dataset.update()
-                context["sync"].update(dataset=dataset, state=OperationState.OK)
             elif action == "delete":
                 cache_m = CacheManager(self.config, current_app.logger)
                 cache_m.delete(dataset.resource_id)
                 dataset.delete()
+
+                # Tell caller not to update operational state for the deleted
+                # dataset.
+                del context["sync"]
         else:
             context["sync"].error(
                 dataset=dataset, message=f"Unable to {action} some indexed documents"

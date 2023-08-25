@@ -420,11 +420,7 @@ class Dataset(Database.Base):
             metadata_log = Metadata.get(self, Metadata.METALOG).value
         except MetadataNotFound:
             metadata_log = None
-        operations = (
-            Database.db_session.query(Operation)
-            .filter(Operation.dataset_ref == self.id)
-            .all()
-        )
+        operations = Operation.by_dataset(self)
         return {
             "access": self.access,
             "name": self.name,
@@ -530,6 +526,58 @@ class Operation(Database.Base):
     message = Column(Text)
     dataset_ref = Column(Integer, ForeignKey("datasets.id"))
     dataset = relationship("Dataset", back_populates="operations")
+
+    @staticmethod
+    def by_dataset(dataset: Dataset) -> list["Operation"]:
+        """Return all operational records for a dataset.
+
+        Args:
+            dataset: Dataset object
+
+        Returns:
+            a list (possibly empty) of operational records
+        """
+        return (
+            Database.db_session.query(Operation)
+            .filter(Operation.dataset_ref == dataset.id)
+            .all()
+        )
+
+    @staticmethod
+    def by_operation(
+        dataset: Dataset, operation: OperationName
+    ) -> Optional["Operation"]:
+        """Return a specific operational record for a dataset.
+
+        Args:
+            dataset: Dataset object
+            operation: the target operation
+
+        Returns:
+            An operational record if it exists, else None
+        """
+        return (
+            Database.db_session.query(Operation)
+            .filter(Operation.dataset_ref == dataset.id, Operation.name == operation)
+            .first()
+        )
+
+    @staticmethod
+    def by_state(dataset: Dataset, state: OperationState) -> list["Operation"]:
+        """Return operational records in a specified state.
+
+        Args:
+            dataset: Dataset object
+            state: the target state
+
+        Returns:
+            A list (possibly empty) of operational records
+        """
+        return (
+            Database.db_session.query(Operation)
+            .filter(Operation.dataset_ref == dataset.id, Operation.state == state)
+            .all()
+        )
 
 
 class Metadata(Database.Base):
