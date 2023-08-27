@@ -29,7 +29,7 @@ class IndexMapSqlError(IndexMapError):
 
     def __init__(self, cause: Exception, **kwargs):
         super().__init__(
-            f"Index SQL error {kwargs.get('operation')} "
+            f"Index SQL error on {kwargs.get('operation')} "
             f"{kwargs.get('dataset')}:{kwargs.get('name')}: '{cause}'"
         )
         self.cause = cause
@@ -306,4 +306,4 @@ class IndexMap(Database.Base):
                 operation=operation,
                 dataset=dataset,
                 name="all",
-            )
+            ) from e

@@ -61,7 +61,9 @@ class TestAudit:
         self.session.raise_on_commit = IntegrityError(
             statement="", params="", orig=FakeDBOrig("not null constraint")
         )
-        with pytest.raises(AuditNullKey):
+        with pytest.raises(
+            AuditNullKey, match=r"Missing required key.*'operation': 'add'"
+        ):
             Audit.create(operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
         self.session.check_session(rolledback=1)
 
@@ -70,7 +72,9 @@ class TestAudit:
         self.session.raise_on_commit = IntegrityError(
             statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
         )
-        with pytest.raises(AuditDuplicate):
+        with pytest.raises(
+            AuditDuplicate, match=r"Duplicate key in.*'operation': 'add'"
+        ):
             Audit.create(id=1, operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
         self.session.check_session(rolledback=1)
 
@@ -79,7 +83,7 @@ class TestAudit:
         self.session.raise_on_commit = DatabaseError(
             statement="", params="", orig=FakeDBOrig("something else")
         )
-        with pytest.raises(AuditSqlError):
+        with pytest.raises(AuditSqlError, match=r"SQL error on.*'operation': 'add'"):
             Audit.create(id=1, operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
         self.session.check_session(rolledback=1)
 

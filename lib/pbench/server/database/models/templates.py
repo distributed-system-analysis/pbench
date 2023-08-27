@@ -28,7 +28,7 @@ class TemplateSqlError(TemplateError):
 
     def __init__(self, cause: Exception, **kwargs):
         super().__init__(
-            f"Error {kwargs.get('operation')} index {kwargs.get('name')!r}: '{cause}'"
+            f"Error on {kwargs.get('operation')} index {kwargs.get('name')!r}: '{cause}'"
         )
         self.cause = cause
         self.kwargs = kwargs
@@ -165,7 +165,7 @@ class Template(Database.Base):
                 fallback=TemplateSqlError,
                 operation="add",
                 name=self.name,
-            )
+            ) from e
 
     def update(self):
         """Update the database row with the modified version of the
@@ -182,7 +182,7 @@ class Template(Database.Base):
                 fallback=TemplateSqlError,
                 operation="update",
                 name=self.name,
-            )
+            ) from e
 
 
 @event.listens_for(Template, "init")

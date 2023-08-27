@@ -37,7 +37,7 @@ class ServerSettingSqlError(ServerSettingError):
 
     def __init__(self, cause: Exception, **kwargs):
         super().__init__(
-            f"Error {kwargs.get('operation')} index {kwargs.get('key')!r}: '{cause}'"
+            f"Error on {kwargs.get('operation')} index {kwargs.get('key')!r}: '{cause}'"
         )
         self.cause = cause
         self.kwargs = kwargs
@@ -342,7 +342,7 @@ class ServerSetting(Database.Base):
                 fallback=ServerSettingSqlError,
                 operation="add",
                 key=self.key,
-            )
+            ) from e
 
     def update(self):
         """Update the database row with the modified version of the
@@ -359,4 +359,4 @@ class ServerSetting(Database.Base):
                 fallback=ServerSettingSqlError,
                 operation="update",
                 key=self.key,
-            )
+            ) from e

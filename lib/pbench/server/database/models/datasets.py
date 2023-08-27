@@ -190,7 +190,7 @@ class MetadataMissingParameter(MetadataKeyError):
     """A Metadata required parameter was not specified."""
 
     def __init__(self, what: str):
-        super().__init__(f"Metadata must specify a {self.what}")
+        super().__init__(f"Metadata must specify a {what}")
         self.what = what
 
 
@@ -436,7 +436,7 @@ class Dataset(Database.Base):
                 fallback=DatasetSqlError,
                 operation="add",
                 dataset=self,
-            )
+            ) from e
 
     def update(self):
         """Update the database row with the modified version of the Dataset
@@ -453,7 +453,7 @@ class Dataset(Database.Base):
                 fallback=DatasetSqlError,
                 operation="update",
                 dataset=self,
-            )
+            ) from e
 
     def delete(self):
         """Delete the Dataset from the database."""

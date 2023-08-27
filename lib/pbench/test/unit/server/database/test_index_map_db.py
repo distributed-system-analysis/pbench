@@ -152,12 +152,12 @@ class TestIndexMapDB:
             (
                 IntegrityError(statement="", params="", orig=BaseException("JUNK")),
                 IndexMapSqlError,
-                "Index SQL error create (drb)|drb:all: '(builtins.BaseException) JUNK",
+                "Index SQL error on create (drb)|drb:all: '(builtins.BaseException) JUNK",
             ),
             (
                 Exception("Not me"),
                 IndexMapSqlError,
-                "Index SQL error create (drb)|drb:all",
+                "Index SQL error on create (drb)|drb:all",
             ),
         ),
     )
@@ -217,7 +217,7 @@ class TestIndexMapDB:
             IndexMap.create(drb, {"root": {"idx": ["id"]}})
         assert (
             str(e.value)
-            == "Index SQL error create (drb)|drb:all: 'Yeah, that didn't work'"
+            == "Index SQL error on create (drb)|drb:all: 'Yeah, that didn't work'"
         )
 
     def test_merge_fail(self, monkeypatch, db_session, attach_dataset):
@@ -231,7 +231,7 @@ class TestIndexMapDB:
         drb = Dataset.query(name="drb")
         with pytest.raises(IndexMapSqlError) as e:
             IndexMap.merge(drb, {"root": {"idx": ["id"]}})
-        assert str(e.value) == "Index SQL error merge (drb)|drb:all: 'That was easy'"
+        assert str(e.value) == "Index SQL error on merge (drb)|drb:all: 'That was easy'"
 
     def test_indices_fail(self, monkeypatch, db_session, attach_dataset):
         """Test index list failure"""
@@ -244,7 +244,9 @@ class TestIndexMapDB:
 
         with pytest.raises(IndexMapSqlError) as e:
             IndexMap.indices(drb, "idx")
-        assert str(e.value) == "Index SQL error indices (drb)|drb:idx: 'That was easy'"
+        assert (
+            str(e.value) == "Index SQL error on indices (drb)|drb:idx: 'That was easy'"
+        )
 
     def test_exists_fail(self, monkeypatch, db_session, attach_dataset):
         """Test index existence check failure"""
@@ -257,7 +259,9 @@ class TestIndexMapDB:
 
         with pytest.raises(IndexMapSqlError) as e:
             IndexMap.exists(drb)
-        assert str(e.value) == "Index SQL error exists (drb)|drb:any: 'That was easy'"
+        assert (
+            str(e.value) == "Index SQL error on exists (drb)|drb:any: 'That was easy'"
+        )
 
     def test_stream_fail(self, monkeypatch, db_session, attach_dataset):
         """Test index stream failure"""
@@ -270,4 +274,6 @@ class TestIndexMapDB:
 
         with pytest.raises(IndexMapSqlError) as e:
             list(IndexMap.stream(drb))
-        assert str(e.value) == "Index SQL error stream (drb)|drb:all: 'That was easy'"
+        assert (
+            str(e.value) == "Index SQL error on stream (drb)|drb:all: 'That was easy'"
+        )

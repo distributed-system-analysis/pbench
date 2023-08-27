@@ -75,10 +75,10 @@ class APIKey(Database.Base):
                 e,
                 on_duplicate=DuplicateApiKey,
                 on_null=NullKey,
-                fallback=APIKeyError,
+                fallback=APIKeySqlError,
                 operation="add",
                 key=self,
-            )
+            ) from e
 
     @staticmethod
     def query(**kwargs) -> Optional["APIKey"]:

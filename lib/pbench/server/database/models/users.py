@@ -31,8 +31,8 @@ class UserSqlError(UserError):
 
     def __init__(self, cause: Exception, **kwargs):
         super().__init__(f"User SQL error: '{cause}'", kwargs)
-        self.kwargs = kwargs
         self.cause = cause
+        self.kwargs = kwargs
 
 
 class UserDuplicate(UserError):
@@ -40,8 +40,8 @@ class UserDuplicate(UserError):
 
     def __init__(self, cause: Exception, **kwargs):
         super().__init__(f"Duplicate user: '{cause}'", kwargs)
-        self.kwargs = kwargs
         self.cause = cause
+        self.kwargs = kwargs
 
 
 class UserNullKey(UserError):
@@ -49,8 +49,8 @@ class UserNullKey(UserError):
 
     def __init__(self, cause: Exception, **kwargs):
         super().__init__(f"Missing required key: '{cause}'", kwargs)
-        self.kwargs = kwargs
         self.cause = cause
+        self.kwargs = kwargs
 
 
 class User(Database.Base):
