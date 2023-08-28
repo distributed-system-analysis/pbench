@@ -1,0 +1,168 @@
+* Sample announcement for reference
+
+
+Subject: Release of version 0.71 of the pbench-agent is now available
+To: <recipients>
+
+
+We are pleased to announce the release of version 0.71 of
+pbench-agent. There are some gotchas and known problems that are
+described first: please read them carefully because you are almost
+certainly going to run into one or more of them.
+
+<GOTCHAS>
+- The notion of a "default" tool set is being deprecated and will be
+removed in the upcoming Pbench Agent v1.0 release. To replace it, the
+Pbench Agent is introducing a few named tool sets. See "Default Tool
+Set is Deprecated; Named tool sets introduced" in the Release Notes.
+
+- All tools registered prior to installing v0.71.0 must be
+re-registered; tools registered locally, or remotely, on a host with
+v0.69 or earlier version of the pbench-agent will be ignored. See
+"Tool registration kept local to the host where registration happens"
+in the Release Notes.
+
+- Note that pbench no longer installs tools: any missing tools will
+only be found and reported when you start a run.
+
+<GOTCHAS/>
+
+<KNOWN PROBLEMS>
+In addition, there are some known problems with specific distros:
+
+- The (currently unreleased) RHEL 9.1 version has very spotty coverage
+  in its Subscription Manager repos. Installation of pbench-agent on
+  it fails with missing basic packages (e.g. bzip2). There are
+  probably unofficial repos that could be used instead: this is under
+  investigation.
+
+- Installation on Fedora 36 succeeds but you will not be able to do
+  anything with it: Python 3.10 changed the way that pip install modules
+  (it inserts a "local" element in the path), so the PYTHONPATH settings
+  are wrong and modules cannot be found. This is a larger problem and we
+  are working on that, but the upshot is that you won't be able to use
+  Fedora 36 with this release.
+
+- You should upgrade the pbench Ansible roles with
+
+    ansible-galaxy collection install --force pbench.agent
+
+  If your version of ansible-galaxy does not support --force, delete
+  the existing roles and install:
+
+    rm -rf $HOME/.ansible/collections/ansible_collections/pbench/agent
+    ansible-galaxy collection install pbench.agent
+
+  The current version is 1.0.7. It contains a fix for the CentOS-Stream-8
+  distro: without that fix, you are not going to be able to use the playbooks
+  to install on that distro.
+
+- If you are upgrading from v0.69, there is one additional problem:
+  the v0.69 installation probably installed the `pbench-perl-JSON-XS'
+  RPM, our own build of perl-JSON-XS which was missing from all RHEL
+  plaforms.  It (and many other perl packages) is now available from
+  standard repos (EPEL on RHEL7, CRB (Codeready Builder) repo on
+  RHEL8/9, PowerTools repo on Centos-stream-8/9). However, the
+  installed `pbench-perl-JSON-XS' on v0.69 conflicts with the official
+  `perl-JSON-XS', so the RPM installation fails. The workaround is to
+  erase the `pbench-perl-JSON-XS' RPM before updating to v0.71.0:
+
+      $ yum shell
+      > erase pbench-perl-JSON-XS
+      > update pbench-agent
+
+  That's the best way to do it on a single system, but if you have a
+  lot of systems that you are installing to, it's probably easier to
+  use your inventory file to do the erasing with an ad-hoc Ansible
+  command and then install normally:
+
+      ansible -i /path/to/Inventory/file servers -m command -a 'yum erase -y pbench-perl-JSON-XS'
+      ansible-playbook -i /path/to/Inventory/file pbench-agent-install.yml
+
+- Installing on RHEL 8.4 and 8.5 fails because of the ansible-core
+  dependency.  There are more problems with the ansible package on
+  RHEL78.4 and 8.5 however: see
+
+      https://access.redhat.com/discussions/6962395
+
+  If you cannot upgrade to RHEL 8.6, let us know: we might be able to
+  help.
+
+</KNOWN PROBLEMS>
+
+
+<ANNOUNCEMENT>
+The RPMs are available in the main COPR pbench repo:
+
+    https://copr.fedorainfracloud.org/coprs/ndokos/pbench/
+
+We strongly recommend that you use Ansible playbooks to install pbench-agent.
+See below for the link to the Installation Guide.
+
+You are going to need an inventory file. Here's a template: just list
+the hosts where you want to install pbench-agent in the [servers]
+section; nothing else needs to be touched:
+
+[servers]
+hostA
+hostB
+...
+
+[servers:vars]
+pbench_repo_name = pbench
+fedoraproject_username = ndokos
+
+pbench_key_url =  http://git.app.eng.bos.redhat.com/git/perf-dept.git/plain/bench/pbench/agent/{{ pbench_configuration_environment }}/ssh
+pbench_config_url = http://git.app.eng.bos.redhat.com/git/perf-dept.git/plain/bench/pbench/agent/{{ pbench_configuration_environment }}/config
+
+After installation, the RPM version reported by `dnf list installed
+pbench-agent' should be:
+
+    pbench-agent.noarch         0.71.0-3g85910732a          @copr-pbench-ndokos
+
+If you had previously installed a test version with a "greater"
+version number, you might need to erase it first with `dnf erase
+pbench-agent' before this version can be installed: we were a bit
+cavalier with the numbering and `dnf' will not install this version if
+the version number doesn't allow it.
+
+Containers
+----------
+
+Containers have been built based on the RPMs above and are available from
+
+    https://quay.io
+
+
+Release Notes
+-------------
+
+The release notes for this release are available at
+
+    https://github.com/distributed-system-analysis/pbench/releases/
+
+There are a lot of changes in this release, so we recommend that you
+read the release notes carefully.
+
+
+Installation Guide
+------------------
+
+The pbench-agent installation guide is available internally at
+
+    http://pbench.perf.lab.eng.bos.redhat.com
+
+
+Problems
+--------
+
+Let us know of any problems you encounter. The best place is the
+issue tracker:
+
+    https://github.com/distributed-system-analysis/pbench/issues
+
+although for urgent problems the GChat pbench room can be used.
+<ANNOUNCEMENT/>
+
+--
+The pbench team

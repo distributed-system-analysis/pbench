@@ -1,0 +1,141 @@
+#+TITLE: Release checklist
+
+* Clone the release branch
+
+#+begin_src shell
+  git checkout upstream/b0.72
+  git branch -u upsream/b0.72
+#+end_src
+so an update and rebase will get you to the latest commit on the upsream branch.
+
+* Test
+** (Step 1) Build an RPM in the COPR -test repo
+
+Make sure that =agent/VERSION= in the branch reflects the release version (e.g. 0.72.0).
+That will allow the =make= invocation below to create properly named RPMs (e.g. =pbench-agent-pbench-agent-0.72.0-1gXXXXXXX)
+in the appropriate repo (=pbench-0.72-test= in this case)
+#+begin_src shell
+  cd agent/rpm
+  make copr-test
+#+end_src
+
+** (Step 2) Create VMs of various stripes for testing and prep them appropriately
+(e.g. ssh keys need to be installed for ansible to work and repos need to be installed (e.g CRB repos on RHEL-8 and RHEL-9 and EPEL repos).
+
+
+** (Step 3) Run the playbooks to do the prep, repo install, pbench-agent/pbench-systat install, the config of the agent and the firewall rules
+TBD
+
+** (Step 4) Run the smoke tests
+TBD
+
+** (Step 5) Run end-to-end tests
+TBD linpack, uperf, fio: register tools, run the benchmark, clean up the
+tools, push the results.
+
+* Lather, rinse, repeat
+Repeat steps 3-5 in the [[* Test][Test]] section above until there are no
+errors. In general, you /might/ have to rebuild the RPMs in Step 1 if
+any changes to pbench code were made, but you probably do not need to
+remake the VMs in Step 2, although you might need to either uninstall the
+previous RPM or make sure that the build number of the new RPM is
+bumped, so that `dnf` will know to update the installed RPM.
+
+* Commit any changes to the release branch
+
+If there are changes to pbench code, issue PRs for them and make
+sure that they are merged. You might want to do another run through
+the [[* Test][Test]] process before proceeding further.
+
+It may also be necessary to update the ansible roles on Galaxy:
+#+begin_src shell
+  cd agent/ansible
+  make test
+  make publish
+#+end_src
+
+Galaxy will refuse to update unless the version in
+=agent/ansible/collection/galaxy.yml= is bumped (the current version
+as of this writing is 1.0.10).
+
+* Write up release notes - submit for review
+Revise until everybody is OK with the release notest.
+
+The release notes should contain:
+- a short description of the release
+
+- installation notes identifying any user-visible changes to the installation process and the ansible roles
+
+- new commands and major changes to existing commands
+
+- a list of user-visible bug fixes and enhancements to individual programs
+
+- new deprecation notices and retirement notices of previously deprecated items
+
+- an optional section on future directions
+
+- a changelog of all the relevant commits since the last release
+
+The changelog can be obtained using something like =git v0.71.0..HEAD
+--oneline --no-decorate=, but it will need to be manually pruned to
+include only commits for the relevant component(s).
+
+Nobody will be happy with the release notes but do not sweat it too
+much at this point: the release notes will be committed to the branch
+after the release is cut and they can be revised again and again, even
+after the release.
+
+* Make sure there are no pending updates to the release branch.
+The only other change that should go in before the release is cut should be
+the version bump in e.g. =agent/VERSION=. Do this in a separate commit.
+
+* Add a tag and cut the release on GitHub, adding the release notes.
+From the top level of the repo on Github, click on "Releases" on the RHS.
+
+Click on "Draft a new release" and add a new tag.The tag should have
+the form =v0.72.0=. Make sure that it points to the top of the release
+branch, presumably to the commit that bumps the version in the VERSION
+file.
+
+Modify the release notes to include the correct SHA1 from the top
+of the release branch. Do *not* commit the release notes yet.
+Instead cut-and-paste the contents to the text box of the new release
+and add a title (try to be consistent with earlier releases).
+
+Make sure that the "Set as the latest release" box is checked and then
+click on "Publish Release".
+
+* Retest
+Redo the [[* Test][Test]] section above in the updated branch, creating the RPMs
+in the final COPR repo.
+
+** Rebuild RPMs in the COPR repo for the release
+#+begin_src shell
+  cd agent/rpm
+  make copr
+#+end_src
+
+** Redo steps 3-4
+Install the RPMs on the set of VMs and run the smoke tests. If there
+are problems, you will have to repeat the whole process up to this
+point.
+
+** Build tagged containers
+
+#+begin_src shell
+  cd agent/containers/images
+  make everything
+  make push
+  make push-latest
+#+end_src
+
+** Send announcement out
+
+See the boilerplate =docs/release/sample-announcement.txt= in this
+directory for an example.
+
+** Submit post-release PR to the release branch
+The commit should contain the updated release notes. If problems are
+found later on, the release notes can be updated with more commits and
+copied the same way as before into the text box of the release area on
+Github.
