@@ -143,7 +143,7 @@ class TestAudit:
 
     def test_exceptional_query(self, fake_db):
         FakeSession.throw_query = True
-        with pytest.raises(AuditSqlError):
+        with pytest.raises(AuditSqlError, match=r"SQL error on.+'operation': 'query'"):
             Audit.query(user_name="imme")
         self.session.reset_context()
 

@@ -64,16 +64,16 @@ def decode_sql_error(
 
     """Analyze an exception for a SQL constraint violation
 
-    Currently analyzes SQLAlchemy IntegrityException instances for NOT NULL and
-    UNIQUE KEY constraints, constsructing and returning an appropriate
-    exception. If the exception doesn't match a recognized SQL constraint,
-    construct and return a fallback exception type if specified or the original
-    exception.
+    Analyzes SQLAlchemy IntegrityException instances for NOT NULL and UNIQUE
+    KEY constraints, constructing and returning an appropriate exception
+    instance. If the exception doesn't match a recognized SQL constraint,
+    construct and return a fallback exception instance if specified or the
+    original exception.
 
     Args:
         exception: An exception to decode
         on_null: Exception class to build if null contraint
-        on_duplicate: Exception class to build with if duplicate constraint
+        on_duplicate: Exception class to build if duplicate constraint
         fallback: Exception class to build otherwise
         kwargs: additional arguments passed to exception constructors
 
