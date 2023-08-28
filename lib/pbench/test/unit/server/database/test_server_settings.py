@@ -69,7 +69,7 @@ class TestServerSetting:
                 statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
             )
             ServerSetting.create(key="dataset-lifetime", value=2)
-        assert str(e).find("dataset-lifetime") != -1
+        assert "dataset-lifetime" in str(e)
         self.session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="1")

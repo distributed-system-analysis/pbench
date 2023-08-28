@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 
 from pbench.server import JSONOBJECT
 from pbench.server.database.database import Database
-from pbench.server.database.models import decode_integrity_error, TZDateTime
+from pbench.server.database.models import decode_sql_error, TZDateTime
 from pbench.server.database.models.users import User
 
 # Module private constants
@@ -17,31 +17,34 @@ _TOKEN_ALG_INT = "HS256"
 class APIKeyError(Exception):
     """A base class for errors reported by the APIKey class."""
 
-    def __init__(self, message):
-        self.message = message
+    pass
 
-    def __str__(self):
-        return repr(self.message)
+
+class APIKeySqlError(APIKeyError):
+    """Report a generic SQL error"""
+
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"API key SQL error: '{cause}' {kwargs}")
+        self.cause = cause
+        self.kwargs = kwargs
 
 
 class DuplicateApiKey(APIKeyError):
     """Attempt to commit a duplicate unique value."""
 
-    def __init__(self, cause: str):
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"API key duplicate key error: '{cause}' {kwargs}")
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Duplicate api_key: {self.cause}"
+        self.kwargs = kwargs
 
 
 class NullKey(APIKeyError):
     """Attempt to commit an APIkey row with an empty required column."""
 
-    def __init__(self, cause: str):
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"API key null key error: '{cause}' {kwargs}")
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Missing required value: {self.cause}"
+        self.kwargs = kwargs
 
 
 class APIKey(Database.Base):
@@ -68,14 +71,14 @@ class APIKey(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't add {} to DB: {}", str(self), str(e))
-            decode_exc = decode_integrity_error(
-                e, on_duplicate=DuplicateApiKey, on_null=NullKey
-            )
-            if decode_exc is e:
-                raise APIKeyError(str(e)) from e
-            else:
-                raise decode_exc from e
+            raise decode_sql_error(
+                e,
+                on_duplicate=DuplicateApiKey,
+                on_null=NullKey,
+                fallback=APIKeySqlError,
+                operation="add",
+                key=self,
+            ) from e
 
     @staticmethod
     def query(**kwargs) -> Optional["APIKey"]:
@@ -99,7 +102,7 @@ class APIKey(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            raise APIKeyError(f"Error deleting api_key from db : {e}") from e
+            raise APIKeySqlError(e, operation="delete", key=self) from e
 
     def as_json(self) -> JSONOBJECT:
         """Return a JSON object for this APIkey object.

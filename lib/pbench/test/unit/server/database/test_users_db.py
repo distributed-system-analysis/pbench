@@ -72,14 +72,19 @@ class TestUsers:
 
     def test_construct_duplicate(self, fake_db):
         """Test handling of User record duplicate value error"""
-        self.session.raise_on_commit = IntegrityError(
-            statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
+        exception = IntegrityError(
+            statement="", params="", orig=FakeDBOrig("unique constraint")
         )
+        self.session.raise_on_commit = exception
         with pytest.raises(
             UserDuplicate,
-            match="Duplicate user entry in {'username': 'dummy', 'id': [^,]+, 'roles': \\[]}: UNIQUE constraint",
-        ):
+            match="Duplicate user",
+        ) as exc:
             self.add_dummy_user(fake_db)
+        assert len(exc.value.args) == 2
+        assert exc.value.args[0] == f"Duplicate user: '{exception}'"
+        assert exc.value.args[1]["operation"] == "add"
+        assert exc.value.args[1]["user"].username == "dummy"
         self.session.check_session(rolledback=1)
         self.session.reset_context()
 

@@ -3,12 +3,12 @@ import enum
 from typing import Optional
 
 from sqlalchemy import Column, Enum, Integer, String
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.sqltypes import JSON
 
 from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.database.database import Database
-from pbench.server.database.models import TZDateTime
+from pbench.server.database.models import decode_sql_error, TZDateTime
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.users import User
 
@@ -19,6 +19,8 @@ class AuditError(Exception):
     It is never raised directly, but may be used in "except" clauses.
     """
 
+    pass
+
 
 class AuditSqlError(AuditError):
     """SQLAlchemy errors reported through Audit operations.
@@ -27,35 +29,28 @@ class AuditSqlError(AuditError):
     key; the cause will specify the original SQLAlchemy exception.
     """
 
-    def __init__(self, operation: str, params: JSONOBJECT, cause: str):
-        self.operation = operation
-        self.params = params
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"SQL error on {kwargs}: '{cause}'")
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Error {self.operation} {self.params!r}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class AuditDuplicate(AuditError):
     """Attempt to commit a duplicate unique value."""
 
-    def __init__(self, audit: "Audit", cause: str):
-        self.audit = audit
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"Duplicate key in {kwargs}: '{cause}'")
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Duplicate audit setting in {self.audit.as_json()}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class AuditNullKey(AuditError):
     """Attempt to commit an Audit row with an empty required column."""
 
-    def __init__(self, audit: "Audit", cause: str):
-        self.audit = audit
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"Missing required key in {kwargs}: '{cause}'")
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Missing required key in {self.audit.as_json()}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class AuditType(enum.Enum):
@@ -333,39 +328,10 @@ class Audit(Database.Base):
 
             audit = query.order_by(Audit.timestamp).all()
         except SQLAlchemyError as e:
-            args = {
-                k: v
-                for k, v in (
-                    ("start", start),
-                    ("end", end),
-                    ("dataset", dataset),
-                    *kwargs.items(),
-                )
-                if v is not None
-            }
-            raise AuditSqlError("finding", args, str(e)) from e
+            raise AuditSqlError(
+                e, operation="query", start=start, end=end, dataset=dataset, **kwargs
+            ) from e
         return audit
-
-    def _decode(self, exception: IntegrityError) -> Exception:
-        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-        or NOT NULL constraint violation.
-
-        Return the original exception if it doesn't match.
-
-        Args:
-            exception : An IntegrityError to decode
-
-        Returns:
-            a more specific exception, or the original if decoding fails
-        """
-        # Postgres engine returns (code, message) but sqlite3 engine only
-        # returns (message); so always take the last element.
-        cause = exception.orig.args[-1]
-        if "UNIQUE constraint" in cause:
-            return AuditDuplicate(self, cause)
-        elif "NOT NULL constraint" in cause:
-            return AuditNullKey(self, cause)
-        return exception
 
     def add(self):
         """Add the Audit object to the database."""
@@ -374,9 +340,14 @@ class Audit(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            if isinstance(e, IntegrityError):
-                raise self._decode(e) from e
-            raise AuditSqlError("adding", self.as_json(), str(e)) from e
+            raise decode_sql_error(
+                e,
+                on_duplicate=AuditDuplicate,
+                on_null=AuditNullKey,
+                fallback=AuditSqlError,
+                operation="add",
+                audit=self,
+            ) from e
 
     def as_json(self) -> JSONOBJECT:
         """Return a JSON object for this Audit object.

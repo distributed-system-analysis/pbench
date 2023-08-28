@@ -7,11 +7,11 @@ from typing import Any, Dict, List, Optional, Union
 
 from dateutil import parser as date_parser
 from sqlalchemy import Column, Enum, event, ForeignKey, Integer, JSON, String, Text
-from sqlalchemy.exc import DataError, IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import DataError, SQLAlchemyError
 from sqlalchemy.orm import Query, relationship, validates
 
 from pbench.server.database.database import Database
-from pbench.server.database.models import TZDateTime
+from pbench.server.database.models import decode_sql_error, TZDateTime
 from pbench.server.database.models.server_settings import (
     OPTION_DATASET_LIFETIME,
     ServerSetting,
@@ -25,51 +25,47 @@ class DatasetError(Exception):
     It is never raised directly, but may be used in "except" clauses.
     """
 
+    pass
+
 
 class DatasetBadName(DatasetError):
     """Specified filename does not follow Pbench tarball naming rules."""
 
     def __init__(self, name: Path):
+        super().__init__(
+            f"File name {name!r} does not end in {Dataset.TARBALL_SUFFIX!r}"
+        )
         self.name: str = str(name)
-
-    def __str__(self) -> str:
-        return f"File name {self.name!r} does not end in {Dataset.TARBALL_SUFFIX!r}"
 
 
 class DatasetSqlError(DatasetError):
     """SQLAlchemy errors reported through Dataset operations.
 
     The exception will identify the name of the target dataset, along with the
-    operation being attempted; the __cause__ will specify the original
-    SQLAlchemy exception.
+    operation being attempted; the cause is the original SQLAlchemy exception.
     """
 
-    def __init__(self, operation: str, **kwargs):
-        self.operation = operation
-        self.kwargs = [f"{key}={value}" for key, value in kwargs.items()]
-
-    def __str__(self) -> str:
-        return f"Error {self.operation} dataset {'|'.join(self.kwargs)}"
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"SQL error on {kwargs.get('dataset')}: '{cause}'")
+        self.cause = cause
+        self.kwargs = kwargs
 
 
 class DatasetDuplicate(DatasetError):
     """Attempt to create a Dataset that already exists."""
 
-    def __init__(self, name: str):
-        self.name = name
-
-    def __str__(self):
-        return f"Duplicate dataset {self.name!r}"
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"Duplicate dataset {kwargs.get('dataset')}: '{cause}'")
+        self.cause = cause
+        self.kwargs = kwargs
 
 
 class DatasetNotFound(DatasetError):
     """Attempt to locate a Dataset that doesn't exist."""
 
     def __init__(self, **kwargs):
-        self.kwargs = [f"{key}={value}" for key, value in kwargs.items()]
-
-    def __str__(self) -> str:
-        return f"No dataset {'|'.join(self.kwargs)}"
+        super().__init__(f"Dataset not found for {kwargs}")
+        self.kwargs = kwargs
 
 
 class DatasetBadParameterType(DatasetError):
@@ -81,13 +77,13 @@ class DatasetBadParameterType(DatasetError):
     """
 
     def __init__(self, bad_value: Any, expected_type: Any):
-        self.bad_value = bad_value
         self.expected_type = (
             expected_type.__name__ if isinstance(expected_type, type) else expected_type
         )
-
-    def __str__(self) -> str:
-        return f'Value "{self.bad_value}" ({type(self.bad_value)}) is not a {self.expected_type}'
+        super().__init__(
+            f'Value "{bad_value}" ({type(bad_value).__name__}) is not a {self.expected_type}'
+        )
+        self.bad_value = bad_value
 
 
 class MetadataError(DatasetError):
@@ -96,29 +92,21 @@ class MetadataError(DatasetError):
     It is never raised directly, but may be used in "except" clauses.
     """
 
-    def __init__(self, dataset: "Dataset", key: str):
-        self.dataset = dataset
-        self.key = key
-
-    def __str__(self) -> str:
-        return f"Generic error on {self.dataset} key {self.key}"
+    pass
 
 
 class MetadataSqlError(MetadataError):
     """SQLAlchemy errors reported through Metadata operations.
 
     The exception will identify the dataset and the metadata key, along with
-    the operation being attempted; the __cause__ will specify the original
-    SQLAlchemy exception.
+    the operation being attempted; the cause is the original SQLAlchemy
+    exception.
     """
 
-    def __init__(self, operation: str, dataset: "Dataset", key: str):
-        self.operation = operation
-        super().__init__(dataset, key)
-
-    def __str__(self) -> str:
-        ds = str(self.dataset) if self.dataset else "no dataset"
-        return f"Error {self.operation} {ds} key {self.key}"
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"Metadata SQL error '{cause}': {kwargs}")
+        self.cause = cause
+        self.kwargs = kwargs
 
 
 class MetadataNotFound(MetadataError):
@@ -129,10 +117,9 @@ class MetadataNotFound(MetadataError):
     """
 
     def __init__(self, dataset: "Dataset", key: str):
-        super().__init__(dataset, key)
-
-    def __str__(self) -> str:
-        return f"No metadata {self.key} for {self.dataset}"
+        super().__init__(f"No metadata {key} for {dataset}")
+        self.dataset = dataset
+        self.key = key
 
 
 class MetadataBadStructure(MetadataError):
@@ -148,11 +135,12 @@ class MetadataBadStructure(MetadataError):
     """
 
     def __init__(self, dataset: "Dataset", path: str, element: str):
-        super().__init__(dataset, path)
+        super().__init__(
+            f"Key {element!r} value for {path!r} in {dataset} is not a JSON object"
+        )
+        self.dataset = dataset
+        self.path = path
         self.element = element
-
-    def __str__(self) -> str:
-        return f"Key {self.element!r} value for {self.key!r} in {self.dataset} is not a JSON object"
 
 
 class MetadataBadValue(MetadataError):
@@ -176,15 +164,16 @@ class MetadataBadValue(MetadataError):
             value: Metadata key value
             expected: The expected metadata value type
         """
-        super().__init__(dataset, key)
+        super().__init__(
+            (
+                f"Metadata key {key!r} value {value!r} for dataset "
+                f"{str(dataset) + ' ' if dataset else ''}must be a {expected}"
+            )
+        )
+        self.dataset = dataset
+        self.key = key
         self.value = value
         self.expected = expected
-
-    def __str__(self) -> str:
-        return (
-            f"Metadata key {self.key!r} value {self.value!r} for dataset"
-            f"{' ' + str(self.dataset) if self.dataset else ''} must be a {self.expected}"
-        )
 
 
 class MetadataKeyError(MetadataError):
@@ -194,15 +183,15 @@ class MetadataKeyError(MetadataError):
     It is never raised directly, but may be used in "except" clauses.
     """
 
+    pass
+
 
 class MetadataMissingParameter(MetadataKeyError):
     """A Metadata required parameter was not specified."""
 
     def __init__(self, what: str):
+        super().__init__(f"Metadata must specify a {what}")
         self.what = what
-
-    def __str__(self) -> str:
-        return f"Metadata must specify a {self.what}"
 
 
 class MetadataBadKey(MetadataKeyError):
@@ -212,15 +201,12 @@ class MetadataBadKey(MetadataKeyError):
     """
 
     def __init__(self, key: str):
+        super().__init__(f"Metadata key {key!r} is not supported")
         self.key = key
-
-    def __str__(self) -> str:
-        return f"Metadata key {self.key!r} is not supported"
 
 
 class MetadataProtectedKey(MetadataKeyError):
-    """A metadata key was specified that cannot be modified in the current
-    context.
+    """A metadata key cannot be modified in the current context.
 
     Usually an internally reserved key that was referenced in an external
     client API.
@@ -229,10 +215,8 @@ class MetadataProtectedKey(MetadataKeyError):
     """
 
     def __init__(self, key: str):
+        super().__init__(f"Metadata key {key} cannot be modified by client")
         self.key = key
-
-    def __str__(self) -> str:
-        return f"Metadata key {self.key} cannot be modified by client"
 
 
 class MetadataMissingKeyValue(MetadataKeyError):
@@ -242,10 +226,8 @@ class MetadataMissingKeyValue(MetadataKeyError):
     """
 
     def __init__(self, key: str):
+        super().__init__(f"Metadata key {key} value is required")
         self.key = key
-
-    def __str__(self) -> str:
-        return f"Metadata key {self.key} value is required"
 
 
 class MetadataDuplicateKey(MetadataError):
@@ -256,10 +238,9 @@ class MetadataDuplicateKey(MetadataError):
     """
 
     def __init__(self, dataset: "Dataset", key: str):
-        super().__init__(dataset, key)
-
-    def __str__(self) -> str:
-        return f"{self.dataset} already has metadata key {self.key}"
+        super().__init__(f"{dataset} already has metadata key {key}")
+        self.dataset = dataset
+        self.key = key
 
 
 class Dataset(Database.Base):
@@ -396,7 +377,7 @@ class Dataset(Database.Base):
         try:
             dataset = Database.db_session.query(Dataset).filter_by(**kwargs).first()
         except SQLAlchemyError as e:
-            raise DatasetSqlError("querying", **kwargs) from e
+            raise DatasetSqlError(e, operation="querying", **kwargs) from e
 
         if dataset is None:
             raise DatasetNotFound(**kwargs)
@@ -446,14 +427,16 @@ class Dataset(Database.Base):
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
-        except IntegrityError as e:
-            Database.db_session.rollback()
-            self.logger.warning("Duplicate dataset {}: {}", self.name, e)
-            raise DatasetDuplicate(self.name) from None
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't add {} to DB: {}", str(self), str(e))
-            raise DatasetSqlError("adding", name=self.name) from e
+            raise decode_sql_error(
+                e,
+                on_duplicate=DatasetDuplicate,
+                on_null=DatasetSqlError,
+                fallback=DatasetSqlError,
+                operation="add",
+                dataset=self,
+            ) from e
 
     def update(self):
         """Update the database row with the modified version of the Dataset
@@ -463,8 +446,14 @@ class Dataset(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't update {} in DB: {}", str(self), str(e))
-            raise DatasetSqlError("updating", name=self.name) from e
+            raise decode_sql_error(
+                e,
+                on_duplicate=DatasetDuplicate,
+                on_null=DatasetSqlError,
+                fallback=DatasetSqlError,
+                operation="update",
+                dataset=self,
+            ) from e
 
     def delete(self):
         """Delete the Dataset from the database."""
@@ -473,8 +462,7 @@ class Dataset(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't delete {} in DB: {}", str(self), str(e))
-            raise DatasetSqlError("updating", name=self.name) from e
+            raise DatasetSqlError(e, operation="delete", dataset=self) from e
 
 
 class OperationName(enum.Enum):
@@ -1091,7 +1079,7 @@ class Metadata(Database.Base):
             meta = __class__._query(dataset, key, user).first()
         except SQLAlchemyError as e:
             Metadata.logger.error("Can't get {}>>{} from DB: {}", dataset, key, str(e))
-            raise MetadataSqlError("getting", dataset, key) from e
+            raise MetadataSqlError(e, operation="get", dataset=dataset, key=key) from e
         else:
             if meta is None:
                 raise MetadataNotFound(dataset, key)
@@ -1115,7 +1103,9 @@ class Metadata(Database.Base):
             Metadata.logger.error(
                 "Can't remove {}>>{} from DB: {}", dataset, key, str(e)
             )
-            raise MetadataSqlError("deleting", dataset, key) from e
+            raise MetadataSqlError(
+                e, operation="delete", dataset=dataset, key=key
+            ) from e
 
     def __str__(self) -> str:
         return f"{self.dataset}>>{self.key}"
@@ -1138,9 +1128,10 @@ class Metadata(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't add {}>>{} to DB: {}", dataset, self.key, str(e))
             dataset.metadatas.remove(self)
-            raise MetadataSqlError("adding", dataset, self.key) from e
+            raise MetadataSqlError(
+                e, operation="add", dataset=dataset, key=self.key
+            ) from e
 
     def update(self):
         """Update the database with the modified Metadata."""
@@ -1148,8 +1139,9 @@ class Metadata(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't update {} in DB: {}", self, str(e))
-            raise MetadataSqlError("updating", self.dataset, self.key) from e
+            raise MetadataSqlError(
+                e, operation="update", dataset=self.dataset, key=self.key
+            ) from e
 
     def delete(self):
         """Remove the Metadata from the database."""
@@ -1158,8 +1150,9 @@ class Metadata(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't delete {} from DB: {}", self, str(e))
-            raise MetadataSqlError("deleting", self.dataset, self.key) from e
+            raise MetadataSqlError(
+                e, operation="delete", dataset=self.dataset, key=self.key
+            ) from e
 
 
 @event.listens_for(Metadata, "init")

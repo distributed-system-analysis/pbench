@@ -11,11 +11,12 @@ import re
 from typing import Optional
 
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.sqltypes import JSON
 
 from pbench.server import JSONOBJECT, JSONVALUE
 from pbench.server.database.database import Database
+from pbench.server.database.models import decode_sql_error
 
 
 class ServerSettingError(Exception):
@@ -23,6 +24,8 @@ class ServerSettingError(Exception):
 
     It is never raised directly, but may be used in "except" clauses.
     """
+
+    pass
 
 
 class ServerSettingSqlError(ServerSettingError):
@@ -32,63 +35,56 @@ class ServerSettingSqlError(ServerSettingError):
     key; the cause will specify the original SQLAlchemy exception.
     """
 
-    def __init__(self, operation: str, name: str, cause: str):
-        self.operation = operation
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(
+            f"Error on {kwargs.get('operation')} index {kwargs.get('key')!r}: '{cause}'"
+        )
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Error {self.operation} index {self.name!r}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class ServerSettingDuplicate(ServerSettingError):
     """Attempt to commit a duplicate ServerSetting."""
 
-    def __init__(self, name: str, cause: str):
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"Duplicate server setting {kwargs.get('key')!r}: '{cause}'")
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Duplicate server setting {self.name!r}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class ServerSettingNullKey(ServerSettingError):
     """Attempt to commit a ServerSetting with an empty key."""
 
-    def __init__(self, name: str, cause: str):
-        self.name = name
+    def __init__(self, cause: Exception, **kwargs):
+        super().__init__(f"Missing key value in {kwargs.get('key')!r}: '{cause}'")
         self.cause = cause
-
-    def __str__(self) -> str:
-        return f"Missing key value in {self.name!r}: {self.cause}"
+        self.kwargs = kwargs
 
 
 class ServerSettingMissingKey(ServerSettingError):
     """Attempt to set a ServerSetting with a missing key."""
 
-    def __str__(self) -> str:
-        return "Missing server setting key name"
+    def __init__(self):
+        super().__init__("Missing server setting key name")
 
 
 class ServerSettingBadKey(ServerSettingError):
     """Attempt to commit a ServerSetting with a bad key."""
 
     def __init__(self, key: str):
+        super().__init__(f"Server setting key {key!r} is unknown")
         self.key = key
-
-    def __str__(self) -> str:
-        return f"Server setting key {self.key!r} is unknown"
 
 
 class ServerSettingBadValue(ServerSettingError):
     """Attempt to assign a bad value to a server setting option."""
 
     def __init__(self, key: str, value: JSONVALUE):
+        super().__init__(
+            f"Unsupported value for server setting key {key!r} ({value!r})"
+        )
         self.key = key
         self.value = value
-
-    def __str__(self) -> str:
-        return f"Unsupported value for server setting key {self.key!r} ({self.value!r})"
 
 
 # Formal timedelta syntax is "[D day[s], ][H]H:MM:SS[.UUUUUU]"; without an
@@ -269,7 +265,7 @@ class ServerSetting(Database.Base):
             if setting is None and use_default:
                 setting = ServerSetting(key=key, value=__class__._default(key))
         except SQLAlchemyError as e:
-            raise ServerSettingSqlError("finding", key, str(e)) from e
+            raise ServerSettingSqlError(e, operation="get", key=key) from e
         return setting
 
     @staticmethod
@@ -332,27 +328,6 @@ class ServerSetting(Database.Base):
         """
         return f"{self.key}: {self.value!r}"
 
-    def _decode(self, exception: IntegrityError) -> Exception:
-        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-        or NOT NULL constraint violation.
-
-        Return the original exception if it doesn't match.
-
-        Args:
-            exception : An IntegrityError to decode
-
-        Returns:
-            a more specific exception, or the original if decoding fails
-        """
-        # Postgres engine returns (code, message) but sqlite3 engine only
-        # returns (message); so always take the last element.
-        cause = exception.orig.args[-1]
-        if cause.find("UNIQUE constraint") != -1:
-            return ServerSettingDuplicate(self.key, cause)
-        elif cause.find("NOT NULL constraint") != -1:
-            return ServerSettingNullKey(self.key, cause)
-        return exception
-
     def add(self):
         """Add the ServerSetting object to the database."""
         try:
@@ -360,9 +335,14 @@ class ServerSetting(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            if isinstance(e, IntegrityError):
-                raise self._decode(e) from e
-            raise ServerSettingSqlError("adding", self.key, str(e)) from e
+            raise decode_sql_error(
+                e,
+                on_duplicate=ServerSettingDuplicate,
+                on_null=ServerSettingNullKey,
+                fallback=ServerSettingSqlError,
+                operation="add",
+                key=self.key,
+            ) from e
 
     def update(self):
         """Update the database row with the modified version of the
@@ -372,6 +352,11 @@ class ServerSetting(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            if isinstance(e, IntegrityError):
-                raise self._decode(e) from e
-            raise ServerSettingSqlError("updating", self.key, str(e)) from e
+            raise decode_sql_error(
+                e,
+                on_duplicate=ServerSettingDuplicate,
+                on_null=ServerSettingNullKey,
+                fallback=ServerSettingSqlError,
+                operation="update",
+                key=self.key,
+            ) from e

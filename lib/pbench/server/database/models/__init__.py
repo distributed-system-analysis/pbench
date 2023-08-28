@@ -1,5 +1,5 @@
 import datetime
-from typing import Callable
+from typing import Callable, Optional
 
 from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
@@ -54,24 +54,37 @@ class TZDateTime(TypeDecorator):
         return value
 
 
-def decode_integrity_error(
-    exception: IntegrityError, on_null: Callable, on_duplicate: Callable
+def decode_sql_error(
+    exception: Exception,
+    on_null: Callable[[Exception], Exception],
+    on_duplicate: Callable[[Exception], Exception],
+    fallback: Optional[Callable[[Exception], Exception]] = None,
+    **kwargs
 ) -> Exception:
 
-    """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-    or NOT NULL constraint violation.
+    """Analyze an exception for a SQL constraint violation
 
-    Return the original exception if it doesn't match.
+    Analyzes SQLAlchemy IntegrityException instances for NOT NULL and UNIQUE
+    KEY constraints, constructing and returning an appropriate exception
+    instance. If the exception doesn't match a recognized SQL constraint,
+    construct and return a fallback exception instance if specified or the
+    original exception.
 
     Args:
-        exception : An IntegrityError to decode
+        exception: An exception to decode
+        on_null: Exception class to build if null contraint
+        on_duplicate: Exception class to build if duplicate constraint
+        fallback: Exception class to build otherwise
+        kwargs: additional arguments passed to exception constructors
 
     Returns:
-        a more specific exception, or the original if decoding fails
+        a more specific exception, or the original if no matches are found and
+        no fallback template is provided.
     """
-    cause = exception.orig.args[-1]
-    if "UNIQUE constraint" in cause:
-        return on_duplicate(cause)
-    elif "NOT NULL constraint" in cause:
-        return on_null(cause)
-    return exception
+    if isinstance(exception, IntegrityError):
+        cause = exception.orig.args[-1].lower()
+        if "unique constraint" in cause:
+            return on_duplicate(exception, **kwargs)
+        elif "not null constraint" in cause:
+            return on_null(exception, **kwargs)
+    return exception if not fallback else fallback(exception, **kwargs)

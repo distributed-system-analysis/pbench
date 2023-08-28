@@ -745,7 +745,9 @@ class TestUpload:
         def setvalue(
             dataset: Dataset, key: str, value: Any, user: Optional[User] = None
         ):
-            raise MetadataSqlError("test", dataset, key)
+            raise MetadataSqlError(
+                Exception("fake"), operation="test", dataset=dataset, key=key
+            )
 
         monkeypatch.setattr(Metadata, "setvalue", setvalue)
 
@@ -761,7 +763,7 @@ class TestUpload:
         assert len(audit) == 2
         fails = audit[1].attributes["failures"]
         assert isinstance(fails, dict)
-        assert fails["server.benchmark"].startswith("Error test ")
+        assert fails["server.benchmark"].startswith("Metadata SQL error 'fake': ")
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_archive(self, client, pbench_drb_token, server_config, tarball):
