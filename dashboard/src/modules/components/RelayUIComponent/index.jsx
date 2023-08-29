@@ -77,9 +77,19 @@ const RelayComponent = () => {
         <PopoverComponent />
       </div>
       <p className="modal-desc">
-        The Pbench Agent can push datasets to a Pbench Server directly, when the
-        server is accessible from the system where the Pbench Agent is being
-        used.
+        When the Pbench Server is not directly reachable from the system where
+        the Pbench Agent is being used, the Pbench Agent can instead upload
+        results data to a relay server that is reachable by both the Pbench
+        Agent and the Pbench Server.
+      </p>
+
+      <p>
+        When used with the
+        <span className="italicized"> --relay</span> option, the Pbench Agent
+        <span className="italicized"> pbench-results-move </span>
+        command will report a URL on successful upload, and entering that URL
+        here will instruct the Pbench Server to pull the results data from the
+        relay and then remove it from the relay.
       </p>
       <div className="card-wrapper">
         <Card>
