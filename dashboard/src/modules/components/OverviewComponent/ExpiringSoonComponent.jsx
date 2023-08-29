@@ -17,7 +17,7 @@ const ExpiringSoonComponent = () => {
     (state) => state.overview
   );
 
-  /* Pagination */
+  // Pagination helper
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE_EXPIRING);
   const [page, setPage] = useState(START_PAGE_NUMBER);
 
@@ -29,7 +29,7 @@ const ExpiringSoonComponent = () => {
     [dispatch, expiringRuns]
   );
   const perPageOptions = [
-    { title: "10", value: 10 },
+    { title: "7", value: 7 },
     { title: "15", value: 15 },
     { title: "20", value: 20 },
   ];
@@ -41,13 +41,13 @@ const ExpiringSoonComponent = () => {
     },
     [dispatch, expiringRuns]
   );
-  /* Pagination */
+  // Pagination helper
   return (
     <>
       <List isPlain isBordered className="expiring-soon-list">
-        {initExpiringRuns.map((run) => {
-          return <ListItem key={run.resource_id}>{run.name}</ListItem>;
-        })}
+        {initExpiringRuns.map((run) => (
+          <ListItem key={run.resource_id}>{run.name}</ListItem>
+        ))}
       </List>
       <RenderPagination
         items={expiringRuns.length}

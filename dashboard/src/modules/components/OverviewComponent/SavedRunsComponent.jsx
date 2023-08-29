@@ -38,7 +38,7 @@ const SavedRunsComponent = () => {
     (state) => state.overview
   );
 
-  /* Selecting */
+  // Selecting helper
   const areAllRunsSelected =
     savedRuns?.length > 0 && savedRuns?.length === selectedSavedRuns?.length;
   const selectAllRuns = (isSelecting) => {
@@ -53,9 +53,9 @@ const SavedRunsComponent = () => {
   };
   const isRowSelected = (run) =>
     selectedSavedRuns.filter((item) => item.name === run.name).length > 0;
-  /* Selecting */
+  // Selecting helper
 
-  /* Actions Row */
+  // Actions Row
   const moreActionItems = (dataset) => [
     {
       title:
@@ -78,11 +78,11 @@ const SavedRunsComponent = () => {
       onClick: () => dispatch(deleteDataset(dataset)),
     },
   ];
-  /* Actions Row */
+  // Actions Row
   const makeFavorites = (dataset, isFavoriting = true) => {
     dispatch(getMetaDataActions(dataset, "favorite", isFavoriting));
   };
-  /* Edit Dataset */
+  // Edit Dataset
   const saveRowData = (dataset) => {
     dispatch(getEditedMetadata(dataset, "savedRuns"));
   };
@@ -93,8 +93,9 @@ const SavedRunsComponent = () => {
   const updateTblValue = (newValue, metadata, rId) => {
     dispatch(editMetadata(newValue, metadata, rId, "savedRuns"));
   };
-  /* Edit Dataset */
-  /* Pagination */
+  // Edit Dataset
+
+  // Pagination helper
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE_SAVED);
   const [page, setPage] = useState(START_PAGE_NUMBER);
 
@@ -106,7 +107,7 @@ const SavedRunsComponent = () => {
     [dispatch, savedRuns]
   );
   const perPageOptions = [
-    { title: "10", value: 10 },
+    { title: "7", value: 7 },
     { title: "15", value: 15 },
     { title: "20", value: 20 },
   ];
@@ -118,7 +119,8 @@ const SavedRunsComponent = () => {
     },
     [dispatch, savedRuns]
   );
-  /* Pagination */
+  // Pagination helper
+
   const columnNames = {
     result: "Result",
     uploadedtime: "Uploaded Time",
