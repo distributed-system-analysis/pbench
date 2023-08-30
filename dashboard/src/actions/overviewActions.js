@@ -77,7 +77,6 @@ const initializeRuns = () => (dispatch, getState) => {
     item[CONSTANTS.IS_ITEM_FAVORITED] =
       !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
   });
-  const defaultPerPage = getState().overview.defaultPerPage;
 
   const savedRuns = data.filter(
     (item) => item.metadata[CONSTANTS.DASHBOARD_SAVED]
@@ -105,7 +104,15 @@ const initializeRuns = () => (dispatch, getState) => {
   });
   dispatch({
     type: TYPES.INIT_NEW_RUNS,
-    payload: newRuns?.slice(0, defaultPerPage),
+    payload: newRuns?.slice(0, CONSTANTS.DEFAULT_PER_PAGE_NEWRUNS) ?? [],
+  });
+  dispatch({
+    type: TYPES.INIT_SAVED_RUNS,
+    payload: savedRuns?.slice(0, CONSTANTS.DEFAULT_PER_PAGE_SAVED) ?? [],
+  });
+  dispatch({
+    type: TYPES.INIT_EXPIRING_RUNS,
+    payload: expiringRuns?.slice(0, CONSTANTS.DEFAULT_PER_PAGE_EXPIRING) ?? [],
   });
 };
 const metaDataActions = {
@@ -223,26 +230,29 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
   dispatch({ type: TYPES.COMPLETED });
 };
 
-export const setRows = (rows) => {
-  return {
-    type: TYPES.INIT_NEW_RUNS,
-    payload: rows,
-  };
-};
+export const setRows = (rows) => ({
+  type: TYPES.INIT_NEW_RUNS,
+  payload: rows,
+});
 
-export const setSelectedRuns = (rows) => {
-  return {
-    type: TYPES.SELECTED_NEW_RUNS,
-    payload: rows,
-  };
-};
+export const setSavedRows = (rows) => ({
+  type: TYPES.INIT_SAVED_RUNS,
+  payload: rows,
+});
 
-export const setSelectedSavedRuns = (rows) => {
-  return {
-    type: TYPES.SELECTED_SAVED_RUNS,
-    payload: rows,
-  };
-};
+export const setExpiringRows = (rows) => ({
+  type: TYPES.INIT_EXPIRING_RUNS,
+  payload: rows,
+});
+export const setSelectedRuns = (rows) => ({
+  type: TYPES.SELECTED_NEW_RUNS,
+  payload: rows,
+});
+
+export const setSelectedSavedRuns = (rows) => ({
+  type: TYPES.SELECTED_SAVED_RUNS,
+  payload: rows,
+});
 export const updateMultipleDataset =
   (method, value) => (dispatch, getState) => {
     const selectedRuns = getState().overview.selectedRuns;

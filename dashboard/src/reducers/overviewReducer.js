@@ -3,8 +3,9 @@ const initialState = {
   datasets: [],
   savedRuns: [],
   newRuns: [],
-  defaultPerPage: 5,
   initNewRuns: [],
+  initSavedRuns: [],
+  initExpiringRuns: [],
   selectedRuns: [],
   selectedSavedRuns: [],
   expiringRuns: [],
@@ -38,6 +39,16 @@ const OverviewReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         initNewRuns: payload,
+      };
+    case TYPES.INIT_SAVED_RUNS:
+      return {
+        ...state,
+        initSavedRuns: payload,
+      };
+    case TYPES.INIT_EXPIRING_RUNS:
+      return {
+        ...state,
+        initExpiringRuns: payload,
       };
     case TYPES.SELECTED_NEW_RUNS:
       return {
