@@ -419,10 +419,12 @@ export const MetadataRow = (props) => {
   return (
     <Table className="box" key={uid()} aria-label="metadata-table">
       <Thead>
-        <Th width={25} textCenter>
-          {columnNames.key}
-        </Th>
-        <Th width={40}>{columnNames.value}</Th>
+        <Tr>
+          <Th width={25} textCenter>
+            {columnNames.key}
+          </Th>
+          <Th width={40}>{columnNames.value}</Th>
+        </Tr>
       </Thead>
       <Tbody>
         {checkedItems.map((attr) => {

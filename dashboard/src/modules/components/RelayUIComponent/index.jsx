@@ -42,12 +42,12 @@ const AboutComponent = () => (
 );
 const PopoverComponent = () => (
   <Popover
-    aria-label="Basic popover"
+    aria-label="Relay About Popover"
     headerContent={<div>About</div>}
     bodyContent={<AboutComponent />}
     maxWidth="4vw"
   >
-    <Button variant="plain" aria-label="About">
+    <Button variant="plain" aria-label="About" className="popover-btn">
       <OutlinedQuestionCircleIcon />
     </Button>
   </Popover>
@@ -73,9 +73,21 @@ const RelayComponent = () => {
       onClose={handleClose}
     >
       <div className="modal-heading">
-        <Title headingLevel="h3">Relay</Title>
+        <Title headingLevel="h3">Pull Datasets</Title>
         <PopoverComponent />
       </div>
+      <p className="modal-desc">
+        When you use the Pbench Agent{" "}
+        <span className="italicized"> pbench-results-move </span> command with
+        the
+        <span className="italicized"> --relay </span>option to push results to a
+        relay server, the command will report a URL.
+      </p>
+      <p className="modal-desc">
+        Enter that URL here to instruct the Pbench Server to upload the results
+        data from the relay and remove it from the relay.
+      </p>
+
       <div className="card-wrapper">
         <Card>
           <CardBody>
