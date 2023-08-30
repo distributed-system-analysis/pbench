@@ -363,7 +363,7 @@ ifdef CI
 	if [[ -z "${_RPM_PATH}" ]] ; then echo "No RPM found with ID ${_LOCAL_GIT_HASH} for ${_LOCAL_MAJORMINOR} in ${CI_RPM_LOC}" >&2 ; exit 2 ; fi
 	if grep ' ' <<< ${_RPM_PATH} ; then echo "Multiple RPMs found:  ${_RPM_PATH}" >&2 ; exit 2 ; fi
 	printf -- "%s\n" ${_LOCAL_GIT_HASH} > ${@}
-	printf -- "v%s\n" "$(shell grep -Eo '[0-9]+\.[0-9]+\.([0-9]+(-[0-9]+)?)?' <<< "${_RPM_PATH}")" >> ${@}
+	printf -- "v%s\n" "$(shell grep -Eo '[0-9]+\.[0-9]+(\.[0-9]+(-[0-9]+)?)?' <<< "${_RPM_PATH}")" >> ${@}
 	printf -- "v%s-latest v%s-latest\n" ${_LOCAL_MAJOR_VER} ${_LOCAL_MAJORMINOR} >> ${@}
 else
 	./gen-tags-from-rpm "${URL_PREFIX}" "$(subst centos,epel,$*)" "${_ARCH}" "${_PBENCH_REPO_NAME}" > ${@}
