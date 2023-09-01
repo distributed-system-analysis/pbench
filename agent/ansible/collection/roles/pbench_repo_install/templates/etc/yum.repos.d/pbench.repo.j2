@@ -1,3 +1,6 @@
+# Note that this template is used not only for installing via Ansible but also
+# for building the containerized Agent.
+
 {% for repo in repos %}
 
 [copr-{{ repo.tag }}-{{ repo.user }}]
