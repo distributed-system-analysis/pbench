@@ -26,7 +26,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { DATASET_UPLOADED } from "assets/constants/overviewConstants";
 import DatePickerWidget from "../DatePickerComponent";
-import PathBreadCrumb from "../BreadCrumbComponent";
 import { RenderPagination } from "../OverviewComponent/common-component";
 import TablePagination from "../PaginationComponent";
 import { useKeycloak } from "@react-keycloak/web";
@@ -129,10 +128,6 @@ const TableWithFavorite = () => {
   const onCloseLoginHint = () => {
     setLoginHintVisible(false);
   };
-  const datasetBreadcrumb = [
-    { name: "Dashboard", link: "/" },
-    { name: "Results", link: "" },
-  ];
 
   /* Favorite Table Pagination */
   const onSetPage = (_evt, newPage, _perPage, startIdx, endIdx) => {
@@ -157,7 +152,6 @@ const TableWithFavorite = () => {
         />
       )}
       <div className="table-container">
-        <PathBreadCrumb pathList={datasetBreadcrumb} />
         <Heading
           containerClass="publicDataPageTitle"
           headingTitle="Results"

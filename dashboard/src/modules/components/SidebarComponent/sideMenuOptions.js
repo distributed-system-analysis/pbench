@@ -21,7 +21,7 @@ export const menuOptions = [
         submenu: true,
         key: "all_runs",
         submenuOf: "dashboard",
-        link: "all_runs",
+        link: "all-runs",
       },
       {
         name: "Results",
