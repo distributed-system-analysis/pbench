@@ -1,12 +1,12 @@
 ---
 repos:
-  - name: {{ name }}
+  - tag: {{ name }}
     user: {{ user }}
     baseurl: "{{ url_prefix }}/{{ name }}/{{ distro }}-$basearch"
     gpgkey: "{{ url_prefix }}/{{ name }}/pubkey.gpg"
     gpgcheck: 1
     enabled: 1
-  - name: pbench
+  - tag: pbench
     user: {{ user }}
     baseurl: "{{ url_prefix }}/pbench/{{ distro }}-$basearch"
     gpgkey: "{{ url_prefix }}/pbench/pubkey.gpg"
