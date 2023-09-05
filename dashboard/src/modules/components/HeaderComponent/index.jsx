@@ -142,7 +142,7 @@ const HeaderComponent = () => {
         </PageToggleButton>
       </MastheadToggle>
       <MastheadMain>
-        <MastheadBrand href="/">
+        <MastheadBrand href={"/" + APP_ROUTES.HOME}>
           <Brand src={pbenchLogo} className="header-logo" alt="pbench Logo" />
         </MastheadBrand>
       </MastheadMain>
