@@ -766,6 +766,20 @@ class TestInventory:
             meta = read_metadata(response)
             assert meta == dataset.metadata["dataset.metalog"]
 
+            # Test that the content-disposition header has the proper full
+            # filename for the tarball itself.
+            response = server_client.get(
+                API.DATASETS_INVENTORY,
+                {"dataset": dataset.resource_id, "target": ""},
+            )
+
+            # Werkzeug quotes filenames it thinks might be "suspect"; rather
+            # than try to reverse engineer the logic, check it piecemeal.
+            assert response.headers["content-disposition"].startswith(
+                "attachment; filename="
+            )
+            assert f"{dataset.name}.tar.xz" in response.headers["content-disposition"]
+
 
 class TestUpdate:
     @pytest.mark.dependency(name="publish", depends=["index"], scope="session")
