@@ -657,7 +657,7 @@ class Tarball:
         """
         if not path:
             info = {
-                "name": self.name,
+                "name": self.tarball_path.name,
                 "type": CacheType.FILE,
                 "stream": Inventory(self.tarball_path.open("rb"), None),
             }
