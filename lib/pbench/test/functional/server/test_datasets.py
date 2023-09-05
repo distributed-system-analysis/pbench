@@ -775,7 +775,9 @@ class TestInventory:
 
             # Werkzeug quotes filenames it thinks might be "suspect"; rather
             # than try to reverse engineer the logic, check it piecemeal.
-            assert response.headers["content-disposition"].startswith("attachment; filename=")
+            assert response.headers["content-disposition"].startswith(
+                "attachment; filename="
+            )
             assert f"{dataset.name}.tar.xz" in response.headers["content-disposition"]
 
 
