@@ -10,16 +10,22 @@ import {
   START_PAGE_NUMBER,
 } from "assets/constants/overviewConstants";
 import {
+  ExpandableRowContent,
   InnerScrollContainer,
   OuterScrollContainer,
   TableComposable,
   Tbody,
+  Td,
   Th,
   Thead,
   Tr,
 } from "@patternfly/react-table";
+import {
+  MetadataRow,
+  RenderPagination,
+  SavedRunsRow,
+} from "./common-component";
 import React, { useCallback, useState } from "react";
-import { RenderPagination, SavedRunsRow } from "./common-component";
 import {
   deleteDataset,
   editMetadata,
@@ -32,11 +38,12 @@ import {
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import { uid } from "utils/helper";
+
 const SavedRunsComponent = () => {
   const dispatch = useDispatch();
-  const { savedRuns, selectedSavedRuns, initSavedRuns } = useSelector(
-    (state) => state.overview
-  );
+  const { savedRuns, selectedSavedRuns, initSavedRuns, checkedItems } =
+    useSelector((state) => state.overview);
 
   // Selecting helper
   const areAllRunsSelected =
@@ -120,7 +127,19 @@ const SavedRunsComponent = () => {
     [dispatch, savedRuns]
   );
   // Pagination helper
+  const [expandedRunNames, setExpandedRunNames] = React.useState([]);
+  const setRunExpanded = (run, isExpanding = true) =>
+    setExpandedRunNames((prevExpanded) => {
+      const otherExpandedRunNames = prevExpanded.filter((r) => r !== run.name);
+      return isExpanding
+        ? [...otherExpandedRunNames, run.name]
+        : otherExpandedRunNames;
+    });
 
+  const isRunExpanded = useCallback(
+    (run) => expandedRunNames.includes(run.name),
+    [expandedRunNames]
+  );
   const columnNames = {
     result: "Result",
     uploadedtime: "Uploaded Time",
@@ -131,9 +150,14 @@ const SavedRunsComponent = () => {
     <div className="savedRuns-table-container">
       <OuterScrollContainer>
         <InnerScrollContainer>
-          <TableComposable isStickyHeader variant={"compact"}>
+          <TableComposable
+            isStickyHeader
+            variant={"compact"}
+            className="runs-table"
+          >
             <Thead>
               <Tr>
+                <Th />
                 <Th
                   width={10}
                   select={{
@@ -157,32 +181,51 @@ const SavedRunsComponent = () => {
               {initSavedRuns.map((item, rowIndex) => {
                 const rowActions = moreActionItems(item);
                 return (
-                  <Tr
-                    key={item.resource_id}
-                    className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
-                  >
-                    <SavedRunsRow
-                      item={item}
-                      rowActions={rowActions}
-                      rowIndex={rowIndex}
-                      makeFavorites={makeFavorites}
-                      columnNames={columnNames}
-                      onSelectRuns={onSelectRuns}
-                      isRowSelected={isRowSelected}
-                      textInputEdit={(val) =>
-                        updateTblValue(val, NAME_KEY, item.resource_id)
-                      }
-                      toggleEdit={toggleEdit}
-                      onDateSelect={(_event, str) =>
-                        updateTblValue(
-                          str,
-                          SERVER_DELETION_KEY,
-                          item.resource_id
-                        )
-                      }
-                      saveRowData={saveRowData}
-                    />
-                  </Tr>
+                  <React.Fragment key={uid()}>
+                    <Tr
+                      key={item.resource_id}
+                      className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
+                    >
+                      <SavedRunsRow
+                        item={item}
+                        rowActions={rowActions}
+                        setRunExpanded={setRunExpanded}
+                        isRunExpanded={isRunExpanded}
+                        rowIndex={rowIndex}
+                        makeFavorites={makeFavorites}
+                        columnNames={columnNames}
+                        onSelectRuns={onSelectRuns}
+                        isRowSelected={isRowSelected}
+                        textInputEdit={(val) =>
+                          updateTblValue(val, NAME_KEY, item.resource_id)
+                        }
+                        toggleEdit={toggleEdit}
+                        onDateSelect={(_event, str) =>
+                          updateTblValue(
+                            str,
+                            SERVER_DELETION_KEY,
+                            item.resource_id
+                          )
+                        }
+                        saveRowData={saveRowData}
+                      />
+                    </Tr>
+                    {checkedItems && checkedItems.length > 0 ? (
+                      <Tr isExpanded={isRunExpanded(item)} key={uid()}>
+                        <Td colSpan={8}>
+                          <ExpandableRowContent>
+                            <div className="pf-u-m-md">
+                              <MetadataRow
+                                key={uid()}
+                                checkedItems={checkedItems}
+                                item={item}
+                              />
+                            </div>
+                          </ExpandableRowContent>
+                        </Td>
+                      </Tr>
+                    ) : null}
+                  </React.Fragment>
                 );
               })}
             </Tbody>

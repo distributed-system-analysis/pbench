@@ -148,7 +148,11 @@ const NewRunsComponent = () => {
     <div className="newruns-table-container">
       <OuterScrollContainer>
         <InnerScrollContainer>
-          <TableComposable isStickyHeader variant={"compact"}>
+          <TableComposable
+            isStickyHeader
+            variant={"compact"}
+            className="runs-table"
+          >
             <Thead>
               <Tr>
                 <Th />
@@ -173,7 +177,7 @@ const NewRunsComponent = () => {
               {initNewRuns.map((item, rowIndex) => {
                 const rowActions = moreActionItems(item);
                 return (
-                  <>
+                  <React.Fragment key={uid()}>
                     <Tr
                       key={uid()}
                       className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
@@ -219,7 +223,7 @@ const NewRunsComponent = () => {
                         </Td>
                       </Tr>
                     ) : null}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </Tbody>
