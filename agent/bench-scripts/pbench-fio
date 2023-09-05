@@ -71,7 +71,7 @@ function usage {
 	printf "The following options are available:\n"
 	printf "\n"
 	printf -- "\t-t str[,str...] --test-types=str[,str...]\n"
-	printf "\t\tone or more of %s\n" $supported_test_types
+	printf "\t\tone or more of %s (default is %s)\n" $supported_test_types $test_types
 	printf "\n"
 	printf -- "\t--direct=[0/1]\n"
 	printf "\t\t1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled\n"
