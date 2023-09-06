@@ -12,6 +12,7 @@ import {
 } from "@patternfly/react-core";
 import {
   Heading,
+  MetaDataModal,
   NewRunsHeading,
   NoExpiringRuns,
   Separator,
@@ -97,9 +98,9 @@ const OverviewComponent = () => {
                     New and Unmanaged
                   </AccordionToggle>
                   <AccordionContent isHidden={!expanded.has("newRuns")}>
+                    <NewRunsHeading />
                     {newRuns.length > 0 ? (
                       <>
-                        <NewRunsHeading />
                         <NewRunsComponent />
                       </>
                     ) : (
@@ -116,6 +117,7 @@ const OverviewComponent = () => {
             {savedRuns.length > 0 ? <SavedRunsComponent /> : <EmptyTable />}
           </Card>
           <RelayComponent />
+          <MetaDataModal />
         </>
       )}
     </div>

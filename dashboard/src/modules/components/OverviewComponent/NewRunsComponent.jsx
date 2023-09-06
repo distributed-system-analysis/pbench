@@ -20,12 +20,7 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import {
-  MetaDataModal,
-  MetadataRow,
-  NewRunsRow,
-  RenderPagination,
-} from "./common-component";
+import { MetadataRow, NewRunsRow, RenderPagination } from "./common-component";
 import React, { useCallback, useState } from "react";
 import {
   deleteDataset,
@@ -42,13 +37,9 @@ import { uid } from "utils/helper";
 
 const NewRunsComponent = () => {
   const dispatch = useDispatch();
-  const {
-    newRuns,
-    initNewRuns,
-    selectedRuns,
-    isMetadataModalOpen,
-    checkedItems,
-  } = useSelector((state) => state.overview);
+  const { newRuns, initNewRuns, selectedRuns, checkedItems } = useSelector(
+    (state) => state.overview
+  );
 
   const [perPage, setPerPage] = useState(ROWS_PER_PAGE);
   const [page, setPage] = useState(START_PAGE_NUMBER);
@@ -245,7 +236,6 @@ const NewRunsComponent = () => {
           />
         </InnerScrollContainer>
       </OuterScrollContainer>
-      {isMetadataModalOpen && <MetaDataModal />}
     </div>
   );
 };
