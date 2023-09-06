@@ -97,9 +97,9 @@ const OverviewComponent = () => {
                     New and Unmanaged
                   </AccordionToggle>
                   <AccordionContent isHidden={!expanded.has("newRuns")}>
+                    <NewRunsHeading />
                     {newRuns.length > 0 ? (
                       <>
-                        <NewRunsHeading />
                         <NewRunsComponent />
                       </>
                     ) : (
