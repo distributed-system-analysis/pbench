@@ -33,12 +33,6 @@ import {
   RedoIcon,
   TimesIcon,
 } from "@patternfly/react-icons";
-import {
-  DATASET_ACCESS,
-  DATASET_UPLOADED,
-  EXPIRATION_DAYS_LIMIT,
-  SERVER_DELETION,
-} from "assets/constants/overviewConstants";
 import React, { useState } from "react";
 import {
   getDatasets,
@@ -70,9 +64,9 @@ export const NoExpiringRuns = () => {
       <TextContent className="no-runs-wrapper">
         <Text component={TextVariants.h3}> You have no runs expiring soon</Text>
         <Text component={TextVariants.p}>
-          Runs that have expiration date within next {EXPIRATION_DAYS_LIMIT}{" "}
-          days will appear here. These runs will be automatically removed from{" "}
-          the system if left unacknowledged.
+          Runs that have expiration date within next{" "}
+          {CONSTANTS.EXPIRATION_DAYS_LIMIT} days will appear here. These runs
+          will be automatically removed from the system if left unacknowledged.
           <Button variant="link">Learn More.</Button>
         </Text>
       </TextContent>
@@ -297,11 +291,11 @@ export const NewRunsRow = (props) => {
       <Td dataLabel={columnNames.endtime}>
         {item[CONSTANTS.IS_EDIT] ? (
           <SelectDateComponent
-            value={item.metadata[SERVER_DELETION]}
+            value={item.metadata.server.deletion}
             onDateSelect={props.onDateSelect}
           />
         ) : (
-          formatDateTime(item.metadata[SERVER_DELETION])
+          formatDateTime(item.metadata.server.deletion)
         )}
       </Td>
       <Td
@@ -370,19 +364,19 @@ export const SavedRunsRow = (props) => {
         )}
       </Td>
       <Td dataLabel={columnNames.endtime}>
-        {formatDateTime(item.metadata[DATASET_UPLOADED])}
+        {formatDateTime(item.metadata.dataset.uploaded)}
       </Td>
       <Td dataLabel={columnNames.scheduled}>
         {item.isEdit ? (
           <SelectDateComponent
-            value={item.metadata[SERVER_DELETION]}
+            value={item.metadata.server.deletion}
             onDateSelect={props.onDateSelect}
           />
         ) : (
-          formatDateTime(item.metadata[SERVER_DELETION])
+          formatDateTime(item.metadata.server.deletion)
         )}
       </Td>
-      <Td className="access">{item.metadata[DATASET_ACCESS]}</Td>
+      <Td className="access">{item.metadata.dataset.access}</Td>
       <Td
         favorites={{
           isFavorited: item.isItemFavorited,

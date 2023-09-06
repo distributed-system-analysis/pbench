@@ -1,8 +1,6 @@
 import "./index.less";
 
 import {
-  DASHBOARD_SEEN,
-  DATASET_ACCESS,
   DEFAULT_PER_PAGE_SAVED,
   IS_ITEM_SEEN,
   NAME_KEY,
@@ -66,18 +64,24 @@ const SavedRunsComponent = () => {
   const moreActionItems = (dataset) => [
     {
       title:
-        dataset.metadata[DATASET_ACCESS] === "public" ? "Unpublish" : "Publish",
+        dataset.metadata.dataset.access === "public" ? "Unpublish" : "Publish",
       onClick: () => {
         const accessType =
-          dataset.metadata[DATASET_ACCESS] === "public" ? "private" : "public";
+          dataset.metadata.dataset.access === "public" ? "private" : "public";
         dispatch(publishDataset(dataset, accessType));
       },
     },
     {
-      title: dataset.metadata[DASHBOARD_SEEN] ? "Mark unread" : "Mark read",
+      title: dataset.metadata.global.dashboard.seen
+        ? "Mark unread"
+        : "Mark read",
       onClick: () =>
         dispatch(
-          getMetaDataActions(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
+          getMetaDataActions(
+            dataset,
+            "read",
+            !dataset.metadata.global.dashboard.seen
+          )
         ),
     },
     {
