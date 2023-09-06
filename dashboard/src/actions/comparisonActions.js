@@ -82,11 +82,16 @@ const getChartValues = (run, benchmarkType) => {
     uperf: "name",
     fio: "iteration_name",
   };
+  const values = {
+    uperf: "time_taken",
+    fio: "value",
+  };
   const obj = {
     chartTitle: chartTitle[benchmark],
     chartSubtitle: chartSubTitle[benchmark],
     yAxis: yaxisScale[benchmark],
     keyToParse: keys[benchmark],
+    valueToGet: values[benchmark],
   };
 
   return obj;
@@ -155,7 +160,7 @@ export const parseChartData = (benchmark) => (dispatch, getState) => {
     for (const [key, value] of Object.entries(result)) {
       const map = {};
       for (const element of value) {
-        map[element[chartObj.keyToParse]] = element.time_taken.trim();
+        map[element[chartObj.keyToParse]] = element[chartObj.valueToGet].trim();
       }
       const mappedData = data.labels.map((label) => {
         return map[label];
