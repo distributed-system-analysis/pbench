@@ -30,8 +30,9 @@ import SavedRunsComponent from "./SavedRunsComponent";
 const OverviewComponent = () => {
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
-  const { expiringRuns, savedRuns, newRuns, loadingDone, isMetadataModalOpen } =
-    useSelector((state) => state.overview);
+  const { expiringRuns, savedRuns, newRuns, loadingDone } = useSelector(
+    (state) => state.overview
+  );
   const [expanded, setExpanded] = React.useState(
     new Set(["expired", "newRuns"])
   );
