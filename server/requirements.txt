@@ -12,7 +12,7 @@ flask-restful>=0.3.9
 flask-sqlalchemy
 gunicorn
 humanize
-pquisby==0.0.17
+pquisby
 psycopg2
 pyesbulk>=2.0.1
 PyJwt[crypto]
