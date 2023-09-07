@@ -156,12 +156,14 @@ export const updateDataset =
         );
 
         for (const key in response.data.metadata) {
-          if (checkNestedPath(key, item.metadata)) {
-            item.metadata = setValueFromPath(
-              key,
-              item.metadata,
-              response.data.metadata[key]
-            );
+          if (checkNestedPath(key, item.metadata) || key in item.metadata) {
+            if (checkNestedPath(key, item.metadata)) {
+              item.metadata = setValueFromPath(
+                key,
+                item.metadata,
+                response.data.metadata[key]
+              );
+            }
             if (key in item.metadata) {
               item.metadata[key] = response.data.metadata[key];
             }
@@ -552,14 +554,12 @@ const isServerInternal = (string) =>
  */
 
 const setValueFromPath = (path, obj, value) => {
-  const [head, ...rest] = path.split(".");
-
-  return {
-    ...obj,
-    [head]: rest.length
-      ? setValueFromPath(rest.join("."), obj[head], value)
-      : value,
+  const recurse = (plist, o, v) => {
+    const [head, ...rest] = plist;
+    return { ...o, [head]: rest.length ? recurse(rest, o[head], v) : v };
   };
+
+  return recurse(path.split("."), obj, value);
 };
 
 /**
@@ -570,13 +570,5 @@ const setValueFromPath = (path, obj, value) => {
  * @return {Boolean} - true/false if the object has/not the key
  */
 
-const checkNestedPath = function (path, obj = {}) {
-  const args = path.split(".");
-  for (let i = 0; i < args.length; i++) {
-    if (!obj || !obj.hasOwnProperty(args[i])) {
-      return false;
-    }
-    obj = obj[args[i]];
-  }
-  return true;
-};
+const checkNestedPath = (path, obj = {}) =>
+  path.split(".").reduce((a, p) => a?.[p], obj) !== undefined;

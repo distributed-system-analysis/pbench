@@ -327,9 +327,28 @@ export const NewRunsRow = (props) => {
 };
 
 export const SavedRunsRow = (props) => {
-  const { item, rowIndex, columnNames, rowActions } = props;
+  const {
+    item,
+    rowIndex,
+    columnNames,
+    rowActions,
+    isRunExpanded,
+    setRunExpanded,
+  } = props;
   return (
     <>
+      <Td
+        expand={
+          item.metadata
+            ? {
+                rowIndex,
+                isExpanded: isRunExpanded(item),
+                onToggle: () => setRunExpanded(item, !isRunExpanded(item)),
+                expandId: "saved-runs-table",
+              }
+            : undefined
+        }
+      />
       <Td
         select={{
           rowIndex,
