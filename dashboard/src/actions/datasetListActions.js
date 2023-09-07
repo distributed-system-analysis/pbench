@@ -4,8 +4,11 @@ import * as TYPES from "./types";
 import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
+import Cookies from "js-cookie";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "utils/helper";
+
+const loggedIn = Cookies.get("isLoggedIn");
 
 export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
   try {
@@ -15,8 +18,17 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
       getState().datasetlist;
     let publicData = [...getState().datasetlist.publicData];
     const params = new URLSearchParams();
-    params.append("metadata", "dataset.uploaded");
-    params.append("access", "public");
+    // params.append("metadata", "dataset.uploaded");
+    // params.append("access", "public");
+
+    params.append("metadata", "server");
+    params.append("metadata", "dataset");
+    params.append("metadata", "global");
+    params.append("metadata", "user");
+    if (loggedIn) {
+      params.append("mine", "true");
+    }
+
     params.append("offset", offset);
     params.append("limit", limit);
 

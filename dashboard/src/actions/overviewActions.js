@@ -355,7 +355,7 @@ export const editMetadata =
       }
     } else if (metadata === CONSTANTS.SERVER_DELETION_KEY) {
       data[rIndex][CONSTANTS.IS_DIRTY_SERVER_DELETE] = true;
-      data[rIndex].metadata[CONSTANTS.SERVER_DELETION] = value;
+      data[rIndex].metadata.server.deletion = value;
     }
     dispatch(updateDatasetType(data, type));
   };
@@ -376,7 +376,7 @@ export const setRowtoEdit =
 
     if (!isEdit) {
       data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
-      data[rIndex].metadata[CONSTANTS.SERVER_DELETION] =
+      data[rIndex].metadata.server.deletion =
         data[rIndex][CONSTANTS.SERVER_DELETION_COPY];
       clearEditableFields(data[rIndex]);
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
