@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import errno
 import fcntl
 import hashlib
@@ -583,6 +584,16 @@ class TestCacheManager:
         cache = Path("/mock/.cache")
         rmtree_called = True
 
+        locks: list[tuple[str, str]] = []
+
+        @contextmanager
+        def open(s, m, buffering=-1):
+            yield None
+
+        def locker(fd, mode):
+            nonlocal locks
+            locks.append((fd, mode))
+
         def mock_rmtree(path: Path, ignore_errors=False):
             nonlocal rmtree_called
             rmtree_called = True
@@ -623,6 +634,16 @@ class TestCacheManager:
         tar = Path("/mock/A.tar.xz")
         cache = Path("/mock/.cache")
         call = list()
+
+        locks: list[tuple[str, str]] = []
+
+        @contextmanager
+        def open(s, m, buffering=-1):
+            yield None
+
+        def locker(fd, mode):
+            nonlocal locks
+            locks.append((fd, mode))
 
         def mock_run(args, **_kwargs):
             call.append(args[0])
