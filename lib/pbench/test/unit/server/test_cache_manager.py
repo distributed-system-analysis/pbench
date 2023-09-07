@@ -1,4 +1,6 @@
+from contextlib import contextmanager
 import errno
+import fcntl
 import hashlib
 import io
 from logging import Logger
@@ -508,30 +510,35 @@ class TestCacheManager:
             self.cache = controller.cache / "ABC"
             self.isolator = controller.path / resource_id
             self.unpacked = None
+            self.controller = controller
 
     def test_unpack_tar_subprocess_exception(self, make_logger, monkeypatch):
         """Show that, when unpacking of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
         cache = Path("/mock/.cache")
-        rmtree_called = False
 
-        def mock_rmtree(path: Path, ignore_errors=False):
-            nonlocal rmtree_called
-            rmtree_called = True
+        locks: list[tuple[str, str]] = []
 
-            assert ignore_errors
-            assert path == cache / "ABC"
+        @contextmanager
+        def open(s, m, buffering=-1):
+            yield None
 
+        def locker(fd, mode):
+            nonlocal locks
+            locks.append((fd, mode))
+
+        @staticmethod
         def mock_run(command, _dir_path, exception, dir_p):
             verb = "tar"
             assert command.startswith(verb)
             raise exception(dir_p, subprocess.TimeoutExpired(verb, 43))
 
         with monkeypatch.context() as m:
-            m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(Tarball, "subprocess_run", staticmethod(mock_run))
-            m.setattr(shutil, "rmtree", mock_rmtree)
+            m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
+            m.setattr(Tarball, "subprocess_run", mock_run)
+            m.setattr(Path, "open", open)
+            m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             tb = Tarball(
@@ -542,7 +549,6 @@ class TestCacheManager:
             msg = f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
             assert str(exc.value) == msg
             assert exc.type == TarballUnpackError
-            assert rmtree_called
 
     def test_unpack_find_subprocess_exception(self, make_logger, monkeypatch):
         """Show that, when permission change of the Tarball fails and raises
@@ -551,6 +557,16 @@ class TestCacheManager:
         cache = Path("/mock/.cache")
         rmtree_called = True
 
+        locks: list[tuple[str, str]] = []
+
+        @contextmanager
+        def open(s, m, buffering=-1):
+            yield None
+
+        def locker(fd, mode):
+            nonlocal locks
+            locks.append((fd, mode))
+
         def mock_rmtree(path: Path, ignore_errors=False):
             nonlocal rmtree_called
             rmtree_called = True
@@ -558,6 +574,7 @@ class TestCacheManager:
             assert ignore_errors
             assert path == cache / "ABC"
 
+        @staticmethod
         def mock_run(command, _dir_path, exception, dir_p):
             verb = "find"
             if command.startswith(verb):
@@ -566,8 +583,10 @@ class TestCacheManager:
                 assert command.startswith("tar")
 
         with monkeypatch.context() as m:
-            m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(Tarball, "subprocess_run", staticmethod(mock_run))
+            m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
+            m.setattr(Path, "open", open)
+            m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
+            m.setattr(Tarball, "subprocess_run", mock_run)
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
@@ -589,6 +608,16 @@ class TestCacheManager:
         cache = Path("/mock/.cache")
         call = list()
 
+        locks: list[tuple[str, str]] = []
+
+        @contextmanager
+        def open(s, m, buffering=-1):
+            yield None
+
+        def locker(fd, mode):
+            nonlocal locks
+            locks.append((fd, mode))
+
         def mock_run(args, **_kwargs):
             call.append(args[0])
 
@@ -604,8 +633,10 @@ class TestCacheManager:
             raise AssertionError("Unexpected call to Path.resolve()")
 
         with monkeypatch.context() as m:
-            m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(subprocess, "run", mock_run)
+            m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
+            m.setattr(Path, "open", open)
+            m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
+            m.setattr("pbench.server.cache_manager.subprocess.run", mock_run)
             m.setattr(Path, "resolve", mock_resolve)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
@@ -969,36 +1000,67 @@ class TestCacheManager:
             assert file_info == expected_msg
 
     @pytest.mark.parametrize(
-        "file_path, exp_file_type, exp_stream",
+        "file_path,file_pattern,exp_stream",
         [
-            ("", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
-            (None, CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
-            ("f1.json", CacheType.FILE, io.BytesIO(b"file_as_a_byte_stream")),
-            ("subdir1/f12_sym", CacheType.FILE, io.BytesIO(b"file1_as_a_byte_stream")),
+            ("", "dir_name.tar.xz", io.BytesIO(b"tarball_as_a_byte_stream")),
+            (None, "dir_name.tar.xz", io.BytesIO(b"tarball_as_a_byte_stream")),
+            ("f1.json", "f1.json", io.BytesIO(b"file_as_a_byte_stream")),
+            ("subdir1/f12_sym", None, CacheExtractBadPath(Path("a"), "b")),
         ],
     )
     def test_get_inventory(
-        self, make_logger, monkeypatch, tmp_path, file_path, exp_file_type, exp_stream
+        self, make_logger, monkeypatch, tmp_path, file_path, file_pattern, exp_stream
     ):
         """Test to extract file contents/stream from a file"""
-        tar = Path("/mock/dir_name.tar.xz")
-        cache = Path("/mock/.cache")
+        archive = tmp_path / "mock/archive"
+        tar = archive / "ABC/dir_name.tar.xz"
+        cache = tmp_path / "mock/.cache"
+
+        locks: list[tuple[str, str]] = []
+
+        def locker(fd, mode):
+            nonlocal locks
+            locks.append((fd, mode))
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            m.setattr(Tarball, "extract", lambda _t, _p: Inventory(exp_stream))
-            m.setattr(Path, "open", lambda _s, _m="rb": exp_stream)
-            tb = Tarball(
-                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            real_open = Path.open
+            m.setattr(
+                Path,
+                "open",
+                lambda s, m="rb", buffering=-1: exp_stream
+                if file_pattern and file_pattern in str(s)
+                else real_open(s, m, buffering),
             )
+            m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
+            tb = Tarball(
+                tar, "ABC", Controller(archive, cache, make_logger)
+            )
+            tb.unpacked = cache / "ABC/dir_name"
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
-                tmp_path, "dir_name"
+                cache / "ABC", "dir_name"
             )
             tb.cache_map(tar_dir)
-            file_info = tb.get_inventory(file_path)
-            assert file_info["type"] == exp_file_type
-            assert file_info["stream"].stream == exp_stream
+            try:
+                file_info = tb.get_inventory(file_path)
+            except Exception as e:
+                assert isinstance(e, type(exp_stream)), e
+            else:
+                assert not isinstance(exp_stream, Exception)
+                assert file_info["type"] is CacheType.FILE
+                stream: Inventory = file_info["stream"]
+                assert stream.stream == exp_stream
+                stream.close()
+                if not file_path:
+                    assert len(locks) == 0
+                else:
+                    assert list(i[1] for i in locks) == [
+                        fcntl.LOCK_EX,
+                        fcntl.LOCK_UN,
+                        fcntl.LOCK_SH,
+                        fcntl.LOCK_UN,
+                    ]
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
@@ -1221,9 +1283,9 @@ class TestCacheManager:
                 return offset
 
         # Invoke the CUT
-        stream = Inventory(MockBufferedReader(), None)
+        stream = Inventory(MockBufferedReader())
 
-        assert stream.subproc is None
+        assert stream.lock is None
 
         # Test Inventory.getbuffer()
         calls.clear()
@@ -1418,7 +1480,7 @@ class TestCacheManager:
         assert my_stream, "Test bug:  we need at least one of stdout and stderr"
 
         # Invoke the CUT
-        stream = Inventory(my_stream, MockPopen(my_stdout, my_stderr))
+        stream = Inventory(my_stream, subproc=MockPopen(my_stdout, my_stderr))
 
         # Test Inventory.__repr__()
         assert str(stream) == "<Stream <MockBufferedReader> from MockPopen>"
@@ -1430,7 +1492,7 @@ class TestCacheManager:
         else:
             assert not wait_timeout, "wait() failed to time out as expected"
 
-        assert stream.subproc is None
+        assert stream.lock is None
         assert my_calls == exp_calls
 
     def test_find(

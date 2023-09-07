@@ -53,7 +53,7 @@ class TestVisualize:
         return {
             "name": Path(target).name,
             "type": CacheType.FILE,
-            "stream": Inventory(BytesIO(b"CSV_file_as_a_byte_stream"), None),
+            "stream": Inventory(BytesIO(b"CSV_file_as_a_byte_stream")),
         }
 
     @staticmethod
