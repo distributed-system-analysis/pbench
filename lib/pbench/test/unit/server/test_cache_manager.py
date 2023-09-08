@@ -14,6 +14,7 @@ from typing import Optional
 import pytest
 
 from pbench.server import JSONOBJECT, OperationCode
+from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.cache_manager import (
     BadDirpath,
     BadFilename,
