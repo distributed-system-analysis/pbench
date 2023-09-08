@@ -27,8 +27,14 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
         logger: a Logger object
     """
     window = datetime.now(timezone.utc) - timedelta(hours=lifetime)
+    total_count = 0
+    has_cache = 0
+    reclaimed = 0
+    reclaim_failed = 0
     for tarball in tree.datasets.values():
+        total_count += 1
         if tarball.unpacked:
+            has_cache += 1
             date = datetime.fromtimestamp(
                 tarball.last_ref.stat().st_mtime, timezone.utc
             )
@@ -55,6 +61,7 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
                         )
                         try:
                             tarball.cache_delete()
+                            reclaimed += 1
                         except Exception as e:
                             error = e
                         finally:
@@ -72,6 +79,7 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
                         error = e
                 attributes = {"last_ref": f"{date:%Y-%m-%d %H:%M:%S}"}
                 if error:
+                    reclaim_failed += 1
                     logger.error("RECLAIM {} failed with '{}'", tarball.name, error)
                     attributes["error"] = str(error)
                 Audit.create(
@@ -79,6 +87,13 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
                     status=AuditStatus.FAILURE if error else AuditStatus.SUCCESS,
                     attributes=attributes,
                 )
+    logger.info(
+        "RECLAIM summary: {} datasets, {} had cache: {} reclaimed and {} errors",
+        total_count,
+        has_cache,
+        reclaimed,
+        reclaim_failed,
+    )
 
 
 def print_tree(tree: CacheManager):
@@ -100,9 +115,7 @@ def print_tree(tree: CacheManager):
             date = datetime.fromtimestamp(
                 tarball.last_ref.stat().st_mtime, timezone.utc
             )
-            print(
-                f"    Inventory is cached, last referenced {date:%Y-%m-%d %H:%M:%S}"
-            )
+            print(f"    Inventory is cached, last referenced {date:%Y-%m-%d %H:%M:%S}")
 
     print("\nControllers:")
     for controller in tree.controllers.values():

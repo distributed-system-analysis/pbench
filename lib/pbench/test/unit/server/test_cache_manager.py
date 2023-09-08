@@ -509,6 +509,8 @@ class TestCacheManager:
             self.tarball_path = path
             self.cache = controller.cache / "ABC"
             self.isolator = controller.path / resource_id
+            self.lock = self.cache / "lock"
+            self.last_ref = self.cache / "last_ref"
             self.unpacked = None
             self.controller = controller
 
@@ -536,8 +538,9 @@ class TestCacheManager:
 
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
-            m.setattr(Tarball, "subprocess_run", mock_run)
             m.setattr(Path, "open", open)
+            m.setattr(Path, "touch", lambda path, exist_ok=False: None)
+            m.setattr(Tarball, "subprocess_run", mock_run)
             m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
@@ -585,6 +588,7 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
             m.setattr(Path, "open", open)
+            m.setattr(Path, "touch", lambda path, exist_ok=False: None)
             m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
             m.setattr(Tarball, "subprocess_run", mock_run)
             m.setattr(shutil, "rmtree", mock_rmtree)
@@ -635,6 +639,7 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
             m.setattr(Path, "open", open)
+            m.setattr(Path, "touch", lambda path, exist_ok=False: None)
             m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
             m.setattr("pbench.server.cache_manager.subprocess.run", mock_run)
             m.setattr(Path, "resolve", mock_resolve)
@@ -1579,11 +1584,13 @@ class TestCacheManager:
         cm = CacheManager(server_config, make_logger)
         archive = cm.archive_root / "ABC"
         cache = cm.cache_root / md5
+        dataset_name = source_tarball.name[:-7]
+        unpack = cache / dataset_name
         monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
 
         # None of the controller directories should exist yet
         assert not archive.exists()
-        assert not cache.exists()
+        assert not unpack.exists()
 
         # Create a dataset in the cache manager from our source tarball
         cm.create(source_tarball)
@@ -1591,7 +1598,7 @@ class TestCacheManager:
         # Expect the archive directory was created, but we haven't unpacked so
         # incoming and results should not exist.
         assert archive.exists()
-        assert not cache.exists()
+        assert not unpack.exists()
 
         # The original files should have been removed
         assert not source_tarball.exists()
@@ -1608,7 +1615,6 @@ class TestCacheManager:
         assert md5 == md5_hash.hexdigest()
 
         assert list(cm.controllers.keys()) == ["ABC"]
-        dataset_name = source_tarball.name[:-7]
         assert list(cm.tarballs) == [dataset_name]
         assert list(cm.datasets) == [md5]
 
@@ -1617,9 +1623,9 @@ class TestCacheManager:
         cm.unpack(md5)
         assert cache == cm[md5].cache
         assert cache.is_dir()
-        assert (cache / dataset_name).is_dir()
+        assert unpack.is_dir()
 
-        assert cm.datasets[md5].unpacked == cache / dataset_name
+        assert cm.datasets[md5].unpacked == unpack
 
         # Re-discover, with all the files in place, and compare
         newcm = CacheManager(server_config, make_logger)
@@ -1647,10 +1653,9 @@ class TestCacheManager:
             assert tarball.cache == other.cache
             assert tarball.unpacked == other.unpacked
 
-        # Remove the unpacked tarball, and confirm that the directory and link
-        # are removed.
+        # Remove the unpacked tarball, and confirm the directory is removed
         cm.cache_reclaim(md5)
-        assert not cache.exists()
+        assert not unpack.exists()
 
         # Now that we have all that setup, delete the dataset
         cm.delete(md5)
