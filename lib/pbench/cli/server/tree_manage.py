@@ -30,6 +30,10 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
     has_cache = 0
     reclaimed = 0
     reclaim_failed = 0
+    total_count = 0
+    has_cache = 0
+    reclaimed = 0
+    reclaim_failed = 0
     for tarball in tree.datasets.values():
         total_count += 1
         if tarball.unpacked:

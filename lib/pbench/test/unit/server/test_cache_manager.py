@@ -543,6 +543,8 @@ class TestCacheManager:
             self.isolator = controller.path / resource_id
             self.lock = self.cache / "lock"
             self.last_ref = self.cache / "last_ref"
+            self.lock = self.cache / "lock"
+            self.last_ref = self.cache / "last_ref"
             self.unpacked = None
             self.controller = controller
 
