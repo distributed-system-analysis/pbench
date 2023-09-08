@@ -344,6 +344,16 @@ class Tarball:
         # inactive.
         self.unpacked: Optional[Path] = None
 
+        # Record the lockf file path used to control cache access
+        self.lock: Path = self.cache / "lock"
+
+        # Record a marker file path used to record the last cache access
+        # timestamp
+        self.last_ref: Path = self.cache / "last_ref"
+
+        # Record the path of the companion MD5 file
+        self.md5_path: Path = path.with_suffix(".xz.md5")
+
         # Record the name of the containing controller
         self.controller_name: str = controller.name
 
@@ -696,7 +706,7 @@ class Tarball:
             An Inventory object encapsulating the file stream and the cache
             lock. The caller is reponsible for closing the Inventory!
         """
-        self.unpack()
+        self.cache_create()
 
         # NOTE: the cache is unlocked here. That's "probably OK" as the reclaim
         # is based on the last modified timestamp of the lock file and only
@@ -707,13 +717,13 @@ class Tarball:
 
         lock = None
         try:
-            lock = (self.cache / "lock").open("rb", buffering=0)
+            lock = self.lock.open("rb", buffering=0)
             fcntl.lockf(lock, fcntl.LOCK_SH)
             artifact: Path = self.unpacked / path
             self.controller.logger.info("path {}: stat {}", artifact, artifact.exists())
             if not artifact.is_file():
                 raise CacheExtractBadPath(self.tarball_path, path)
-            (self.cache / "last_ref").touch(exist_ok=True)
+            self.last_ref.touch(exist_ok=True)
             return Inventory(artifact.open("rb"), lock=lock)
         except Exception as e:
             if lock:
@@ -802,29 +812,22 @@ class Tarball:
                     f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
                 )
 
-    def unpack(self):
+    def cache_create(self):
         """Unpack a tarball into a temporary directory tree
 
         Unpack the tarball into a temporary cache directory named with the
         tarball's resource_id (MD5).
 
-        This tree will be used for indexing, and then discarded. As we build
-        out more of the cache manager, it can also be used to build our initial
-        cache map.
-
-        The indexer works off the unpacked data under CACHE, assuming the
-        tarball name in all paths (because this is what's inside the tarball).
-        Rather than passing the indexer the root `/srv/pbench/.cache` or trying
-        to update all of the indexer code (which still jumps back and forth
-        between the tarball and the unpacked files), we maintain the "cache"
-        directory as two paths:  self.cache which is the directory we manage
-        here and pass to the indexer (/srv/pbench/.cache/<resource_id>) and
-        the actual unpacked root (/srv/pbench/.cache/<resource_id>/<name>).
+        Access to the cached directory is controlled by a "lockf" file to
+        ensure that two processes don't unpack at the same time and that we
+        can't reclaim a cache while it's being used. We also track a "last_ref"
+        modification timestamp which is used to reclaim old caches after
+        inactivity.
         """
 
         if not self.cache.exists():
             self.cache.mkdir(exist_ok=True)
-        with (self.cache / "lock").open("wb", buffering=0) as lock:
+        with self.lock.open("wb", buffering=0) as lock:
             fcntl.lockf(lock, fcntl.LOCK_EX)
             try:
                 if not self.unpacked:
@@ -839,18 +842,28 @@ class Tarball:
                     )
                     self.unpacked = self.cache / self.name
             finally:
+                self.last_ref.touch(exist_ok=True)
                 fcntl.lockf(lock, fcntl.LOCK_UN)
         self.cache_map(self.unpacked)
 
-    def uncache(self):
-        """Remove the unpacked tarball directory and all contents."""
+    def cache_delete(self):
+        """Remove the unpacked tarball directory and all contents.
+
+        WARNING:
+
+        This is unprotected!
+
+        Normal cache reclaim is managed using the `tree_manage --reclaim` CLI
+        command, generally through the `pbench-reclaim.timer` service, which
+        calls this method only when the cache is unlocked and aged out.
+        """
         self.cachemap = None
         if self.unpacked:
             try:
-                shutil.rmtree(self.cache)
+                shutil.rmtree(self.unpacked)
                 self.unpacked = None
             except Exception as e:
-                self.logger.error("incoming remove for {} failed with {}", self.name, e)
+                self.logger.error("cache reclaim for {} failed with {}", self.name, e)
                 raise
 
     def delete(self):
@@ -859,7 +872,7 @@ class Tarball:
         We'll log errors in deletion, but "succeed" and clear the links to both
         files. There's nothing more we can do.
         """
-        self.uncache()
+        self.cache_delete()
         if self.isolator and self.isolator.exists():
             try:
                 shutil.rmtree(self.isolator)
@@ -1286,7 +1299,7 @@ class CacheManager:
             The tarball object
         """
         tarball = self.find_dataset(dataset_id)
-        tarball.unpack()
+        tarball.cache_create()
         return tarball
 
     def get_info(self, dataset_id: str, path: Path) -> dict[str, Any]:
@@ -1321,6 +1334,16 @@ class CacheManager:
         """
         tarball = self.find_dataset(dataset_id)
         return tarball.get_inventory(target)
+
+    def cache_reclaim(self, dataset_id: str):
+        """Remove the unpacked tarball tree.
+
+        Args:
+            dataset_id: Dataset resource ID to "uncache"
+        """
+        tarball = self.find_dataset(dataset_id)
+        tarball.cache_delete()
+        self._clean_empties(tarball.controller.name)
 
     def delete(self, dataset_id: str):
         """Delete the dataset as well as unpacked artifacts.

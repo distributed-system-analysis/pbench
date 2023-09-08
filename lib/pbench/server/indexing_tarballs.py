@@ -464,9 +464,6 @@ class Index:
                             )
                             tb_res = error_code["OP_ERROR" if failures > 0 else "OK"]
                         finally:
-                            # Remove the unpacked data
-                            if tarobj:
-                                tarobj.uncache()
                             if tb_res.success:
                                 try:
 

@@ -1,0 +1,14 @@
+[Unit]
+Description=Reclaim Pbench Server cache
+Wants=pbench-reclaim.timer
+
+[Service]
+Type = simple
+User = pbench
+Group = pbench
+Environment = _PBENCH_SERVER_CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+ExecStart=-/opt/pbench-server/bin/pbench-tree-manage --reclaim
+KillSignal = TERM
+
+[Install]
+WantedBy=pbench-server.service

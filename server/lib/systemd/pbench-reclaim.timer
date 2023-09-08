@@ -1,0 +1,12 @@
+[Unit]
+Description=Pbench Server cache reclaim timer
+After=pbench-server.service
+Requires=pbench-reclaim.service
+BindsTo=pbench-server.service
+
+[Timer]
+Unit=pbench-reclaim.service
+OnUnitInactiveSec=4h
+
+[Install]
+WantedBy=timers.target

@@ -79,12 +79,15 @@ buildah run $container cp \
     ${SERVER_LIB}/systemd/pbench-server.service \
     ${SERVER_LIB}/systemd/pbench-index.service \
     ${SERVER_LIB}/systemd/pbench-index.timer \
+    ${SERVER_LIB}/systemd/pbench-reclaim.service \
+    ${SERVER_LIB}/systemd/pbench-reclaim.timer \
     /etc/systemd/system/
 
 buildah run $container systemctl enable nginx
 buildah run $container systemctl enable rsyslog
 buildah run $container systemctl enable pbench-server
 buildah run $container systemctl enable pbench-index.timer
+buildah run $container systemctl enable pbench-reclaim.timer
 
 # Create the container image.
 buildah commit --rm $container ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}

@@ -545,7 +545,7 @@ class TestCacheManager:
                 tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
             )
             with pytest.raises(TarballUnpackError) as exc:
-                tb.unpack()
+                tb.cache_create()
             msg = f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
             assert str(exc.value) == msg
             assert exc.type == TarballUnpackError
@@ -595,7 +595,7 @@ class TestCacheManager:
             )
 
             with pytest.raises(TarballModeChangeError) as exc:
-                tb.unpack()
+                tb.cache_create()
             msg = "An error occurred while changing file permissions of "
             msg += f"{cache / 'ABC'}: Command 'find' timed out after 43 seconds"
             assert str(exc.value) == msg
@@ -643,7 +643,7 @@ class TestCacheManager:
             tb = Tarball(
                 tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
             )
-            tb.unpack()
+            tb.cache_create()
             assert call == ["tar", "find"]
             assert tb.unpacked == cache / "ABC" / tb.name
 
@@ -1649,7 +1649,7 @@ class TestCacheManager:
 
         # Remove the unpacked tarball, and confirm that the directory and link
         # are removed.
-        cm.uncache(md5)
+        cm.cache_reclaim(md5)
         assert not cache.exists()
 
         # Now that we have all that setup, delete the dataset
