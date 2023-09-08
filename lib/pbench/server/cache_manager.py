@@ -11,7 +11,8 @@ import time
 from typing import Any, IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
-from pbench.server import JSONOBJECT, PathLike, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode, PathLike, PbenchServerConfig
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.utils import get_tarball_md5
 
@@ -829,8 +830,19 @@ class Tarball:
             self.cache.mkdir(exist_ok=True)
         with self.lock.open("wb", buffering=0) as lock:
             fcntl.lockf(lock, fcntl.LOCK_EX)
+            audit = None
+            error = None
             try:
                 if not self.unpacked:
+                    audit = Audit.create(
+                        name="cache",
+                        operation=OperationCode.CREATE,
+                        status=AuditStatus.BEGIN,
+                        user_name=Audit.BACKGROUND_USER,
+                        object_type=AuditType.DATASET,
+                        object_id=self.resource_id,
+                        object_name=self.name,
+                    )
                     tar_command = "tar -x --no-same-owner --delay-directory-restore "
                     tar_command += f"--force-local --file='{str(self.tarball_path)}'"
                     self.subprocess_run(
@@ -841,9 +853,18 @@ class Tarball:
                         find_command, self.cache, TarballModeChangeError, self.cache
                     )
                     self.unpacked = self.cache / self.name
+            except Exception as e:
+                error = str(e)
+                raise
             finally:
                 self.last_ref.touch(exist_ok=True)
                 fcntl.lockf(lock, fcntl.LOCK_UN)
+                if audit:
+                    Audit.create(
+                        root=audit,
+                        status=AuditStatus.FAILURE if error else AuditStatus.SUCCESS,
+                        attributes={"error": error},
+                    )
         self.cache_map(self.unpacked)
 
     def cache_delete(self):

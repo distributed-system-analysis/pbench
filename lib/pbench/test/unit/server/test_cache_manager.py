@@ -13,7 +13,7 @@ from typing import Optional
 
 import pytest
 
-from pbench.server import JSONOBJECT
+from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.cache_manager import (
     BadDirpath,
     BadFilename,
@@ -29,6 +29,7 @@ from pbench.server.cache_manager import (
     TarballNotFound,
     TarballUnpackError,
 )
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetBadName
 from pbench.test.unit.server.conftest import make_tarball
 
@@ -506,15 +507,18 @@ class TestCacheManager:
     class MockTarball:
         def __init__(self, path: Path, resource_id: str, controller: Controller):
             self.name = Dataset.stem(path)
+            self.resource_id = "ABC"
             self.tarball_path = path
-            self.cache = controller.cache / "ABC"
+            self.cache = controller.cache / self.resource_id
             self.isolator = controller.path / resource_id
             self.lock = self.cache / "lock"
             self.last_ref = self.cache / "last_ref"
             self.unpacked = None
             self.controller = controller
 
-    def test_unpack_tar_subprocess_exception(self, make_logger, monkeypatch):
+    def test_unpack_tar_subprocess_exception(
+        self, make_logger, db_session, monkeypatch
+    ):
         """Show that, when unpacking of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
@@ -553,7 +557,9 @@ class TestCacheManager:
             assert str(exc.value) == msg
             assert exc.type == TarballUnpackError
 
-    def test_unpack_find_subprocess_exception(self, make_logger, monkeypatch):
+    def test_unpack_find_subprocess_exception(
+        self, make_logger, db_session, monkeypatch
+    ):
         """Show that, when permission change of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
@@ -606,7 +612,7 @@ class TestCacheManager:
             assert exc.type == TarballModeChangeError
             assert rmtree_called
 
-    def test_unpack_success(self, make_logger, monkeypatch):
+    def test_unpack_success(self, make_logger, db_session, monkeypatch):
         """Test to check the unpacking functionality of the CacheManager"""
         tar = Path("/mock/A.tar.xz")
         cache = Path("/mock/.cache")
@@ -1501,7 +1507,13 @@ class TestCacheManager:
         assert my_calls == exp_calls
 
     def test_find(
-        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+        self,
+        selinux_enabled,
+        server_config,
+        make_logger,
+        tarball,
+        monkeypatch,
+        db_session,
     ):
         """
         Create a dataset, check the cache manager state, and test that we can find it
@@ -1553,6 +1565,22 @@ class TestCacheManager:
         cm.unpack(md5)
         assert tarball.cache == controller.cache / md5
         assert tarball.unpacked == controller.cache / md5 / tarball.name
+        assert tarball.last_ref.exists()
+
+        audits = Audit.query(name="cache")
+        assert len(audits) == 2
+        assert audits[0].name == "cache"
+        assert audits[0].operation is OperationCode.CREATE
+        assert audits[0].status is AuditStatus.BEGIN
+        assert audits[0].object_type is AuditType.DATASET
+        assert audits[0].object_id == tarball.resource_id
+        assert audits[0].object_name == tarball.name
+        assert audits[1].name == "cache"
+        assert audits[1].operation is OperationCode.CREATE
+        assert audits[1].status is AuditStatus.SUCCESS
+        assert audits[1].object_type is AuditType.DATASET
+        assert audits[1].object_id == tarball.resource_id
+        assert audits[1].object_name == tarball.name
 
         # We should be able to find the tarball even in a new cache manager
         # that hasn't been fully discovered.
