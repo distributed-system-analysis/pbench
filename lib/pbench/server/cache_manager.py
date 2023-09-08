@@ -469,6 +469,16 @@ class Tarball:
         # Record the path of the companion MD5 file
         self.md5_path: Path = path.with_suffix(".xz.md5")
 
+        # Record the lockf file path used to control cache access
+        self.lock: Path = self.cache / "lock"
+
+        # Record a marker file path used to record the last cache access
+        # timestamp
+        self.last_ref: Path = self.cache / "last_ref"
+
+        # Record the path of the companion MD5 file
+        self.md5_path: Path = path.with_suffix(".xz.md5")
+
         # Record the name of the containing controller
         self.controller_name: str = controller.name
 
@@ -1463,6 +1473,16 @@ class CacheManager:
         """
         tarball = self.find_dataset(dataset_id)
         return tarball.get_inventory(target)
+
+    def cache_reclaim(self, dataset_id: str):
+        """Remove the unpacked tarball tree.
+
+        Args:
+            dataset_id: Dataset resource ID to "uncache"
+        """
+        tarball = self.find_dataset(dataset_id)
+        tarball.cache_delete()
+        self._clean_empties(tarball.controller.name)
 
     def delete(self, dataset_id: str):
         """Delete the dataset as well as unpacked artifacts.
