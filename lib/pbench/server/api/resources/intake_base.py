@@ -250,6 +250,8 @@ class IntakeBase(ApiBase):
         prefix = current_app.server_config.rest_uri
         origin = f"{self._get_uri_base(request).host}{prefix}/datasets/"
 
+        dataset = None
+
         try:
             try:
                 authorized_user = Auth.token_auth.current_user()
@@ -488,7 +490,7 @@ class IntakeBase(ApiBase):
                     )
                     attributes["missing_metadata"] = True
                 else:
-                    p = metalog.get("pbench")
+                    p: JSONOBJECT = metalog.get("pbench")
                     if p:
                         benchmark = p.get("script", Metadata.SERVER_BENCHMARK_UNKNOWN)
                     else:
