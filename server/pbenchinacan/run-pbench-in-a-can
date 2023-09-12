@@ -99,6 +99,7 @@ mkdir -p -m 0755  \
     ${SRV_PBENCH}/archive/fs-version-001 \
     ${SRV_PBENCH}/public_html/dashboard \
     ${SRV_PBENCH}/tmp \
+    ${SRV_PBENCH}/backup \
     ${SRV_PBENCH}/cache
 
 # Set up the static fallback pages for Nginx.
