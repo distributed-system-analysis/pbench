@@ -107,7 +107,6 @@ class Upload(IntakeBase):
         """
         try:
             length_string = request.headers["Content-Length"]
-            content_length = int(length_string)
         except KeyError as e:
             # NOTE: Werkzeug is "smart" about header access, and knows that
             # Content-Length is an integer. Therefore, a non-integer value
@@ -117,6 +116,8 @@ class Upload(IntakeBase):
                 HTTPStatus.LENGTH_REQUIRED,
                 "Missing or invalid 'Content-Length' header",
             ) from e
+        try:
+            content_length = int(length_string)
         except ValueError as e:
             # NOTE: Because of the way Werkzeug works, this should not be
             # possible: if Content-Length isn't an integer, we'll see the
