@@ -1,4 +1,5 @@
 import errno
+import fcntl
 import hashlib
 import io
 from logging import Logger
@@ -21,6 +22,7 @@ from pbench.server.cache_manager import (
     Controller,
     DuplicateTarball,
     Inventory,
+    LockRef,
     MetadataError,
     Tarball,
     TarballModeChangeError,
@@ -980,23 +982,39 @@ class TestCacheManager:
             assert file_info == expected_msg
 
     @pytest.mark.parametrize(
-        "file_path,file_pattern,exp_stream",
+        "file_path,is_unpacked,exp_stream",
         [
-            ("", "dir_name.tar.xz", b"tarball_as_a_byte_stream"),
-            (None, "dir_name.tar.xz", b"tarball_as_a_byte_stream"),
-            ("f1.json", "f1.json", b"{'json': 'value'}"),
-            ("subdir1/f12_sym", None, CacheExtractBadPath(Path("a"), "b")),
+            ("", True, b"tarball_as_a_byte_stream"),
+            (None, True, b"tarball_as_a_byte_stream"),
+            ("f1.json", True, b"{'json': 'value'}"),
+            ("subdir1/f12_sym", False, CacheExtractBadPath(Path("a"), "b")),
         ],
     )
     def test_get_inventory(
-        self, make_logger, monkeypatch, tmp_path, file_path, file_pattern, exp_stream
+        self, make_logger, monkeypatch, tmp_path, file_path, is_unpacked, exp_stream
     ):
-        """Test to extract file contents/stream from a file"""
+        """Test to extract file contents/stream from a file
+
+        NOTE: we check explicitly whether Tarball.stream() chooses to unpack
+        the tarball, based on "is_unpacked", to be sure both cases are covered;
+        but be aware that accessing the tarball itself (the "" and None
+        file_path cases) don't ever unpack and should always have is_unpacked
+        set to True. (That is, we don't expect cache_create to be called in
+        those cases.)
+        """
         archive = tmp_path / "mock" / "archive" / "ABC"
         archive.mkdir(parents=True, exist_ok=True)
         tar = archive / "dir_name.tar.xz"
         tar.write_bytes(b"tarball_as_a_byte_stream")
         cache = tmp_path / "mock" / ".cache"
+        unpacked = cache / "ABC" / "dir_name"
+
+        create_called = False
+
+        def fake_create(self):
+            nonlocal create_called
+            create_called = True
+            self.unpacked = unpacked
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
@@ -1004,7 +1022,9 @@ class TestCacheManager:
             tb = Tarball(
                 tar, "ABC", Controller(archive, cache, make_logger)
             )
-            tb.unpacked = cache / "ABC" / "dir_name"
+            m.setattr(Tarball, "cache_create", fake_create)
+            if is_unpacked:
+                tb.unpacked = unpacked
             TestCacheManager.MockController.generate_test_result_tree(
                 cache / "ABC", "dir_name"
             )
@@ -1018,6 +1038,7 @@ class TestCacheManager:
                 stream: Inventory = file_info["stream"]
                 assert stream.stream.read() == exp_stream
                 stream.close()
+                assert create_called is not is_unpacked
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
@@ -1688,3 +1709,157 @@ class TestCacheManager:
         assert not tar1.exists()
         assert not tar2.exists()
         assert not tar1.parent.exists()
+
+    def test_lockref(self, monkeypatch):
+        """Test behavior of the LockRef class"""
+
+        locks: list[tuple] = []
+        files: list[tuple] = []
+        close_fail: Optional[Exception] = None
+        lockf_fail: Optional[Exception] = None
+
+        def reset():
+            nonlocal close_fail, lockf_fail
+            close_fail = None
+            lockf_fail = None
+            locks.clear()
+            files.clear()
+
+        class FakeStream:
+            def __init__(self, file):
+                self.file = file
+
+            def close(self):
+                files.append(("close", self.file))
+                if close_fail:
+                    raise close_fail
+
+            def fileno(self) -> int:
+                return 0
+
+            def __eq__(self, other) -> bool:
+                return self.file == other.file
+
+        def fake_lockf(fd: FakeStream, cmd: int):
+            locks.append((fd.file, cmd))
+            if lockf_fail:
+                raise lockf_fail
+
+        def fake_open(self, flags: str) -> FakeStream:
+            files.append(("open", self, flags))
+            return FakeStream(self)
+
+        monkeypatch.setattr("pbench.server.cache_manager.fcntl.lockf", fake_lockf)
+        monkeypatch.setattr(Path, "open", fake_open)
+
+        lockfile = Path("/lock")
+
+        # Simple shared lock
+        lock = LockRef(lockfile)
+        assert lock.lock == FakeStream(lockfile)
+        assert not lock.locked
+        assert not lock.exclusive
+        assert lock.unlock
+        assert lock.wait
+        assert len(locks) == 0
+        assert files == [("open", lockfile, "w+")]
+        lock.acquire()
+        assert lock.locked
+        assert locks == [(lockfile, fcntl.LOCK_SH)]
+        lock.release()
+        assert not lock.locked
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+        assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_UN)]
+
+        # No-wait
+        reset()
+        lock = LockRef(lockfile, wait=False)
+        assert files == [("open", lockfile, "w+")]
+        assert not lock.wait
+        lock.acquire()
+        assert locks == [(lockfile, fcntl.LOCK_SH | fcntl.LOCK_NB)]
+        lock.release()
+        assert locks == [
+            (lockfile, fcntl.LOCK_SH | fcntl.LOCK_NB),
+            (lockfile, fcntl.LOCK_UN),
+        ]
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+
+        # Exclusive
+        reset()
+        lock = LockRef(lockfile, exclusive=True)
+        assert files == [("open", lockfile, "w+")]
+        assert lock.exclusive
+        lock.acquire()
+        assert locks == [(lockfile, fcntl.LOCK_EX)]
+        lock.release()
+        assert locks == [(lockfile, fcntl.LOCK_EX), (lockfile, fcntl.LOCK_UN)]
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+
+        # Context Manager
+        reset()
+        with LockRef(lockfile) as lock:
+            assert lock.locked
+            assert files == [("open", lockfile, "w+")]
+            assert locks == [(lockfile, fcntl.LOCK_SH)]
+            lock.upgrade()
+            assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_EX)]
+            # upgrade is idempotent
+            lock.upgrade()
+            assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_EX)]
+            lock.downgrade()
+            assert locks == [
+                (lockfile, fcntl.LOCK_SH),
+                (lockfile, fcntl.LOCK_EX),
+                (lockfile, fcntl.LOCK_SH),
+            ]
+            # downgrade is idempotent
+            lock.downgrade()
+            assert locks == [
+                (lockfile, fcntl.LOCK_SH),
+                (lockfile, fcntl.LOCK_EX),
+                (lockfile, fcntl.LOCK_SH),
+            ]
+        assert locks == [
+            (lockfile, fcntl.LOCK_SH),
+            (lockfile, fcntl.LOCK_EX),
+            (lockfile, fcntl.LOCK_SH),
+            (lockfile, fcntl.LOCK_UN),
+        ]
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+
+        # Context Manager with 'keep' option\
+        reset()
+        with LockRef(lockfile) as lock:
+            assert lock.keep() is lock
+            assert not lock.unlock
+        assert locks == [(lockfile, fcntl.LOCK_SH)]
+        assert files == [("open", lockfile, "w+")]
+
+        # Check release exception handling on close
+        reset()
+        lock = LockRef(lockfile).acquire()
+        assert locks == [(lockfile, fcntl.LOCK_SH)]
+        assert files == [("open", lockfile, "w+")]
+
+        message = "Nobody inspects the Spanish Aquisition"
+        close_fail = Exception(message)
+        with pytest.raises(Exception, match=message):
+            lock.release()
+        assert lock.lock is None
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+        assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_UN)]
+
+        # Check release exception handling on unlock
+        reset()
+        lock = LockRef(lockfile).acquire()
+        assert locks == [(lockfile, fcntl.LOCK_SH)]
+        assert files == [("open", lockfile, "w+")]
+
+        message = "Nobody inspects the Spanish Aquisition"
+        lockf_fail = Exception(message)
+        with pytest.raises(Exception, match=message):
+            lock.release()
+        assert lock.lock is None
+        assert files == [("open", lockfile, "w+")]
+        assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_UN)]
