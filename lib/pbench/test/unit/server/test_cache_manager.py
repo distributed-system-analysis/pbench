@@ -1,4 +1,5 @@
 import errno
+import fcntl
 import hashlib
 import io
 from logging import Logger
@@ -1063,6 +1064,7 @@ class TestCacheManager:
                 stream: Inventory = file_info["stream"]
                 assert stream.stream.read() == exp_stream
                 stream.close()
+                assert create_called is not is_unpacked
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
