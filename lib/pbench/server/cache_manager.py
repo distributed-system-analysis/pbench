@@ -20,92 +20,79 @@ from pbench.server.utils import get_tarball_md5
 class CacheManagerError(Exception):
     """Base class for exceptions raised from this module."""
 
-    def __str__(self) -> str:
-        return "Generic cache manager exception"
+    pass
 
 
 class BadDirpath(CacheManagerError):
     """A bad directory path was given."""
 
     def __init__(self, error_msg: str):
+        super().__init__(error_msg)
         self.error_msg = error_msg
-
-    def __str__(self) -> str:
-        return self.error_msg
 
 
 class BadFilename(CacheManagerError):
     """A bad tarball path was given."""
 
     def __init__(self, path: PathLike):
+        super().__init__(f"The file path {path} is not a tarball")
         self.path = str(path)
-
-    def __str__(self) -> str:
-        return f"The file path {self.path!r} is not a tarball"
 
 
 class CacheExtractBadPath(CacheManagerError):
     """Request to extract a path that's bad or not a file"""
 
     def __init__(self, tar_name: Path, path: PathLike):
+        super().__init__(f"Unable to extract {path} from {tar_name.name}")
         self.name = tar_name.name
         self.path = str(path)
-
-    def __str__(self) -> str:
-        return f"Unable to extract {self.path} from {self.name}"
 
 
 class TarballNotFound(CacheManagerError):
     """The dataset was not found in the ARCHIVE tree."""
 
     def __init__(self, tarball: str):
+        super().__init__(f"The dataset tarball named {tarball!r} is not found")
         self.tarball = tarball
-
-    def __str__(self) -> str:
-        return f"The dataset tarball named {self.tarball!r} is not found"
 
 
 class DuplicateTarball(CacheManagerError):
     """A duplicate tarball name was detected."""
 
     def __init__(self, tarball: str):
+        super().__init__(f"A dataset tarball named {tarball!r} is already present")
         self.tarball = tarball
-
-    def __str__(self) -> str:
-        return f"A dataset tarball named {self.tarball!r} is already present"
 
 
 class MetadataError(CacheManagerError):
     """A problem was found processing a tarball's metadata.log file."""
 
     def __init__(self, tarball: Path, error: Exception):
+        super().__init__(
+            f"A problem occurred processing metadata.log from {tarball!s}: {str(error)!r}"
+        )
         self.tarball = tarball
         self.error = str(error)
-
-    def __str__(self) -> str:
-        return f"A problem occurred processing metadata.log from {self.tarball!s}: {self.error!r}"
 
 
 class TarballUnpackError(CacheManagerError):
     """An error occurred trying to unpack a tarball."""
 
     def __init__(self, tarball: Path, error: str):
+        super().__init__(f"An error occurred while unpacking {tarball}: {error}")
         self.tarball = tarball
         self.error = error
-
-    def __str__(self) -> str:
-        return f"An error occurred while unpacking {self.tarball}: {self.error}"
 
 
 class TarballModeChangeError(CacheManagerError):
     """An error occurred trying to fix unpacked tarball permissions."""
 
     def __init__(self, tarball: Path, error: str):
+        super().__init__(
+            f"An error occurred while changing file permissions of {tarball}: {error}"
+        )
         self.tarball = tarball
         self.error = error
-
-    def __str__(self) -> str:
-        return f"An error occurred while changing file permissions of {self.tarball}: {self.error}"
 
 
 class CacheType(Enum):
@@ -194,6 +181,82 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
     )
 
 
+class LockRef:
+    """Keep track of a cache lock passed off to a caller"""
+
+    def __init__(self, lock: Path, exclusive: bool = False, wait: bool = True):
+        """Initialize a lock reference
+
+        The lock file is opened in "w+" mode, which is "write update": unlike
+        "r+", this creates the file if it doesn't already exist, but still
+        allows lock conversion between LOCK_EX and LOCK_SH.
+
+        Args:
+            lock: the path of a lock file
+            exclusive: lock for exclusive access
+            wait: wait for lock
+        """
+        self.lock = lock.open("w+")
+        self.locked = False
+        self.exclusive = exclusive
+        self.unlock = True
+        self.wait = wait
+
+    def acquire(self) -> "LockRef":
+        """Acquire the lock"""
+
+        cmd = fcntl.LOCK_EX if self.exclusive else fcntl.LOCK_SH
+        if not self.wait:
+            cmd |= fcntl.LOCK_NB
+        fcntl.lockf(self.lock, cmd)
+        self.locked = True
+        return self
+
+    def release(self):
+        """Release the lock and close the lock file"""
+
+        exception = None
+        try:
+            fcntl.lockf(self.lock, fcntl.LOCK_UN)
+            self.lock.close()
+            self.locked = False
+            self.exclusive = False
+        except Exception as e:
+            exception = e
+        finally:
+            # Release our reference to the lock file so that the
+            # object can be reclaimed.
+            self.lock = None
+        if exception:
+            raise exception
+
+    def upgrade(self):
+        """Upgrade a shared lock to exclusive"""
+        if not self.exclusive:
+            fcntl.lockf(self.lock, fcntl.LOCK_EX)
+            self.exclusive = True
+
+    def downgrade(self):
+        """Downgrade an exclusive lock to shared"""
+        if self.exclusive:
+            fcntl.lockf(self.lock, fcntl.LOCK_SH)
+            self.exclusive = False
+
+    def keep(self) -> "LockRef":
+        """Tell the context manager not to unlock on exit"""
+        self.unlock = False
+        return self
+
+    def __enter__(self) -> "LockRef":
+        """Enter a lock context manager by acquiring the lock"""
+        return self.acquire()
+
+    def __exit__(self, *exc):
+        """Exit a lock context manager by releasing the lock"""
+        if self.unlock:
+            self.release()
+
+
 class Inventory:
     """Encapsulate the file stream and cache lock management
 
@@ -206,7 +269,7 @@ class Inventory:
     def __init__(
         self,
         stream: IO[bytes],
-        lock: Optional[IO[bytes]] = None,
+        lock: Optional[LockRef] = None,
         subproc: Optional[subprocess.Popen] = None,
     ):
         """Construct an instance to track extracted inventory
@@ -216,7 +279,8 @@ class Inventory:
 
         Args:
             stream: the data stream of a specific tarball member
-            lock: the file reference for the cache lock file
+            lock: a cache lock reference
+            subproc: a Popen object to clean up on close
         """
         self.stream = stream
         self.lock = lock
@@ -224,6 +288,8 @@ class Inventory:
 
     def close(self):
         """Close the byte stream and clean up the Popen object"""
+
+        exception = None
         if self.subproc:
             try:
                 if self.subproc.poll() is None:
@@ -247,13 +313,12 @@ class Inventory:
                 self.subproc = None
         if self.lock:
             try:
-                fcntl.lockf(self.lock, fcntl.LOCK_UN)
-                self.lock.close()
-            finally:
-                # Release our reference to the lock file so that the
-                # object can be reclaimed.
-                self.lock = None
+                self.lock.release()
+            except Exception as e:
+                exception = e
         self.stream.close()
+        if exception:
+            raise exception
 
     def getbuffer(self):
         """Return the underlying byte buffer (used by send_file)"""
@@ -336,6 +401,9 @@ class Tarball:
 
         # Record where cached unpacked data would live
         self.cache: Path = controller.cache / self.resource_id
+
+        # We need the directory to lock, so make sure it's there
+        self.cache.mkdir(parents=True, exist_ok=True)
 
         # Record hierarchy of a Tar ball
         self.cachemap: Optional[CacheMap] = None
@@ -707,30 +775,18 @@ class Tarball:
             An Inventory object encapsulating the file stream and the cache
             lock. The caller is reponsible for closing the Inventory!
         """
-        self.cache_create()
 
-        # NOTE: the cache is unlocked here. That's "probably OK" as the reclaim
-        # is based on the last modified timestamp of the lock file and only
-        # runs periodically.
-        #
-        # TODO: Can we convert the lock from EXCLUSIVE to SHARED? If so, that
-        # would be ideal.
+        with LockRef(self.lock) as lock:
+            if not self.unpacked:
+                lock.upgrade()
+                self.cache_create()
+                lock.downgrade()
 
-        lock = None
-        try:
-            lock = self.lock.open("rb", buffering=0)
-            fcntl.lockf(lock, fcntl.LOCK_SH)
             artifact: Path = self.unpacked / path
-            self.controller.logger.info("path {}: stat {}", artifact, artifact.exists())
             if not artifact.is_file():
                 raise CacheExtractBadPath(self.tarball_path, path)
             self.last_ref.touch(exist_ok=True)
-            return Inventory(artifact.open("rb"), lock=lock)
-        except Exception as e:
-            if lock:
-                fcntl.lockf(lock, fcntl.LOCK_UN)
-                lock.close()
-            raise e
+            return Inventory(artifact.open("rb"), lock=lock.keep())
 
     def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
         """Access the file stream of a tarball member file.
@@ -819,53 +875,51 @@ class Tarball:
         Unpack the tarball into a temporary cache directory named with the
         tarball's resource_id (MD5).
 
-        Access to the cached directory is controlled by a "lockf" file to
-        ensure that two processes don't unpack at the same time and that we
-        can't reclaim a cache while it's being used. We also track a "last_ref"
-        modification timestamp which is used to reclaim old caches after
-        inactivity.
+        This method must be called while holding an exclusive cache lock.
         """
 
-        if not self.cache.exists():
-            self.cache.mkdir(exist_ok=True)
-        with self.lock.open("wb", buffering=0) as lock:
-            fcntl.lockf(lock, fcntl.LOCK_EX)
+        if not self.unpacked:
             audit = None
             error = None
             try:
-                if not self.unpacked:
-                    audit = Audit.create(
-                        name="cache",
-                        operation=OperationCode.CREATE,
-                        status=AuditStatus.BEGIN,
-                        user_name=Audit.BACKGROUND_USER,
-                        object_type=AuditType.DATASET,
-                        object_id=self.resource_id,
-                        object_name=self.name,
-                    )
-                    tar_command = "tar -x --no-same-owner --delay-directory-restore "
-                    tar_command += f"--force-local --file='{str(self.tarball_path)}'"
-                    self.subprocess_run(
-                        tar_command, self.cache, TarballUnpackError, self.tarball_path
-                    )
-                    find_command = "find . ( -type d -exec chmod ugo+rx {} + ) -o ( -type f -exec chmod ugo+r {} + )"
-                    self.subprocess_run(
-                        find_command, self.cache, TarballModeChangeError, self.cache
-                    )
-                    self.unpacked = self.cache / self.name
+                audit = Audit.create(
+                    name="cache",
+                    operation=OperationCode.CREATE,
+                    status=AuditStatus.BEGIN,
+                    user_name=Audit.BACKGROUND_USER,
+                    object_type=AuditType.DATASET,
+                    object_id=self.resource_id,
+                    object_name=self.name,
+                )
+            except Exception as e:
+                self.controller.logger.warning(
+                    "Unable to audit unpack for {}: '{}'", self.name, e
+                )
+
+            try:
+                tar_command = "tar -x --no-same-owner --delay-directory-restore "
+                tar_command += f"--force-local --file='{str(self.tarball_path)}'"
+                self.subprocess_run(
+                    tar_command, self.cache, TarballUnpackError, self.tarball_path
+                )
+                find_command = "find . ( -type d -exec chmod ugo+rx {} + ) -o ( -type f -exec chmod ugo+r {} + )"
+                self.subprocess_run(
+                    find_command, self.cache, TarballModeChangeError, self.cache
+                )
+                self.unpacked = self.cache / self.name
+                self.last_ref.touch(exist_ok=True)
+                self.cache_map(self.unpacked)
             except Exception as e:
                 error = str(e)
                 raise
             finally:
-                self.last_ref.touch(exist_ok=True)
-                fcntl.lockf(lock, fcntl.LOCK_UN)
                 if audit:
+                    attributes = {"error": error} if error else {}
                     Audit.create(
                         root=audit,
                         status=AuditStatus.FAILURE if error else AuditStatus.SUCCESS,
-                        attributes={"error": error},
+                        attributes=attributes,
                     )
-        self.cache_map(self.unpacked)
 
     def cache_delete(self):
         """Remove the unpacked tarball directory and all contents.
@@ -1310,19 +1364,6 @@ class CacheManager:
         self.datasets[tarball.resource_id] = tarball
         return tarball
 
-    def unpack(self, dataset_id: str) -> Tarball:
-        """Unpack a tarball into the CACHE tree
-
-        Args:
-            dataset_id: Dataset resource ID
-
-        Returns:
-            The tarball object
-        """
-        tarball = self.find_dataset(dataset_id)
-        tarball.cache_create()
-        return tarball
-
     def get_info(self, dataset_id: str, path: Path) -> dict[str, Any]:
         """Get information about dataset files from the cache map
 
@@ -1355,16 +1396,6 @@ class CacheManager:
         """
         tarball = self.find_dataset(dataset_id)
         return tarball.get_inventory(target)
-
-    def cache_reclaim(self, dataset_id: str):
-        """Remove the unpacked tarball tree.
-
-        Args:
-            dataset_id: Dataset resource ID to "uncache"
-        """
-        tarball = self.find_dataset(dataset_id)
-        tarball.cache_delete()
-        self._clean_empties(tarball.controller.name)
 
     def delete(self, dataset_id: str):
         """Delete the dataset as well as unpacked artifacts.

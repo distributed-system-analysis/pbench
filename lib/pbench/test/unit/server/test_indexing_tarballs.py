@@ -265,6 +265,53 @@ class FakeSync:
         __class__.errors[dataset.name] = message
 
 
+class FakeLockRef:
+    def __init__(self, lock: Path, exclusive: bool = False, wait: bool = True):
+        """Initialize a lock reference
+
+        The lock file is opened in "w+" mode, which is "write update": unlike
+        "r+", this creates the file if it doesn't already exist, but still
+        allows lock conversion between LOCK_EX and LOCK_SH.
+
+        Args:
+            lock: the path of a lock file
+            exclusive: lock for exclusive access
+            wait: [default] wait for lock
+        """
+        self.locked = False
+        self.exclusive = exclusive
+        self.unlock = True
+
+    def acquire(self) -> "FakeLockRef":
+        self.locked = True
+        return self
+
+    def release(self):
+        """Release the lock and close the lock file"""
+        self.locked = False
+        self.exclusive = False
+
+    def upgrade(self):
+        if not self.exclusive:
+            self.exclusive = True
+
+    def downgrade(self):
+        if self.exclusive:
+            self.exclusive = False
+
+    def keep(self) -> "FakeLockRef":
+        """Tell the context manager not to unlock on exit"""
+        self.unlock = False
+        return self
+
+    def __enter__(self) -> "FakeLockRef":
+        return self.acquire()
+
+    def __exit__(self, *exc):
+        if self.unlock:
+            self.release()
+
+
 class FakeController:
     def __init__(self, path: Path, cache: Path, logger: Logger):
         self.name = path.name
@@ -279,9 +326,13 @@ class FakeTarball:
         self.tarball_path = path
         self.controller = controller
         self.cache = controller.cache / "ABC"
+        self.lock = self.cache / "lock"
+        self.last_ref = self.cache / "last_ref"
         self.unpacked = self.cache / self.name
         self.isolator = controller.path / resource_id
-        self.uncache = lambda: None
+
+    def cache_create(self):
+        pass
 
 
 class FakeCacheManager:
@@ -292,7 +343,7 @@ class FakeCacheManager:
         self.logger = logger
         self.datasets = {}
 
-    def unpack(self, resource_id: str):
+    def find_dataset(self, resource_id: str):
         controller = FakeController(Path("/archive/ABC"), Path("/.cache"), self.logger)
         return FakeTarball(
             Path(f"/archive/ABC/{resource_id}/{self.lookup[resource_id]}.tar.xz"),
@@ -341,6 +392,7 @@ def mocks(monkeypatch, make_logger):
         m.setattr("pbench.server.indexing_tarballs.Metadata", FakeMetadata)
         m.setattr("pbench.server.indexing_tarballs.IndexMap", FakeIndexMap)
         m.setattr("pbench.server.indexing_tarballs.CacheManager", FakeCacheManager)
+        m.setattr("pbench.server.indexing_tarballs.LockRef", FakeLockRef)
         m.setattr("pbench.server.indexing_tarballs.Audit", FakeAudit)
         yield m
     FakeAudit.reset()

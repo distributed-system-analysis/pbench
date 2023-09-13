@@ -15,7 +15,7 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 from pbench.server import OperationCode, tstos
-from pbench.server.cache_manager import CacheManager, Tarball, TarballNotFound
+from pbench.server.cache_manager import CacheManager, LockRef, Tarball
 from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -363,20 +363,23 @@ class Index:
                         ptb = None
                         tarobj: Optional[Tarball] = None
                         tb_res = error_code["OK"]
+                        lock = None
                         try:
-                            # Dynamically unpack the tarball for indexing.
+                            # We need the fully unpacked cache tree to index it
                             try:
-                                tarobj = self.cache_manager.unpack(dataset.resource_id)
-                                if not tarobj.unpacked:
-                                    idxctx.logger.warning(
-                                        "{} has not been unpacked", dataset
-                                    )
-                                    continue
-                            except TarballNotFound as e:
+                                tarobj = self.cache_manager.find_dataset(
+                                    dataset.resource_id
+                                )
+                                lock = LockRef(tarobj.lock, exclusive=True).acquire()
+                                tarobj.cache_create()
+                                lock.downgrade()
+                            except Exception as e:
                                 self.sync.error(
                                     dataset,
                                     f"Unable to unpack dataset: {e!s}",
                                 )
+                                if lock:
+                                    lock.release()
                                 continue
 
                             audit = Audit.create(
@@ -510,6 +513,8 @@ class Index:
                                 Audit.create(
                                     root=audit, status=doneness, attributes=attributes
                                 )
+                            if lock:
+                                lock.release()
                         try:
                             ie_len = ie_filepath.stat().st_size
                         except FileNotFoundError:

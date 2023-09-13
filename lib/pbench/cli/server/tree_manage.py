@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, timezone
 import errno
-import fcntl
 from logging import Logger
 
 import click
@@ -10,7 +9,7 @@ from pbench.cli.server import config_setup
 from pbench.cli.server.options import common_options
 from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig, OperationCode
-from pbench.server.cache_manager import CacheManager
+from pbench.server.cache_manager import CacheManager, LockRef
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 
 # Length of time in hours to retain unreferenced cached results data.
@@ -38,18 +37,19 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
             date = datetime.fromtimestamp(
                 tarball.last_ref.stat().st_mtime, timezone.utc
             )
-            if date < window:
-                logger.info(
-                    "RECLAIM {}: last_ref {:%Y-%m-%d %H:%M:%S} is older than {:%Y-%m-%d %H:%M:%S}",
-                    tarball.name,
-                    date,
-                    window,
-                )
-                error = None
-                audit = None
-                with tarball.lock.open("wb") as lock:
+            if date >= window:
+                continue
+            error = None
+            audit = None
+            logger.info(
+                "RECLAIM {}: last_ref {:%Y-%m-%d %H:%M:%S} is older than {:%Y-%m-%d %H:%M:%S}",
+                tarball.name,
+                date,
+                window,
+            )
+            try:
+                with LockRef(tarball.lock, exclusive=True, wait=False):
                     try:
-                        fcntl.lockf(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
                         audit = Audit.create(
                             name="reclaim",
                             operation=OperationCode.DELETE,
@@ -59,29 +59,36 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
                             object_id=tarball.resource_id,
                             object_name=tarball.name,
                         )
-                        try:
-                            tarball.cache_delete()
-                            reclaimed += 1
-                        except Exception as e:
-                            error = e
-                        finally:
-                            fcntl.lockf(lock, fcntl.LOCK_UN)
-                    except OSError as e:
-                        if e.errno in (errno.EAGAIN, errno.EACCES):
-                            logger.info(
-                                "RECLAIM {}: skipping because cache is locked",
-                                tarball.name,
-                            )
-                            # If the cache is locked, regardless of age, then
-                            # the last_ref timestamp is about to be updated,
-                            # and we skip the cache for now.
-                            continue
+                    except Exception as e:
+                        logger.warn(
+                            "Unable to audit cache reclaim for {}: '{}'",
+                            tarball.name,
+                            e,
+                        )
+                    try:
+                        tarball.cache_delete()
+                        reclaimed += 1
+                    except Exception as e:
                         error = e
-                attributes = {"last_ref": f"{date:%Y-%m-%d %H:%M:%S}"}
-                if error:
-                    reclaim_failed += 1
-                    logger.error("RECLAIM {} failed with '{}'", tarball.name, error)
-                    attributes["error"] = str(error)
+            except OSError as e:
+                if e.errno in (errno.EAGAIN, errno.EACCES):
+                    logger.info(
+                        "RECLAIM {}: skipping because cache is locked",
+                        tarball.name,
+                    )
+                    # If the cache is locked, regardless of age, then
+                    # the last_ref timestamp is about to be updated,
+                    # and we skip the dataset this time around.
+                    continue
+                error = e
+            except Exception as e:
+                error = e
+            attributes = {"last_ref": f"{date:%Y-%m-%d %H:%M:%S}"}
+            if error:
+                reclaim_failed += 1
+                logger.error("RECLAIM {} failed with '{}'", tarball.name, error)
+                attributes["error"] = str(error)
+            if audit:
                 Audit.create(
                     root=audit,
                     status=AuditStatus.FAILURE if error else AuditStatus.SUCCESS,
@@ -130,16 +137,15 @@ def print_tree(tree: CacheManager):
     "--display", default=False, is_flag=True, help="Display the full tree on completion"
 )
 @click.option(
-    "--lifetime",
-    default=CACHE_LIFETIME,
+    "--reclaim",
+    show_default=True,
+    is_flag=False,
+    flag_value=CACHE_LIFETIME,
     type=click.FLOAT,
-    help="Specify lifetime of cached data for --reclaim",
-)
-@click.option(
-    "--reclaim", default=False, is_flag=True, help="Reclaim stale cached data"
+    help="Reclaim cached data older than <n> hours",
 )
 @common_options
-def tree_manage(context: object, display: bool, lifetime: int, reclaim: bool):
+def tree_manage(context: object, display: bool, reclaim: float):
     """
     Discover, display, and manipulate the on-disk representation of controllers
     and datasets.
@@ -163,7 +169,7 @@ def tree_manage(context: object, display: bool, lifetime: int, reclaim: bool):
         if display:
             print_tree(cache_m)
         if reclaim:
-            reclaim_cache(cache_m, logger, lifetime)
+            reclaim_cache(cache_m, logger, reclaim)
         rv = 0
     except Exception as exc:
         logger.exception("An error occurred discovering the file tree: {}", exc)

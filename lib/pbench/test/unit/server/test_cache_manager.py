@@ -1,6 +1,4 @@
-from contextlib import contextmanager
 import errno
-import fcntl
 import hashlib
 import io
 from logging import Logger
@@ -474,11 +472,15 @@ class TestCacheManager:
             # create some directories and files inside the temp directory
             sub_dir = tmp_path / dir_name
             sub_dir.mkdir(parents=True, exist_ok=True)
-            (sub_dir / "f1.json").touch()
-            (sub_dir / "metadata.log").touch()
+            (sub_dir / "f1.json").write_text("{'json': 'value'}", encoding="utf-8")
+            (sub_dir / "metadata.log").write_text(
+                "[pbench]\nkey = value\n", encoding="utf-8"
+            )
             for i in range(1, 4):
                 (sub_dir / "subdir1" / f"subdir1{i}").mkdir(parents=True, exist_ok=True)
-            (sub_dir / "subdir1" / "f11.txt").touch()
+            (sub_dir / "subdir1" / "f11.txt").write_text(
+                "textual\nlines\n", encoding="utf-8"
+            )
             (sub_dir / "subdir1" / "subdir14" / "subdir141").mkdir(
                 parents=True, exist_ok=True
             )
@@ -524,16 +526,6 @@ class TestCacheManager:
         tar = Path("/mock/A.tar.xz")
         cache = Path("/mock/.cache")
 
-        locks: list[tuple[str, str]] = []
-
-        @contextmanager
-        def open(s, m, buffering=-1):
-            yield None
-
-        def locker(fd, mode):
-            nonlocal locks
-            locks.append((fd, mode))
-
         @staticmethod
         def mock_run(command, _dir_path, exception, dir_p):
             verb = "tar"
@@ -541,11 +533,10 @@ class TestCacheManager:
             raise exception(dir_p, subprocess.TimeoutExpired(verb, 43))
 
         with monkeypatch.context() as m:
+            m.setattr(Path, "exists", lambda self: True)
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
-            m.setattr(Path, "open", open)
             m.setattr(Path, "touch", lambda path, exist_ok=False: None)
             m.setattr(Tarball, "subprocess_run", mock_run)
-            m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             tb = Tarball(
@@ -566,16 +557,6 @@ class TestCacheManager:
         cache = Path("/mock/.cache")
         rmtree_called = True
 
-        locks: list[tuple[str, str]] = []
-
-        @contextmanager
-        def open(s, m, buffering=-1):
-            yield None
-
-        def locker(fd, mode):
-            nonlocal locks
-            locks.append((fd, mode))
-
         def mock_rmtree(path: Path, ignore_errors=False):
             nonlocal rmtree_called
             rmtree_called = True
@@ -592,10 +573,9 @@ class TestCacheManager:
                 assert command.startswith("tar")
 
         with monkeypatch.context() as m:
+            m.setattr(Path, "exists", lambda self: True)
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
-            m.setattr(Path, "open", open)
             m.setattr(Path, "touch", lambda path, exist_ok=False: None)
-            m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
             m.setattr(Tarball, "subprocess_run", mock_run)
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
@@ -618,16 +598,6 @@ class TestCacheManager:
         cache = Path("/mock/.cache")
         call = list()
 
-        locks: list[tuple[str, str]] = []
-
-        @contextmanager
-        def open(s, m, buffering=-1):
-            yield None
-
-        def locker(fd, mode):
-            nonlocal locks
-            locks.append((fd, mode))
-
         def mock_run(args, **_kwargs):
             call.append(args[0])
 
@@ -646,7 +616,6 @@ class TestCacheManager:
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
             m.setattr(Path, "open", open)
             m.setattr(Path, "touch", lambda path, exist_ok=False: None)
-            m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
             m.setattr("pbench.server.cache_manager.subprocess.run", mock_run)
             m.setattr(Path, "resolve", mock_resolve)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
@@ -750,7 +719,7 @@ class TestCacheManager:
                 "f1.json",
                 None,
                 None,
-                0,
+                17,
                 CacheType.FILE,
             ),
             (
@@ -768,7 +737,7 @@ class TestCacheManager:
                 "f11.txt",
                 None,
                 None,
-                0,
+                14,
                 CacheType.FILE,
             ),
             (
@@ -777,7 +746,7 @@ class TestCacheManager:
                 "f11.txt",
                 None,
                 None,
-                0,
+                14,
                 CacheType.FILE,
             ),
             (
@@ -786,7 +755,7 @@ class TestCacheManager:
                 "f11.txt",
                 None,
                 None,
-                0,
+                14,
                 CacheType.FILE,
             ),
             (
@@ -945,7 +914,7 @@ class TestCacheManager:
                     "name": "f11.txt",
                     "resolve_path": None,
                     "resolve_type": None,
-                    "size": 0,
+                    "size": 14,
                     "type": CacheType.FILE,
                 },
             ),
@@ -1013,9 +982,9 @@ class TestCacheManager:
     @pytest.mark.parametrize(
         "file_path,file_pattern,exp_stream",
         [
-            ("", "dir_name.tar.xz", io.BytesIO(b"tarball_as_a_byte_stream")),
-            (None, "dir_name.tar.xz", io.BytesIO(b"tarball_as_a_byte_stream")),
-            ("f1.json", "f1.json", io.BytesIO(b"file_as_a_byte_stream")),
+            ("", "dir_name.tar.xz", b"tarball_as_a_byte_stream"),
+            (None, "dir_name.tar.xz", b"tarball_as_a_byte_stream"),
+            ("f1.json", "f1.json", b"{'json': 'value'}"),
             ("subdir1/f12_sym", None, CacheExtractBadPath(Path("a"), "b")),
         ],
     )
@@ -1023,36 +992,22 @@ class TestCacheManager:
         self, make_logger, monkeypatch, tmp_path, file_path, file_pattern, exp_stream
     ):
         """Test to extract file contents/stream from a file"""
-        archive = tmp_path / "mock/archive"
-        tar = archive / "ABC/dir_name.tar.xz"
-        cache = tmp_path / "mock/.cache"
-
-        locks: list[tuple[str, str]] = []
-
-        def locker(fd, mode):
-            nonlocal locks
-            locks.append((fd, mode))
+        archive = tmp_path / "mock" / "archive" / "ABC"
+        archive.mkdir(parents=True, exist_ok=True)
+        tar = archive / "dir_name.tar.xz"
+        tar.write_bytes(b"tarball_as_a_byte_stream")
+        cache = tmp_path / "mock" / ".cache"
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            real_open = Path.open
-            m.setattr(
-                Path,
-                "open",
-                lambda s, m="rb", buffering=-1: exp_stream
-                if file_pattern and file_pattern in str(s)
-                else real_open(s, m, buffering),
-            )
-            m.setattr("pbench.server.cache_manager.fcntl.lockf", locker)
             tb = Tarball(
                 tar, "ABC", Controller(archive, cache, make_logger)
             )
-            tb.unpacked = cache / "ABC/dir_name"
-            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
+            tb.unpacked = cache / "ABC" / "dir_name"
+            TestCacheManager.MockController.generate_test_result_tree(
                 cache / "ABC", "dir_name"
             )
-            tb.cache_map(tar_dir)
             try:
                 file_info = tb.get_inventory(file_path)
             except Exception as e:
@@ -1061,17 +1016,8 @@ class TestCacheManager:
                 assert not isinstance(exp_stream, Exception)
                 assert file_info["type"] is CacheType.FILE
                 stream: Inventory = file_info["stream"]
-                assert stream.stream == exp_stream
+                assert stream.stream.read() == exp_stream
                 stream.close()
-                if not file_path:
-                    assert len(locks) == 0
-                else:
-                    assert list(i[1] for i in locks) == [
-                        fcntl.LOCK_EX,
-                        fcntl.LOCK_UN,
-                        fcntl.LOCK_SH,
-                        fcntl.LOCK_UN,
-                    ]
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
@@ -1562,7 +1508,7 @@ class TestCacheManager:
         assert exc.value.tarball == "foobar"
 
         # Unpack the dataset, creating INCOMING and RESULTS links
-        cm.unpack(md5)
+        tarball.cache_create()
         assert tarball.cache == controller.cache / md5
         assert tarball.unpacked == controller.cache / md5 / tarball.name
         assert tarball.last_ref.exists()
@@ -1646,14 +1592,16 @@ class TestCacheManager:
         assert list(cm.tarballs) == [dataset_name]
         assert list(cm.datasets) == [md5]
 
+        dataset = cm.find_dataset(md5)
+
         # Now "unpack" the tarball and check that the incoming directory and
         # results link are set up.
-        cm.unpack(md5)
-        assert cache == cm[md5].cache
+        dataset.cache_create()
+        assert cache == dataset.cache
         assert cache.is_dir()
         assert unpack.is_dir()
 
-        assert cm.datasets[md5].unpacked == unpack
+        assert dataset.unpacked == unpack
 
         # Re-discover, with all the files in place, and compare
         newcm = CacheManager(server_config, make_logger)
@@ -1682,7 +1630,7 @@ class TestCacheManager:
             assert tarball.unpacked == other.unpacked
 
         # Remove the unpacked tarball, and confirm the directory is removed
-        cm.cache_reclaim(md5)
+        dataset.cache_delete()
         assert not unpack.exists()
 
         # Now that we have all that setup, delete the dataset
