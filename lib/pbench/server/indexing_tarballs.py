@@ -363,6 +363,7 @@ class Index:
                         ptb = None
                         tarobj: Optional[Tarball] = None
                         tb_res = error_code["OK"]
+                        lock = None
                         try:
                             # We need the fully unpacked cache tree to index it
                             try:
@@ -374,6 +375,8 @@ class Index:
                                     dataset,
                                     f"Unable to find dataset: {e!s}",
                                 )
+                                if lock:
+                                    lock.release()
                                 continue
 
                             with LockManager(tarobj.lock) as lock:
@@ -509,6 +512,8 @@ class Index:
                                 Audit.create(
                                     root=audit, status=doneness, attributes=attributes
                                 )
+                            if lock:
+                                lock.release()
                         try:
                             ie_len = ie_filepath.stat().st_size
                         except FileNotFoundError:

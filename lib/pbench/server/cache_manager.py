@@ -23,6 +23,7 @@ class CacheManagerError(Exception):
     """Base class for exceptions raised from this module."""
 
     pass
+    pass
 
 
 class BadDirpath(CacheManagerError):
@@ -312,6 +313,7 @@ class Inventory:
         self,
         stream: IO[bytes],
         lock: Optional[LockRef] = None,
+        lock: Optional[LockRef] = None,
         subproc: Optional[subprocess.Popen] = None,
     ):
         """Construct an instance to track extracted inventory
@@ -323,6 +325,8 @@ class Inventory:
             stream: the data stream of a specific tarball member
             lock: a cache lock reference
             subproc: a Popen object to clean up on close
+            lock: a cache lock reference
+            subproc: a Popen object to clean up on close
         """
         self.stream = stream
         self.lock = lock
@@ -330,6 +334,8 @@ class Inventory:
 
     def close(self):
         """Close the byte stream and clean up the Popen object"""
+
+        exception = None
 
         exception = None
         if self.subproc:
@@ -360,6 +366,13 @@ class Inventory:
             except Exception as e:
                 exception = e
         self.stream.close()
+
+        # NOTE: if both subprocess cleanup and unlock fail with exceptions, we
+        # raise the latter, and the former will be ignored. In practice, that's
+        # not a problem as we only construct an Inventory with a subprocess
+        # reference for extract, which doesn't need to lock a cache directory.
+        if exception:
+            raise exception
 
         # NOTE: if both subprocess cleanup and unlock fail with exceptions, we
         # raise the latter, and the former will be ignored. In practice, that's
@@ -995,6 +1008,7 @@ class Tarball:
                         root=audit,
                         status=AuditStatus.FAILURE if error else AuditStatus.SUCCESS,
                         attributes=attributes,
+                        attributes=attributes,
                     )
                 lock.downgrade()
         self.last_ref.touch(exist_ok=True)
@@ -1475,16 +1489,6 @@ class CacheManager:
         """
         tarball = self.find_dataset(dataset_id)
         return tarball.get_inventory(target)
-
-    def cache_reclaim(self, dataset_id: str):
-        """Remove the unpacked tarball tree.
-
-        Args:
-            dataset_id: Dataset resource ID to "uncache"
-        """
-        tarball = self.find_dataset(dataset_id)
-        tarball.cache_delete()
-        self._clean_empties(tarball.controller.name)
 
     def delete(self, dataset_id: str):
         """Delete the dataset as well as unpacked artifacts.

@@ -1,6 +1,4 @@
-from contextlib import contextmanager
 import errno
-import fcntl
 import hashlib
 import io
 from logging import Logger
@@ -505,6 +503,10 @@ class TestCacheManager:
             (sub_dir / "metadata.log").write_text(
                 "[pbench]\nkey = value\n", encoding="utf-8"
             )
+            (sub_dir / "f1.json").write_text("{'json': 'value'}", encoding="utf-8")
+            (sub_dir / "metadata.log").write_text(
+                "[pbench]\nkey = value\n", encoding="utf-8"
+            )
             for i in range(1, 4):
                 (sub_dir / "subdir1" / f"subdir1{i}").mkdir(parents=True, exist_ok=True)
             (sub_dir / "subdir1" / "f11.txt").write_text(
@@ -587,16 +589,6 @@ class TestCacheManager:
         cache = Path("/mock/.cache")
         rmtree_called = True
 
-        locks: list[tuple[str, str]] = []
-
-        @contextmanager
-        def open(s, m, buffering=-1):
-            yield None
-
-        def locker(fd, mode):
-            nonlocal locks
-            locks.append((fd, mode))
-
         def mock_rmtree(path: Path, ignore_errors=False):
             nonlocal rmtree_called
             rmtree_called = True
@@ -637,16 +629,6 @@ class TestCacheManager:
         tar = Path("/mock/A.tar.xz")
         cache = Path("/mock/.cache")
         call = list()
-
-        locks: list[tuple[str, str]] = []
-
-        @contextmanager
-        def open(s, m, buffering=-1):
-            yield None
-
-        def locker(fd, mode):
-            nonlocal locks
-            locks.append((fd, mode))
 
         def mock_run(args, **_kwargs):
             call.append(args[0])
