@@ -313,6 +313,7 @@ class FakeTarball:
     def __init__(self, path: Path, resource_id: str, controller: FakeController):
         self.name = path.name
         self.tarball_path = path
+        self.md5_path = path.with_suffix(".xz.md5")
         self.controller = controller
         self.cache = controller.cache / "ABC"
         self.lock = self.cache / "lock"

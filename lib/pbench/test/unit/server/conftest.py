@@ -83,6 +83,8 @@ def do_setup(tmp_d: Path) -> Path:
     pbench_tmp.mkdir(parents=True, exist_ok=True)
     pbench_cache = srv_pbench / "cache"
     pbench_cache.mkdir(parents=True, exist_ok=True)
+    pbench_backup = srv_pbench / "backup"
+    pbench_backup.mkdir(parents=True, exist_ok=True)
 
     opt_pbench = tmp_d / "opt" / "pbench-server"
     pbench_bin = opt_pbench / "bin"
