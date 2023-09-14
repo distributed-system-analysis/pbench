@@ -1,4 +1,4 @@
-+++ Running test-35 pbench-results-move 
++++ Running test-35 pbench-results-move
 Usage: pbench-results-move [OPTIONS]
 Try 'pbench-results-move --help' for help.
 

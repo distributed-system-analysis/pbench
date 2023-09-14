@@ -23,6 +23,7 @@ class TestResultsPush:
     META_TEXT_FOO = "pbench.sat:FOO"
     META_TEXT_TEST = "pbench.test:TEST"
     RELAY_SWITCH = "--relay"
+    BRIEF_SWITCH = "--brief"
     SRVR_SWITCH = "--server"
     RELAY_TEXT = "http://relay.example.com"
     SRVR_TEXT = "https://pbench.test.example.com"
@@ -128,19 +129,23 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_relay():
+    @pytest.mark.parametrize("brief", (True, False))
+    def test_relay(brief):
         TestResultsPush.relay_mock()
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main,
-            args=[
-                TestResultsPush.RELAY_SWITCH,
-                TestResultsPush.RELAY_TEXT,
-                tarball,
-            ],
-        )
+        arg_list = [
+            TestResultsPush.RELAY_SWITCH,
+            TestResultsPush.RELAY_TEXT,
+            tarball,
+        ]
+        if brief:
+            arg_list.append(TestResultsPush.BRIEF_SWITCH)
+        result = runner.invoke(main, args=arg_list)
         assert result.exit_code == 0
-        assert "RELAY log.tar.xz: http://relay.example.com/" in result.stdout
+        pattern = (
+            "RELAY log.tar.xz: " if not brief else ""
+        ) + r"http://relay.example.com/[a-z0-9]+\n"
+        assert re.match((pattern), result.stdout)
 
     @staticmethod
     @responses.activate

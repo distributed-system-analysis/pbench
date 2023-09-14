@@ -4,6 +4,7 @@ import logging
 import re
 
 from click.testing import CliRunner
+import pytest
 import responses
 
 from pbench.cli.agent.commands.results.move import main
@@ -46,6 +47,7 @@ class TestResultsMove:
     DELN_SWITCH = "--no-delete"
     XZST_SWITCH = "--xz-single-threaded"
     RELAY_SWITCH = "--relay"
+    BRIEF_SWITCH = "--brief"
     SRVR_SWITCH = "--server"
     CTRL_TEXT = "ctrl"
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
@@ -323,7 +325,8 @@ class TestResultsMove:
 
     @staticmethod
     @responses.activate
-    def test_results_move_relay(monkeypatch, caplog, setup):
+    @pytest.mark.parametrize("brief", (True, False))
+    def test_results_move_relay(monkeypatch, caplog, setup, brief):
         monkeypatch.setenv("_pbench_full_hostname", "localhost")
         monkeypatch.setattr(datetime, "datetime", MockDatetime)
 
@@ -349,16 +352,21 @@ class TestResultsMove:
 
         runner = CliRunner(mix_stderr=False)
 
+        arg_list = [
+            TestResultsMove.CTRL_SWITCH,
+            TestResultsMove.CTRL_TEXT,
+            TestResultsMove.DELN_SWITCH,
+            TestResultsMove.RELAY_SWITCH,
+            TestResultsMove.RELAY_TEXT,
+        ]
+
+        if brief:
+            arg_list.append(TestResultsMove.BRIEF_SWITCH)
+
         # Test --no-delete
         result = runner.invoke(
             main,
-            args=[
-                TestResultsMove.CTRL_SWITCH,
-                TestResultsMove.CTRL_TEXT,
-                TestResultsMove.DELN_SWITCH,
-                TestResultsMove.RELAY_SWITCH,
-                TestResultsMove.RELAY_TEXT,
-            ],
+            args=arg_list,
         )
 
         # We expect two PUT calls using the relay base URI: first the tarball
@@ -373,12 +381,13 @@ class TestResultsMove:
         assert (
             result.exit_code == 0
         ), f"Expected a successful operation, exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
-        assert re.match(
-            (
-                r"RELAY pbench-user-benchmark_test-results-move_YYYY.MM.DDTHH.MM.SS.tar.xz: http://relay.example.com/[a-z0-9]+\n"
-                "Status: total # of result directories considered 1, successfully copied 1, encountered 0 failures\n"
-            ),
-            result.stdout,
-        )
+        pattern = r"http://relay.example.com/[a-z0-9]+\n"
+        if not brief:
+            pattern = (
+                "RELAY pbench-user-benchmark_test-results-move_YYYY.MM.DDTHH.MM.SS.tar.xz: "
+                + pattern
+                + "Status: total # of result directories considered 1, successfully copied 1, encountered 0 failures\n"
+            )
+        assert re.match(pattern, result.stdout)
         # This should raise an unexpected exception if it was not created.
         (pbrun / f"{name}.copied").unlink()

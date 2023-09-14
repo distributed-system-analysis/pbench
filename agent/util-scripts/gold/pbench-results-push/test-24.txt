@@ -8,6 +8,7 @@ Usage: pbench-results-push [OPTIONS] RESULT_TB_NAME
 Options:
   -a, --access [public|private]  pbench tarball access permission  [default:
                                  private]
+  -b, --brief                    Output bare relay manifest URIs
   -C, --config PATH              Path to a pbench-agent configuration file
                                  (defaults to the '_PBENCH_AGENT_CONFIG'
                                  environment variable, if defined)  [required]
