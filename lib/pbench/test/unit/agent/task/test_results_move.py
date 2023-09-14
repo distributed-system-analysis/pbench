@@ -381,7 +381,7 @@ class TestResultsMove:
         assert (
             result.exit_code == 0
         ), f"Expected a successful operation, exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
-        pattern = r"http://relay.example.com/[a-z0-9]+\n"
+        pattern = r"http://relay\.example\.com/[a-z0-9]+\n"
         if not brief:
             pattern = (
                 "RELAY pbench-user-benchmark_test-results-move_YYYY.MM.DDTHH.MM.SS.tar.xz: "
