@@ -237,8 +237,8 @@ class TestCacheManager:
         self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
     ):
         """
-        Test behavior when we try to create a new dataset but the tarball file
-        name already exists
+        Test behavior when we create a new dataset with a tarball file name
+        and MD5 that already exists
         """
 
         source_tarball, source_md5, md5 = tarball
@@ -247,8 +247,8 @@ class TestCacheManager:
 
         # Create a tarball file in the expected destination directory: the
         # subsequent create should report a duplicate.
-        controller = cm.archive_root / "ABC"
-        controller.mkdir()
+        controller = cm.archive_root / "ABC" / md5
+        controller.mkdir(parents=True)
         (controller / source_tarball.name).write_text("Send in the clones")
         with pytest.raises(DuplicateTarball) as exc:
             cm.create(source_tarball)
@@ -501,10 +501,11 @@ class TestCacheManager:
             return sub_dir
 
     class MockTarball:
-        def __init__(self, path: Path, controller: Controller):
+        def __init__(self, path: Path, resource_id: str, controller: Controller):
             self.name = Dataset.stem(path)
             self.tarball_path = path
             self.cache = controller.cache / "ABC"
+            self.isolator = controller.path / resource_id
             self.unpacked = None
 
     def test_unpack_tar_subprocess_exception(self, make_logger, monkeypatch):
@@ -532,7 +533,9 @@ class TestCacheManager:
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
             with pytest.raises(TarballUnpackError) as exc:
                 tb.unpack()
             msg = f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
@@ -567,7 +570,9 @@ class TestCacheManager:
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
 
             with pytest.raises(TarballModeChangeError) as exc:
                 tb.unpack()
@@ -603,7 +608,9 @@ class TestCacheManager:
             m.setattr(Path, "resolve", mock_resolve)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
             tb.unpack()
             assert call == ["tar", "find"]
             assert tb.unpacked == cache / "ABC" / tb.name
@@ -616,7 +623,9 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -677,7 +686,9 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -856,7 +867,9 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -942,7 +955,9 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -973,7 +988,9 @@ class TestCacheManager:
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             m.setattr(Tarball, "extract", lambda _t, _p: Inventory(exp_stream))
             m.setattr(Path, "open", lambda _s, _m="rb": exp_stream)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, make_logger))
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
@@ -1107,6 +1124,7 @@ class TestCacheManager:
             m.setattr(shutil, "which", mock_shutil_which)
             m.setattr(subprocess, "Popen", MockPopen)
             m.setattr(Inventory, "close", MockBufferedReader.close)
+            m.setattr(Tarball, "TAR_EXEC_TIMEOUT", 0.1)
 
             try:
                 got = Tarball.extract(tar, path)
@@ -1516,8 +1534,8 @@ class TestCacheManager:
         assert not source_tarball.exists()
         assert not source_md5.exists()
 
-        tarfile = archive / source_tarball.name
-        md5file = archive / source_md5.name
+        tarfile = archive / md5 / source_tarball.name
+        md5file = archive / md5 / source_md5.name
         assert tarfile.exists()
         assert md5file.exists()
 

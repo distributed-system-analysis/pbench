@@ -17,6 +17,8 @@ from pbench.client.types import Dataset, JSONOBJECT
 
 TARBALL_DIR = Path("lib/pbench/test/functional/server/tarballs")
 SPECIAL_DIR = TARBALL_DIR / "special"
+NOMETADATA = SPECIAL_DIR / "nometadata.tar.xz"
+DUPLICATE_NAME = SPECIAL_DIR / "fio_rw_2018.02.01T22.40.57.tar.xz"
 SHORT_EXPIRATION_DAYS = 10
 
 
@@ -125,7 +127,14 @@ class TestPut:
                 if dataset.name not in expected:
                     continue
                 t = tarballs[dataset.name]
-                assert dataset.name in dataset.metadata["server.tarball-path"]
+
+                # Check that the tarball path has the expected file name and
+                # that it's in the expected isolation directory.
+                path = Path(dataset.metadata["server.tarball-path"])
+                assert path.name == f"{dataset.name}.tar.xz"
+                assert path.parent.name == dataset.resource_id
+
+                # Check that the upload was successful
                 assert dataset.metadata["dataset.operations"]["UPLOAD"]["state"] == "OK"
                 assert (
                     dataset.metadata["dataset.metalog.pbench.script"]
@@ -240,7 +249,7 @@ class TestPut:
         Try to upload a new tarball with no `metadata.log` file, and
         validate that it doesn't get enabled for unpacking or indexing.
         """
-        tarball = SPECIAL_DIR / "nometadata.tar.xz"
+        tarball = NOMETADATA
         name = Dataset.stem(tarball)
         md5 = Dataset.md5(tarball)
         response = server_client.upload(tarball)
@@ -276,13 +285,53 @@ class TestPut:
         }
         assert metadata["server.benchmark"] == "unknown"
         assert metadata["server.archiveonly"] is True
-
-        # NOTE: we could wait here; however, the UNPACK operation is only
-        # enabled by upload, and INDEX is only enabled by UNPACK: so if they're
-        # not here immediately after upload, they'll never be here.
         operations = metadata["dataset.operations"]
         assert operations["UPLOAD"]["state"] == "OK"
         assert "INDEX" not in operations
+
+    @staticmethod
+    def test_duplicate_name(server_client: PbenchServerClient, login_user):
+        """Test handling for a tarball with a duplicate name but unique MD5.
+
+        In automated cloud testing we frequently see datasets started with
+        similar parameters at about the same time: these can result in
+        datasets with the same filename but distinct MD5 hashes (e.g., run
+        on different systems and/or at slightly different times that round to
+        the same second). Make sure that the server handles this gracefully.
+        """
+        tarball = DUPLICATE_NAME
+        name = Dataset.stem(tarball)
+        md5 = Dataset.md5(tarball)
+        response = server_client.upload(tarball)
+        assert (
+            response.status_code == HTTPStatus.CREATED
+        ), f"upload {name} returned unexpected status {response.status_code}, {response.text}"
+
+        assert response.json() == {
+            "message": "File successfully uploaded",
+            "name": name,
+            "resource_id": md5,
+            "notes": [
+                "Identified benchmark workload 'fio'.",
+                f"Expected expiration date is {expiration()}.",
+            ],
+        }
+        assert response.headers["location"] == server_client._uri(
+            API.DATASETS_INVENTORY, {"dataset": md5, "target": ""}
+        )
+        metadata = server_client.get_metadata(
+            md5,
+            [
+                "dataset.operations",
+                "server.archiveonly",
+                "server.benchmark",
+            ],
+        )
+        assert metadata["server.benchmark"] == "fio"
+        assert not metadata["server.archiveonly"]
+        operations = metadata["dataset.operations"]
+        assert operations["UPLOAD"]["state"] == "OK"
+        assert "INDEX" in operations
 
     @staticmethod
     def check_indexed(server_client: PbenchServerClient, datasets):
@@ -321,10 +370,10 @@ class TestPut:
 
     @pytest.mark.dependency(name="index", depends=["upload"], scope="session")
     def test_index_all(self, server_client: PbenchServerClient, login_user):
-        """Wait for datasets to reach the "Indexed" state, and ensure that the
-        state and metadata look good.
+        """Wait for indexable datasets to reach the "Indexed" state, and ensure
+        that the state and metadata look good.
         """
-        tarball_names = frozenset(t.name for t in TARBALL_DIR.glob("*.tar.xz"))
+        tarball_names = [i.name for i in all_tarballs()]
         print(" ... reporting dataset status ...")
 
         # Test get_list pagination: to avoid forcing a list, we'll count the
@@ -334,7 +383,6 @@ class TestPut:
         # this later when I add GET tests.)
         count = 0
         not_indexed_raw = server_client.get_list(
-            limit=5,
             metadata=[
                 "server.tarball-path",
                 "dataset.access",
@@ -347,8 +395,13 @@ class TestPut:
         not_indexed = []
         try:
             for dataset in not_indexed_raw:
-                tp = dataset.metadata["server.tarball-path"]
-                if os.path.basename(tp) not in tarball_names:
+                tp = Path(dataset.metadata["server.tarball-path"])
+
+                # Ignore unexpected and non-indexable datasets
+                if (
+                    tp.name not in tarball_names
+                    or dataset.metadata["server.archiveonly"]
+                ):
                     continue
                 not_indexed.append(dataset)
                 if dataset.metadata["user.pbench.access"] == "public":
@@ -384,9 +437,6 @@ class TestPut:
             print(f"[{(now - start).total_seconds():0.2f}] Checking ...")
             not_indexed, indexed = TestPut.check_indexed(server_client, not_indexed)
             for dataset in indexed:
-                tp = dataset.metadata["server.tarball-path"]
-                if os.path.basename(tp) not in tarball_names:
-                    continue
                 count += 1
                 print(f"\t... indexed {dataset.name}")
             now = datetime.utcnow()
@@ -399,9 +449,6 @@ class TestPut:
             f"Timed out after {(now - start).total_seconds()} seconds; unindexed datasets: "
             + ", ".join(d.name for d in not_indexed)
         )
-        assert (
-            len(tarball_names) == count
-        ), f"Didn't find all expected datasets, found {count} of {len(tarball_names)}"
 
 
 class TestIndexing:
@@ -826,21 +873,21 @@ class TestDelete:
 
         print(" ... reporting behaviors ...")
 
-        datasets = server_client.get_list()
-        datasets_hash = {}
         try:
-            for dataset in datasets:
-                datasets_hash[f"{dataset.name}.tar.xz"] = dataset.resource_id
+            datasets = server_client.get_list()
         except HTTPError as exc:
             pytest.fail(
                 f"Unexpected HTTP error, url = {exc.response.url}, status code"
                 f" = {exc.response.status_code}, text = {exc.response.text!r}"
             )
-        for t in all_tarballs():
-            resource_id = datasets_hash.get(t.name)
-            assert resource_id, f"Expected to find tar ball {t.name} to delete"
-            response = server_client.remove(resource_id)
-            assert (
-                response.ok
-            ), f"delete failed with {response.status_code}, {response.text}"
-            print(f"\t ... deleted {t.name}")
+
+        # Create a set of all tarball names we expect. We'll delete any dataset
+        # returned by the "get_list" query which is on this list.
+        all = set(Dataset.stem(d) for d in all_tarballs())
+        for d in datasets:
+            if d.name in all:
+                response = server_client.remove(d.resource_id)
+                assert (
+                    response.ok
+                ), f"delete {d.name} failed with {response.status_code}, {response.text}"
+                print(f"\t ... deleted {d.name}")
