@@ -145,7 +145,7 @@ class TestResultsPush:
         pattern = (
             "RELAY log.tar.xz: " if not brief else ""
         ) + r"http://relay.example.com/[a-z0-9]+\n"
-        assert re.match((pattern), result.stdout)
+        assert re.match(pattern, result.stdout)
 
     @staticmethod
     @responses.activate

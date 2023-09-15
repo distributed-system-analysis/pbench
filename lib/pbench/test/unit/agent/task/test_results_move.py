@@ -364,10 +364,7 @@ class TestResultsMove:
             arg_list.append(TestResultsMove.BRIEF_SWITCH)
 
         # Test --no-delete
-        result = runner.invoke(
-            main,
-            args=arg_list,
-        )
+        result = runner.invoke(main, args=arg_list)
 
         # We expect two PUT calls using the relay base URI: first the tarball
         # itself, and then a JSON manifest file. The manifest JSON must contain
