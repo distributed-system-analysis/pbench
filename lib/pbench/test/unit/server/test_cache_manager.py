@@ -28,6 +28,7 @@ from pbench.server.cache_manager import (
     TarballUnpackError,
 )
 from pbench.server.database.models.datasets import Dataset, DatasetBadName
+from pbench.test.unit.server.conftest import make_tarball
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -1539,7 +1540,7 @@ class TestCacheManager:
         assert tarfile.exists()
         assert md5file.exists()
 
-        assert md5 == md5file.read_text()
+        assert md5 == md5file.read_text().split()[0]
         md5_hash = hashlib.md5()
         md5_hash.update(tarfile.read_bytes())
         assert md5 == md5_hash.hexdigest()
@@ -1594,3 +1595,53 @@ class TestCacheManager:
         assert not archive.exists()
         assert not cm.controllers
         assert not cm.datasets
+
+    def test_compatibility(
+        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+    ):
+        """Test compatibility with both new "isolated" and old tarballs
+
+        Make sure we can discover and manage (unpack and delete) both new
+        tarballs with an MD5 isolation directory and pre-existing tarballs
+        directly in the controller directory.
+        """
+
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
+        source_tarball, source_md5, md5 = tarball
+        cm = CacheManager(server_config, make_logger)
+
+        archive = cm.archive_root / "ABC"
+
+        # Manually create an unisolated "pre-existing" copy of the tarball and
+        # MD5 file in the controller directory.
+
+        _, id = make_tarball(archive / source_tarball.name, "2023-09-18")
+        assert id != md5
+        cm.create(source_tarball)
+
+        # Rediscover the cache, which should find both tarballs
+        cm1 = CacheManager(server_config, make_logger).full_discovery()
+        t1 = cm1[md5]
+        t2 = cm1[id]
+        assert t1.name == t2.name == Dataset.stem(source_tarball)
+
+        t1.unpack()
+        t2.unpack()
+
+        assert t1.unpacked != t2.unpacked
+        assert (t1.unpacked / "metadata.log").is_file()
+        assert (t2.unpacked / "metadata.log").is_file()
+
+        tar1 = t1.tarball_path
+        tar2 = t2.tarball_path
+
+        assert tar1 == tar2.parent / t1.resource_id / tar1.name
+
+        t1.delete()
+        t2.delete()
+
+        # Check that the tarballs, and the tar1 isolation directory,
+        # were removed.
+        assert not tar1.exists()
+        assert not tar2.exists()
+        assert not tar1.parent.exists()

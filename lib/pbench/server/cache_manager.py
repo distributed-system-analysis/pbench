@@ -1057,7 +1057,7 @@ class CacheManager:
         # resource_id.
         self.datasets: dict[str, Tarball] = {}
 
-    def full_discovery(self):
+    def full_discovery(self) -> "CacheManager":
         """Discover the ARCHIVE and CACHE trees
 
         NOTE: both _discover_unpacked() and _discover_results() rely on the
@@ -1067,6 +1067,7 @@ class CacheManager:
         specific dataset.
         """
         self._discover_controllers()
+        return self
 
     def __contains__(self, dataset_id: str) -> bool:
         """Determine whether the cache manager includes a dataset.

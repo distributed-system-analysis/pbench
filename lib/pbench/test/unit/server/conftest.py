@@ -979,6 +979,35 @@ def current_user_admin(monkeypatch, create_admin_user):
         yield create_admin_user
 
 
+def make_tarball(tarball: Path, date: str) -> tuple[Path, str]:
+    """Helper to create a test tarball
+
+    Creates a companion MD5 file in the same directory, returning the filename
+    and the MD5 hash for convenience.
+
+    Args:
+        tarball: The path of the new tarball.
+        date: The "creation date" of the tarball metadata
+
+    Returns:
+        Path and value of the MD5 hash, as a tuple
+    """
+    md5file = tarball.with_suffix(".xz.md5")
+    metadata = MetadataLog()
+    metadata.add_section("pbench")
+    metadata.set("pbench", "date", date)
+    metadata_file = tarball.parent / "metadata.log"
+    tarball.parent.mkdir(parents=True, exist_ok=True)
+    with metadata_file.open("w") as meta_fp:
+        metadata.write(meta_fp)
+    with tarfile.open(tarball, "w:xz") as tar:
+        tar.add(str(metadata_file), arcname=f"{Dataset.stem(tarball)}/metadata.log")
+    md5 = hashlib.md5()
+    md5.update(tarball.read_bytes())
+    md5file.write_text(f"{md5.hexdigest()} {md5file.name}\n")
+    return md5file, md5.hexdigest()
+
+
 @pytest.fixture()
 def tarball(tmp_path):
     """Create a test tarball and MD5 file.
@@ -991,20 +1020,9 @@ def tarball(tmp_path):
     """
     filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
     datafile = tmp_path / filename
-    metadata = MetadataLog()
-    metadata.add_section("pbench")
-    metadata.set("pbench", "date", "2002-05-16")
-    metadata_file = tmp_path / "metadata.log"
-    with metadata_file.open("w") as meta_fp:
-        metadata.write(meta_fp)
-    with tarfile.open(datafile, "w:xz") as tar:
-        tar.add(str(metadata_file), arcname=f"{Dataset.stem(filename)}/metadata.log")
-    md5 = hashlib.md5()
-    md5.update(datafile.read_bytes())
-    md5file = tmp_path / (filename + ".md5")
-    md5file.write_text(md5.hexdigest())
+    md5file, md5hash = make_tarball(datafile, "2002-05-16")
 
-    yield datafile, md5file, md5.hexdigest()
+    yield datafile, md5file, md5hash
 
     # Clean up after the test case
 
