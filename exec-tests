@@ -69,7 +69,7 @@ function run_legacy {
     shift
 
     printf -- "\n\n\nRunning %s/%s legacy unit tests\n\n" "${_major}" "${_subtst}"
-    _time ${_major}/${_subtst}/unittests ${@}
+    COLUMNS=80 _time ${_major}/${_subtst}/unittests ${@}
     _rc=${?}
     if [[ ${_rc} -ne 0 ]]; then
         printf -- "\n%s %s legacy unit tests failed with '%s'\n\n" "${_major^}" "${_subtst}" "${_rc}"

@@ -106,7 +106,10 @@ class MoveResults(BaseCommand):
                             msg = res.text if res.text else res.reason
                         raise CopyResult.FileUploadError(msg)
                     if self.context.relay:
-                        click.echo(f"RELAY {result_tb_name.name}: {res.url}")
+                        if self.context.brief:
+                            click.echo(res.url)
+                        else:
+                            click.echo(f"RELAY {result_tb_name.name}: {res.url}")
                 except Exception as exc:
                     if isinstance(exc, (CopyResult.FileUploadError, RuntimeError)):
                         msg = "Error uploading file"
@@ -164,12 +167,13 @@ class MoveResults(BaseCommand):
                         # problems.
                         break
 
-        action = "moved" if delete else "copied"
-        click.echo(
-            f"Status: total # of result directories considered {no_of_tb:d},"
-            f" successfully {action} {runs_copied:d}, encountered"
-            f" {failures:d} failures"
-        )
+        if not self.context.brief:
+            action = "moved" if delete else "copied"
+            click.echo(
+                f"Status: total # of result directories considered {no_of_tb:d},"
+                f" successfully {action} {runs_copied:d}, encountered"
+                f" {failures:d} failures"
+            )
 
         return 0 if failures == 0 else 1
 
@@ -200,6 +204,7 @@ class MoveResults(BaseCommand):
 @pass_cli_context
 def main(
     context: CliContext,
+    brief: bool,
     controller: str,
     access: str,
     token: str,
@@ -235,6 +240,7 @@ def main(
         click.echo(f"Controller, {controller!r}, is not a valid host name")
         clk_ctx.exit(1)
 
+    context.brief = brief
     context.controller = controller
     context.access = access
     context.token = token

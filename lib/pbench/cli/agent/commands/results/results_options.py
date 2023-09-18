@@ -23,6 +23,13 @@ def results_common_options(f):
             help="pbench tarball access permission",
         ),
         click.option(
+            "-b",
+            "--brief",
+            is_flag=True,
+            default=False,
+            help="Output bare relay manifest URIs",
+        ),
+        click.option(
             "-m",
             "--metadata",
             multiple=True,

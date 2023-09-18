@@ -23,7 +23,10 @@ class ResultsPush(BaseCommand):
         res = crt.push(tarball, tarball_md5)
 
         if res.ok and self.context.relay:
-            click.echo(f"RELAY {tarball.name}: {res.url}")
+            if self.context.brief:
+                click.echo(res.url)
+            else:
+                click.echo(f"RELAY {tarball.name}: {res.url}")
 
         # success
         if res.status_code == HTTPStatus.CREATED:
@@ -67,6 +70,7 @@ def main(
     result_tb_name: str,
     token: str,
     access: str,
+    brief: bool,
     metadata: List,
     server: str,
     relay: str,
@@ -85,6 +89,7 @@ def main(
     context.result_tb_name = result_tb_name
     context.token = token
     context.access = access
+    context.brief = brief
     context.metadata = metadata
     context.server = server
     context.relay = relay
