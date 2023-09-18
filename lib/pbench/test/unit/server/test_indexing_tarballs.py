@@ -203,16 +203,15 @@ class FakePbenchTarBall:
     def __init__(
         self,
         idxctx: FakeIdxContext,
-        username: str,
-        tbarg: str,
+        dataset: FakeDataset,
         tmpdir: str,
-        extracted_root: str,
+        tarobj: "FakeTarball",
     ):
         self.idxctx = idxctx
-        self.tbname = tbarg
-        self.name = Path(tbarg).name
-        self.username = username
-        self.extracted_root = extracted_root
+        self.tbname = tarobj.controller.name
+        self.name = tarobj.name
+        self.username = dataset.owner_id
+        self.extracted_root = tarobj.cache
         self.index_map = {"root": {"idx1": ["id1", "id2"]}}
 
     def mk_tool_data_actions(self) -> JSONARRAY:
@@ -275,25 +274,30 @@ class FakeController:
 
 
 class FakeTarball:
-    def __init__(self, path: Path, controller: FakeController):
+    def __init__(self, path: Path, resource_id: str, controller: FakeController):
         self.name = path.name
         self.tarball_path = path
         self.controller = controller
         self.cache = controller.cache / "ABC"
         self.unpacked = self.cache / self.name
+        self.isolator = controller.path / resource_id
         self.uncache = lambda: None
 
 
 class FakeCacheManager:
+    lookup = {"ABC": "ds1", "ACDF": "ds2", "GHIJ": "ds3"}
+
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         self.config = config
         self.logger = logger
         self.datasets = {}
 
-    def unpack(self, resource_id: str) -> FakeTarball:
-        controller = FakeController(Path("/archive/ctrl"), Path("/.cache"), self.logger)
+    def unpack(self, resource_id: str):
+        controller = FakeController(Path("/archive/ABC"), Path("/.cache"), self.logger)
         return FakeTarball(
-            Path(f"/archive/ctrl/tarball-{resource_id}.tar.xz"), controller
+            Path(f"/archive/ABC/{resource_id}/{self.lookup[resource_id]}.tar.xz"),
+            resource_id,
+            controller,
         )
 
 

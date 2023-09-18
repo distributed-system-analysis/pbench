@@ -33,6 +33,7 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 import pbench.server
+from pbench.server.cache_manager import Tarball
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.index_map import IndexMapType
 from pbench.server.templates import PbenchTemplates
@@ -3190,23 +3191,22 @@ class PbenchTarBall:
         self,
         idxctx: "IdxContext",
         dataset: Dataset,
-        tbarg: str,
         tmpdir: str,
-        extracted_root: str,
+        tarobj: Tarball,
     ):
         """Context for indexing a tarball.
 
         Args:
             idxctx: The controlling Elasticsearch (pyesbulk) indexing context
             dataset: The Dataset object representing the tarball
-            tbarg:  The filesystem path to the tarball (as a string)
             tmpdir: The path to a temporary directory (as a string)
-            extracted_root: The path to the extracted tarball data (as a string)
+            tarobj: The cache manager tarball object
         """
         self.idxctx = idxctx
         self.authorization = {"owner": str(dataset.owner_id), "access": dataset.access}
-        self.tbname = tbarg
-        self.controller_dir = os.path.basename(os.path.dirname(self.tbname))
+        self.tarobj = tarobj
+        self.tbname = str(tarobj.tarball_path)
+        self.controller_dir = tarobj.controller.name
         try:
             self.satellite, self.controller_name = self.controller_dir.split("::", 1)
         except Exception:
@@ -3265,7 +3265,7 @@ class PbenchTarBall:
                 '{} - tar ball is missing "{}".'.format(self.tbname, metadata_log_path)
             )
 
-        self.extracted_root = extracted_root
+        self.extracted_root = tarobj.cache
         if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
             raise UnsupportedTarballFormat(
                 '{} - extracted tar ball directory "{}" does not'
@@ -3273,10 +3273,10 @@ class PbenchTarBall:
                     self.tbname, os.path.join(self.extracted_root, self.dirname)
                 )
             )
-        # Open the MD5 file of the tar ball and read the MD5 sum from it.
-        md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
+
         # Construct the @metadata and run metadata dictionaries from the
         # metadata.log file.
+        md5sum = dataset.resource_id
         self.mdconf = MetadataLog()
         mdf = os.path.join(self.extracted_root, metadata_log_path)
         try:
@@ -3429,7 +3429,7 @@ class PbenchTarBall:
         # using the controller directory, tar ball name (not path), and its
         # MD5 value so that warnings, errors, and exceptions can have
         # additional context to add.
-        self._tbctx = f"{self.controller_dir}/{os.path.basename(tbarg)}({md5sum})"
+        self._tbctx = f"{self.controller_dir}/{tarobj.name}({md5sum})"
 
     def map_document(self, root_idx: str, index: str, id: str) -> None:
         """

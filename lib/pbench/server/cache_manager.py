@@ -292,12 +292,13 @@ class Tarball:
     TAR_EXEC_TIMEOUT = 60.0
     TAR_EXEC_WAIT = 0.02
 
-    def __init__(self, path: Path, controller: "Controller"):
+    def __init__(self, path: Path, resource_id: str, controller: "Controller"):
         """Construct a `Tarball` object instance
 
         Args:
             path: The file path to a discovered tarball (.tar.xz file) in the
                 configured ARCHIVE directory for a controller.
+            resource_id: The dataset resource ID
             controller: The associated Controller object
         """
         self.logger: Logger = controller.logger
@@ -307,13 +308,19 @@ class Tarball:
 
         # Record the Dataset resource ID (MD5) for coordination with the server
         # logic
-        self.resource_id: str = get_tarball_md5(path)
+        self.resource_id: str = resource_id
 
         # Record a backlink to the containing controller object
         self.controller: Controller = controller
 
+        # Record the tarball isolation directory
+        self.isolator = controller.path / resource_id
+
         # Record the path of the tarball file
         self.tarball_path: Path = path
+
+        # Record the path of the companion MD5 file
+        self.md5_path: Path = path.with_suffix(".xz.md5")
 
         # Record where cached unpacked data would live
         self.cache: Path = controller.cache / self.resource_id
@@ -325,9 +332,6 @@ class Tarball:
         # is (self.cache / self.name) and will be None when the cache is
         # inactive.
         self.unpacked: Optional[Path] = None
-
-        # Record the path of the companion MD5 file
-        self.md5_path: Path = path.with_suffix(".xz.md5")
 
         # Record the name of the containing controller
         self.controller_name: str = controller.name
@@ -364,11 +368,21 @@ class Tarball:
     #   unpacked directory tree.
 
     @classmethod
-    def create(cls, tarball: Path, controller: "Controller") -> "Tarball":
+    def create(
+        cls, tarball: Path, resource_id: str, controller: "Controller"
+    ) -> "Tarball":
         """An alternate constructor to import a tarball
 
         This moves a new tarball into the proper place along with the md5
         companion file. It returns the new Tarball object.
+
+        Args:
+            tarball: location of the tarball
+            resource_id: tarball resource ID
+            controller: associated controller object
+
+        Returns:
+            Tarball object
         """
 
         # Validate the tarball suffix and extract the dataset name
@@ -378,8 +392,23 @@ class Tarball:
         # standard .tar.xz
         md5_source = tarball.with_suffix(".xz.md5")
 
-        destination = controller.path / tarball.name
-        md5_destination = controller.path / md5_source.name
+        # It's possible that two similar benchmark runs at about the same
+        # time can result in identical filenames with distinct MD5 values
+        # (for example, the same basic benchmark run on two hosts, which
+        # has been observed in automated cloud testing). To avoid problems, we
+        # "isolate" each tarball and its MD5 companion in a subdirectory with
+        # the md5 (resource_id) string to prevent collisions. The Tarball
+        # object maintains this, but we need it here, first, to move the
+        # files.
+        isolator = controller.path / resource_id
+
+        # NOTE: we enable "parents" and "exist_ok" not because we expect these
+        # conditions (both should be impossible) but because it's not worth an
+        # extra error check. We'll fail below if either *file* already
+        # exists in the isolator directory.
+        isolator.mkdir(parents=True, exist_ok=True)
+        destination = isolator / tarball.name
+        md5_destination = isolator / md5_source.name
 
         # If either expected destination file exists, something is wrong
         if destination.exists() or md5_destination.exists():
@@ -436,7 +465,7 @@ class Tarball:
         except Exception as e:
             controller.logger.error("Error removing staged MD5 {}: {}", name, e)
 
-        return cls(destination, controller)
+        return cls(destination, resource_id, controller)
 
     def cache_map(self, dir_path: Path):
         """Builds Hierarchy structure of a Directory in a Dictionary
@@ -784,20 +813,31 @@ class Tarball:
         files. There's nothing more we can do.
         """
         self.uncache()
-        if self.md5_path:
+        if self.isolator and self.isolator.exists():
             try:
-                self.md5_path.unlink()
+                shutil.rmtree(self.isolator)
             except Exception as e:
-                self.logger.error("archive unlink for {} failed with {}", self.name, e)
-            self.md5_path = None
-        if self.tarball_path:
-            try:
-                self.tarball_path.unlink()
-            except Exception as e:
-                self.logger.error(
-                    "archive MD5 unlink for {} failed with {}", self.name, e
-                )
+                self.logger.error("isolator delete for {} failed with {}", self.name, e)
+            self.isolator = None
             self.tarball_path = None
+            self.md5_path = None
+        else:
+            if self.md5_path:
+                try:
+                    self.md5_path.unlink()
+                except Exception as e:
+                    self.logger.error(
+                        "archive unlink for {} failed with {}", self.name, e
+                    )
+                self.md5_path = None
+            if self.tarball_path:
+                try:
+                    self.tarball_path.unlink()
+                except Exception as e:
+                    self.logger.error(
+                        "archive MD5 unlink for {} failed with {}", self.name, e
+                    )
+                self.tarball_path = None
 
 
 class Controller:
@@ -807,21 +847,6 @@ class Controller:
     directory. A controller with no data will be ignored in most contexts,
     but the audit report generator will flag it.
     """
-
-    @staticmethod
-    def delete_if_empty(directory: Path) -> None:
-        """Delete a directory only if it exists and is empty.
-
-        NOTE: rmdir technically will fail if the directory isn't empty, but
-        this feels safer.
-
-        Any exceptions raised will be propagated.
-
-        Args:
-            directory: Directory path
-        """
-        if directory.exists() and not any(directory.iterdir()):
-            directory.rmdir()
 
     def __init__(self, path: Path, cache: Path, logger: Logger):
         """Manage the representation of a controller archive on disk.
@@ -857,20 +882,37 @@ class Controller:
         # constructor!
         self._discover_tarballs()
 
+    def _add_if_tarball(self, file: Path, md5: Optional[str] = None):
+        """Check for a tar file, and create an object
+
+        Args:
+            file: path of potential tarball
+            md5: known MD5 hash, or None to compute here
+        """
+        if file.is_file() and Dataset.is_tarball(file):
+            hash = md5 if md5 else get_tarball_md5(file)
+            tarball = Tarball(file, hash, self)
+            self.tarballs[tarball.name] = tarball
+            self.datasets[tarball.resource_id] = tarball
+            tarball.check_unpacked()
+
     def _discover_tarballs(self):
         """Discover the known tarballs
 
         Look in the ARCHIVE tree's controller directory for tarballs, and add
-        them to the known set. We also check for unpacked directories in the
-        CACHE tree matching the resource_id of any tarballs we find in order
-        to link them.
+        them to the known set. "Old" tarballs may be at the top level, "new"
+        tarballs are in "resource_id" isolation directories.
+
+        We also check for unpacked directories in the CACHE tree matching the
+        resource_id of any tarballs we find in order to link them.
         """
         for file in self.path.iterdir():
-            if file.is_file() and Dataset.is_tarball(file):
-                tarball = Tarball(file, self)
-                self.tarballs[tarball.name] = tarball
-                self.datasets[tarball.resource_id] = tarball
-                tarball.check_unpacked()
+            if file.is_dir():
+                md5 = file.name
+                for tar in file.iterdir():
+                    self._add_if_tarball(tar, md5)
+            else:
+                self._add_if_tarball(file)
 
     @classmethod
     def create(
@@ -896,7 +938,7 @@ class Controller:
         Returns:
             Tarball object
         """
-        tarball = Tarball.create(tarfile_path, self)
+        tarball = Tarball.create(tarfile_path, get_tarball_md5(tarfile_path), self)
         self.datasets[tarball.resource_id] = tarball
         self.tarballs[tarball.name] = tarball
         return tarball
@@ -1023,7 +1065,7 @@ class CacheManager:
         # resource_id.
         self.datasets: dict[str, Tarball] = {}
 
-    def full_discovery(self):
+    def full_discovery(self) -> "CacheManager":
         """Discover the ARCHIVE and CACHE trees
 
         NOTE: both _discover_unpacked() and _discover_results() rely on the
@@ -1033,6 +1075,7 @@ class CacheManager:
         specific dataset.
         """
         self._discover_controllers()
+        return self
 
     def __contains__(self, dataset_id: str) -> bool:
         """Determine whether the cache manager includes a dataset.
@@ -1066,7 +1109,12 @@ class CacheManager:
             controller: Name of the controller to clean up
         """
         archive = self.options.ARCHIVE / controller
-        if archive.exists() and not any(archive.glob(f"*{Dataset.TARBALL_SUFFIX}")):
+
+        # Look for tarballs in the controller or subdirectory. (NOTE: this
+        # provides compatibility with tarballs in an "isolator" subdirectory
+        # and older tarballs without isolators by using the recursive "**/"
+        # glob syntax.)
+        if archive.exists() and not any(archive.glob(f"**/*{Dataset.TARBALL_SUFFIX}")):
             self.delete_if_empty(archive)
             del self.controllers[controller]
 
@@ -1125,7 +1173,7 @@ class CacheManager:
         # and (if found) discover the controller containing that dataset.
         for dir_entry in self.archive_root.iterdir():
             if dir_entry.is_dir() and dir_entry.name != self.TEMPORARY:
-                for file in dir_entry.glob(f"*{Dataset.TARBALL_SUFFIX}"):
+                for file in dir_entry.glob(f"**/*{Dataset.TARBALL_SUFFIX}"):
                     md5 = get_tarball_md5(file)
                     if md5 == dataset_id:
                         self._add_controller(dir_entry)
@@ -1254,7 +1302,6 @@ class CacheManager:
         tarball = self.find_dataset(dataset_id)
         controller = tarball.controller
         controller.uncache(dataset_id)
-        self._clean_empties(controller.name)
 
     def delete(self, dataset_id: str):
         """Delete the dataset as well as unpacked artifacts.
@@ -1264,10 +1311,11 @@ class CacheManager:
         """
         try:
             tarball = self.find_dataset(dataset_id)
-            name = tarball.name
-            tarball.controller.delete(dataset_id)
-            del self.datasets[dataset_id]
-            del self.tarballs[name]
-            self._clean_empties(tarball.controller_name)
         except TarballNotFound:
             return
+        name = tarball.name
+        tarball.controller.delete(dataset_id)
+        del self.datasets[dataset_id]
+        del self.tarballs[name]
+
+        self._clean_empties(tarball.controller_name)

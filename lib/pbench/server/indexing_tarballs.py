@@ -364,8 +364,6 @@ class Index:
                         tarobj: Optional[Tarball] = None
                         tb_res = error_code["OK"]
                         try:
-                            path = os.path.realpath(tb)
-
                             # Dynamically unpack the tarball for indexing.
                             try:
                                 tarobj = self.cache_manager.unpack(dataset.resource_id)
@@ -374,7 +372,6 @@ class Index:
                                         "{} has not been unpacked", dataset
                                     )
                                     continue
-                                unpacked = tarobj.cache  # The indexer needs the root
                             except TarballNotFound as e:
                                 self.sync.error(
                                     dataset,
@@ -392,7 +389,7 @@ class Index:
 
                             # "Open" the tar ball represented by the tar ball object
                             idxctx.logger.debug("open tar ball")
-                            ptb = PbenchTarBall(idxctx, dataset, path, tmpdir, unpacked)
+                            ptb = PbenchTarBall(idxctx, dataset, tmpdir, tarobj)
 
                             # Construct the generator for emitting all actions.
                             # The `idxctx` dictionary is passed along to each
