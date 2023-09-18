@@ -1002,6 +1002,7 @@ def make_tarball(tarball: Path, date: str) -> tuple[Path, str]:
         metadata.write(meta_fp)
     with tarfile.open(tarball, "w:xz") as tar:
         tar.add(str(metadata_file), arcname=f"{Dataset.stem(tarball)}/metadata.log")
+    metadata_file.unlink()
     md5 = hashlib.md5()
     md5.update(tarball.read_bytes())
     md5file.write_text(f"{md5.hexdigest()} {md5file.name}\n")

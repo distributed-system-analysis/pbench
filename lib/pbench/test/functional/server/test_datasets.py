@@ -373,6 +373,9 @@ class TestPut:
         """Wait for indexable datasets to reach the "Indexed" state, and ensure
         that the state and metadata look good.
         """
+
+        # We can't use a set (or dict) here as we have duplicate tarball names
+        # and we need to retain the original count of matches.
         tarball_names = [i.name for i in all_tarballs()]
         print(" ... reporting dataset status ...")
 
@@ -383,6 +386,7 @@ class TestPut:
         # this later when I add GET tests.)
         count = 0
         not_indexed_raw = server_client.get_list(
+            limit=5,
             metadata=[
                 "server.tarball-path",
                 "dataset.access",
@@ -882,7 +886,9 @@ class TestDelete:
             )
 
         # Create a set of all tarball names we expect. We'll delete any dataset
-        # returned by the "get_list" query which is on this list.
+        # returned by the "get_list" query which is on this list. (NOTE that
+        # the "set" collapses duplicate names; but it doesn't matter here as
+        # they'll both match.)
         all = set(Dataset.stem(d) for d in all_tarballs())
         for d in datasets:
             if d.name in all:

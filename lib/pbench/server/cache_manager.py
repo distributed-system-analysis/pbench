@@ -392,16 +392,17 @@ class Tarball:
         # standard .tar.xz
         md5_source = tarball.with_suffix(".xz.md5")
 
-        # In the rare case of two identical filenames with distinct MD5 values
-        # (because a similar benchmark run was started on two hosts at the
-        # same time, moderately common in automated cloud testing), we
-        # "isolate" the tarball and its MD5 companion in a subdirectory with
+        # It's possible that two similar benchmark runs at about the same
+        # time can result in identical filenames with distinct MD5 values
+        # (for example, the same basic benchmark run on two hosts, which
+        # has been observed in automated cloud testing). To avoid problems, we
+        # "isolate" each tarball and its MD5 companion in a subdirectory with
         # the md5 (resource_id) string to prevent collisions. The Tarball
         # object maintains this, but we need it here, first, to move the
         # files.
         isolator = controller.path / resource_id
 
-        # NOTE: we enable "parents" and "exist_ok" not because we exist these
+        # NOTE: we enable "parents" and "exist_ok" not because we expect these
         # conditions (both should be impossible) but because it's not worth an
         # extra error check. We'll fail below if either *file* already
         # exists in the isolator directory.
@@ -881,6 +882,20 @@ class Controller:
         # constructor!
         self._discover_tarballs()
 
+    def _add_if_tarball(self, file: Path, md5: Optional[str] = None):
+        """Check for a tar file, and create an object
+
+        Args:
+            file: path of potential tarball
+            md5: known MD5 hash, or None to compute here
+        """
+        if file.is_file() and Dataset.is_tarball(file):
+            hash = md5 if md5 else get_tarball_md5(file)
+            tarball = Tarball(file, hash, self)
+            self.tarballs[tarball.name] = tarball
+            self.datasets[tarball.resource_id] = tarball
+            tarball.check_unpacked()
+
     def _discover_tarballs(self):
         """Discover the known tarballs
 
@@ -892,19 +907,12 @@ class Controller:
         resource_id of any tarballs we find in order to link them.
         """
         for file in self.path.iterdir():
-            if file.is_file() and Dataset.is_tarball(file):
-                tarball = Tarball(file, get_tarball_md5(file), self)
-                self.tarballs[tarball.name] = tarball
-                self.datasets[tarball.resource_id] = tarball
-                tarball.check_unpacked()
-            elif file.is_dir():
+            if file.is_dir():
                 md5 = file.name
                 for tar in file.iterdir():
-                    if tar.is_file() and Dataset.is_tarball(tar):
-                        tarball = Tarball(tar, md5, self)
-                        self.tarballs[tarball.name] = tarball
-                        self.datasets[tarball.resource_id] = tarball
-                        tarball.check_unpacked()
+                    self._add_if_tarball(tar, md5)
+            else:
+                self._add_if_tarball(file)
 
     @classmethod
     def create(
