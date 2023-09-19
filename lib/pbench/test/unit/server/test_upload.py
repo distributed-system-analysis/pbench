@@ -64,10 +64,23 @@ class TestUpload:
             def delete(self):
                 TestUpload.tarball_deleted = self.name
 
+        # Capture a reference to the real CacheManager __init__ function
+        # before we patch it below so that we can call it without recursing
+        # in the fake cache manager class below.
+        real_cm_init = CacheManager.__init__
+
         class FakeCacheManager(CacheManager):
             def __init__(self, options: PbenchServerConfig, logger: Logger):
-                super().__init__(options, logger)
-                self.controllers = []
+                # Since we inherit from CacheManager, we need to call the
+                # superclass initializer; however, since this function replaces
+                # it via monkeypatch, we need to call our saved reference for
+                # it instead of using `super()` or the class name (and, sadly,
+                # this leaves the IDE thinking that we're skipping the call).
+                # We "redeclare" the `controllers` and `datasets` attributes to
+                # appease the linter, since we store fake objects in them which
+                # don't match the proper type hints.
+                real_cm_init(self, options, logger)
+                self.controllers = {}
                 self.datasets = {}
                 TestUpload.cachemanager_created = self
 
@@ -76,7 +89,7 @@ class TestUpload:
                 TestUpload.cachemanager_create_path = path
                 if TestUpload.cachemanager_create_fail:
                     raise TestUpload.cachemanager_create_fail
-                self.controllers.append(controller)
+                self.controllers[controller] = controller
                 tarball = FakeTarball(path)
                 if TestUpload.create_metadata:
                     tarball.metadata = {"pbench": {"date": "2002-05-16T00:00:00"}}
