@@ -5,11 +5,10 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, Optional
 
-from flask import Request
 import pytest
 
 from pbench.server import OperationCode, PbenchServerConfig
-from pbench.server.api.resources.intake_base import Access, Intake
+from pbench.server.api.resources.intake_base import Access
 from pbench.server.api.resources.upload import Upload
 from pbench.server.cache_manager import CacheManager, DuplicateTarball
 from pbench.server.database.models.audit import (
@@ -40,7 +39,8 @@ class TestUpload:
     def gen_uri(server_config, filename="f.tar.xz"):
         return f"{server_config.rest_uri}/upload/{filename}"
 
-    def gen_headers(self, auth_token, md5):
+    @staticmethod
+    def gen_headers(auth_token, md5):
         headers = {
             "Authorization": "Bearer " + auth_token,
             "Content-MD5": md5,
@@ -66,6 +66,7 @@ class TestUpload:
 
         class FakeCacheManager(CacheManager):
             def __init__(self, options: PbenchServerConfig, logger: Logger):
+                super().__init__(options, logger)
                 self.controllers = []
                 self.datasets = {}
                 TestUpload.cachemanager_created = self
@@ -213,7 +214,8 @@ class TestUpload:
         assert json["errors"] == [
             "Key global.xyz#a@b=z is invalid or isn't settable",
             "Key foobar.badpath is invalid or isn't settable",
-            "Metadata key 'server.deletion' value '3000-12-25T23:59:59+00:00' for dataset must be a date/time before 1979-12-30",
+            "Metadata key 'server.deletion' value '3000-12-25T23:59:59+00:00' "
+            "for dataset must be a date/time before 1979-12-30",
         ]
         assert not self.cachemanager_created
 
@@ -291,10 +293,10 @@ class TestUpload:
         """
         stream = BytesIO(b"12345")
 
-        def access(self, intake: Intake, request: Request) -> Access:
+        def access(*_args, **_kwargs) -> Access:
             return Access(5, stream)
 
-        def read(self):
+        def read(*_args):
             if error:
                 e = OSError(error, "something went badly")
             else:
@@ -343,11 +345,9 @@ class TestUpload:
         """
         path: Optional[Path] = None
 
-        def nogood_write(
-            self, data: str, encoding: str = None, errors: str = None
-        ) -> int:
+        def nogood_write(mock_self, *_args, **_kwargs):
             nonlocal path
-            path = self
+            path = mock_self
             if error:
                 e = OSError(error, "something went badly")
             else:
@@ -357,9 +357,9 @@ class TestUpload:
         real_unlink = Path.unlink
         unlinks = []
 
-        def record_unlink(self, **kwargs):
-            unlinks.append(self.name)
-            real_unlink(self, **kwargs)
+        def record_unlink(mock_self, **kwargs):
+            unlinks.append(mock_self.name)
+            real_unlink(mock_self, **kwargs)
 
         datafile, md5_file, md5 = tarball
         monkeypatch.setattr(Path, "write_text", nogood_write)
@@ -426,7 +426,7 @@ class TestUpload:
         md5 = "d41d8cd98f00b204e9800998ecf8427e"
         temp_path: Optional[Path] = None
 
-        def td_exists(self, *args, **kwargs):
+        def td_exists(mock_self, *args, **kwargs):
             """Mock out Path.mkdir()
 
             The trick here is that calling the UPLOAD API results in two calls
@@ -436,12 +436,12 @@ class TestUpload:
             we want to raise FileExistsError as if it had already existed, to
             trigger the duplicate upload logic.
             """
-            retval = self.real_mkdir(*args, **kwargs)
-            if self.name != md5:
+            retval = mock_self.real_mkdir(*args, **kwargs)
+            if mock_self.name != md5:
                 return retval
             nonlocal temp_path
-            temp_path = self
-            raise FileExistsError(str(self))
+            temp_path = mock_self
+            raise FileExistsError(str(mock_self))
 
         filename = "tmp.tar.xz"
         datafile = tmp_path / filename
@@ -594,7 +594,7 @@ class TestUpload:
         an 'errors' field in the response JSON explaining each error.
 
         The metadata processor handles three errors: bad syntax (not k:v), an
-        invalid or non-writeabale key value, and a special key value that fails
+        invalid or non-writable key value, and a special key value that fails
         validation. We test all three here, and assert that all three errors
         are reported.
         """
@@ -678,7 +678,7 @@ class TestUpload:
         """
         datafile, _, md5 = tarball
 
-        def create(**kwargs):
+        def create(**_kwargs):
             raise MetadataMissingParameter("dataset")
 
         monkeypatch.setattr(Metadata, "create", create)
@@ -742,9 +742,7 @@ class TestUpload:
         """
         datafile, _, md5 = tarball
 
-        def setvalue(
-            dataset: Dataset, key: str, value: Any, user: Optional[User] = None
-        ):
+        def setvalue(dataset: Dataset, key: str, **_kwargs):
             raise MetadataSqlError(
                 Exception("fake"), operation="test", dataset=dataset, key=key
             )
