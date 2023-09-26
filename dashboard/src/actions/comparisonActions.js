@@ -38,6 +38,7 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
       dispatch(parseChartData(response.data.benchmark));
     }
   } catch (error) {
+    const isCompareSwitchChecked = getState().comparison.isCompareSwitchChecked;
     if (
       error?.response?.data?.message
         ?.toLowerCase()
@@ -50,6 +51,18 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
     } else {
       dispatch(showToast(DANGER, ERROR_MSG));
     }
+    dispatch({
+      type: TYPES.SET_QUISBY_DATA,
+      payload: [],
+    });
+    const type = isCompareSwitchChecked
+      ? TYPES.SET_COMPARE_DATA
+      : TYPES.SET_PARSED_DATA;
+
+    dispatch({
+      type,
+      payload: [],
+    });
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
   dispatch({ type: TYPES.COMPLETED });
