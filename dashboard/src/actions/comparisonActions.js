@@ -63,20 +63,16 @@ const COLORS = [
 ];
 
 const getChartValues = (run, benchmarkType) => {
-  const benchmark = benchmarkType?.toLowerCase();
+  const benchmark = benchmarkType.toLowerCase();
   const chartTitle = {
     uperf: `Uperf: ${uperfChartTitleMap[run.metrics_unit.toLowerCase()]} | ${
       run.test_name
     }`,
     fio: `Fio: ${run.test_name} | ${run.metrics_unit.toLowerCase()}`,
   };
-  const yaxisScale = {
+  const yaxisTitle = {
     uperf: run.metrics_unit,
     fio: "Mb/sec",
-  };
-  const chartSubTitle = {
-    uperf: run.vm_name,
-    fio: `${run.vm_name} | d:disks | j: jobs | iod: IODepth`,
   };
   const keys = {
     uperf: "name",
@@ -88,8 +84,7 @@ const getChartValues = (run, benchmarkType) => {
   };
   const obj = {
     chartTitle: chartTitle[benchmark],
-    chartSubtitle: chartSubTitle[benchmark],
-    yAxis: yaxisScale[benchmark],
+    yAxis: yaxisTitle[benchmark],
     keyToParse: keys[benchmark],
     valueToGet: values[benchmark],
   };
@@ -119,14 +114,6 @@ export const parseChartData = (benchmark) => (dispatch, getState) => {
         title: {
           display: true,
           text: chartObj.chartTitle,
-        },
-        subtitle: {
-          display: true,
-          text: chartObj.chartSubtitle,
-          position: "top",
-          padding: {
-            bottom: 5,
-          },
         },
       },
       scales: {
@@ -189,7 +176,7 @@ export const toggleCompareSwitch = () => ({
 });
 
 export const setSelectedId = (isChecked, rId) => (dispatch, getState) => {
-  const prev = [...getState().comparison.selectedResourceIds];
+  const prev = getState().comparison.selectedResourceIds;
   const selectedIds = isChecked
     ? [...prev, rId]
     : prev.filter((id) => id !== rId);
