@@ -9,7 +9,7 @@ from pbench.cli.server import config_setup
 from pbench.cli.server.options import common_options
 from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig, OperationCode
-from pbench.server.cache_manager import CacheManager, LockRef
+from pbench.server.cache_manager import CacheManager, LockManager
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 
 # Length of time in hours to retain unreferenced cached results data.
@@ -48,7 +48,7 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
                 window,
             )
             try:
-                with LockRef(tarball.lock, exclusive=True, wait=False):
+                with LockManager(tarball.lock, exclusive=True, wait=False):
                     try:
                         audit = Audit.create(
                             name="reclaim",

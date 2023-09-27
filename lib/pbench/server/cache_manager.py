@@ -69,7 +69,7 @@ class MetadataError(CacheManagerError):
 
     def __init__(self, tarball: Path, error: Exception):
         super().__init__(
-            f"A problem occurred processing metadata.log from {tarball!s}: {str(error)!r}"
+            f"A problem occurred processing metadata.log from {tarball}: {str(error)!r}"
         )
         self.tarball = tarball
         self.error = str(error)
@@ -184,7 +184,7 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
 class LockRef:
     """Keep track of a cache lock passed off to a caller"""
 
-    def __init__(self, lock: Path, exclusive: bool = False, wait: bool = True):
+    def __init__(self, lock: Path):
         """Initialize a lock reference
 
         The lock file is opened in "w+" mode, which is "write update": unlike
@@ -193,20 +193,25 @@ class LockRef:
 
         Args:
             lock: the path of a lock file
-            exclusive: lock for exclusive access
-            wait: wait for lock
         """
         self.lock = lock.open("w+")
         self.locked = False
+        self.exclusive = False
+
+    def acquire(self, exclusive: bool = False, wait: bool = True) -> "LockRef":
+        """Acquire the lock
+
+        Args:
+            exclusive: lock for exclusive access
+            wait: wait for lock
+
+        Returns:
+            The lockref, so this can be chained with the constructor
+        """
+
         self.exclusive = exclusive
-        self.unlock = True
-        self.wait = wait
-
-    def acquire(self) -> "LockRef":
-        """Acquire the lock"""
-
-        cmd = fcntl.LOCK_EX if self.exclusive else fcntl.LOCK_SH
-        if not self.wait:
+        cmd = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+        if not wait:
             cmd |= fcntl.LOCK_NB
         fcntl.lockf(self.lock, cmd)
         self.locked = True
@@ -215,20 +220,17 @@ class LockRef:
     def release(self):
         """Release the lock and close the lock file"""
 
-        exception = None
+        if not self.locked:
+            return
         try:
             fcntl.lockf(self.lock, fcntl.LOCK_UN)
             self.lock.close()
-            self.locked = False
-            self.exclusive = False
-        except Exception as e:
-            exception = e
         finally:
             # Release our reference to the lock file so that the
             # object can be reclaimed.
+            self.locked = False
+            self.exclusive = False
             self.lock = None
-        if exception:
-            raise exception
 
     def upgrade(self):
         """Upgrade a shared lock to exclusive"""
@@ -242,19 +244,44 @@ class LockRef:
             fcntl.lockf(self.lock, fcntl.LOCK_SH)
             self.exclusive = False
 
-    def keep(self) -> "LockRef":
+
+class LockManager:
+    def __init__(self, lock: Path, exclusive: bool = False, wait: bool = True):
+        self.lock = LockRef(lock)
+        self.exclusive = exclusive
+        self.wait = wait
+        self.unlock = True
+
+    def keep(self) -> "LockManager":
         """Tell the context manager not to unlock on exit"""
         self.unlock = False
         return self
 
-    def __enter__(self) -> "LockRef":
+    def release(self):
+        """Release manually if necessary"""
+        self.lock.release()
+
+    def upgrade(self):
+        """Upgrade a shared lock to exclusive"""
+        self.lock.upgrade()
+
+    def downgrade(self):
+        """Downgrade an exclusive lock to shared"""
+        self.lock.downgrade()
+
+    def __enter__(self) -> "LockManager":
         """Enter a lock context manager by acquiring the lock"""
-        return self.acquire()
+        self.lock.acquire(exclusive=self.exclusive, wait=self.wait)
+        return self
 
     def __exit__(self, *exc):
-        """Exit a lock context manager by releasing the lock"""
+        """Exit a lock context manager by releasing the lock
+
+        This does nothing if "unlock" has been cleared, meaning we want the
+        lock to persist beyond the context manager scope.
+        """
         if self.unlock:
-            self.release()
+            self.lock.release()
 
 
 class Inventory:
@@ -771,12 +798,22 @@ class Tarball:
         Args:
             path: Relative path of a regular file within a tarball.
 
+        On failure, an exception is raised and the cache lock is released; on
+        success, returns an Inventory object which implicitly transfers
+        ownership and management of the cache lock to the caller. When done
+        with the inventory's file stream, the caller must close the Inventory
+        object to release the file stream and the cache lock.
+
+        Raises:
+            CacheExtractBadPath: the path does not match a regular file within
+                the tarball.
+
         Returns:
             An Inventory object encapsulating the file stream and the cache
-            lock. The caller is reponsible for closing the Inventory!
+            lock.
         """
 
-        with LockRef(self.lock) as lock:
+        with LockManager(self.lock) as lock:
             if not self.unpacked:
                 lock.upgrade()
                 self.cache_create()

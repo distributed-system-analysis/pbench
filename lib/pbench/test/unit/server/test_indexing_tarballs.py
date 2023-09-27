@@ -266,7 +266,7 @@ class FakeSync:
 
 
 class FakeLockRef:
-    def __init__(self, lock: Path, exclusive: bool = False, wait: bool = True):
+    def __init__(self, lock: Path):
         """Initialize a lock reference
 
         The lock file is opened in "w+" mode, which is "write update": unlike
@@ -279,11 +279,12 @@ class FakeLockRef:
             wait: [default] wait for lock
         """
         self.locked = False
-        self.exclusive = exclusive
+        self.exclusive = False
         self.unlock = True
 
-    def acquire(self) -> "FakeLockRef":
+    def acquire(self, exclusive: bool = False, wait: bool = True) -> "FakeLockRef":
         self.locked = True
+        self.exclusive = exclusive
         return self
 
     def release(self):
@@ -298,18 +299,6 @@ class FakeLockRef:
     def downgrade(self):
         if self.exclusive:
             self.exclusive = False
-
-    def keep(self) -> "FakeLockRef":
-        """Tell the context manager not to unlock on exit"""
-        self.unlock = False
-        return self
-
-    def __enter__(self) -> "FakeLockRef":
-        return self.acquire()
-
-    def __exit__(self, *exc):
-        if self.unlock:
-            self.release()
 
 
 class FakeController:

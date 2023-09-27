@@ -22,6 +22,7 @@ from pbench.server.cache_manager import (
     Controller,
     DuplicateTarball,
     Inventory,
+    LockManager,
     LockRef,
     MetadataError,
     Tarball,
@@ -547,8 +548,8 @@ class TestCacheManager:
             with pytest.raises(TarballUnpackError) as exc:
                 tb.cache_create()
             msg = f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
-            assert str(exc.value) == msg
-            assert exc.type == TarballUnpackError
+            with pytest.raises(TarballUnpackError, match=msg):
+                tb.cache_create()
 
     def test_unpack_find_subprocess_exception(
         self, make_logger, db_session, monkeypatch
@@ -586,12 +587,11 @@ class TestCacheManager:
                 tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
             )
 
-            with pytest.raises(TarballModeChangeError) as exc:
-                tb.cache_create()
             msg = "An error occurred while changing file permissions of "
             msg += f"{cache / 'ABC'}: Command 'find' timed out after 43 seconds"
+            with pytest.raises(TarballModeChangeError, match=msg) as exc:
+                tb.cache_create()
             assert str(exc.value) == msg
-            assert exc.type == TarballModeChangeError
             assert rmtree_called
 
     def test_unpack_success(self, make_logger, db_session, monkeypatch):
@@ -616,7 +616,6 @@ class TestCacheManager:
 
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
-            m.setattr(Path, "open", open)
             m.setattr(Path, "touch", lambda path, exist_ok=False: None)
             m.setattr("pbench.server.cache_manager.subprocess.run", mock_run)
             m.setattr(Path, "resolve", mock_resolve)
@@ -1264,6 +1263,7 @@ class TestCacheManager:
         stream = Inventory(MockBufferedReader())
 
         assert stream.lock is None
+        assert stream.subproc is None
 
         # Test Inventory.getbuffer()
         calls.clear()
@@ -1579,7 +1579,7 @@ class TestCacheManager:
         cm = CacheManager(server_config, make_logger)
         archive = cm.archive_root / "ABC"
         cache = cm.cache_root / md5
-        dataset_name = source_tarball.name[:-7]
+        dataset_name = Dataset.stem(source_tarball)
         unpack = cache / dataset_name
         monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
 
@@ -1740,6 +1740,9 @@ class TestCacheManager:
             def __eq__(self, other) -> bool:
                 return self.file == other.file
 
+            def __str__(self) -> str:
+                return f"Fake Stream with file {self.file!r}"
+
         def fake_lockf(fd: FakeStream, cmd: int):
             locks.append((fd.file, cmd))
             if lockf_fail:
@@ -1759,8 +1762,6 @@ class TestCacheManager:
         assert lock.lock == FakeStream(lockfile)
         assert not lock.locked
         assert not lock.exclusive
-        assert lock.unlock
-        assert lock.wait
         assert len(locks) == 0
         assert files == [("open", lockfile, "w+")]
         lock.acquire()
@@ -1773,10 +1774,10 @@ class TestCacheManager:
 
         # No-wait
         reset()
-        lock = LockRef(lockfile, wait=False)
+        lock = LockRef(lockfile)
         assert files == [("open", lockfile, "w+")]
-        assert not lock.wait
-        lock.acquire()
+        lock.acquire(wait=False)
+        assert not lock.exclusive
         assert locks == [(lockfile, fcntl.LOCK_SH | fcntl.LOCK_NB)]
         lock.release()
         assert locks == [
@@ -1787,54 +1788,47 @@ class TestCacheManager:
 
         # Exclusive
         reset()
-        lock = LockRef(lockfile, exclusive=True)
+        lock = LockRef(lockfile)
         assert files == [("open", lockfile, "w+")]
+        lock.acquire(exclusive=True)
         assert lock.exclusive
-        lock.acquire()
         assert locks == [(lockfile, fcntl.LOCK_EX)]
-        lock.release()
-        assert locks == [(lockfile, fcntl.LOCK_EX), (lockfile, fcntl.LOCK_UN)]
-        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
-
-        # Context Manager
-        reset()
-        with LockRef(lockfile) as lock:
-            assert lock.locked
-            assert files == [("open", lockfile, "w+")]
-            assert locks == [(lockfile, fcntl.LOCK_SH)]
-            lock.upgrade()
-            assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_EX)]
-            # upgrade is idempotent
-            lock.upgrade()
-            assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_EX)]
-            lock.downgrade()
-            assert locks == [
-                (lockfile, fcntl.LOCK_SH),
-                (lockfile, fcntl.LOCK_EX),
-                (lockfile, fcntl.LOCK_SH),
-            ]
-            # downgrade is idempotent
-            lock.downgrade()
-            assert locks == [
-                (lockfile, fcntl.LOCK_SH),
-                (lockfile, fcntl.LOCK_EX),
-                (lockfile, fcntl.LOCK_SH),
-            ]
+        assert lock.locked
+        assert lock.exclusive
+        # upgrade is idempotent
+        lock.upgrade()
+        assert locks == [(lockfile, fcntl.LOCK_EX)]
+        assert lock.exclusive
+        assert lock.locked
+        lock.downgrade()
+        assert locks == [(lockfile, fcntl.LOCK_EX), (lockfile, fcntl.LOCK_SH)]
+        assert not lock.exclusive
+        assert lock.locked
+        # downgrade is idempotent
+        lock.downgrade()
+        assert locks == [(lockfile, fcntl.LOCK_EX), (lockfile, fcntl.LOCK_SH)]
+        assert not lock.exclusive
+        assert lock.locked
+        # upgrade back to exclusive
+        lock.upgrade()
         assert locks == [
-            (lockfile, fcntl.LOCK_SH),
             (lockfile, fcntl.LOCK_EX),
             (lockfile, fcntl.LOCK_SH),
+            (lockfile, fcntl.LOCK_EX),
+        ]
+        assert lock.exclusive
+        assert lock.locked
+        # release
+        lock.release()
+        assert locks == [
+            (lockfile, fcntl.LOCK_EX),
+            (lockfile, fcntl.LOCK_SH),
+            (lockfile, fcntl.LOCK_EX),
             (lockfile, fcntl.LOCK_UN),
         ]
         assert files == [("open", lockfile, "w+"), ("close", lockfile)]
-
-        # Context Manager with 'keep' option\
-        reset()
-        with LockRef(lockfile) as lock:
-            assert lock.keep() is lock
-            assert not lock.unlock
-        assert locks == [(lockfile, fcntl.LOCK_SH)]
-        assert files == [("open", lockfile, "w+")]
+        assert not lock.locked
+        assert not lock.exclusive
 
         # Check release exception handling on close
         reset()
@@ -1863,3 +1857,81 @@ class TestCacheManager:
         assert lock.lock is None
         assert files == [("open", lockfile, "w+")]
         assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_UN)]
+
+    def test_lockmanager(self, monkeypatch):
+        """Test LockManager"""
+
+        operations = []
+
+        class FakeLockRef:
+            def __init__(self, lockpath: Path):
+                self.lock = lockpath
+
+            def acquire(self, **kwargs):
+                operations.append(
+                    (
+                        "acquire",
+                        kwargs.get("exclusive", False),
+                        kwargs.get("wait", True),
+                    )
+                )
+
+            def release(self):
+                operations.append(("release"))
+
+            def upgrade(self):
+                operations.append(("upgrade"))
+
+            def downgrade(self):
+                operations.append(("downgrade"))
+
+        def reset():
+            operations.clear()
+
+        lockfile = Path("/lock")
+        monkeypatch.setattr("pbench.server.cache_manager.LockRef", FakeLockRef)
+        # default parameters
+        with LockManager(lockfile) as lock:
+            assert lock.unlock
+            assert not lock.exclusive
+            assert lock.wait
+            assert operations == [("acquire", False, True)]
+            lock.upgrade()
+            assert operations == [("acquire", False, True), ("upgrade")]
+            lock.downgrade()
+            assert operations == [("acquire", False, True), ("upgrade"), ("downgrade")]
+        assert operations == [
+            ("acquire", False, True),
+            ("upgrade"),
+            ("downgrade"),
+            ("release"),
+        ]
+
+        # exclusive
+        reset()
+        with LockManager(lockfile, exclusive=True) as lock:
+            assert lock.unlock
+            assert lock.exclusive
+            assert lock.wait
+            assert operations == [("acquire", True, True)]
+        assert operations == [("acquire", True, True), ("release")]
+
+        # no-wait
+        reset()
+        with LockManager(lockfile, wait=False) as lock:
+            assert lock.unlock
+            assert not lock.exclusive
+            assert not lock.wait
+            assert operations == [("acquire", False, False)]
+        assert operations == [("acquire", False, False), ("release")]
+
+        # keep' option
+        reset()
+        with LockManager(lockfile) as lock:
+            assert lock.keep() is lock
+            still_locked = lock
+            assert not lock.unlock
+            assert operations == [("acquire", False, True)]
+        assert operations == [("acquire", False, True)]
+        still_locked.release()
+        assert operations == [("acquire", False, True), ("release")]
