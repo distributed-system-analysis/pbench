@@ -24,6 +24,7 @@ from pbench.server.cache_manager import (
     DuplicateTarball,
     Inventory,
     LockManager,
+    LockManager,
     LockRef,
     MetadataError,
     Tarball,

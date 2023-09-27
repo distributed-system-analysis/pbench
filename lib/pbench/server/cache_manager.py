@@ -73,6 +73,7 @@ class MetadataError(CacheManagerError):
     def __init__(self, tarball: Path, error: Exception):
         super().__init__(
             f"A problem occurred processing metadata.log from {tarball}: {str(error)!r}"
+            f"A problem occurred processing metadata.log from {tarball}: {str(error)!r}"
         )
         self.tarball = tarball
         self.error = str(error)
