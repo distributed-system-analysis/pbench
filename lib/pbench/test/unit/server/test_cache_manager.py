@@ -545,8 +545,6 @@ class TestCacheManager:
             tb = Tarball(
                 tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
             )
-            with pytest.raises(TarballUnpackError) as exc:
-                tb.cache_create()
             msg = f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
             with pytest.raises(TarballUnpackError, match=msg):
                 tb.cache_create()
@@ -1018,9 +1016,7 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(
-                tar, "ABC", Controller(archive, cache, make_logger)
-            )
+            tb = Tarball(tar, "ABC", Controller(archive, cache, make_logger))
             m.setattr(Tarball, "cache_create", fake_create)
             if is_unpacked:
                 tb.unpacked = unpacked
@@ -1689,8 +1685,8 @@ class TestCacheManager:
         t2 = cm1[id]
         assert t1.name == t2.name == Dataset.stem(source_tarball)
 
-        t1.unpack()
-        t2.unpack()
+        t1.cache_create()
+        t2.cache_create()
 
         assert t1.unpacked != t2.unpacked
         assert (t1.unpacked / "metadata.log").is_file()
