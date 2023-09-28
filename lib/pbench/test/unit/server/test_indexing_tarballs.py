@@ -267,22 +267,25 @@ class FakeSync:
 
 class FakeLockRef:
     def __init__(self, lock: Path):
-        """Initialize a lock reference
-
-        The lock file is opened in "w+" mode, which is "write update": unlike
-        "r+", this creates the file if it doesn't already exist, but still
-        allows lock conversion between LOCK_EX and LOCK_SH.
+        """Initialize a mocked lock reference
 
         Args:
             lock: the path of a lock file
-            exclusive: lock for exclusive access
-            wait: [default] wait for lock
         """
         self.locked = False
         self.exclusive = False
         self.unlock = True
 
     def acquire(self, exclusive: bool = False, wait: bool = True) -> "FakeLockRef":
+        """Acquire the lock
+
+        Args:
+            exclusive: lock for exclusive access
+            wait: [default] wait for lock
+
+        Returns:
+            self reference so acquire can be chained with constructor
+        """
         self.locked = True
         self.exclusive = exclusive
         return self
@@ -293,10 +296,12 @@ class FakeLockRef:
         self.exclusive = False
 
     def upgrade(self):
+        """Upgrade a shared lock to exclusive"""
         if not self.exclusive:
             self.exclusive = True
 
     def downgrade(self):
+        """Downgrade an exclusive lock to shared"""
         if self.exclusive:
             self.exclusive = False
 
