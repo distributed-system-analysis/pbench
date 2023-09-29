@@ -19,6 +19,9 @@ pipeline {
         // otherwise we set it to the branch name (e.g., `main`).
         PB_IMAGE_TAG="${env.CHANGE_ID ?: env.BRANCH_NAME}"
         PB_SERVER_IMAGE_NAME="pbench-server"
+        // FIXME: ubi9 doesn't seem to have rsyslog-mmjsonparse available, so
+        // temporarily switch to centos:stream9
+        BASE_IMAGE="quay.io/centos/centos:stream9"
     }
     stages {
         stage('Agent Python3.6 Check') {
