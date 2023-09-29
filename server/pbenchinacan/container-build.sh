@@ -8,7 +8,11 @@
 #-
 GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 
-BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
+# FIXME: ubi9 doesn't seem to have rsyslog-mmjsonparse available, so
+# temporarily switch to centos:stream9
+BASE_IMAGE=${BASE_IMAGE:-quay.io/centos/centos:stream9}
+# BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
+
 PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
 PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
 RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
