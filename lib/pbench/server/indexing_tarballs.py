@@ -370,9 +370,8 @@ class Index:
                                 tarobj = self.cache_manager.find_dataset(
                                     dataset.resource_id
                                 )
-                                lock = LockRef(tarobj.lock).acquire(exclusive=True)
-                                tarobj.cache_create()
-                                lock.downgrade()
+                                lock = LockRef(tarobj.lock).acquire()
+                                tarobj.get_results(lock)
                             except Exception as e:
                                 self.sync.error(
                                     dataset,

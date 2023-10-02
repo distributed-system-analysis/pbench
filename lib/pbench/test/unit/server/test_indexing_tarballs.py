@@ -5,7 +5,7 @@ from os import stat_result
 from pathlib import Path
 from signal import SIGHUP
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pytest
 
@@ -16,6 +16,7 @@ from pbench.server import (
     OperationCode,
     PbenchServerConfig,
 )
+from pbench.server.cache_manager import LockManager, LockRef
 from pbench.server.database.models.audit import AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -325,7 +326,7 @@ class FakeTarball:
         self.unpacked = self.cache / self.name
         self.isolator = controller.path / resource_id
 
-    def cache_create(self):
+    def get_results(self, lock: Union[LockRef, LockManager]):
         pass
 
 

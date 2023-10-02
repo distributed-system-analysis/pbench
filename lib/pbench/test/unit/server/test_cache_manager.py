@@ -86,6 +86,35 @@ CANNOT_OPEN_MSG = (
 )
 
 
+class FakeLockRef:
+    operations = []
+
+    def __init__(self, lockpath: Path):
+        self.lock = lockpath
+
+    def acquire(self, **kwargs):
+        self.operations.append(
+            (
+                "acquire",
+                kwargs.get("exclusive", False),
+                kwargs.get("wait", True),
+            )
+        )
+
+    def release(self):
+        self.operations.append(("release"))
+
+    def upgrade(self):
+        self.operations.append(("upgrade"))
+
+    def downgrade(self):
+        self.operations.append(("downgrade"))
+
+    @classmethod
+    def reset(cls):
+        cls.operations.clear()
+
+
 class TestCacheManager:
     def test_create(self, server_config, make_logger):
         """
@@ -547,7 +576,8 @@ class TestCacheManager:
             )
             msg = f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
             with pytest.raises(TarballUnpackError, match=msg):
-                tb.cache_create()
+                tb.get_results(FakeLockRef(tb.lock))
+            FakeLockRef.reset()
 
     def test_unpack_find_subprocess_exception(
         self, make_logger, db_session, monkeypatch
@@ -588,9 +618,10 @@ class TestCacheManager:
             msg = "An error occurred while changing file permissions of "
             msg += f"{cache / 'ABC'}: Command 'find' timed out after 43 seconds"
             with pytest.raises(TarballModeChangeError, match=msg) as exc:
-                tb.cache_create()
+                tb.get_results(FakeLockRef(tb.lock))
             assert str(exc.value) == msg
             assert rmtree_called
+            FakeLockRef.reset()
 
     def test_unpack_success(self, make_logger, db_session, monkeypatch):
         """Test to check the unpacking functionality of the CacheManager"""
@@ -622,9 +653,10 @@ class TestCacheManager:
             tb = Tarball(
                 tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
             )
-            tb.cache_create()
+            tb.get_results(FakeLockRef(tb.lock))
             assert call == ["tar", "find"]
             assert tb.unpacked == cache / "ABC" / tb.name
+            FakeLockRef.reset()
 
     def test_cache_map_success(self, make_logger, monkeypatch, tmp_path):
         """Test to build the cache map of the root directory"""
@@ -996,7 +1028,7 @@ class TestCacheManager:
         the tarball, based on "is_unpacked", to be sure both cases are covered;
         but be aware that accessing the tarball itself (the "" and None
         file_path cases) don't ever unpack and should always have is_unpacked
-        set to True. (That is, we don't expect cache_create to be called in
+        set to True. (That is, we don't expect get_results to be called in
         those cases.)
         """
         archive = tmp_path / "mock" / "archive" / "ABC"
@@ -1006,18 +1038,19 @@ class TestCacheManager:
         cache = tmp_path / "mock" / ".cache"
         unpacked = cache / "ABC" / "dir_name"
 
-        create_called = False
+        get_results_called = False
 
-        def fake_create(self):
-            nonlocal create_called
-            create_called = True
+        def fake_results(self, lock: LockRef) -> Path:
+            nonlocal get_results_called
+            get_results_called = True
             self.unpacked = unpacked
+            return self.unpacked
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             tb = Tarball(tar, "ABC", Controller(archive, cache, make_logger))
-            m.setattr(Tarball, "cache_create", fake_create)
+            m.setattr(Tarball, "get_results", fake_results)
             if is_unpacked:
                 tb.unpacked = unpacked
             TestCacheManager.MockController.generate_test_result_tree(
@@ -1033,7 +1066,6 @@ class TestCacheManager:
                 stream: Inventory = file_info["stream"]
                 assert stream.stream.read() == exp_stream
                 stream.close()
-                assert create_called is not is_unpacked
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
@@ -1369,7 +1401,7 @@ class TestCacheManager:
             ),
             # The subprocess is still running when close() is called, stdout is
             # empty, there is no stderr, and the wait times out.
-            (None, 0, None, True, ["poll", "kill", "stdout", "wait"]),
+            (None, 0, None, True, ["poll", "kill", "stdout", "wait", "close"]),
         ),
     )
     def test_inventory(
@@ -1525,10 +1557,11 @@ class TestCacheManager:
         assert exc.value.tarball == "foobar"
 
         # Unpack the dataset, creating INCOMING and RESULTS links
-        tarball.cache_create()
+        tarball.get_results(FakeLockRef(tarball.lock))
         assert tarball.cache == controller.cache / md5
         assert tarball.unpacked == controller.cache / md5 / tarball.name
         assert tarball.last_ref.exists()
+        FakeLockRef.reset()
 
         audits = Audit.query(name="cache")
         assert len(audits) == 2
@@ -1613,10 +1646,11 @@ class TestCacheManager:
 
         # Now "unpack" the tarball and check that the incoming directory and
         # results link are set up.
-        dataset.cache_create()
+        dataset.get_results(FakeLockRef(dataset.lock))
         assert cache == dataset.cache
         assert cache.is_dir()
         assert unpack.is_dir()
+        FakeLockRef.reset()
 
         assert dataset.unpacked == unpack
 
@@ -1685,8 +1719,11 @@ class TestCacheManager:
         t2 = cm1[id]
         assert t1.name == t2.name == Dataset.stem(source_tarball)
 
-        t1.cache_create()
-        t2.cache_create()
+        r1 = t1.get_results(FakeLockRef(t1.lock))
+        assert r1 == t1.unpacked
+        r2 = t2.get_results(FakeLockRef(t2.lock))
+        assert r2 == t2.unpacked
+        FakeLockRef.reset()
 
         assert t1.unpacked != t2.unpacked
         assert (t1.unpacked / "metadata.log").is_file()
@@ -1857,33 +1894,6 @@ class TestCacheManager:
     def test_lockmanager(self, monkeypatch):
         """Test LockManager"""
 
-        operations = []
-
-        class FakeLockRef:
-            def __init__(self, lockpath: Path):
-                self.lock = lockpath
-
-            def acquire(self, **kwargs):
-                operations.append(
-                    (
-                        "acquire",
-                        kwargs.get("exclusive", False),
-                        kwargs.get("wait", True),
-                    )
-                )
-
-            def release(self):
-                operations.append(("release"))
-
-            def upgrade(self):
-                operations.append(("upgrade"))
-
-            def downgrade(self):
-                operations.append(("downgrade"))
-
-        def reset():
-            operations.clear()
-
         lockfile = Path("/lock")
         monkeypatch.setattr("pbench.server.cache_manager.LockRef", FakeLockRef)
         # default parameters
@@ -1891,12 +1901,16 @@ class TestCacheManager:
             assert lock.unlock
             assert not lock.exclusive
             assert lock.wait
-            assert operations == [("acquire", False, True)]
+            assert FakeLockRef.operations == [("acquire", False, True)]
             lock.upgrade()
-            assert operations == [("acquire", False, True), ("upgrade")]
+            assert FakeLockRef.operations == [("acquire", False, True), ("upgrade")]
             lock.downgrade()
-            assert operations == [("acquire", False, True), ("upgrade"), ("downgrade")]
-        assert operations == [
+            assert FakeLockRef.operations == [
+                ("acquire", False, True),
+                ("upgrade"),
+                ("downgrade"),
+            ]
+        assert FakeLockRef.operations == [
             ("acquire", False, True),
             ("upgrade"),
             ("downgrade"),
@@ -1904,30 +1918,30 @@ class TestCacheManager:
         ]
 
         # exclusive
-        reset()
+        FakeLockRef.reset()
         with LockManager(lockfile, exclusive=True) as lock:
             assert lock.unlock
             assert lock.exclusive
             assert lock.wait
-            assert operations == [("acquire", True, True)]
-        assert operations == [("acquire", True, True), ("release")]
+            assert FakeLockRef.operations == [("acquire", True, True)]
+        assert FakeLockRef.operations == [("acquire", True, True), ("release")]
 
         # no-wait
-        reset()
+        FakeLockRef.reset()
         with LockManager(lockfile, wait=False) as lock:
             assert lock.unlock
             assert not lock.exclusive
             assert not lock.wait
-            assert operations == [("acquire", False, False)]
-        assert operations == [("acquire", False, False), ("release")]
+            assert FakeLockRef.operations == [("acquire", False, False)]
+        assert FakeLockRef.operations == [("acquire", False, False), ("release")]
 
         # keep' option
-        reset()
+        FakeLockRef.reset()
         with LockManager(lockfile) as lock:
             assert lock.keep() is lock
             still_locked = lock
             assert not lock.unlock
-            assert operations == [("acquire", False, True)]
-        assert operations == [("acquire", False, True)]
+            assert FakeLockRef.operations == [("acquire", False, True)]
+        assert FakeLockRef.operations == [("acquire", False, True)]
         still_locked.release()
-        assert operations == [("acquire", False, True), ("release")]
+        assert FakeLockRef.operations == [("acquire", False, True), ("release")]
