@@ -28,13 +28,12 @@ import {
 } from "@patternfly/react-core";
 import { NAVBAR_CLOSE, NAVBAR_OPEN } from "actions/types";
 import React, { useState } from "react";
+import { movePage, sessionLogout } from "actions/authActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { sessionLogout } from "actions/authActions";
 import pbenchLogo from "assets/logo/pbench_logo.svg";
 import { useKeycloak } from "@react-keycloak/web";
-import { movePage } from "actions/authActions";
 
 const HeaderToolbar = () => {
   const dispatch = useDispatch();
@@ -143,7 +142,7 @@ const HeaderComponent = () => {
         </PageToggleButton>
       </MastheadToggle>
       <MastheadMain>
-        <MastheadBrand>
+        <MastheadBrand href={"/" + APP_ROUTES.HOME}>
           <Brand src={pbenchLogo} className="header-logo" alt="pbench Logo" />
         </MastheadBrand>
       </MastheadMain>

@@ -102,6 +102,10 @@ const App = () => {
                     />
                   </Route>
                   <Route
+                    path={APP_ROUTES.ALL_RUNS}
+                    element={<ComingSoonPage />}
+                  />
+                  <Route
                     path={APP_ROUTES.SEARCH}
                     element={<ComingSoonPage />}
                   />
