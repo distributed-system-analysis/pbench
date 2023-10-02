@@ -5,7 +5,7 @@ from os import stat_result
 from pathlib import Path
 from signal import SIGHUP
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pytest
 

@@ -357,9 +357,11 @@ class Inventory:
                             pass
                     self.subproc.wait(60.0)
             except Exception as e:
+            except Exception as e:
                 # Release our reference to the subprocess.Popen object so that the
                 # object can be reclaimed.
                 self.subproc = None
+                exception = e
                 exception = e
         if self.lock:
             try:

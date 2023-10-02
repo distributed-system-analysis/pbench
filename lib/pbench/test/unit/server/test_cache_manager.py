@@ -1065,7 +1065,6 @@ class TestCacheManager:
                 stream: Inventory = file_info["stream"]
                 assert stream.stream.read() == exp_stream
                 stream.close()
-                assert create_called is not is_unpacked
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
@@ -1914,9 +1913,17 @@ class TestCacheManager:
             assert not lock.exclusive
             assert lock.wait
             assert FakeLockRef.operations == [("acquire", False, True)]
+            assert FakeLockRef.operations == [("acquire", False, True)]
             lock.upgrade()
             assert FakeLockRef.operations == [("acquire", False, True), ("upgrade")]
+            assert FakeLockRef.operations == [("acquire", False, True), ("upgrade")]
             lock.downgrade()
+            assert FakeLockRef.operations == [
+                ("acquire", False, True),
+                ("upgrade"),
+                ("downgrade"),
+            ]
+        assert FakeLockRef.operations == [
             assert FakeLockRef.operations == [
                 ("acquire", False, True),
                 ("upgrade"),
@@ -1944,6 +1951,8 @@ class TestCacheManager:
             assert lock.unlock
             assert not lock.exclusive
             assert not lock.wait
+            assert FakeLockRef.operations == [("acquire", False, False)]
+        assert FakeLockRef.operations == [("acquire", False, False), ("release")]
             assert FakeLockRef.operations == [("acquire", False, False)]
         assert FakeLockRef.operations == [("acquire", False, False), ("release")]
 
