@@ -35,8 +35,8 @@ const ChartModal = (props) => {
   const currIndex = props.dataToPlot.findIndex(
     (item) => item.data.id === activeChart.data.id
   );
-  const prevId = props.dataToPlot[currIndex - 1]?.data?.id;
-  const nextId = props.dataToPlot[currIndex + 1]?.data?.id;
+  const prevId = props.dataToPlot[currIndex - 1]?.data.id;
+  const nextId = props.dataToPlot[currIndex + 1]?.data.id;
   return (
     <Modal
       variant={ModalVariant.large}

@@ -1,12 +1,13 @@
+import * as CONSTANTS from "assets/constants/compareConstants";
 import * as TYPES from "./types.js";
 
-import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
+import { DANGER, ERROR_MSG, WARNING } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "../utils/helper";
 
-const chartTitleMap = {
+const uperfChartTitleMap = {
   gb_sec: "Bandwidth",
   trans_sec: "Transactions/second",
   usec: "Latency",
@@ -34,12 +35,12 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
         type: TYPES.IS_UNSUPPORTED_TYPE,
         payload: "",
       });
-      dispatch(parseChartData());
+      dispatch(parseChartData(response.data.benchmark));
     }
   } catch (error) {
+    const isCompareSwitchChecked = getState().comparison.isCompareSwitchChecked;
     if (
-      error?.response?.data &&
-      error.response.data?.message
+      error?.response?.data?.message
         ?.toLowerCase()
         .includes("unsupported benchmark")
     ) {
@@ -50,18 +51,67 @@ export const getQuisbyData = (dataset) => async (dispatch, getState) => {
     } else {
       dispatch(showToast(DANGER, ERROR_MSG));
     }
+    dispatch({
+      type: TYPES.SET_QUISBY_DATA,
+      payload: [],
+    });
+    const type = isCompareSwitchChecked
+      ? TYPES.SET_COMPARE_DATA
+      : TYPES.SET_PARSED_DATA;
+
+    dispatch({
+      type,
+      payload: [],
+    });
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
   dispatch({ type: TYPES.COMPLETED });
 };
-const COLORS = ["#8BC1F7", "#0066CC", "#519DE9", "#004B95", "#002F5D"];
-export const parseChartData = () => (dispatch, getState) => {
+const COLORS = [
+  CONSTANTS.COLOR1,
+  CONSTANTS.COLOR2,
+  CONSTANTS.COLOR3,
+  CONSTANTS.COLOR4,
+  CONSTANTS.COLOR5,
+];
+
+const getChartValues = (run, benchmarkType) => {
+  const benchmark = benchmarkType.toLowerCase();
+  const chartTitle = {
+    uperf: `Uperf: ${uperfChartTitleMap[run.metrics_unit.toLowerCase()]} | ${
+      run.test_name
+    }`,
+    fio: `Fio: ${run.test_name} | ${run.metrics_unit.toLowerCase()}`,
+  };
+  const yaxisTitle = {
+    uperf: run.metrics_unit,
+    fio: "Mb/sec",
+  };
+  const keys = {
+    uperf: "name",
+    fio: "iteration_name",
+  };
+  const values = {
+    uperf: "time_taken",
+    fio: "value",
+  };
+  const obj = {
+    chartTitle: chartTitle[benchmark],
+    yAxis: yaxisTitle[benchmark],
+    keyToParse: keys[benchmark],
+    valueToGet: values[benchmark],
+  };
+
+  return obj;
+};
+export const parseChartData = (benchmark) => (dispatch, getState) => {
   const response = getState().comparison.data.data;
   const isCompareSwitchChecked = getState().comparison.isCompareSwitchChecked;
   const chartData = [];
   let i = 0;
 
   for (const run of response) {
+    const chartObj = getChartValues(run, benchmark);
     const options = {
       responsive: true,
       maintainAspectRatio: false,
@@ -74,12 +124,9 @@ export const parseChartData = () => (dispatch, getState) => {
           display: true,
           position: "bottom",
         },
-
         title: {
           display: true,
-          text: `Uperf: ${chartTitleMap[run.metrics_unit.toLowerCase()]} | ${
-            run.test_name
-          }`,
+          text: chartObj.chartTitle,
         },
       },
       scales: {
@@ -92,7 +139,7 @@ export const parseChartData = () => (dispatch, getState) => {
         y: {
           title: {
             display: true,
-            text: run.metrics_unit,
+            text: chartObj.yAxis,
           },
         },
       },
@@ -100,7 +147,7 @@ export const parseChartData = () => (dispatch, getState) => {
 
     const datasets = [];
     const data = {
-      labels: [...new Set(run.instances.map((i) => i.name))],
+      labels: [...new Set(run.instances.map((i) => i[chartObj.keyToParse]))],
       id: `${run.test_name}_${run.metrics_unit}`,
       datasets,
     };
@@ -111,11 +158,9 @@ export const parseChartData = () => (dispatch, getState) => {
     }, Object.create(null));
 
     for (const [key, value] of Object.entries(result)) {
-      console.log(key);
-
       const map = {};
       for (const element of value) {
-        map[element.name] = element.time_taken.trim();
+        map[element[chartObj.keyToParse]] = element[chartObj.valueToGet].trim();
       }
       const mappedData = data.labels.map((label) => {
         return map[label];
@@ -139,24 +184,29 @@ export const parseChartData = () => (dispatch, getState) => {
   });
 };
 
-export const toggleCompareSwitch = () => (dispatch, getState) => {
-  dispatch({
-    type: TYPES.TOGGLE_COMPARE_SWITCH,
-    payload: !getState().comparison.isCompareSwitchChecked,
-  });
-};
+export const toggleCompareSwitch = () => ({
+  type: TYPES.TOGGLE_COMPARE_SWITCH,
+});
 
 export const setSelectedId = (isChecked, rId) => (dispatch, getState) => {
-  let selectedIds = [...getState().comparison.selectedResourceIds];
-  if (isChecked) {
-    selectedIds = [...selectedIds, rId];
+  const prev = getState().comparison.selectedResourceIds;
+  const selectedIds = isChecked
+    ? [...prev, rId]
+    : prev.filter((id) => id !== rId);
+
+  if (selectedIds.length > CONSTANTS.MAX_DATASETS_COMPARE) {
+    dispatch(
+      showToast(
+        WARNING,
+        `Not more than ${CONSTANTS.MAX_DATASETS_COMPARE} datasets can be compared`
+      )
+    );
   } else {
-    selectedIds = selectedIds.filter((item) => item !== rId);
+    dispatch({
+      type: TYPES.SET_SELECTED_RESOURCE_ID,
+      payload: selectedIds,
+    });
   }
-  dispatch({
-    type: TYPES.SET_SELECTED_RESOURCE_ID,
-    payload: selectedIds,
-  });
 };
 
 export const compareMultipleDatasets = () => async (dispatch, getState) => {
@@ -164,7 +214,7 @@ export const compareMultipleDatasets = () => async (dispatch, getState) => {
     dispatch({ type: TYPES.LOADING });
 
     const endpoints = getState().apiEndpoint.endpoints;
-    const selectedIds = [...getState().comparison.selectedResourceIds];
+    const selectedIds = getState().comparison.selectedResourceIds;
 
     const params = new URLSearchParams();
     params.append("datasets", selectedIds.toString());
@@ -181,7 +231,7 @@ export const compareMultipleDatasets = () => async (dispatch, getState) => {
         type: TYPES.UNMATCHED_BENCHMARK_TYPES,
         payload: "",
       });
-      dispatch(parseChartData());
+      dispatch(parseChartData(response.data.benchmark));
     }
   } catch (error) {
     if (
