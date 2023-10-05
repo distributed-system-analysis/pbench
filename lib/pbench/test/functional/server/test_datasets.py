@@ -662,46 +662,41 @@ class TestInventory:
         the datasets must have gotten through indexing.
         """
         datasets = server_client.get_list(
-            owner="tester",
-            metadata=["server.archiveonly"],
+            owner="tester", metadata=["server.archiveonly"]
         )
 
-        with_toc = False
-        without_toc = False
+        datasets_returned = False
         for dataset in datasets:
+            datasets_returned = True
             response = server_client.get(
                 API.DATASETS_CONTENTS,
                 {"dataset": dataset.resource_id, "target": ""},
                 raise_error=False,
             )
-            archive = dataset.metadata["server.archiveonly"]
-            if archive:
-                assert (
-                    response.status_code == HTTPStatus.CONFLICT
-                ), f"Unexpected {response.json()['message']}"
-                assert response.json()["message"] == "Dataset indexing was disabled"
-                without_toc = True
-                continue
-
-            with_toc = True
             assert (
                 response.ok
             ), f"CONTENTS {dataset.name} failed {response.status_code}:{response.json()['message']}"
             json = response.json()
 
+            archive_only = dataset.metadata["server.archiveonly"]
+
             # assert that we have directories and/or files: an empty root
             # directory is technically possible, but not legal unless it's a
             # trivial "archiveonly" dataset. NOTE: this will also fail if
             # either the "directories" or "files" JSON keys are missing.
-            assert json["directories"] or json["files"]
+            assert archive_only or json["directories"] or json["files"]
 
             # Even if they're empty, both values must be lists
             assert isinstance(json["directories"], list)
             assert isinstance(json["files"], list)
 
-            # We need at least a metadata.log
-            assert "metadata.log" in (f["name"] for f in json["files"])
+            # We expect to find at least a metadata.log at the top level of the
+            # tarball unless the dataset is marked archive-only.
+            assert archive_only or (
+                "metadata.log" in (f["name"] for f in json["files"])
+            )
 
+            # All files and directories reported must have a valid API URI
             for d in json["directories"]:
                 uri = server_client._uri(
                     API.DATASETS_CONTENTS,
@@ -715,7 +710,7 @@ class TestInventory:
                     {"dataset": dataset.resource_id, "target": f["name"]},
                 )
                 assert f["uri"] == uri, f"{f['name']} uri is incorrect: {f['uri']}"
-        assert with_toc and without_toc, "expected archiveonly and indexed datasets"
+        assert datasets_returned  # We successfully checked at least one dataset
 
     @pytest.mark.dependency(name="visualize", depends=["upload"], scope="session")
     def test_visualize(self, server_client: PbenchServerClient, login_user):

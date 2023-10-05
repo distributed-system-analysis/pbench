@@ -1,9 +1,8 @@
 from http import HTTPStatus
 from pathlib import Path
-from urllib.request import Request
 
 from flask import current_app, send_file
-from flask.wrappers import Response
+from flask.wrappers import Request, Response
 
 from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (

@@ -436,7 +436,7 @@ class TestCacheManager:
             Directory Structure
 
             /tmp/
-                <dir_name>/
+                <tarball_name>/
                     subdir1/
                         subdir11/
                         subdir12/
@@ -453,7 +453,7 @@ class TestCacheManager:
                                 f1415_sym -> ./f1412_sym
                                 f1416_sym -> ../../subdir12/f122_sym
                         f11.txt
-                        f12_sym -> ../../..
+                        f12_sym -> ..
                     f1.json
                     metadata.log
 
@@ -461,7 +461,7 @@ class TestCacheManager:
             Generated cache map
 
             {
-                'dir_name': {
+                '': {
                     'details': <cache_manager.FileInfo object>,
                     'children': {
                         'f1.json': {'details': <cache_manager.FileInfo object>},
@@ -519,7 +519,7 @@ class TestCacheManager:
             )
             (sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1411.txt").touch()
             sym_file = sub_dir / "subdir1" / "f12_sym"
-            os.symlink(Path("../../.."), sym_file)
+            os.symlink(Path(".."), sym_file)
             sym_file = sub_dir / "subdir1" / "subdir12" / "f121_sym"
             os.symlink(Path("../..") / "subdir1" / "subdir15", sym_file)
             sym_file = sub_dir / "subdir1" / "subdir12" / "f122_sym"
@@ -551,6 +551,7 @@ class TestCacheManager:
             self.lock = self.cache / "lock"
             self.last_ref = self.cache / "last_ref"
             self.unpacked = None
+            self.cachemap = None
             self.controller = controller
 
     def test_unpack_tar_subprocess_exception(
@@ -647,10 +648,12 @@ class TestCacheManager:
             raise AssertionError("Unexpected call to Path.resolve()")
 
         with monkeypatch.context() as m:
+            m.setattr(Audit, "create", lambda **kwargs: None)
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
             m.setattr(Path, "touch", lambda path, exist_ok=False: None)
-            m.setattr("pbench.server.cache_manager.subprocess.run", mock_run)
             m.setattr(Path, "resolve", mock_resolve)
+            m.setattr(Path, "iterdir", lambda path: [])
+            m.setattr("pbench.server.cache_manager.subprocess.run", mock_run)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             tb = Tarball(
@@ -675,50 +678,51 @@ class TestCacheManager:
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
-            tb.cache_map(tar_dir)
+            tb.unpacked = tar_dir
+            tb.build_map()
 
-            sd1 = tb.cachemap["dir_name"]["children"]["subdir1"]
+            sd1 = tb.cachemap["children"]["subdir1"]
             assert sd1["details"].name == "subdir1"
 
             sd141 = sd1["children"]["subdir14"]["children"]["subdir141"]
-            assert sd141["children"]["f1412_sym"]["details"].type == CacheType.SYMLINK
+            assert sd141["children"]["f1412_sym"]["details"].type is CacheType.SYMLINK
 
     @pytest.mark.parametrize(
         "file_path, expected_msg",
         [
             (
-                "/dir_name/subdir1/f11.txt",
-                "The path '/dir_name/subdir1/f11.txt' is an absolute path, "
+                "/subdir1/f11.txt",
+                "The path '/subdir1/f11.txt' is an absolute path, "
                 "we expect relative path to the root directory.",
             ),
             (
-                "dir_name/subdir1/subdir11/../f11.txt",
-                "directory 'dir_name/subdir1/subdir11/../f11.txt' doesn't have a '..' file/directory.",
+                "subdir1/subdir11/../f11.txt",
+                "Can't resolve path 'subdir1/subdir11/../f11.txt': component '..' is missing.",
             ),
             (
-                "dir_name/subdir1/subdir14/subdir1",
-                "directory 'dir_name/subdir1/subdir14/subdir1' doesn't have a 'subdir1' file/directory.",
+                "subdir1/subdir14/subdir1",
+                "Can't resolve path 'subdir1/subdir14/subdir1': component 'subdir1' is missing.",
             ),
             (
-                "dir_name/ne_dir",
-                "directory 'dir_name/ne_dir' doesn't have a 'ne_dir' file/directory.",
+                "ne_dir",
+                "Can't resolve path 'ne_dir': component 'ne_dir' is missing.",
             ),
             (
-                "dir_name/subdir1/ne_file",
-                "directory 'dir_name/subdir1/ne_file' doesn't have a 'ne_file' file/directory.",
+                "subdir1/ne_file",
+                "Can't resolve path 'subdir1/ne_file': component 'ne_file' is missing.",
             ),
             (
-                "dir_name/ne_dir/ne_file",
-                "directory 'dir_name/ne_dir/ne_file' doesn't have a 'ne_dir' file/directory.",
+                "ne_dir/ne_file",
+                "Can't resolve path 'ne_dir/ne_file': component 'ne_dir' is missing.",
             ),
             (
-                "dir_name/subdir1/f11.txt/ne_subdir",
-                "Found a file 'f11.txt' where a directory was expected in path 'dir_name/subdir1/f11.txt/ne_subdir'",
+                "subdir1/f11.txt/ne_subdir",
+                "Found a file 'f11.txt' where a directory was expected in path 'subdir1/f11.txt/ne_subdir'",
             ),
             (
-                "dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file",
+                "subdir1/subdir14/subdir141/f1412_sym/ne_file",
                 "Found a file 'f1412_sym' where a directory was expected "
-                "in path 'dir_name/subdir1/subdir14/subdir141/f1412_sym/ne_file'",
+                "in path 'subdir1/subdir14/subdir141/f1412_sym/ne_file'",
             ),
         ],
     )
@@ -738,7 +742,8 @@ class TestCacheManager:
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
-            tb.cache_map(tar_dir)
+            tb.unpacked = tar_dir
+            tb.build_map()
             with pytest.raises(BadDirpath) as exc:
                 tb.get_info(Path(file_path))
             assert str(exc.value) == expected_msg
@@ -746,10 +751,10 @@ class TestCacheManager:
     @pytest.mark.parametrize(
         "file_path, location, name, resolve_path, resolve_type, size, file_type",
         [
-            ("dir_name", "dir_name", "dir_name", None, None, None, CacheType.DIRECTORY),
+            ("", "", "", None, None, None, CacheType.DIRECTORY),
             (
-                "dir_name/f1.json",
-                "dir_name/f1.json",
+                "f1.json",
+                "f1.json",
                 "f1.json",
                 None,
                 None,
@@ -757,8 +762,8 @@ class TestCacheManager:
                 CacheType.FILE,
             ),
             (
-                "dir_name/subdir1",
-                "dir_name/subdir1",
+                "subdir1",
+                "subdir1",
                 "subdir1",
                 None,
                 None,
@@ -766,8 +771,8 @@ class TestCacheManager:
                 CacheType.DIRECTORY,
             ),
             (
-                "dir_name/subdir1/./f11.txt",
-                "dir_name/subdir1/f11.txt",
+                "subdir1/./f11.txt",
+                "subdir1/f11.txt",
                 "f11.txt",
                 None,
                 None,
@@ -775,8 +780,8 @@ class TestCacheManager:
                 CacheType.FILE,
             ),
             (
-                "dir_name/subdir1//f11.txt",
-                "dir_name/subdir1/f11.txt",
+                "subdir1//f11.txt",
+                "subdir1/f11.txt",
                 "f11.txt",
                 None,
                 None,
@@ -784,8 +789,8 @@ class TestCacheManager:
                 CacheType.FILE,
             ),
             (
-                "dir_name/subdir1/f11.txt",
-                "dir_name/subdir1/f11.txt",
+                "subdir1/f11.txt",
+                "subdir1/f11.txt",
                 "f11.txt",
                 None,
                 None,
@@ -793,17 +798,17 @@ class TestCacheManager:
                 CacheType.FILE,
             ),
             (
-                "dir_name/subdir1/f12_sym",
-                "dir_name/subdir1/f12_sym",
+                "subdir1/f12_sym",
+                "subdir1/f12_sym",
                 "f12_sym",
-                Path("../../.."),
-                CacheType.OTHER,
+                Path("."),
+                CacheType.DIRECTORY,
                 None,
                 CacheType.SYMLINK,
             ),
             (
-                "dir_name/subdir1/subdir12/f121_sym",
-                "dir_name/subdir1/subdir12/f121_sym",
+                "subdir1/subdir12/f121_sym",
+                "subdir1/subdir12/f121_sym",
                 "f121_sym",
                 Path("../../subdir1/subdir15"),
                 CacheType.OTHER,
@@ -811,8 +816,8 @@ class TestCacheManager:
                 CacheType.SYMLINK,
             ),
             (
-                "dir_name/subdir1/subdir12/f122_sym",
-                "dir_name/subdir1/subdir12/f122_sym",
+                "subdir1/subdir12/f122_sym",
+                "subdir1/subdir12/f122_sym",
                 "f122_sym",
                 Path("bad_subdir/nonexistent_file.txt"),
                 CacheType.OTHER,
@@ -820,8 +825,8 @@ class TestCacheManager:
                 CacheType.SYMLINK,
             ),
             (
-                "dir_name/subdir1/subdir13/f131_sym",
-                "dir_name/subdir1/subdir13/f131_sym",
+                "subdir1/subdir13/f131_sym",
+                "subdir1/subdir13/f131_sym",
                 "f131_sym",
                 Path("/etc/passwd"),
                 CacheType.OTHER,
@@ -829,8 +834,8 @@ class TestCacheManager:
                 CacheType.SYMLINK,
             ),
             (
-                "dir_name/subdir1/subdir14",
-                "dir_name/subdir1/subdir14",
+                "subdir1/subdir14",
+                "subdir1/subdir14",
                 "subdir14",
                 None,
                 None,
@@ -838,8 +843,8 @@ class TestCacheManager:
                 CacheType.DIRECTORY,
             ),
             (
-                "dir_name/subdir1/subdir14/subdir141/f1411.txt",
-                "dir_name/subdir1/subdir14/subdir141/f1411.txt",
+                "subdir1/subdir14/subdir141/f1411.txt",
+                "subdir1/subdir14/subdir141/f1411.txt",
                 "f1411.txt",
                 None,
                 None,
@@ -847,8 +852,8 @@ class TestCacheManager:
                 CacheType.FILE,
             ),
             (
-                "dir_name/subdir1/subdir14/subdir141/f1412_sym",
-                "dir_name/subdir1/subdir14/subdir141/f1412_sym",
+                "subdir1/subdir14/subdir141/f1412_sym",
+                "subdir1/subdir14/subdir141/f1412_sym",
                 "f1412_sym",
                 Path("/mock_absolute_path/subdir1/f11.txt"),
                 CacheType.OTHER,
@@ -856,35 +861,35 @@ class TestCacheManager:
                 CacheType.SYMLINK,
             ),
             (
-                "dir_name/subdir1/subdir14/subdir141/f1413_sym",
-                "dir_name/subdir1/subdir14/subdir141/f1413_sym",
+                "subdir1/subdir14/subdir141/f1413_sym",
+                "subdir1/subdir14/subdir141/f1413_sym",
                 "f1413_sym",
-                Path("dir_name/subdir1/subdir14/subdir141"),
+                Path("subdir1/subdir14/subdir141"),
                 CacheType.DIRECTORY,
                 None,
                 CacheType.SYMLINK,
             ),
             (
-                "dir_name/subdir1/subdir14/subdir141/f1414_sym",
-                "dir_name/subdir1/subdir14/subdir141/f1414_sym",
+                "subdir1/subdir14/subdir141/f1414_sym",
+                "subdir1/subdir14/subdir141/f1414_sym",
                 "f1414_sym",
-                Path("dir_name/subdir1/subdir14/subdir141/f1411.txt"),
+                Path("subdir1/subdir14/subdir141/f1411.txt"),
                 CacheType.FILE,
                 None,
                 CacheType.SYMLINK,
             ),
             (
-                "dir_name/subdir1/subdir14/subdir141/f1415_sym",
-                "dir_name/subdir1/subdir14/subdir141/f1415_sym",
+                "subdir1/subdir14/subdir141/f1415_sym",
+                "subdir1/subdir14/subdir141/f1415_sym",
                 "f1415_sym",
-                Path("dir_name/subdir1/f11.txt"),
+                Path("subdir1/f11.txt"),
                 CacheType.FILE,
                 None,
                 CacheType.SYMLINK,
             ),
             (
-                "dir_name/subdir1/subdir14/subdir141/f1416_sym",
-                "dir_name/subdir1/subdir14/subdir141/f1416_sym",
+                "subdir1/subdir14/subdir141/f1416_sym",
+                "subdir1/subdir14/subdir141/f1416_sym",
                 "f1416_sym",
                 Path("../../subdir12/f122_sym"),
                 CacheType.OTHER,
@@ -919,7 +924,8 @@ class TestCacheManager:
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
-            tb.cache_map(tar_dir)
+            tb.unpacked = tar_dir
+            tb.build_map()
 
             # Since the result tree is dynamically generated by the test at runtime,
             # the parametrization for resolve_path cannot provide the correct value
@@ -930,21 +936,30 @@ class TestCacheManager:
                 resolve_path = tar_dir / str(resolve_path).removeprefix(abs_pref)
 
             # test traverse with random path
-            c_map = Tarball.traverse_cmap(Path(file_path), tb.cachemap)
+            c_map = tb.traverse_cmap(Path(file_path))
+            if file_type is CacheType.DIRECTORY:
+                assert sorted(c_map.keys()) == [
+                    "children",
+                    "details",
+                ], "Directory should have children and details"
+            else:
+                assert sorted(c_map.keys()) == [
+                    "details"
+                ], "Non-directory should have only details"
             assert c_map["details"].location == Path(location)
             assert c_map["details"].name == name
             assert c_map["details"].resolve_path == resolve_path
             assert c_map["details"].resolve_type == resolve_type
             assert c_map["details"].size == size
-            assert c_map["details"].type == file_type
+            assert c_map["details"].type is file_type
 
     @pytest.mark.parametrize(
         "file_path, expected_msg",
         [
             (
-                "dir_name/subdir1/f11.txt",
+                "subdir1/f11.txt",
                 {
-                    "location": Path("dir_name/subdir1/f11.txt"),
+                    "location": Path("subdir1/f11.txt"),
                     "name": "f11.txt",
                     "resolve_path": None,
                     "resolve_type": None,
@@ -953,11 +968,17 @@ class TestCacheManager:
                 },
             ),
             (
-                "dir_name/subdir1",
+                "subdir1",
                 {
-                    "directories": ["subdir11", "subdir12", "subdir13", "subdir14"],
-                    "files": ["f11.txt"],
-                    "location": Path("dir_name/subdir1"),
+                    "children": [
+                        "f11.txt",
+                        "f12_sym",
+                        "subdir11",
+                        "subdir12",
+                        "subdir13",
+                        "subdir14",
+                    ],
+                    "location": Path("subdir1"),
                     "name": "subdir1",
                     "resolve_path": None,
                     "resolve_type": None,
@@ -966,11 +987,10 @@ class TestCacheManager:
                 },
             ),
             (
-                "dir_name/subdir1/subdir11",
+                "subdir1/subdir11",
                 {
-                    "directories": [],
-                    "files": [],
-                    "location": Path("dir_name/subdir1/subdir11"),
+                    "children": [],
+                    "location": Path("subdir1/subdir11"),
                     "name": "subdir11",
                     "resolve_path": None,
                     "resolve_type": None,
@@ -979,11 +999,11 @@ class TestCacheManager:
                 },
             ),
             (
-                "dir_name/subdir1/subdir14/subdir141/f1413_sym",
+                "subdir1/subdir14/subdir141/f1413_sym",
                 {
-                    "location": Path("dir_name/subdir1/subdir14/subdir141/f1413_sym"),
+                    "location": Path("subdir1/subdir14/subdir141/f1413_sym"),
                     "name": "f1413_sym",
-                    "resolve_path": Path("dir_name/subdir1/subdir14/subdir141"),
+                    "resolve_path": Path("subdir1/subdir14/subdir141"),
                     "resolve_type": CacheType.DIRECTORY,
                     "size": None,
                     "type": CacheType.SYMLINK,
@@ -1007,11 +1027,16 @@ class TestCacheManager:
             tar_dir = TestCacheManager.MockController.generate_test_result_tree(
                 tmp_path, "dir_name"
             )
-            tb.cache_map(tar_dir)
+            tb.unpacked = tar_dir
+            tb.build_map()
 
             # test get_info with random path
             file_info = tb.get_info(Path(file_path))
-            assert file_info == expected_msg
+            for k in expected_msg.keys():
+                if k == "children":
+                    assert sorted(file_info[k].keys()) == expected_msg[k]
+                else:
+                    assert getattr(file_info["details"], k) == expected_msg[k]
 
     @pytest.mark.parametrize(
         "file_path,is_unpacked,exp_stream",
