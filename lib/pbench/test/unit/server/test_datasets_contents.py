@@ -64,7 +64,7 @@ class TestDatasetsAccess:
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
         base = Path("/mock/cache/ABC")
 
-        def mock_get_info(_s, _d: str, path: Optional[Path]):
+        def mock_find_entry(_s, _d: str, path: Optional[Path]):
             file = base / (path if path else "")
             return {
                 "children": {},
@@ -73,7 +73,7 @@ class TestDatasetsAccess:
                 ),
             }
 
-        monkeypatch.setattr(CacheManager, "get_info", mock_get_info)
+        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
 
@@ -86,10 +86,10 @@ class TestDatasetsAccess:
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
-        def mock_get_info(_s, _d: str, path: Optional[Path]):
+        def mock_find_entry(_s, _d: str, path: Optional[Path]):
             raise BadDirpath("Nobody home")
 
-        monkeypatch.setattr(CacheManager, "get_info", mock_get_info)
+        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: False)
 
@@ -100,13 +100,13 @@ class TestDatasetsAccess:
         name = "f1.json"
         base = Path("/mock/cache/ABC")
 
-        def mock_get_info(_s, _d: str, path: Optional[Path]):
+        def mock_find_entry(_s, _d: str, path: Optional[Path]):
             file = base / (path if path else "")
             return {
                 "details": CacheObject(file.name, file, None, None, 16, CacheType.FILE)
             }
 
-        monkeypatch.setattr(CacheManager, "get_info", mock_get_info)
+        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
         response = query_get_as("fio_2", name, HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
         assert response.json == {"name": name, "size": 16, "type": "FILE"}
@@ -115,7 +115,7 @@ class TestDatasetsAccess:
         name = "sample1"
         base = Path("/mock/cache/ABC")
 
-        def mock_get_info(_s, _d: str, path: Optional[Path]):
+        def mock_find_entry(_s, _d: str, path: Optional[Path]):
             file = base / (path if path else "")
             return {
                 "children": {
@@ -135,7 +135,7 @@ class TestDatasetsAccess:
                 ),
             }
 
-        monkeypatch.setattr(CacheManager, "get_info", mock_get_info)
+        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
         response = query_get_as("fio_2", "sample1", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
         assert response.json == {

@@ -726,7 +726,7 @@ class TestCacheManager:
             ),
         ],
     )
-    def test_cache_map_bad_dir_path(
+    def test_find_bad_path(
         self, make_logger, monkeypatch, tmp_path, file_path, expected_msg
     ):
         """Test to check bad directory or file path"""
@@ -745,8 +745,38 @@ class TestCacheManager:
             tb.unpacked = tar_dir
             tb.build_map()
             with pytest.raises(BadDirpath) as exc:
-                tb.get_info(Path(file_path))
+                tb.find_entry(Path(file_path))
             assert str(exc.value) == expected_msg
+
+    def test_find_builds(self, monkeypatch, tmp_path, make_logger):
+        """Test that find can dynamically build a cache map"""
+
+        called = False
+        entered = False
+        tb: Optional[Tarball] = None
+
+        def fake_get_results(_l):
+            nonlocal called
+            called = True
+            tb.cachemap = {}
+
+        def fake_enter(_s):
+            nonlocal entered
+            entered = True
+
+        tar = Path("/mock/dir_name.tar.xz")
+        cache = Path("/mock/.cache")
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            m.setattr(LockManager, "__enter__", fake_enter)
+            m.setattr(Path, "open", lambda _p, _m: None)
+            tb = Tarball(
+                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            )
+            m.setattr(tb, "get_results", fake_get_results)
+            assert tb.find_entry(Path(".")) == {}
+            assert called and entered
 
     @pytest.mark.parametrize(
         "file_path, location, name, resolve_path, resolve_type, size, file_type",
@@ -898,7 +928,7 @@ class TestCacheManager:
             ),
         ],
     )
-    def test_cache_map_traverse_cmap(
+    def test_find_entry(
         self,
         make_logger,
         monkeypatch,
@@ -936,7 +966,7 @@ class TestCacheManager:
                 resolve_path = tar_dir / str(resolve_path).removeprefix(abs_pref)
 
             # test traverse with random path
-            c_map = tb.traverse_cmap(Path(file_path))
+            c_map = tb.find_entry(Path(file_path))
             if file_type is CacheType.DIRECTORY:
                 assert sorted(c_map.keys()) == [
                     "children",
@@ -949,94 +979,9 @@ class TestCacheManager:
             assert c_map["details"].location == Path(location)
             assert c_map["details"].name == name
             assert c_map["details"].resolve_path == resolve_path
-            assert c_map["details"].resolve_type == resolve_type
+            assert c_map["details"].resolve_type is resolve_type
             assert c_map["details"].size == size
             assert c_map["details"].type is file_type
-
-    @pytest.mark.parametrize(
-        "file_path, expected_msg",
-        [
-            (
-                "subdir1/f11.txt",
-                {
-                    "location": Path("subdir1/f11.txt"),
-                    "name": "f11.txt",
-                    "resolve_path": None,
-                    "resolve_type": None,
-                    "size": 14,
-                    "type": CacheType.FILE,
-                },
-            ),
-            (
-                "subdir1",
-                {
-                    "children": [
-                        "f11.txt",
-                        "f12_sym",
-                        "subdir11",
-                        "subdir12",
-                        "subdir13",
-                        "subdir14",
-                    ],
-                    "location": Path("subdir1"),
-                    "name": "subdir1",
-                    "resolve_path": None,
-                    "resolve_type": None,
-                    "size": None,
-                    "type": CacheType.DIRECTORY,
-                },
-            ),
-            (
-                "subdir1/subdir11",
-                {
-                    "children": [],
-                    "location": Path("subdir1/subdir11"),
-                    "name": "subdir11",
-                    "resolve_path": None,
-                    "resolve_type": None,
-                    "size": None,
-                    "type": CacheType.DIRECTORY,
-                },
-            ),
-            (
-                "subdir1/subdir14/subdir141/f1413_sym",
-                {
-                    "location": Path("subdir1/subdir14/subdir141/f1413_sym"),
-                    "name": "f1413_sym",
-                    "resolve_path": Path("subdir1/subdir14/subdir141"),
-                    "resolve_type": CacheType.DIRECTORY,
-                    "size": None,
-                    "type": CacheType.SYMLINK,
-                },
-            ),
-        ],
-    )
-    def test_cache_map_get_info_cmap(
-        self, make_logger, monkeypatch, tmp_path, file_path, expected_msg
-    ):
-        """Test to check if the info returned by the cachemap is correct"""
-        tar = Path("/mock/dir_name.tar.xz")
-        cache = Path("/mock/.cache")
-
-        with monkeypatch.context() as m:
-            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
-            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            tb = Tarball(
-                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
-            )
-            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
-                tmp_path, "dir_name"
-            )
-            tb.unpacked = tar_dir
-            tb.build_map()
-
-            # test get_info with random path
-            file_info = tb.get_info(Path(file_path))
-            for k in expected_msg.keys():
-                if k == "children":
-                    assert sorted(file_info[k].keys()) == expected_msg[k]
-                else:
-                    assert getattr(file_info["details"], k) == expected_msg[k]
 
     @pytest.mark.parametrize(
         "file_path,is_unpacked,exp_stream",

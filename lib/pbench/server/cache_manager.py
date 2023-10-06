@@ -26,14 +26,6 @@ class CacheManagerError(Exception):
     pass
 
 
-class CacheMapMissing(CacheManagerError):
-    """Cache map hasn't been built yet."""
-
-    def __init__(self, resource_id: str):
-        super().__init__(f"Dataset {resource_id} hasn't been processed")
-        self.id = resource_id
-
-
 class BadDirpath(CacheManagerError):
     """A bad directory path was given."""
 
@@ -664,13 +656,11 @@ class Tarball:
 
         self.cachemap = cmap
 
-    def traverse_cmap(self, path: Path) -> CacheMapEntry:
-        """Sequentially traverses the cachemap to find the leaf of a
-        relative path reference
+    def find_entry(self, path: Path) -> CacheMapEntry:
+        """Locate a node in the cache map
 
         Args:
             path: relative path of the subdirectory/file
-            cachemap: dictionary mapping of the root directory
 
         Raises:
             BadDirpath if the directory/file path is not valid
@@ -678,8 +668,15 @@ class Tarball:
         Returns:
             cache map entry if present
         """
-        if self.cachemap is None:
-            raise CacheMapMissing(self.resource_id)
+        if str(path).startswith("/"):
+            raise BadDirpath(
+                f"The path {str(path)!r} is an absolute path,"
+                " we expect relative path to the root directory."
+            )
+
+        if not self.cachemap:
+            with LockManager(self.lock) as lock:
+                self.get_results(lock)
 
         if str(path) in (".", ""):
             return self.cachemap
@@ -701,42 +698,6 @@ class Tarball:
             raise BadDirpath(
                 f"Can't resolve path {str(path)!r}: component {exc} is missing."
             )
-
-    def get_info(self, path: Path) -> CacheMapEntry:
-        """Returns the details of the given file/directory in dict format
-
-        Args:
-            path: path of the file/subdirectory
-
-        Raises:
-            BadDirpath on bad directory path
-
-        Returns:
-            Dictionary with Details of the file/directory
-
-            format:
-            {
-                "directories": list of subdirectories under the given directory
-                "files": list of files under the given directory
-                "location": relative path to the given file/directory
-                "name": name of the file/directory
-                "resolve_path": resolved path of the file/directory if given path is a symlink
-                "resolve_type": CacheType describing the type of the symlink target
-                "size": size of the file
-                "type": CacheType describing the type of the file/directory
-            }
-        """
-        if str(path).startswith("/"):
-            raise BadDirpath(
-                f"The path {str(path)!r} is an absolute path,"
-                " we expect relative path to the root directory."
-            )
-
-        if not self.cachemap:
-            with LockManager(self.lock) as lock:
-                self.get_results(lock)
-
-        return self.traverse_cmap(path)
 
     @staticmethod
     def extract(tarball_path: Path, path: str) -> Inventory:
@@ -1453,7 +1414,7 @@ class CacheManager:
         self.datasets[tarball.resource_id] = tarball
         return tarball
 
-    def get_info(self, dataset_id: str, path: Path) -> dict[str, Any]:
+    def find_entry(self, dataset_id: str, path: Path) -> dict[str, Any]:
         """Get information about dataset files from the cache map
 
         Args:
@@ -1464,7 +1425,7 @@ class CacheManager:
             File Metadata
         """
         tarball = self.find_dataset(dataset_id)
-        return tarball.get_info(path)
+        return tarball.find_entry(path)
 
     def get_inventory(self, dataset_id: str, target: str) -> Optional[JSONOBJECT]:
         """Return filestream data for a file within a dataset tarball

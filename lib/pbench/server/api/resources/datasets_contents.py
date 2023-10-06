@@ -69,13 +69,9 @@ class DatasetsContents(ApiBase):
         target = params.uri.get("target")
         path = Path("" if target in ("/", None) else target)
 
-        current_app.logger.info(
-            "{} CONTENTS {!r}: path {!r}", dataset.name, target, str(path)
-        )
-
         cache_m = CacheManager(self.config, current_app.logger)
         try:
-            info = cache_m.get_info(dataset.resource_id, path)
+            info = cache_m.find_entry(dataset.resource_id, path)
         except (BadDirpath, CacheExtractBadPath, TarballNotFound) as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
         except Exception as e:
