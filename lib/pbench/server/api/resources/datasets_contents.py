@@ -83,12 +83,6 @@ class DatasetsContents(ApiBase):
         )
 
         details: CacheObject = info["details"]
-        current_app.logger.info(
-            "{!r} -> {{name: {!r}, loc: {!r}}}",
-            str(path),
-            details.name,
-            str(details.location),
-        )
         if details.type is CacheType.DIRECTORY:
             children = info["children"] if "children" in info else {}
             dir_list = []
@@ -96,7 +90,7 @@ class DatasetsContents(ApiBase):
 
             for c, value in children.items():
                 d: CacheObject = value["details"]
-                if d.type == CacheType.DIRECTORY:
+                if d.type is CacheType.DIRECTORY:
                     dir_list.append(
                         {
                             "name": c,
@@ -104,13 +98,27 @@ class DatasetsContents(ApiBase):
                             "uri": f"{origin}/contents/{d.location}",
                         }
                     )
-                elif d.type == CacheType.FILE:
+                elif d.type in (CacheType.FILE, CacheType.OTHER):
                     file_list.append(
                         {
                             "name": c,
                             "size": d.size,
                             "type": d.type.name,
                             "uri": f"{origin}/inventory/{d.location}",
+                        }
+                    )
+                elif d.type is CacheType.SYMLINK:
+                    if d.resolve_type is CacheType.DIRECTORY:
+                        access = "contents"
+                    else:
+                        access = "inventory"
+                    file_list.append(
+                        {
+                            "name": c,
+                            "type": d.type.name,
+                            "link": str(d.resolve_path),
+                            "link_type": d.resolve_type.name,
+                            "uri": f"{origin}/{access}/{d.resolve_path}",
                         }
                     )
 
@@ -128,12 +136,23 @@ class DatasetsContents(ApiBase):
                 "uri": f"{origin}/contents/{loc}",
             }
         else:
+            access = "inventory"
+            if details.type is CacheType.SYMLINK:
+                link = str(details.resolve_path)
+                if details.resolve_type is CacheType.DIRECTORY:
+                    access = "contents"
+            else:
+                link = str(details.location)
             val = {
                 "name": details.name,
-                "size": details.size,
                 "type": details.type.name,
-                "uri": f"{origin}/inventory/{details.location}",
+                "uri": f"{origin}/{access}/{link}",
             }
+            if details.type is CacheType.SYMLINK:
+                val["link"] = str(details.resolve_path)
+                val["link_type"] = details.resolve_type.name
+            elif details.type is CacheType.FILE:
+                val["size"] = details.size
 
         try:
             return jsonify(val)

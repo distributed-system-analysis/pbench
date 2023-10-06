@@ -118,6 +118,25 @@ class TestDatasetsAccess:
             "uri": f"https://localhost/api/v1/datasets/random_md5_string4/inventory/{name}",
         }
 
+    def test_link_info(self, query_get_as, monkeypatch):
+        name = "test/slink"
+
+        def mock_find_entry(_s, _d: str, path: Optional[Path]):
+            return {
+                "details": CacheObject(path.name, path, Path("test1"), CacheType.DIRECTORY, None, CacheType.SYMLINK)
+            }
+
+        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
+        response = query_get_as("fio_2", name, HTTPStatus.OK)
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {
+            "name": "slink",
+            "type": "SYMLINK",
+            "link": "test1",
+            "link_type": "DIRECTORY",
+            "uri": "https://localhost/api/v1/datasets/random_md5_string4/contents/test1",
+        }
+
     def test_dir_info(self, query_get_as, monkeypatch):
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
             base = path if path else Path("")
@@ -143,6 +162,36 @@ class TestDatasetsAccess:
                             CacheType.FILE,
                         )
                     },
+                    "symfile": {
+                        "details": CacheObject(
+                            "symfile",
+                            base / "symfile",
+                            Path("metadata.log"),
+                            CacheType.FILE,
+                            None,
+                            CacheType.SYMLINK,
+                        )
+                    },
+                    "symdir": {
+                        "details": CacheObject(
+                            "symdir",
+                            base / "symdir",
+                            Path("realdir"),
+                            CacheType.DIRECTORY,
+                            None,
+                            CacheType.SYMLINK,
+                        )
+                    },
+                    "mount": {
+                        "details": CacheObject(
+                            "mount",
+                            base / "mount",
+                            None,
+                            None,
+                            20,
+                            CacheType.OTHER,
+                        )
+                    },
                 },
                 "details": CacheObject(
                     base.name, base, None, None, None, CacheType.DIRECTORY
@@ -166,7 +215,27 @@ class TestDatasetsAccess:
                     "size": 42,
                     "type": "FILE",
                     "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/file.txt",
-                }
+                },
+                {
+                    "name": "mount",
+                    "size": 20,
+                    "type": "OTHER",
+                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/mount",
+                },
+                {
+                    "name": "symdir",
+                    "type": "SYMLINK",
+                    "link": "realdir",
+                    "link_type": "DIRECTORY",
+                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/contents/realdir",
+                },
+                {
+                    "name": "symfile",
+                    "type": "SYMLINK",
+                    "link": "metadata.log",
+                    "link_type": "FILE",
+                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/metadata.log",
+                },
             ],
             "name": "sample1",
             "type": "DIRECTORY",
