@@ -689,6 +689,9 @@ class TestInventory:
             # Even if they're empty, both values must be lists
             assert isinstance(json["directories"], list)
             assert isinstance(json["files"], list)
+            assert json["name"] == ""
+            assert json["type"] == "DIRECTORY"
+            assert json["uri"] == response.url
 
             # We expect to find at least a metadata.log at the top level of the
             # tarball unless the dataset is marked archive-only.

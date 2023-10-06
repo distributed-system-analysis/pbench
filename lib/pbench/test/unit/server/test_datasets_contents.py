@@ -62,14 +62,17 @@ class TestDatasetsAccess:
 
     @pytest.mark.parametrize("key", (None, "", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
-        base = Path("/mock/cache/ABC")
-
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
-            file = base / (path if path else "")
+            file = path if path else Path("")
             return {
                 "children": {},
                 "details": CacheObject(
-                    file.name, file, None, None, None, CacheType.DIRECTORY
+                    file.name if key else "",
+                    file,
+                    None,
+                    None,
+                    None,
+                    CacheType.DIRECTORY,
                 ),
             }
 
@@ -81,8 +84,9 @@ class TestDatasetsAccess:
         assert response.json == {
             "directories": [],
             "files": [],
-            "name": key if key else base.name,
+            "name": key if key else "",
             "type": "DIRECTORY",
+            "uri": f"https://localhost/api/v1/datasets/random_md5_string4/contents/{key if key else ''}",
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
@@ -98,40 +102,50 @@ class TestDatasetsAccess:
 
     def test_file_info(self, query_get_as, monkeypatch):
         name = "f1.json"
-        base = Path("/mock/cache/ABC")
 
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
-            file = base / (path if path else "")
             return {
-                "details": CacheObject(file.name, file, None, None, 16, CacheType.FILE)
+                "details": CacheObject(path.name, path, None, None, 16, CacheType.FILE)
             }
 
         monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
         response = query_get_as("fio_2", name, HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
-        assert response.json == {"name": name, "size": 16, "type": "FILE"}
+        assert response.json == {
+            "name": name,
+            "size": 16,
+            "type": "FILE",
+            "uri": f"https://localhost/api/v1/datasets/random_md5_string4/inventory/{name}",
+        }
 
     def test_dir_info(self, query_get_as, monkeypatch):
-        name = "sample1"
-        base = Path("/mock/cache/ABC")
-
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
-            file = base / (path if path else "")
+            base = path if path else Path("")
             return {
                 "children": {
                     "default": {
                         "details": CacheObject(
                             "default",
-                            base / name / "default",
+                            base / "default",
                             None,
                             None,
                             None,
                             CacheType.DIRECTORY,
                         )
-                    }
+                    },
+                    "file.txt": {
+                        "details": CacheObject(
+                            "file.txt",
+                            base / "file.txt",
+                            None,
+                            None,
+                            42,
+                            CacheType.FILE,
+                        )
+                    },
                 },
                 "details": CacheObject(
-                    file.name, file, None, None, 16, CacheType.DIRECTORY
+                    base.name, base, None, None, None, CacheType.DIRECTORY
                 ),
             }
 
@@ -146,7 +160,15 @@ class TestDatasetsAccess:
                     "uri": "https://localhost/api/v1/datasets/random_md5_string4/contents/sample1/default",
                 }
             ],
-            "files": [],
+            "files": [
+                {
+                    "name": "file.txt",
+                    "size": 42,
+                    "type": "FILE",
+                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/file.txt",
+                }
+            ],
             "name": "sample1",
             "type": "DIRECTORY",
+            "uri": "https://localhost/api/v1/datasets/random_md5_string4/contents/sample1",
         }

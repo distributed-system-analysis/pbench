@@ -83,20 +83,25 @@ class DatasetsContents(ApiBase):
         )
 
         details: CacheObject = info["details"]
+        current_app.logger.info(
+            "{!r} -> {{name: {!r}, loc: {!r}}}",
+            str(path),
+            details.name,
+            str(details.location),
+        )
         if details.type is CacheType.DIRECTORY:
             children = info["children"] if "children" in info else {}
             dir_list = []
             file_list = []
 
             for c, value in children.items():
-                p = path / c
                 d: CacheObject = value["details"]
                 if d.type == CacheType.DIRECTORY:
                     dir_list.append(
                         {
                             "name": c,
                             "type": d.type.name,
-                            "uri": f"{origin}/contents/{p}",
+                            "uri": f"{origin}/contents/{d.location}",
                         }
                     )
                 elif d.type == CacheType.FILE:
@@ -105,23 +110,29 @@ class DatasetsContents(ApiBase):
                             "name": c,
                             "size": d.size,
                             "type": d.type.name,
-                            "uri": f"{origin}/inventory/{p}",
+                            "uri": f"{origin}/inventory/{d.location}",
                         }
                     )
 
             dir_list.sort(key=lambda d: d["name"])
             file_list.sort(key=lambda d: d["name"])
+
+            # Normalize because we want the "root" directory to be reported as
+            # "" rather than as Path's favored "."
+            loc = "" if str(details.location) == "." else str(details.location)
             val = {
                 "name": details.name,
                 "type": details.type.name,
                 "directories": dir_list,
                 "files": file_list,
+                "uri": f"{origin}/contents/{loc}",
             }
         else:
             val = {
                 "name": details.name,
                 "size": details.size,
                 "type": details.type.name,
+                "uri": f"{origin}/inventory/{details.location}",
             }
 
         try:
