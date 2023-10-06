@@ -123,7 +123,14 @@ class TestDatasetsAccess:
 
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
             return {
-                "details": CacheObject(path.name, path, Path("test1"), CacheType.DIRECTORY, None, CacheType.SYMLINK)
+                "details": CacheObject(
+                    path.name,
+                    path,
+                    Path("test1"),
+                    CacheType.DIRECTORY,
+                    None,
+                    CacheType.SYMLINK,
+                )
             }
 
         monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
