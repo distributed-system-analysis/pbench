@@ -65,11 +65,8 @@ def reclaim_cache(tree: CacheManager, logger: Logger, lifetime: float = CACHE_LI
                             tarball.name,
                             e,
                         )
-                    try:
-                        tarball.cache_delete()
-                        reclaimed += 1
-                    except Exception as e:
-                        error = e
+                    tarball.cache_delete()
+                    reclaimed += 1
             except OSError as e:
                 if e.errno in (errno.EAGAIN, errno.EACCES):
                     logger.info(

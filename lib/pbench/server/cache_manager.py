@@ -205,6 +205,10 @@ class LockRef:
             exclusive: lock for exclusive access
             wait: wait for lock
 
+        Raises:
+            OSError (EAGAIN or EACCES): wait=False and the lock is already
+                owned
+
         Returns:
             The lockref, so this can be chained with the constructor
         """
@@ -264,13 +268,22 @@ class LockManager:
     def upgrade(self):
         """Upgrade a shared lock to exclusive"""
         self.lock.upgrade()
+        self.exclusive = True
 
     def downgrade(self):
         """Downgrade an exclusive lock to shared"""
         self.lock.downgrade()
+        self.exclusive = False
 
     def __enter__(self) -> "LockManager":
-        """Enter a lock context manager by acquiring the lock"""
+        """Enter a lock context manager by acquiring the lock
+
+        Raises:
+            OSError: self.wait is False, and the lock is already owned.
+
+        Returns:
+            the LockManager object
+        """
         self.lock.acquire(exclusive=self.exclusive, wait=self.wait)
         return self
 
@@ -915,7 +928,7 @@ class Tarball:
                     f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
                 )
 
-    def get_results(self, lock: Union[LockManager, LockRef]) -> Path:
+    def get_results(self, lock: LockManager) -> Path:
         """Unpack a tarball into a temporary directory tree
 
         Make sure that the dataset results are unpacked into a cache tree. The
@@ -923,7 +936,7 @@ class Tarball:
         direct to the caller.
 
         Args:
-            lock:   A lock reference (or context manager) in shared lock state
+            lock:   A lock context manager in shared lock state
 
         Returns:
             the root Path of the unpacked directory tree

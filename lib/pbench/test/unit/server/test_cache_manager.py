@@ -92,14 +92,9 @@ class FakeLockRef:
     def __init__(self, lockpath: Path):
         self.lock = lockpath
 
-    def acquire(self, **kwargs):
-        self.operations.append(
-            (
-                "acquire",
-                kwargs.get("exclusive", False),
-                kwargs.get("wait", True),
-            )
-        )
+    def acquire(self, exclusive: bool = False, wait: bool = True):
+        self.operations.append(("acquire", exclusive, wait))
+        return self
 
     def release(self):
         self.operations.append(("release"))
@@ -1721,6 +1716,7 @@ class TestCacheManager:
 
         r1 = t1.get_results(FakeLockRef(t1.lock))
         assert r1 == t1.unpacked
+        FakeLockRef.reset()
         r2 = t2.get_results(FakeLockRef(t2.lock))
         assert r2 == t2.unpacked
         FakeLockRef.reset()
@@ -1818,6 +1814,17 @@ class TestCacheManager:
             (lockfile, fcntl.LOCK_UN),
         ]
         assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+
+        # No-wait failure
+        reset()
+        lock = LockRef(lockfile)
+        assert files == [("open", lockfile, "w+")]
+        lockf_fail = OSError(errno.EAGAIN, "Loser")
+        with pytest.raises(OSError, match="Loser"):
+            lock.acquire(wait=False)
+        assert not lock.exclusive
+        assert not lock.locked
+        assert locks == [(lockfile, fcntl.LOCK_SH | fcntl.LOCK_NB)]
 
         # Exclusive
         reset()
@@ -1935,11 +1942,11 @@ class TestCacheManager:
             assert FakeLockRef.operations == [("acquire", False, False)]
         assert FakeLockRef.operations == [("acquire", False, False), ("release")]
 
-        # keep' option
+        # keep option
         FakeLockRef.reset()
         with LockManager(lockfile) as lock:
-            assert lock.keep() is lock
-            still_locked = lock
+            still_locked = lock.keep()
+            assert still_locked is lock
             assert not lock.unlock
             assert FakeLockRef.operations == [("acquire", False, True)]
         assert FakeLockRef.operations == [("acquire", False, True)]

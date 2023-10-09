@@ -5,7 +5,7 @@ from os import stat_result
 from pathlib import Path
 from signal import SIGHUP
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import pytest
 
@@ -16,7 +16,7 @@ from pbench.server import (
     OperationCode,
     PbenchServerConfig,
 )
-from pbench.server.cache_manager import LockManager, LockRef
+from pbench.server.cache_manager import LockManager
 from pbench.server.database.models.audit import AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -266,34 +266,28 @@ class FakeSync:
         __class__.errors[dataset.name] = message
 
 
-class FakeLockRef:
-    def __init__(self, lock: Path):
+class FakeLockManager:
+    def __init__(self, lock: Path, exclusive: bool = False, wait: bool = True):
         """Initialize a mocked lock reference
 
         Args:
             lock: the path of a lock file
+            exclusive: lock exclusively
+            wait: wait for lock
         """
-        self.locked = False
-        self.exclusive = False
-        self.unlock = True
+        self.exclusive = exclusive
+        self.wait = wait
 
-    def acquire(self, exclusive: bool = False, wait: bool = True) -> "FakeLockRef":
+    def __enter__(self) -> "FakeLockManager":
         """Acquire the lock
 
-        Args:
-            exclusive: lock for exclusive access
-            wait: [default] wait for lock
-
         Returns:
-            self reference so acquire can be chained with constructor
+            self reference for 'as' clause
         """
-        self.locked = True
-        self.exclusive = exclusive
         return self
 
-    def release(self):
+    def __exit__(self, *exc):
         """Release the lock and close the lock file"""
-        self.locked = False
         self.exclusive = False
 
     def upgrade(self):
@@ -326,7 +320,7 @@ class FakeTarball:
         self.unpacked = self.cache / self.name
         self.isolator = controller.path / resource_id
 
-    def get_results(self, lock: Union[LockRef, LockManager]):
+    def get_results(self, lock: LockManager):
         pass
 
 
@@ -387,7 +381,7 @@ def mocks(monkeypatch, make_logger):
         m.setattr("pbench.server.indexing_tarballs.Metadata", FakeMetadata)
         m.setattr("pbench.server.indexing_tarballs.IndexMap", FakeIndexMap)
         m.setattr("pbench.server.indexing_tarballs.CacheManager", FakeCacheManager)
-        m.setattr("pbench.server.indexing_tarballs.LockRef", FakeLockRef)
+        m.setattr("pbench.server.indexing_tarballs.LockManager", FakeLockManager)
         m.setattr("pbench.server.indexing_tarballs.Audit", FakeAudit)
         yield m
     FakeAudit.reset()

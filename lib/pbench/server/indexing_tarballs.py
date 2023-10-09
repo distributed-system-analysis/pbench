@@ -15,7 +15,7 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 from pbench.server import OperationCode, tstos
-from pbench.server.cache_manager import CacheManager, LockRef, Tarball
+from pbench.server.cache_manager import CacheManager, LockManager, Tarball
 from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -363,68 +363,65 @@ class Index:
                         ptb = None
                         tarobj: Optional[Tarball] = None
                         tb_res = error_code["OK"]
-                        lock = None
                         try:
                             # We need the fully unpacked cache tree to index it
                             try:
                                 tarobj = self.cache_manager.find_dataset(
                                     dataset.resource_id
                                 )
-                                lock = LockRef(tarobj.lock).acquire()
-                                tarobj.get_results(lock)
                             except Exception as e:
                                 self.sync.error(
                                     dataset,
-                                    f"Unable to unpack dataset: {e!s}",
+                                    f"Unable to find dataset: {e!s}",
                                 )
-                                if lock:
-                                    lock.release()
                                 continue
 
-                            audit = Audit.create(
-                                operation=OperationCode.UPDATE,
-                                name="index",
-                                status=AuditStatus.BEGIN,
-                                user_name=Audit.BACKGROUND_USER,
-                                dataset=dataset,
-                            )
+                            with LockManager(tarobj.lock) as lock:
+                                tarobj.get_results(lock)
+                                audit = Audit.create(
+                                    operation=OperationCode.UPDATE,
+                                    name="index",
+                                    status=AuditStatus.BEGIN,
+                                    user_name=Audit.BACKGROUND_USER,
+                                    dataset=dataset,
+                                )
 
-                            # "Open" the tar ball represented by the tar ball object
-                            idxctx.logger.debug("open tar ball")
-                            ptb = PbenchTarBall(idxctx, dataset, tmpdir, tarobj)
+                                # "Open" the tar ball represented by the tar ball object
+                                idxctx.logger.debug("open tar ball")
+                                ptb = PbenchTarBall(idxctx, dataset, tmpdir, tarobj)
 
-                            # Construct the generator for emitting all actions.
-                            # The `idxctx` dictionary is passed along to each
-                            # generator so that it can add its context for
-                            # error handling to the list.
-                            idxctx.logger.debug("generator setup")
-                            if self.options.index_tool_data:
-                                actions = ptb.mk_tool_data_actions()
-                            else:
-                                actions = ptb.make_all_actions()
+                                # Construct the generator for emitting all actions.
+                                # The `idxctx` dictionary is passed along to each
+                                # generator so that it can add its context for
+                                # error handling to the list.
+                                idxctx.logger.debug("generator setup")
+                                if self.options.index_tool_data:
+                                    actions = ptb.mk_tool_data_actions()
+                                else:
+                                    actions = ptb.make_all_actions()
 
-                            # Create a file where the pyesbulk package will
-                            # record all indexing errors that can't/won't be
-                            # retried.
-                            with ie_filepath.open(mode="w") as fp:
-                                idxctx.logger.debug("begin indexing")
-                                try:
-                                    signal.signal(signal.SIGINT, sigint_handler)
-                                    es_res = es_index(
-                                        idxctx.es,
-                                        actions,
-                                        fp,
-                                        idxctx.logger,
-                                        idxctx._dbg,
-                                    )
-                                except SigIntException:
-                                    idxctx.logger.exception(
-                                        "Indexing interrupted by SIGINT, continuing to next tarball"
-                                    )
-                                    continue
-                                finally:
-                                    # Turn off the SIGINT handler when not indexing.
-                                    signal.signal(signal.SIGINT, signal.SIG_IGN)
+                                # Create a file where the pyesbulk package will
+                                # record all indexing errors that can't/won't be
+                                # retried.
+                                with ie_filepath.open(mode="w") as fp:
+                                    idxctx.logger.debug("begin indexing")
+                                    try:
+                                        signal.signal(signal.SIGINT, sigint_handler)
+                                        es_res = es_index(
+                                            idxctx.es,
+                                            actions,
+                                            fp,
+                                            idxctx.logger,
+                                            idxctx._dbg,
+                                        )
+                                    except SigIntException:
+                                        idxctx.logger.exception(
+                                            "Indexing interrupted by SIGINT, continuing to next tarball"
+                                        )
+                                        continue
+                                    finally:
+                                        # Turn off the SIGINT handler when not indexing.
+                                        signal.signal(signal.SIGINT, signal.SIG_IGN)
                         except UnsupportedTarballFormat as e:
                             tb_res = self.emit_error(
                                 idxctx.logger.warning, "TB_META_ABSENT", e
@@ -512,8 +509,6 @@ class Index:
                                 Audit.create(
                                     root=audit, status=doneness, attributes=attributes
                                 )
-                            if lock:
-                                lock.release()
                         try:
                             ie_len = ie_filepath.stat().st_size
                         except FileNotFoundError:
