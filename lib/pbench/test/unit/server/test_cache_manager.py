@@ -652,7 +652,7 @@ class TestCacheManager:
             m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
             m.setattr(Path, "touch", lambda path, exist_ok=False: None)
             m.setattr(Path, "resolve", mock_resolve)
-            m.setattr(Path, "iterdir", lambda path: [])
+            m.setattr(Path, "glob", lambda path, p: [])
             m.setattr("pbench.server.cache_manager.subprocess.run", mock_run)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
