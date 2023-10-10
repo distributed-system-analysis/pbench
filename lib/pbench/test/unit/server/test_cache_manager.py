@@ -1033,11 +1033,7 @@ class TestCacheManager:
         cache = tmp_path / "mock" / ".cache"
         unpacked = cache / "ABC" / "dir_name"
 
-        get_results_called = False
-
         def fake_results(self, lock: LockRef) -> Path:
-            nonlocal get_results_called
-            get_results_called = True
             self.unpacked = unpacked
             return self.unpacked
 
