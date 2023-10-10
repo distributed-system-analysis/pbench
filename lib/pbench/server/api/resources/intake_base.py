@@ -137,7 +137,7 @@ class IntakeBase(ApiBase):
         """Helper function which creates a backup copy of a tarball/md5 file-pair"""
 
         # The type returned by shutil.copy() depends on the types of the inputs;
-        # since we want Path's, coerce them.
+        # since we want Path's, construct them explicitly.
         try:
             md5_backup = Path(shutil.copy(md5_path, self.backup_dir))
         except Exception as e:

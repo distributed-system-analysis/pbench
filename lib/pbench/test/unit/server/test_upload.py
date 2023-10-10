@@ -1041,9 +1041,17 @@ class TestUpload:
         copy_err: Optional[bool],
         unlink_err: Optional[bool],
         exc_expected: bool,
-        expected_ops: List,
+        expected_ops: list[list[str]],
     ):
-        """Test the tarball backup function"""
+        """Test the tarball backup function
+
+        When the `copy_err` or `unlink_err` flags are `None`, there is no
+        exception raised by the corresponding mock (in the case where
+        `unlink_err` is `None`, the mock should not even be called).  When
+        `copy_err` is not `None`, the mock raises an exception for one of the
+        two files, depending on the value.  When `unlink_err` is `True`, the
+        mock raises an exception; otherwise, the function "succeeds".
+        """
         tbp, md5, _ = tarball
         ops = []
 
