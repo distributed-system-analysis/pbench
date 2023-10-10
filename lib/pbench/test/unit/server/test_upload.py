@@ -4,7 +4,7 @@ from io import BytesIO
 from logging import Logger
 from pathlib import Path
 import shutil
-from typing import List, Optional
+from typing import Optional
 
 import pytest
 
