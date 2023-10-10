@@ -1,6 +1,7 @@
 from collections import deque
 from dataclasses import dataclass
 from enum import auto, Enum
+import fcntl
 from logging import Logger
 from pathlib import Path
 import shlex
@@ -10,7 +11,8 @@ import time
 from typing import Any, IO, Optional, Union
 
 from pbench.common import MetadataLog, selinux
-from pbench.server import JSONOBJECT, PathLike, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode, PathLike, PbenchServerConfig
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.utils import get_tarball_md5
 
@@ -18,92 +20,79 @@ from pbench.server.utils import get_tarball_md5
 class CacheManagerError(Exception):
     """Base class for exceptions raised from this module."""
 
-    def __str__(self) -> str:
-        return "Generic cache manager exception"
+    pass
 
 
 class BadDirpath(CacheManagerError):
     """A bad directory path was given."""
 
     def __init__(self, error_msg: str):
+        super().__init__(error_msg)
         self.error_msg = error_msg
-
-    def __str__(self) -> str:
-        return self.error_msg
 
 
 class BadFilename(CacheManagerError):
     """A bad tarball path was given."""
 
     def __init__(self, path: PathLike):
+        super().__init__(f"The file path {path} is not a tarball")
         self.path = str(path)
-
-    def __str__(self) -> str:
-        return f"The file path {self.path!r} is not a tarball"
 
 
 class CacheExtractBadPath(CacheManagerError):
     """Request to extract a path that's bad or not a file"""
 
     def __init__(self, tar_name: Path, path: PathLike):
+        super().__init__(f"Unable to extract {path} from {tar_name.name}")
         self.name = tar_name.name
         self.path = str(path)
-
-    def __str__(self) -> str:
-        return f"Unable to extract {self.path} from {self.name}"
 
 
 class TarballNotFound(CacheManagerError):
     """The dataset was not found in the ARCHIVE tree."""
 
     def __init__(self, tarball: str):
+        super().__init__(f"The dataset tarball named {tarball!r} is not found")
         self.tarball = tarball
-
-    def __str__(self) -> str:
-        return f"The dataset tarball named {self.tarball!r} is not found"
 
 
 class DuplicateTarball(CacheManagerError):
     """A duplicate tarball name was detected."""
 
     def __init__(self, tarball: str):
+        super().__init__(f"A dataset tarball named {tarball!r} is already present")
         self.tarball = tarball
-
-    def __str__(self) -> str:
-        return f"A dataset tarball named {self.tarball!r} is already present"
 
 
 class MetadataError(CacheManagerError):
     """A problem was found processing a tarball's metadata.log file."""
 
     def __init__(self, tarball: Path, error: Exception):
+        super().__init__(
+            f"A problem occurred processing metadata.log from {tarball}: {str(error)!r}"
+        )
         self.tarball = tarball
         self.error = str(error)
-
-    def __str__(self) -> str:
-        return f"A problem occurred processing metadata.log from {self.tarball!s}: {self.error!r}"
 
 
 class TarballUnpackError(CacheManagerError):
     """An error occurred trying to unpack a tarball."""
 
     def __init__(self, tarball: Path, error: str):
+        super().__init__(f"An error occurred while unpacking {tarball}: {error}")
         self.tarball = tarball
         self.error = error
-
-    def __str__(self) -> str:
-        return f"An error occurred while unpacking {self.tarball}: {self.error}"
 
 
 class TarballModeChangeError(CacheManagerError):
     """An error occurred trying to fix unpacked tarball permissions."""
 
     def __init__(self, tarball: Path, error: str):
+        super().__init__(
+            f"An error occurred while changing file permissions of {tarball}: {error}"
+        )
         self.tarball = tarball
         self.error = error
-
-    def __str__(self) -> str:
-        return f"An error occurred while changing file permissions of {self.tarball}: {self.error}"
 
 
 class CacheType(Enum):
@@ -192,15 +181,137 @@ def make_cache_object(dir_path: Path, path: Path) -> CacheObject:
     )
 
 
+class LockRef:
+    """Keep track of a cache lock passed off to a caller"""
+
+    def __init__(self, lock: Path):
+        """Initialize a lock reference
+
+        The lock file is opened in "w+" mode, which is "write update": unlike
+        "r+", this creates the file if it doesn't already exist, but still
+        allows lock conversion between LOCK_EX and LOCK_SH.
+
+        Args:
+            lock: the path of a lock file
+        """
+        self.lock = lock.open("w+")
+        self.locked = False
+        self.exclusive = False
+
+    def acquire(self, exclusive: bool = False, wait: bool = True) -> "LockRef":
+        """Acquire the lock
+
+        Args:
+            exclusive: lock for exclusive access
+            wait: wait for lock
+
+        Raises:
+            OSError (EAGAIN or EACCES): wait=False and the lock is already
+                owned
+
+        Returns:
+            The lockref, so this can be chained with the constructor
+        """
+
+        self.exclusive = exclusive
+        cmd = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+        if not wait:
+            cmd |= fcntl.LOCK_NB
+        fcntl.lockf(self.lock, cmd)
+        self.locked = True
+        return self
+
+    def release(self):
+        """Release the lock and close the lock file"""
+
+        if not self.locked:
+            return
+        try:
+            fcntl.lockf(self.lock, fcntl.LOCK_UN)
+            self.lock.close()
+        finally:
+            # Release our reference to the lock file so that the
+            # object can be reclaimed.
+            self.locked = False
+            self.exclusive = False
+            self.lock = None
+
+    def upgrade(self):
+        """Upgrade a shared lock to exclusive"""
+        if not self.exclusive:
+            fcntl.lockf(self.lock, fcntl.LOCK_EX)
+            self.exclusive = True
+
+    def downgrade(self):
+        """Downgrade an exclusive lock to shared"""
+        if self.exclusive:
+            fcntl.lockf(self.lock, fcntl.LOCK_SH)
+            self.exclusive = False
+
+
+class LockManager:
+    def __init__(self, lock: Path, exclusive: bool = False, wait: bool = True):
+        self.lock = LockRef(lock)
+        self.exclusive = exclusive
+        self.wait = wait
+        self.unlock = True
+
+    def keep(self) -> "LockManager":
+        """Tell the context manager not to unlock on exit"""
+        self.unlock = False
+        return self
+
+    def release(self):
+        """Release manually if necessary"""
+        self.lock.release()
+
+    def upgrade(self):
+        """Upgrade a shared lock to exclusive"""
+        self.lock.upgrade()
+        self.exclusive = True
+
+    def downgrade(self):
+        """Downgrade an exclusive lock to shared"""
+        self.lock.downgrade()
+        self.exclusive = False
+
+    def __enter__(self) -> "LockManager":
+        """Enter a lock context manager by acquiring the lock
+
+        Raises:
+            OSError: self.wait is False, and the lock is already owned.
+
+        Returns:
+            the LockManager object
+        """
+        self.lock.acquire(exclusive=self.exclusive, wait=self.wait)
+        return self
+
+    def __exit__(self, *exc):
+        """Exit a lock context manager by releasing the lock
+
+        This does nothing if "unlock" has been cleared, meaning we want the
+        lock to persist beyond the context manager scope.
+        """
+        if self.unlock:
+            self.lock.release()
+
+
 class Inventory:
-    """Encapsulate the file stream and subprocess.Popen object
+    """Encapsulate the file stream and cache lock management
 
     This encapsulation allows cleaner downstream handling, so that we can close
-    both the extracted file stream and the Popen object itself when we're done.
-    This eliminates interference with later operations.
+    both the extracted file stream and unlock the dataset cache after the file
+    reference is complete. In APIs the Inventory close is done by the Flask
+    infrastructure after the response handling is done.
     """
 
-    def __init__(self, stream: IO[bytes], subproc: Optional[subprocess.Popen] = None):
+    def __init__(
+        self,
+        stream: IO[bytes],
+        lock: Optional[LockRef] = None,
+        subproc: Optional[subprocess.Popen] = None,
+    ):
         """Construct an instance to track extracted inventory
 
         This encapsulates many byte stream operations so that it can be used
@@ -208,13 +319,17 @@ class Inventory:
 
         Args:
             stream: the data stream of a specific tarball member
-            subproc: the subprocess producing the stream, if any
+            lock: a cache lock reference
+            subproc: a Popen object to clean up on close
         """
-        self.subproc = subproc
         self.stream = stream
+        self.lock = lock
+        self.subproc = subproc
 
     def close(self):
         """Close the byte stream and clean up the Popen object"""
+
+        exception = None
         if self.subproc:
             try:
                 if self.subproc.poll() is None:
@@ -232,16 +347,24 @@ class Inventory:
                         while self.subproc.stderr.read(4096):
                             pass
                     self.subproc.wait(60.0)
-            finally:
+            except Exception as e:
                 # Release our reference to the subprocess.Popen object so that the
                 # object can be reclaimed.
                 self.subproc = None
-
-        # Explicitly close the stream, in case there never was an associated
-        # subprocess.  (If there was an associated subprocess, the streams are
-        # now empty, and we'll assume that they are closed when the Popen
-        # object is reclaimed.)
+                exception = e
+        if self.lock:
+            try:
+                self.lock.release()
+            except Exception as e:
+                exception = e
         self.stream.close()
+
+        # NOTE: if both subprocess cleanup and unlock fail with exceptions, we
+        # raise the latter, and the former will be ignored. In practice, that's
+        # not a problem as we only construct an Inventory with a subprocess
+        # reference for extract, which doesn't need to lock a cache directory.
+        if exception:
+            raise exception
 
     def getbuffer(self):
         """Return the underlying byte buffer (used by send_file)"""
@@ -261,7 +384,7 @@ class Inventory:
 
     def __repr__(self) -> str:
         """Return a string representation"""
-        return f"<Stream {self.stream} from {self.subproc}>"
+        return f"<Stream {self.stream} from {self.lock.name if self.lock else self.subproc if self.subproc else None}>"
 
     def __iter__(self):
         """Allow iterating through lines in the buffer"""
@@ -325,6 +448,9 @@ class Tarball:
         # Record where cached unpacked data would live
         self.cache: Path = controller.cache / self.resource_id
 
+        # We need the directory to lock, so make sure it's there
+        self.cache.mkdir(parents=True, exist_ok=True)
+
         # Record hierarchy of a Tar ball
         self.cachemap: Optional[CacheMap] = None
 
@@ -332,6 +458,16 @@ class Tarball:
         # is (self.cache / self.name) and will be None when the cache is
         # inactive.
         self.unpacked: Optional[Path] = None
+
+        # Record the lockf file path used to control cache access
+        self.lock: Path = self.cache / "lock"
+
+        # Record a marker file path used to record the last cache access
+        # timestamp
+        self.last_ref: Path = self.cache / "last_ref"
+
+        # Record the path of the companion MD5 file
+        self.md5_path: Path = path.with_suffix(".xz.md5")
 
         # Record the name of the containing controller
         self.controller_name: str = controller.name
@@ -468,8 +604,10 @@ class Tarball:
         return cls(destination, resource_id, controller)
 
     def cache_map(self, dir_path: Path):
-        """Builds Hierarchy structure of a Directory in a Dictionary
-        Format.
+        """Build hierarchical representation of results tree
+
+        NOTE: this structure isn't removed when we release the cache, as the
+        data remains valid.
 
         Args:
             dir_path: root directory
@@ -497,8 +635,7 @@ class Tarball:
 
     @staticmethod
     def traverse_cmap(path: Path, cachemap: CacheMap) -> CacheMapEntry:
-        """Sequentially traverses the cachemap to find the leaf of a
-        relative path reference
+        """Locate a path in the cache map
 
         Args:
             path: relative path of the subdirectory/file
@@ -531,11 +668,10 @@ class Tarball:
     def get_info(self, path: Path) -> JSONOBJECT:
         """Returns the details of the given file/directory in dict format
 
-        NOTE: This requires a call to the cache_map method to build a map that
-        can be traversed. Currently, this is done only on unpack, and isn't
-        useful except within the `pbench-index` process. This map needs to
-        either be built dynamically (potentially expensive) or persisted in
-        SQL or perhaps Redis.
+        NOTE: If the cache manager doesn't already have a cache map for the
+        current Tarball, we'll unpack it here; however as the cache map isn't
+        dependent on the unpacked results tree, we immediately release the
+        cache lock.
 
         Args:
             path: path of the file/subdirectory
@@ -564,6 +700,10 @@ class Tarball:
                 " we expect relative path to the root directory."
             )
 
+        if not self.cachemap:
+            with LockManager(self.lock) as lock:
+                self.get_results(lock)
+
         c_map = self.traverse_cmap(path, self.cachemap)
         children = c_map["children"] if "children" in c_map else {}
         fd_info = c_map["details"].__dict__.copy()
@@ -586,6 +726,11 @@ class Tarball:
     @staticmethod
     def extract(tarball_path: Path, path: str) -> Inventory:
         """Returns a file stream for a file within a tarball
+
+        NOTE: This should generally be used only within the INTAKE path before
+        it's practical to load the cache with a fully unpacked tree. The
+        extracted file is not cached and therefore each reference will repeat
+        the tar file extraction.
 
         Args:
             tarball_path: absolute path of the tarball
@@ -657,7 +802,7 @@ class Tarball:
         # containing the extracted file to our caller, and return the Popen
         # object so that we can clean it up when the Inventory object is closed.
         if not tarproc.returncode:
-            return Inventory(tarproc.stdout, tarproc)
+            return Inventory(tarproc.stdout, subproc=tarproc)
 
         # The tar command was invoked successfully (otherwise, the Popen()
         # constructor would have raised an exception), but it exited with
@@ -675,6 +820,33 @@ class Tarball:
             tarball_path, f"Unexpected error from {tar_path}: {error_text!r}"
         )
 
+    def stream(self, path: str) -> Inventory:
+        """Return a cached inventory file as a binary stream
+
+        Args:
+            path: Relative path of a regular file within a tarball.
+
+        On failure, an exception is raised and the cache lock is released; on
+        success, returns an Inventory object which implicitly transfers
+        ownership and management of the cache lock to the caller. When done
+        with the inventory's file stream, the caller must close the Inventory
+        object to release the file stream and the cache lock.
+
+        Raises:
+            CacheExtractBadPath: the path does not match a regular file within
+                the tarball.
+
+        Returns:
+            An Inventory object encapsulating the file stream and the cache
+            lock.
+        """
+
+        with LockManager(self.lock) as lock:
+            artifact: Path = self.get_results(lock) / path
+            if not artifact.is_file():
+                raise CacheExtractBadPath(self.tarball_path, path)
+            return Inventory(artifact.open("rb"), lock=lock.keep())
+
     def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
         """Access the file stream of a tarball member file.
 
@@ -688,12 +860,11 @@ class Tarball:
             info = {
                 "name": self.tarball_path.name,
                 "type": CacheType.FILE,
-                "stream": Inventory(self.tarball_path.open("rb"), None),
+                "stream": Inventory(self.tarball_path.open("rb")),
             }
         else:
-            file_path = f"{self.name}/{path}"
-            stream = Tarball.extract(self.tarball_path, file_path)
-            info = {"name": file_path, "type": CacheType.FILE, "stream": stream}
+            stream = self.stream(path)
+            info = {"name": path, "type": CacheType.FILE, "stream": stream}
 
         return info
 
@@ -757,53 +928,84 @@ class Tarball:
                     f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
                 )
 
-    def unpack(self):
+    def get_results(self, lock: LockManager) -> Path:
         """Unpack a tarball into a temporary directory tree
 
-        Unpack the tarball into a temporary cache directory named with the
-        tarball's resource_id (MD5).
+        Make sure that the dataset results are unpacked into a cache tree. The
+        location of the unpacked tree is in self.unpacked and is also returned
+        direct to the caller.
 
-        This tree will be used for indexing, and then discarded. As we build
-        out more of the cache manager, it can also be used to build our initial
-        cache map.
+        Args:
+            lock:   A lock context manager in shared lock state
 
-        The indexer works off the unpacked data under CACHE, assuming the
-        tarball name in all paths (because this is what's inside the tarball).
-        Rather than passing the indexer the root `/srv/pbench/.cache` or trying
-        to update all of the indexer code (which still jumps back and forth
-        between the tarball and the unpacked files), we maintain the "cache"
-        directory as two paths:  self.cache which is the directory we manage
-        here and pass to the indexer (/srv/pbench/.cache/<resource_id>) and
-        the actual unpacked root (/srv/pbench/.cache/<resource_id>/<name>).
+        Returns:
+            the root Path of the unpacked directory tree
         """
-        self.cache.mkdir(parents=True)
 
-        try:
-            tar_command = "tar -x --no-same-owner --delay-directory-restore "
-            tar_command += f"--force-local --file='{str(self.tarball_path)}'"
-            self.subprocess_run(
-                tar_command, self.cache, TarballUnpackError, self.tarball_path
-            )
+        if not self.unpacked:
+            lock.upgrade()
+            audit = None
+            error = None
+            try:
+                audit = Audit.create(
+                    name="cache",
+                    operation=OperationCode.CREATE,
+                    status=AuditStatus.BEGIN,
+                    user_name=Audit.BACKGROUND_USER,
+                    object_type=AuditType.DATASET,
+                    object_id=self.resource_id,
+                    object_name=self.name,
+                )
+            except Exception as e:
+                self.controller.logger.warning(
+                    "Unable to audit unpack for {}: '{}'", self.name, e
+                )
 
-            find_command = "find . ( -type d -exec chmod ugo+rx {} + ) -o ( -type f -exec chmod ugo+r {} + )"
-            self.subprocess_run(
-                find_command, self.cache, TarballModeChangeError, self.cache
-            )
-        except Exception:
-            shutil.rmtree(self.cache, ignore_errors=True)
-            raise
-        self.unpacked = self.cache / self.name
-        self.cache_map(self.unpacked)
+            try:
+                tar_command = "tar -x --no-same-owner --delay-directory-restore "
+                tar_command += f"--force-local --file='{str(self.tarball_path)}'"
+                self.subprocess_run(
+                    tar_command, self.cache, TarballUnpackError, self.tarball_path
+                )
+                find_command = "find . ( -type d -exec chmod ugo+rx {} + ) -o ( -type f -exec chmod ugo+r {} + )"
+                self.subprocess_run(
+                    find_command, self.cache, TarballModeChangeError, self.cache
+                )
+                self.unpacked = self.cache / self.name
+                self.cache_map(self.unpacked)
+            except Exception as e:
+                error = str(e)
+                raise
+            finally:
+                if audit:
+                    attributes = {"error": error} if error else {}
+                    Audit.create(
+                        root=audit,
+                        status=AuditStatus.FAILURE if error else AuditStatus.SUCCESS,
+                        attributes=attributes,
+                    )
+                lock.downgrade()
+        self.last_ref.touch(exist_ok=True)
+        return self.unpacked
 
-    def uncache(self):
-        """Remove the unpacked tarball directory and all contents."""
+    def cache_delete(self):
+        """Remove the unpacked tarball directory and all contents.
+
+        WARNING:
+
+        This is unprotected!
+
+        Normal cache reclaim is managed using the `tree_manage --reclaim` CLI
+        command, generally through the `pbench-reclaim.timer` service, which
+        calls this method only when the cache is unlocked and aged out.
+        """
         self.cachemap = None
         if self.unpacked:
             try:
-                shutil.rmtree(self.cache)
+                shutil.rmtree(self.unpacked)
                 self.unpacked = None
             except Exception as e:
-                self.logger.error("incoming remove for {} failed with {}", self.name, e)
+                self.logger.error("cache reclaim for {} failed with {}", self.name, e)
                 raise
 
     def delete(self):
@@ -812,7 +1014,7 @@ class Tarball:
         We'll log errors in deletion, but "succeed" and clear the links to both
         files. There's nothing more we can do.
         """
-        self.uncache()
+        self.cache_delete()
         if self.isolator and self.isolator.exists():
             try:
                 shutil.rmtree(self.isolator)
@@ -942,24 +1144,6 @@ class Controller:
         self.datasets[tarball.resource_id] = tarball
         self.tarballs[tarball.name] = tarball
         return tarball
-
-    def unpack(self, dataset_id: str):
-        """Unpack a tarball into a temporary cache directory.
-
-        Args:
-            dataset_id: Resource ID of the dataset to unpack
-        """
-        tarball = self.datasets[dataset_id]
-        tarball.unpack()
-
-    def uncache(self, dataset_id: str):
-        """Remove the cached unpack directory.
-
-        Args:
-            dataset_id: Resource ID of dataset to remove
-        """
-        tarball = self.datasets[dataset_id]
-        tarball.uncache()
 
     def delete(self, dataset_id: str):
         """Delete a dataset tarball and remove it from the controller
@@ -1247,19 +1431,6 @@ class CacheManager:
         self.datasets[tarball.resource_id] = tarball
         return tarball
 
-    def unpack(self, dataset_id: str) -> Tarball:
-        """Unpack a tarball into the CACHE tree
-
-        Args:
-            dataset_id: Dataset resource ID
-
-        Returns:
-            The tarball object
-        """
-        tarball = self.find_dataset(dataset_id)
-        tarball.controller.unpack(dataset_id)
-        return tarball
-
     def get_info(self, dataset_id: str, path: Path) -> dict[str, Any]:
         """Get information about dataset files from the cache map
 
@@ -1292,16 +1463,6 @@ class CacheManager:
         """
         tarball = self.find_dataset(dataset_id)
         return tarball.get_inventory(target)
-
-    def uncache(self, dataset_id: str):
-        """Remove the unpacked tarball tree.
-
-        Args:
-            dataset_id: Dataset resource ID to "uncache"
-        """
-        tarball = self.find_dataset(dataset_id)
-        controller = tarball.controller
-        controller.uncache(dataset_id)
 
     def delete(self, dataset_id: str):
         """Delete the dataset as well as unpacked artifacts.

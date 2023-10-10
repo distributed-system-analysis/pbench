@@ -1,4 +1,5 @@
 import errno
+import fcntl
 import hashlib
 import io
 from logging import Logger
@@ -11,7 +12,7 @@ from typing import Optional
 
 import pytest
 
-from pbench.server import JSONOBJECT
+from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.cache_manager import (
     BadDirpath,
     BadFilename,
@@ -21,12 +22,15 @@ from pbench.server.cache_manager import (
     Controller,
     DuplicateTarball,
     Inventory,
+    LockManager,
+    LockRef,
     MetadataError,
     Tarball,
     TarballModeChangeError,
     TarballNotFound,
     TarballUnpackError,
 )
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetBadName
 from pbench.test.unit.server.conftest import make_tarball
 
@@ -80,6 +84,30 @@ MEMBER_NOT_FOUND_MSG = b"mock-tar: metadata.log: Not found in mock-archive"
 CANNOT_OPEN_MSG = (
     b"mock-tar: /mock/result.tar.xz: Cannot open: No such mock-file or mock-directory"
 )
+
+
+class FakeLockRef:
+    operations = []
+
+    def __init__(self, lockpath: Path):
+        self.lock = lockpath
+
+    def acquire(self, exclusive: bool = False, wait: bool = True):
+        self.operations.append(("acquire", exclusive, wait))
+        return self
+
+    def release(self):
+        self.operations.append(("release"))
+
+    def upgrade(self):
+        self.operations.append(("upgrade"))
+
+    def downgrade(self):
+        self.operations.append(("downgrade"))
+
+    @classmethod
+    def reset(cls):
+        cls.operations.clear()
 
 
 class TestCacheManager:
@@ -471,11 +499,15 @@ class TestCacheManager:
             # create some directories and files inside the temp directory
             sub_dir = tmp_path / dir_name
             sub_dir.mkdir(parents=True, exist_ok=True)
-            (sub_dir / "f1.json").touch()
-            (sub_dir / "metadata.log").touch()
+            (sub_dir / "f1.json").write_text("{'json': 'value'}", encoding="utf-8")
+            (sub_dir / "metadata.log").write_text(
+                "[pbench]\nkey = value\n", encoding="utf-8"
+            )
             for i in range(1, 4):
                 (sub_dir / "subdir1" / f"subdir1{i}").mkdir(parents=True, exist_ok=True)
-            (sub_dir / "subdir1" / "f11.txt").touch()
+            (sub_dir / "subdir1" / "f11.txt").write_text(
+                "textual\nlines\n", encoding="utf-8"
+            )
             (sub_dir / "subdir1" / "subdir14" / "subdir141").mkdir(
                 parents=True, exist_ok=True
             )
@@ -504,47 +536,47 @@ class TestCacheManager:
     class MockTarball:
         def __init__(self, path: Path, resource_id: str, controller: Controller):
             self.name = Dataset.stem(path)
+            self.resource_id = "ABC"
             self.tarball_path = path
-            self.cache = controller.cache / "ABC"
+            self.cache = controller.cache / self.resource_id
             self.isolator = controller.path / resource_id
+            self.lock = self.cache / "lock"
+            self.last_ref = self.cache / "last_ref"
             self.unpacked = None
+            self.controller = controller
 
-    def test_unpack_tar_subprocess_exception(self, make_logger, monkeypatch):
+    def test_unpack_tar_subprocess_exception(
+        self, make_logger, db_session, monkeypatch
+    ):
         """Show that, when unpacking of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
         cache = Path("/mock/.cache")
-        rmtree_called = False
 
-        def mock_rmtree(path: Path, ignore_errors=False):
-            nonlocal rmtree_called
-            rmtree_called = True
-
-            assert ignore_errors
-            assert path == cache / "ABC"
-
+        @staticmethod
         def mock_run(command, _dir_path, exception, dir_p):
             verb = "tar"
             assert command.startswith(verb)
             raise exception(dir_p, subprocess.TimeoutExpired(verb, 43))
 
         with monkeypatch.context() as m:
-            m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(Tarball, "subprocess_run", staticmethod(mock_run))
-            m.setattr(shutil, "rmtree", mock_rmtree)
+            m.setattr(Path, "exists", lambda self: True)
+            m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
+            m.setattr(Path, "touch", lambda path, exist_ok=False: None)
+            m.setattr(Tarball, "subprocess_run", mock_run)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             tb = Tarball(
                 tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
             )
-            with pytest.raises(TarballUnpackError) as exc:
-                tb.unpack()
             msg = f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
-            assert str(exc.value) == msg
-            assert exc.type == TarballUnpackError
-            assert rmtree_called
+            with pytest.raises(TarballUnpackError, match=msg):
+                tb.get_results(FakeLockRef(tb.lock))
+            FakeLockRef.reset()
 
-    def test_unpack_find_subprocess_exception(self, make_logger, monkeypatch):
+    def test_unpack_find_subprocess_exception(
+        self, make_logger, db_session, monkeypatch
+    ):
         """Show that, when permission change of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
@@ -558,6 +590,7 @@ class TestCacheManager:
             assert ignore_errors
             assert path == cache / "ABC"
 
+        @staticmethod
         def mock_run(command, _dir_path, exception, dir_p):
             verb = "find"
             if command.startswith(verb):
@@ -566,8 +599,10 @@ class TestCacheManager:
                 assert command.startswith("tar")
 
         with monkeypatch.context() as m:
-            m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(Tarball, "subprocess_run", staticmethod(mock_run))
+            m.setattr(Path, "exists", lambda self: True)
+            m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
+            m.setattr(Path, "touch", lambda path, exist_ok=False: None)
+            m.setattr(Tarball, "subprocess_run", mock_run)
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
@@ -575,15 +610,15 @@ class TestCacheManager:
                 tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
             )
 
-            with pytest.raises(TarballModeChangeError) as exc:
-                tb.unpack()
             msg = "An error occurred while changing file permissions of "
             msg += f"{cache / 'ABC'}: Command 'find' timed out after 43 seconds"
+            with pytest.raises(TarballModeChangeError, match=msg) as exc:
+                tb.get_results(FakeLockRef(tb.lock))
             assert str(exc.value) == msg
-            assert exc.type == TarballModeChangeError
             assert rmtree_called
+            FakeLockRef.reset()
 
-    def test_unpack_success(self, make_logger, monkeypatch):
+    def test_unpack_success(self, make_logger, db_session, monkeypatch):
         """Test to check the unpacking functionality of the CacheManager"""
         tar = Path("/mock/A.tar.xz")
         cache = Path("/mock/.cache")
@@ -604,17 +639,19 @@ class TestCacheManager:
             raise AssertionError("Unexpected call to Path.resolve()")
 
         with monkeypatch.context() as m:
-            m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(subprocess, "run", mock_run)
+            m.setattr(Path, "mkdir", lambda path, parents=False, exist_ok=False: None)
+            m.setattr(Path, "touch", lambda path, exist_ok=False: None)
+            m.setattr("pbench.server.cache_manager.subprocess.run", mock_run)
             m.setattr(Path, "resolve", mock_resolve)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
             tb = Tarball(
                 tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
             )
-            tb.unpack()
+            tb.get_results(FakeLockRef(tb.lock))
             assert call == ["tar", "find"]
             assert tb.unpacked == cache / "ABC" / tb.name
+            FakeLockRef.reset()
 
     def test_cache_map_success(self, make_logger, monkeypatch, tmp_path):
         """Test to build the cache map of the root directory"""
@@ -708,7 +745,7 @@ class TestCacheManager:
                 "f1.json",
                 None,
                 None,
-                0,
+                17,
                 CacheType.FILE,
             ),
             (
@@ -726,7 +763,7 @@ class TestCacheManager:
                 "f11.txt",
                 None,
                 None,
-                0,
+                14,
                 CacheType.FILE,
             ),
             (
@@ -735,7 +772,7 @@ class TestCacheManager:
                 "f11.txt",
                 None,
                 None,
-                0,
+                14,
                 CacheType.FILE,
             ),
             (
@@ -744,7 +781,7 @@ class TestCacheManager:
                 "f11.txt",
                 None,
                 None,
-                0,
+                14,
                 CacheType.FILE,
             ),
             (
@@ -903,7 +940,7 @@ class TestCacheManager:
                     "name": "f11.txt",
                     "resolve_path": None,
                     "resolve_type": None,
-                    "size": 0,
+                    "size": 14,
                     "type": CacheType.FILE,
                 },
             ),
@@ -969,36 +1006,57 @@ class TestCacheManager:
             assert file_info == expected_msg
 
     @pytest.mark.parametrize(
-        "file_path, exp_file_type, exp_stream",
+        "file_path,is_unpacked,exp_stream",
         [
-            ("", CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
-            (None, CacheType.FILE, io.BytesIO(b"tarball_as_a_byte_stream")),
-            ("f1.json", CacheType.FILE, io.BytesIO(b"file_as_a_byte_stream")),
-            ("subdir1/f12_sym", CacheType.FILE, io.BytesIO(b"file1_as_a_byte_stream")),
+            ("", True, b"tarball_as_a_byte_stream"),
+            (None, True, b"tarball_as_a_byte_stream"),
+            ("f1.json", True, b"{'json': 'value'}"),
+            ("subdir1/f12_sym", False, CacheExtractBadPath(Path("a"), "b")),
         ],
     )
     def test_get_inventory(
-        self, make_logger, monkeypatch, tmp_path, file_path, exp_file_type, exp_stream
+        self, make_logger, monkeypatch, tmp_path, file_path, is_unpacked, exp_stream
     ):
-        """Test to extract file contents/stream from a file"""
-        tar = Path("/mock/dir_name.tar.xz")
-        cache = Path("/mock/.cache")
+        """Test to extract file contents/stream from a file
+
+        NOTE: we check explicitly whether Tarball.stream() chooses to unpack
+        the tarball, based on "is_unpacked", to be sure both cases are covered;
+        but be aware that accessing the tarball itself (the "" and None
+        file_path cases) don't ever unpack and should always have is_unpacked
+        set to True. (That is, we don't expect get_results to be called in
+        those cases.)
+        """
+        archive = tmp_path / "mock" / "archive" / "ABC"
+        archive.mkdir(parents=True, exist_ok=True)
+        tar = archive / "dir_name.tar.xz"
+        tar.write_bytes(b"tarball_as_a_byte_stream")
+        cache = tmp_path / "mock" / ".cache"
+        unpacked = cache / "ABC" / "dir_name"
+
+        def fake_results(self, lock: LockRef) -> Path:
+            self.unpacked = unpacked
+            return self.unpacked
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            m.setattr(Tarball, "extract", lambda _t, _p: Inventory(exp_stream))
-            m.setattr(Path, "open", lambda _s, _m="rb": exp_stream)
-            tb = Tarball(
-                tar, "ABC", Controller(Path("/mock/archive"), cache, make_logger)
+            tb = Tarball(tar, "ABC", Controller(archive, cache, make_logger))
+            m.setattr(Tarball, "get_results", fake_results)
+            if is_unpacked:
+                tb.unpacked = unpacked
+            TestCacheManager.MockController.generate_test_result_tree(
+                cache / "ABC", "dir_name"
             )
-            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
-                tmp_path, "dir_name"
-            )
-            tb.cache_map(tar_dir)
-            file_info = tb.get_inventory(file_path)
-            assert file_info["type"] == exp_file_type
-            assert file_info["stream"].stream == exp_stream
+            try:
+                file_info = tb.get_inventory(file_path)
+            except Exception as e:
+                assert isinstance(e, type(exp_stream)), e
+            else:
+                assert not isinstance(exp_stream, Exception)
+                assert file_info["type"] is CacheType.FILE
+                stream: Inventory = file_info["stream"]
+                assert stream.stream.read() == exp_stream
+                stream.close()
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
@@ -1221,8 +1279,9 @@ class TestCacheManager:
                 return offset
 
         # Invoke the CUT
-        stream = Inventory(MockBufferedReader(), None)
+        stream = Inventory(MockBufferedReader())
 
+        assert stream.lock is None
         assert stream.subproc is None
 
         # Test Inventory.getbuffer()
@@ -1333,7 +1392,7 @@ class TestCacheManager:
             ),
             # The subprocess is still running when close() is called, stdout is
             # empty, there is no stderr, and the wait times out.
-            (None, 0, None, True, ["poll", "kill", "stdout", "wait"]),
+            (None, 0, None, True, ["poll", "kill", "stdout", "wait", "close"]),
         ),
     )
     def test_inventory(
@@ -1418,7 +1477,7 @@ class TestCacheManager:
         assert my_stream, "Test bug:  we need at least one of stdout and stderr"
 
         # Invoke the CUT
-        stream = Inventory(my_stream, MockPopen(my_stdout, my_stderr))
+        stream = Inventory(my_stream, subproc=MockPopen(my_stdout, my_stderr))
 
         # Test Inventory.__repr__()
         assert str(stream) == "<Stream <MockBufferedReader> from MockPopen>"
@@ -1430,11 +1489,17 @@ class TestCacheManager:
         else:
             assert not wait_timeout, "wait() failed to time out as expected"
 
-        assert stream.subproc is None
+        assert stream.lock is None
         assert my_calls == exp_calls
 
     def test_find(
-        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+        self,
+        selinux_enabled,
+        server_config,
+        make_logger,
+        tarball,
+        monkeypatch,
+        db_session,
     ):
         """
         Create a dataset, check the cache manager state, and test that we can find it
@@ -1483,9 +1548,26 @@ class TestCacheManager:
         assert exc.value.tarball == "foobar"
 
         # Unpack the dataset, creating INCOMING and RESULTS links
-        cm.unpack(md5)
+        tarball.get_results(FakeLockRef(tarball.lock))
         assert tarball.cache == controller.cache / md5
         assert tarball.unpacked == controller.cache / md5 / tarball.name
+        assert tarball.last_ref.exists()
+        FakeLockRef.reset()
+
+        audits = Audit.query(name="cache")
+        assert len(audits) == 2
+        assert audits[0].name == "cache"
+        assert audits[0].operation is OperationCode.CREATE
+        assert audits[0].status is AuditStatus.BEGIN
+        assert audits[0].object_type is AuditType.DATASET
+        assert audits[0].object_id == tarball.resource_id
+        assert audits[0].object_name == tarball.name
+        assert audits[1].name == "cache"
+        assert audits[1].operation is OperationCode.CREATE
+        assert audits[1].status is AuditStatus.SUCCESS
+        assert audits[1].object_type is AuditType.DATASET
+        assert audits[1].object_id == tarball.resource_id
+        assert audits[1].object_name == tarball.name
 
         # We should be able to find the tarball even in a new cache manager
         # that hasn't been fully discovered.
@@ -1517,11 +1599,13 @@ class TestCacheManager:
         cm = CacheManager(server_config, make_logger)
         archive = cm.archive_root / "ABC"
         cache = cm.cache_root / md5
+        dataset_name = Dataset.stem(source_tarball)
+        unpack = cache / dataset_name
         monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
 
         # None of the controller directories should exist yet
         assert not archive.exists()
-        assert not cache.exists()
+        assert not unpack.exists()
 
         # Create a dataset in the cache manager from our source tarball
         cm.create(source_tarball)
@@ -1529,7 +1613,7 @@ class TestCacheManager:
         # Expect the archive directory was created, but we haven't unpacked so
         # incoming and results should not exist.
         assert archive.exists()
-        assert not cache.exists()
+        assert not unpack.exists()
 
         # The original files should have been removed
         assert not source_tarball.exists()
@@ -1546,18 +1630,20 @@ class TestCacheManager:
         assert md5 == md5_hash.hexdigest()
 
         assert list(cm.controllers.keys()) == ["ABC"]
-        dataset_name = source_tarball.name[:-7]
         assert list(cm.tarballs) == [dataset_name]
         assert list(cm.datasets) == [md5]
 
+        dataset = cm.find_dataset(md5)
+
         # Now "unpack" the tarball and check that the incoming directory and
         # results link are set up.
-        cm.unpack(md5)
-        assert cache == cm[md5].cache
+        dataset.get_results(FakeLockRef(dataset.lock))
+        assert cache == dataset.cache
         assert cache.is_dir()
-        assert (cache / dataset_name).is_dir()
+        assert unpack.is_dir()
+        FakeLockRef.reset()
 
-        assert cm.datasets[md5].unpacked == cache / dataset_name
+        assert dataset.unpacked == unpack
 
         # Re-discover, with all the files in place, and compare
         newcm = CacheManager(server_config, make_logger)
@@ -1585,10 +1671,9 @@ class TestCacheManager:
             assert tarball.cache == other.cache
             assert tarball.unpacked == other.unpacked
 
-        # Remove the unpacked tarball, and confirm that the directory and link
-        # are removed.
-        cm.uncache(md5)
-        assert not cache.exists()
+        # Remove the unpacked tarball, and confirm the directory is removed
+        dataset.cache_delete()
+        assert not unpack.exists()
 
         # Now that we have all that setup, delete the dataset
         cm.delete(md5)
@@ -1625,8 +1710,12 @@ class TestCacheManager:
         t2 = cm1[id]
         assert t1.name == t2.name == Dataset.stem(source_tarball)
 
-        t1.unpack()
-        t2.unpack()
+        r1 = t1.get_results(FakeLockRef(t1.lock))
+        assert r1 == t1.unpacked
+        FakeLockRef.reset()
+        r2 = t2.get_results(FakeLockRef(t2.lock))
+        assert r2 == t2.unpacked
+        FakeLockRef.reset()
 
         assert t1.unpacked != t2.unpacked
         assert (t1.unpacked / "metadata.log").is_file()
@@ -1645,3 +1734,217 @@ class TestCacheManager:
         assert not tar1.exists()
         assert not tar2.exists()
         assert not tar1.parent.exists()
+
+    def test_lockref(self, monkeypatch):
+        """Test behavior of the LockRef class"""
+
+        locks: list[tuple] = []
+        files: list[tuple] = []
+        close_fail: Optional[Exception] = None
+        lockf_fail: Optional[Exception] = None
+
+        def reset():
+            nonlocal close_fail, lockf_fail
+            close_fail = None
+            lockf_fail = None
+            locks.clear()
+            files.clear()
+
+        class FakeStream:
+            def __init__(self, file):
+                self.file = file
+
+            def close(self):
+                files.append(("close", self.file))
+                if close_fail:
+                    raise close_fail
+
+            def fileno(self) -> int:
+                return 0
+
+            def __eq__(self, other) -> bool:
+                return self.file == other.file
+
+            def __str__(self) -> str:
+                return f"Fake Stream with file {self.file!r}"
+
+        def fake_lockf(fd: FakeStream, cmd: int):
+            locks.append((fd.file, cmd))
+            if lockf_fail:
+                raise lockf_fail
+
+        def fake_open(self, flags: str) -> FakeStream:
+            files.append(("open", self, flags))
+            return FakeStream(self)
+
+        monkeypatch.setattr("pbench.server.cache_manager.fcntl.lockf", fake_lockf)
+        monkeypatch.setattr(Path, "open", fake_open)
+
+        lockfile = Path("/lock")
+
+        # Simple shared lock
+        lock = LockRef(lockfile)
+        assert lock.lock == FakeStream(lockfile)
+        assert not lock.locked
+        assert not lock.exclusive
+        assert len(locks) == 0
+        assert files == [("open", lockfile, "w+")]
+        lock.acquire()
+        assert lock.locked
+        assert locks == [(lockfile, fcntl.LOCK_SH)]
+        lock.release()
+        assert not lock.locked
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+        assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_UN)]
+
+        # No-wait
+        reset()
+        lock = LockRef(lockfile)
+        assert files == [("open", lockfile, "w+")]
+        lock.acquire(wait=False)
+        assert not lock.exclusive
+        assert locks == [(lockfile, fcntl.LOCK_SH | fcntl.LOCK_NB)]
+        lock.release()
+        assert locks == [
+            (lockfile, fcntl.LOCK_SH | fcntl.LOCK_NB),
+            (lockfile, fcntl.LOCK_UN),
+        ]
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+
+        # No-wait failure
+        reset()
+        lock = LockRef(lockfile)
+        assert files == [("open", lockfile, "w+")]
+        lockf_fail = OSError(errno.EAGAIN, "Loser")
+        with pytest.raises(OSError, match="Loser"):
+            lock.acquire(wait=False)
+        assert not lock.exclusive
+        assert not lock.locked
+        assert locks == [(lockfile, fcntl.LOCK_SH | fcntl.LOCK_NB)]
+
+        # Exclusive
+        reset()
+        lock = LockRef(lockfile)
+        assert files == [("open", lockfile, "w+")]
+        lock.acquire(exclusive=True)
+        assert lock.exclusive
+        assert locks == [(lockfile, fcntl.LOCK_EX)]
+        assert lock.locked
+        assert lock.exclusive
+        # upgrade is idempotent
+        lock.upgrade()
+        assert locks == [(lockfile, fcntl.LOCK_EX)]
+        assert lock.exclusive
+        assert lock.locked
+        lock.downgrade()
+        assert locks == [(lockfile, fcntl.LOCK_EX), (lockfile, fcntl.LOCK_SH)]
+        assert not lock.exclusive
+        assert lock.locked
+        # downgrade is idempotent
+        lock.downgrade()
+        assert locks == [(lockfile, fcntl.LOCK_EX), (lockfile, fcntl.LOCK_SH)]
+        assert not lock.exclusive
+        assert lock.locked
+        # upgrade back to exclusive
+        lock.upgrade()
+        assert locks == [
+            (lockfile, fcntl.LOCK_EX),
+            (lockfile, fcntl.LOCK_SH),
+            (lockfile, fcntl.LOCK_EX),
+        ]
+        assert lock.exclusive
+        assert lock.locked
+        # release
+        lock.release()
+        assert locks == [
+            (lockfile, fcntl.LOCK_EX),
+            (lockfile, fcntl.LOCK_SH),
+            (lockfile, fcntl.LOCK_EX),
+            (lockfile, fcntl.LOCK_UN),
+        ]
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+        assert not lock.locked
+        assert not lock.exclusive
+
+        # Check release exception handling on close
+        reset()
+        lock = LockRef(lockfile).acquire()
+        assert locks == [(lockfile, fcntl.LOCK_SH)]
+        assert files == [("open", lockfile, "w+")]
+
+        message = "Nobody inspects the Spanish Aquisition"
+        close_fail = Exception(message)
+        with pytest.raises(Exception, match=message):
+            lock.release()
+        assert lock.lock is None
+        assert files == [("open", lockfile, "w+"), ("close", lockfile)]
+        assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_UN)]
+
+        # Check release exception handling on unlock
+        reset()
+        lock = LockRef(lockfile).acquire()
+        assert locks == [(lockfile, fcntl.LOCK_SH)]
+        assert files == [("open", lockfile, "w+")]
+
+        message = "Nobody inspects the Spanish Aquisition"
+        lockf_fail = Exception(message)
+        with pytest.raises(Exception, match=message):
+            lock.release()
+        assert lock.lock is None
+        assert files == [("open", lockfile, "w+")]
+        assert locks == [(lockfile, fcntl.LOCK_SH), (lockfile, fcntl.LOCK_UN)]
+
+    def test_lockmanager(self, monkeypatch):
+        """Test LockManager"""
+
+        lockfile = Path("/lock")
+        monkeypatch.setattr("pbench.server.cache_manager.LockRef", FakeLockRef)
+        # default parameters
+        with LockManager(lockfile) as lock:
+            assert lock.unlock
+            assert not lock.exclusive
+            assert lock.wait
+            assert FakeLockRef.operations == [("acquire", False, True)]
+            lock.upgrade()
+            assert FakeLockRef.operations == [("acquire", False, True), ("upgrade")]
+            lock.downgrade()
+            assert FakeLockRef.operations == [
+                ("acquire", False, True),
+                ("upgrade"),
+                ("downgrade"),
+            ]
+        assert FakeLockRef.operations == [
+            ("acquire", False, True),
+            ("upgrade"),
+            ("downgrade"),
+            ("release"),
+        ]
+
+        # exclusive
+        FakeLockRef.reset()
+        with LockManager(lockfile, exclusive=True) as lock:
+            assert lock.unlock
+            assert lock.exclusive
+            assert lock.wait
+            assert FakeLockRef.operations == [("acquire", True, True)]
+        assert FakeLockRef.operations == [("acquire", True, True), ("release")]
+
+        # no-wait
+        FakeLockRef.reset()
+        with LockManager(lockfile, wait=False) as lock:
+            assert lock.unlock
+            assert not lock.exclusive
+            assert not lock.wait
+            assert FakeLockRef.operations == [("acquire", False, False)]
+        assert FakeLockRef.operations == [("acquire", False, False), ("release")]
+
+        # keep option
+        FakeLockRef.reset()
+        with LockManager(lockfile) as lock:
+            still_locked = lock.keep()
+            assert still_locked is lock
+            assert not lock.unlock
+            assert FakeLockRef.operations == [("acquire", False, True)]
+        assert FakeLockRef.operations == [("acquire", False, True)]
+        still_locked.release()
+        assert FakeLockRef.operations == [("acquire", False, True), ("release")]

@@ -16,6 +16,7 @@ from pbench.server import (
     OperationCode,
     PbenchServerConfig,
 )
+from pbench.server.cache_manager import LockManager
 from pbench.server.database.models.audit import AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -265,6 +266,41 @@ class FakeSync:
         __class__.errors[dataset.name] = message
 
 
+class FakeLockManager:
+    def __init__(self, lock: Path, exclusive: bool = False, wait: bool = True):
+        """Initialize a mocked lock reference
+
+        Args:
+            lock: the path of a lock file
+            exclusive: lock exclusively
+            wait: wait for lock
+        """
+        self.exclusive = exclusive
+        self.wait = wait
+
+    def __enter__(self) -> "FakeLockManager":
+        """Acquire the lock
+
+        Returns:
+            self reference for 'as' clause
+        """
+        return self
+
+    def __exit__(self, *exc):
+        """Release the lock and close the lock file"""
+        self.exclusive = False
+
+    def upgrade(self):
+        """Upgrade a shared lock to exclusive"""
+        if not self.exclusive:
+            self.exclusive = True
+
+    def downgrade(self):
+        """Downgrade an exclusive lock to shared"""
+        if self.exclusive:
+            self.exclusive = False
+
+
 class FakeController:
     def __init__(self, path: Path, cache: Path, logger: Logger):
         self.name = path.name
@@ -279,9 +315,13 @@ class FakeTarball:
         self.tarball_path = path
         self.controller = controller
         self.cache = controller.cache / "ABC"
+        self.lock = self.cache / "lock"
+        self.last_ref = self.cache / "last_ref"
         self.unpacked = self.cache / self.name
         self.isolator = controller.path / resource_id
-        self.uncache = lambda: None
+
+    def get_results(self, lock: LockManager):
+        pass
 
 
 class FakeCacheManager:
@@ -292,7 +332,7 @@ class FakeCacheManager:
         self.logger = logger
         self.datasets = {}
 
-    def unpack(self, resource_id: str):
+    def find_dataset(self, resource_id: str):
         controller = FakeController(Path("/archive/ABC"), Path("/.cache"), self.logger)
         return FakeTarball(
             Path(f"/archive/ABC/{resource_id}/{self.lookup[resource_id]}.tar.xz"),
@@ -341,6 +381,7 @@ def mocks(monkeypatch, make_logger):
         m.setattr("pbench.server.indexing_tarballs.Metadata", FakeMetadata)
         m.setattr("pbench.server.indexing_tarballs.IndexMap", FakeIndexMap)
         m.setattr("pbench.server.indexing_tarballs.CacheManager", FakeCacheManager)
+        m.setattr("pbench.server.indexing_tarballs.LockManager", FakeLockManager)
         m.setattr("pbench.server.indexing_tarballs.Audit", FakeAudit)
         yield m
     FakeAudit.reset()

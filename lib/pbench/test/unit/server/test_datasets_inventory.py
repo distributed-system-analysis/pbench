@@ -102,7 +102,7 @@ class TestDatasetsAccess:
             return {
                 "name": "f1.json",
                 "type": CacheType.FILE,
-                "stream": Inventory(exp_stream, None),
+                "stream": Inventory(exp_stream),
             }
 
         response = Response()
@@ -142,7 +142,7 @@ class TestDatasetsAccess:
             return {
                 "name": "f1.json",
                 "type": CacheType.FILE,
-                "stream": Inventory(exp_stream, None),
+                "stream": Inventory(exp_stream),
             }
 
         def mock_send_file(path_or_file, *args, **kwargs):
@@ -164,7 +164,7 @@ class TestDatasetsAccess:
             return {
                 "name": "f1.json",
                 "type": CacheType.FILE,
-                "stream": Inventory(exp_stream, None),
+                "stream": Inventory(exp_stream),
             }
 
         monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)

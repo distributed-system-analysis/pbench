@@ -19,7 +19,12 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.cache_manager import CacheManager, CacheType, TarballNotFound
+from pbench.server.cache_manager import (
+    CacheExtractBadPath,
+    CacheManager,
+    CacheType,
+    TarballNotFound,
+)
 
 
 class DatasetsInventory(ApiBase):
@@ -63,7 +68,7 @@ class DatasetsInventory(ApiBase):
         cache_m = CacheManager(self.config, current_app.logger)
         try:
             file_info = cache_m.get_inventory(dataset.resource_id, target)
-        except TarballNotFound as e:
+        except (TarballNotFound, CacheExtractBadPath) as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
         if file_info["type"] != CacheType.FILE:
