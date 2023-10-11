@@ -13,8 +13,6 @@ from typing import Any, IO, Optional, Union
 from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, OperationCode, PathLike, PbenchServerConfig
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
-from pbench.server import JSONOBJECT, OperationCode, PathLike, PbenchServerConfig
-from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.utils import get_tarball_md5
 
@@ -73,7 +71,6 @@ class MetadataError(CacheManagerError):
     def __init__(self, tarball: Path, error: Exception):
         super().__init__(
             f"A problem occurred processing metadata.log from {tarball}: {str(error)!r}"
-            f"A problem occurred processing metadata.log from {tarball}: {str(error)!r}"
         )
         self.tarball = tarball
         self.error = str(error)
@@ -100,10 +97,22 @@ class TarballModeChangeError(CacheManagerError):
 
 
 class CacheType(Enum):
-    FILE = auto()
+
+    """A directory"""
+
     DIRECTORY = auto()
-    SYMLINK = auto()
+
+    """A regular file"""
+    FILE = auto()
+
+    """An invalid symlink (absolute or outside tarball)"""
+    BROKEN = auto()
+
+    """A device or mount point or other unsupported inode type"""
     OTHER = auto()
+
+    """A relative symbolic link within the tarball"""
+    SYMLINK = auto()
 
 
 @dataclass
@@ -144,21 +153,23 @@ class CacheObject:
         if path.is_symlink():
             ftype = CacheType.SYMLINK
             link_path = path.readlink()
-            try:
-                if link_path.is_absolute():
-                    raise ValueError("symlink path is absolute")
-                r_path = path.resolve(strict=True)
-                resolve_path = r_path.relative_to(root)
-            except (FileNotFoundError, ValueError):
+            if link_path.is_absolute():
                 resolve_path = link_path
-                resolve_type = CacheType.OTHER
+                resolve_type = CacheType.BROKEN
             else:
-                if r_path.is_dir():
-                    resolve_type = CacheType.DIRECTORY
-                elif r_path.is_file():
-                    resolve_type = CacheType.FILE
+                try:
+                    r_path = path.resolve(strict=True)
+                    resolve_path = r_path.relative_to(root)
+                except (FileNotFoundError, ValueError):
+                    resolve_path = link_path
+                    resolve_type = CacheType.BROKEN
                 else:
-                    resolve_type = CacheType.OTHER
+                    if r_path.is_dir():
+                        resolve_type = CacheType.DIRECTORY
+                    elif r_path.is_file():
+                        resolve_type = CacheType.FILE
+                    else:
+                        resolve_type = CacheType.OTHER
         elif path.is_file():
             ftype = CacheType.FILE
             size = path.stat().st_size
@@ -169,7 +180,7 @@ class CacheObject:
 
         return cls(
             name="" if path == root else path.name,
-            location=Path("") if path == root else path.relative_to(root),
+            location=path.relative_to(root),
             resolve_path=resolve_path,
             resolve_type=resolve_type,
             size=size,
@@ -314,7 +325,6 @@ class Inventory:
         self,
         stream: IO[bytes],
         lock: Optional[LockRef] = None,
-        lock: Optional[LockRef] = None,
         subproc: Optional[subprocess.Popen] = None,
     ):
         """Construct an instance to track extracted inventory
@@ -324,8 +334,6 @@ class Inventory:
 
         Args:
             stream: the data stream of a specific tarball member
-            lock: a cache lock reference
-            subproc: a Popen object to clean up on close
             lock: a cache lock reference
             subproc: a Popen object to clean up on close
         """
@@ -356,7 +364,6 @@ class Inventory:
                         while self.subproc.stderr.read(4096):
                             pass
                     self.subproc.wait(60.0)
-            except Exception as e:
             except Exception as e:
                 # Release our reference to the subprocess.Popen object so that the
                 # object can be reclaimed.
@@ -470,7 +477,7 @@ class Tarball:
         self.cache.mkdir(parents=True, exist_ok=True)
 
         # Record hierarchy of a Tar ball
-        self.cachemap: Optional[CacheMap] = None
+        self.cachemap: Optional[CacheMapEntry] = None
 
         # Record the base of the unpacked files for cache management, which
         # is (self.cache / self.name) and will be None when the cache is
@@ -646,7 +653,7 @@ class Tarball:
         dir_queue = deque(((self.unpacked, cmap),))
         while dir_queue:
             unpacked, parent_map = dir_queue.popleft()
-            curr: CacheMapEntry = {}
+            curr: CacheMap = {}
             for path in unpacked.glob("*"):
                 details = CacheObject.create(self.unpacked, path)
                 curr[path.name] = {"details": details}
@@ -682,7 +689,7 @@ class Tarball:
             return self.cachemap
 
         path_parts = path.parts[:-1]
-        node: CacheMapEntry = self.cachemap["children"]
+        node: CacheMap = self.cachemap["children"]
 
         try:
             for dir in path_parts:
@@ -957,7 +964,6 @@ class Tarball:
                     Audit.create(
                         root=audit,
                         status=AuditStatus.FAILURE if error else AuditStatus.SUCCESS,
-                        attributes=attributes,
                         attributes=attributes,
                     )
                 lock.downgrade()

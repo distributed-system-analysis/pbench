@@ -654,7 +654,7 @@ class TestList:
 class TestInventory:
     """Validate APIs involving tarball inventory"""
 
-    @pytest.mark.dependency(name="contents", depends=["index"], scope="session")
+    @pytest.mark.dependency(name="contents", depends=["upload"], scope="session")
     def test_contents(self, server_client: PbenchServerClient, login_user):
         """Check that we can retrieve the root directory TOC
 

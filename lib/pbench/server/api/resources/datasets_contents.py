@@ -67,7 +67,7 @@ class DatasetsContents(ApiBase):
 
         dataset: Dataset = params.uri["dataset"]
         target = params.uri.get("target")
-        path = Path("" if target in ("/", None) else target)
+        path = Path("." if target in ("/", None) else target)
 
         cache_m = CacheManager(self.config, current_app.logger)
         try:

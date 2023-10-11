@@ -13,7 +13,6 @@ from typing import Optional
 import pytest
 
 from pbench.server import JSONOBJECT, OperationCode
-from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.cache_manager import (
     BadDirpath,
     BadFilename,
@@ -23,7 +22,6 @@ from pbench.server.cache_manager import (
     Controller,
     DuplicateTarball,
     Inventory,
-    LockManager,
     LockManager,
     LockRef,
     MetadataError,
@@ -453,7 +451,7 @@ class TestCacheManager:
                                 f1415_sym -> ./f1412_sym
                                 f1416_sym -> ../../subdir12/f122_sym
                         f11.txt
-                        f12_sym -> ..
+                        f12_sym -> ../../..
                     f1.json
                     metadata.log
 
@@ -518,24 +516,38 @@ class TestCacheManager:
                 parents=True, exist_ok=True
             )
             (sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1411.txt").touch()
-            sym_file = sub_dir / "subdir1" / "f12_sym"
-            os.symlink(Path(".."), sym_file)
-            sym_file = sub_dir / "subdir1" / "subdir12" / "f121_sym"
-            os.symlink(Path("../..") / "subdir1" / "subdir15", sym_file)
-            sym_file = sub_dir / "subdir1" / "subdir12" / "f122_sym"
-            os.symlink(Path(".") / "bad_subdir" / "nonexistent_file.txt", sym_file)
-            sym_file = sub_dir / "subdir1" / "subdir13" / "f131_sym"
-            os.symlink(Path("/etc") / "passwd", sym_file)
-            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1412_sym"
-            os.symlink(sub_dir / "subdir1" / "f11.txt", sym_file)
-            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1413_sym"
-            os.symlink(Path("..") / "subdir141", sym_file)
-            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1414_sym"
-            os.symlink(Path(".") / "f1411.txt", sym_file)
-            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1415_sym"
-            os.symlink(Path(".") / "f1412_sym", sym_file)
-            sym_file = sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1416_sym"
-            os.symlink(Path("../..") / "subdir12" / "f122_sym", sym_file)
+            os.symlink(Path("../../.."), sub_dir / "subdir1" / "f12_sym")
+            os.symlink(
+                Path("../..") / "subdir1" / "subdir15",
+                sub_dir / "subdir1" / "subdir12" / "f121_sym",
+            )
+            os.symlink(
+                Path(".") / "bad_subdir" / "nonexistent_file.txt",
+                sub_dir / "subdir1" / "subdir12" / "f122_sym",
+            )
+            os.symlink(
+                Path("/etc/passwd"), sub_dir / "subdir1" / "subdir13" / "f131_sym"
+            )
+            os.symlink(
+                sub_dir / "subdir1" / "f11.txt",
+                sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1412_sym",
+            )
+            os.symlink(
+                Path("..") / "subdir141",
+                sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1413_sym",
+            )
+            os.symlink(
+                Path(".") / "f1411.txt",
+                sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1414_sym",
+            )
+            os.symlink(
+                Path(".") / "f1412_sym",
+                sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1415_sym",
+            )
+            os.symlink(
+                Path("../..") / "subdir12" / "f122_sym",
+                sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1416_sym",
+            )
 
             return sub_dir
 
@@ -642,7 +654,7 @@ class TestCacheManager:
                 args, returncode=0, stdout="Successfully Unpacked!", stderr=None
             )
 
-        def mock_resolve(_path, _strict=False):
+        def mock_resolve(_path, strict: bool = False):
             """In this scenario, there are no symlinks,
             so resolve() should never be called."""
             raise AssertionError("Unexpected call to Path.resolve()")
@@ -831,8 +843,8 @@ class TestCacheManager:
                 "subdir1/f12_sym",
                 "subdir1/f12_sym",
                 "f12_sym",
-                Path("."),
-                CacheType.DIRECTORY,
+                Path("../../.."),
+                CacheType.BROKEN,
                 None,
                 CacheType.SYMLINK,
             ),
@@ -841,7 +853,7 @@ class TestCacheManager:
                 "subdir1/subdir12/f121_sym",
                 "f121_sym",
                 Path("../../subdir1/subdir15"),
-                CacheType.OTHER,
+                CacheType.BROKEN,
                 None,
                 CacheType.SYMLINK,
             ),
@@ -850,7 +862,7 @@ class TestCacheManager:
                 "subdir1/subdir12/f122_sym",
                 "f122_sym",
                 Path("bad_subdir/nonexistent_file.txt"),
-                CacheType.OTHER,
+                CacheType.BROKEN,
                 None,
                 CacheType.SYMLINK,
             ),
@@ -859,7 +871,7 @@ class TestCacheManager:
                 "subdir1/subdir13/f131_sym",
                 "f131_sym",
                 Path("/etc/passwd"),
-                CacheType.OTHER,
+                CacheType.BROKEN,
                 None,
                 CacheType.SYMLINK,
             ),
@@ -886,7 +898,7 @@ class TestCacheManager:
                 "subdir1/subdir14/subdir141/f1412_sym",
                 "f1412_sym",
                 Path("/mock_absolute_path/subdir1/f11.txt"),
-                CacheType.OTHER,
+                CacheType.BROKEN,
                 None,
                 CacheType.SYMLINK,
             ),
@@ -922,7 +934,7 @@ class TestCacheManager:
                 "subdir1/subdir14/subdir141/f1416_sym",
                 "f1416_sym",
                 Path("../../subdir12/f122_sym"),
-                CacheType.OTHER,
+                CacheType.BROKEN,
                 None,
                 CacheType.SYMLINK,
             ),
@@ -967,15 +979,8 @@ class TestCacheManager:
 
             # test traverse with random path
             c_map = tb.find_entry(Path(file_path))
-            if file_type is CacheType.DIRECTORY:
-                assert sorted(c_map.keys()) == [
-                    "children",
-                    "details",
-                ], "Directory should have children and details"
-            else:
-                assert sorted(c_map.keys()) == [
-                    "details"
-                ], "Non-directory should have only details"
+            assert "details" in c_map
+            assert (file_type is not CacheType.DIRECTORY) ^ ("children" in c_map)
             assert c_map["details"].location == Path(location)
             assert c_map["details"].name == name
             assert c_map["details"].resolve_path == resolve_path
@@ -1894,12 +1899,6 @@ class TestCacheManager:
                 ("downgrade"),
             ]
         assert FakeLockRef.operations == [
-            assert FakeLockRef.operations == [
-                ("acquire", False, True),
-                ("upgrade"),
-                ("downgrade"),
-            ]
-        assert FakeLockRef.operations == [
             ("acquire", False, True),
             ("upgrade"),
             ("downgrade"),
@@ -1921,8 +1920,6 @@ class TestCacheManager:
             assert lock.unlock
             assert not lock.exclusive
             assert not lock.wait
-            assert FakeLockRef.operations == [("acquire", False, False)]
-        assert FakeLockRef.operations == [("acquire", False, False), ("release")]
             assert FakeLockRef.operations == [("acquire", False, False)]
         assert FakeLockRef.operations == [("acquire", False, False), ("release")]
 

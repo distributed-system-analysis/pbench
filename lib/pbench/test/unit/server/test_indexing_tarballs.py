@@ -5,7 +5,7 @@ from os import stat_result
 from pathlib import Path
 from signal import SIGHUP
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import pytest
 
@@ -292,13 +292,15 @@ class FakeLockManager:
 
     def upgrade(self):
         """Upgrade a shared lock to exclusive"""
-        if not self.exclusive:
-            self.exclusive = True
+        self.exclusive = True
 
     def downgrade(self):
         """Downgrade an exclusive lock to shared"""
-        if self.exclusive:
-            self.exclusive = False
+        self.exclusive = False
+
+    def release(self):
+        """Release a lock kept past its expiration date"""
+        self.exclusive = False
 
 
 class FakeController:
