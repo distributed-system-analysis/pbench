@@ -216,6 +216,12 @@ class PbenchServerConfig(PbenchConfig):
         )
 
     @property
+    def BACKUP(self) -> Path:
+        return self._get_valid_dir_option(
+            "BACKUP", "pbench-server", "pbench-backup-dir"
+        )
+
+    @property
     def CACHE(self) -> Path:
         return self._get_valid_dir_option("CACHE", "pbench-server", "pbench-cache-dir")
 

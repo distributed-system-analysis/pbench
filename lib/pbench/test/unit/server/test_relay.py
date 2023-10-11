@@ -51,6 +51,7 @@ class TestRelay:
         class FakeTarball:
             def __init__(self, path: Path):
                 self.tarball_path = path
+                self.md5_path = path.with_suffix(".xz.md5")
                 self.name = Dataset.stem(path)
                 self.metadata = None
 
