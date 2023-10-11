@@ -504,6 +504,11 @@ class TestUpload:
         datafile, _, md5 = tarball
         TestUpload.cachemanager_create_fail = exception
 
+        # The upload hasn't been attempted yet, so these files should not exist.
+        backup_file = server_config.BACKUP / datafile.name
+        assert not backup_file.exists()
+        assert not backup_file.with_suffix(".xz.md5").exists()
+
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
@@ -524,7 +529,6 @@ class TestUpload:
 
         # The upload failed before attempting the creation of these files, so
         # they should not exist.
-        backup_file = server_config.BACKUP / datafile.name
         assert not backup_file.exists()
         assert not backup_file.with_suffix(".xz.md5").exists()
 
@@ -1089,18 +1093,18 @@ class TestUpload:
                 )
 
             # Replace the placeholders in the expected ops with the actual
-            # values, which are hard to obtain in parametrization context.
-            for o in expected_ops:
-                for i in range(len(o)):
-                    if o[i] == "tbp":
-                        o[i] = tbp
-                    elif o[i] == "md5":
-                        o[i] = md5
-                    elif o[i] == "bdir":
-                        o[i] = server_config.BACKUP
-                    elif o[i] == "bmd5":
-                        o[i] = server_config.BACKUP / md5.name
-            assert ops == expected_ops
+            # values, which are hard to obtain in parametrization context, and
+            # then compare the result to the actual operations and arguments.
+            placeholders = {
+                "tbp": tbp,
+                "md5": md5,
+                "bdir": server_config.BACKUP,
+                "bmd5": server_config.BACKUP / md5.name,
+            }
+            assert ops == [
+                [placeholders.get(o[i], o[i]) for i in range(len(o))]
+                for o in expected_ops
+            ]
 
     @pytest.mark.parametrize(
         ("tb_err", "md5_err"),
