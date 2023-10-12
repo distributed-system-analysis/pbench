@@ -17,9 +17,9 @@ from pbench.common.exceptions import BadConfig
 # with Python syntax.
 JSONSTRING = str
 JSONNUMBER = Union[int, float]
-JSONVALUE = Union["JSONOBJECT", "JSONARRAY", JSONSTRING, JSONNUMBER, bool, None]
-JSONARRAY = List[JSONVALUE]
-JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
+JSONARRAY = List["JSONVALUE"]
+JSONOBJECT = Dict[JSONSTRING, "JSONVALUE"]
+JSONVALUE = Union[JSONOBJECT, JSONARRAY, JSONSTRING, JSONNUMBER, bool, None]
 JSON = JSONVALUE
 
 # Define a type hint for "Path-like" parameters, so the cumbersomeness of the

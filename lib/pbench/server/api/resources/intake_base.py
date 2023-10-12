@@ -206,7 +206,7 @@ class IntakeBase(ApiBase):
         pass
 
     def _intake(
-        self, args: ApiParams, request: Request, context: ApiContext
+        self, args: ApiParams, request: Request, _context: ApiContext
     ) -> Response:
         """Common code to assimilate a remote tarball onto the server
 
@@ -238,7 +238,7 @@ class IntakeBase(ApiBase):
                     access: The desired access policy (default is "private")
                     metadata: Metadata key/value pairs to set on dataset
             request: The original Request object containing query parameters
-            context: API context dictionary
+            _context: API context dictionary (not used by this function)
         """
 
         # Used to record what steps have been completed during the upload, and
@@ -246,7 +246,6 @@ class IntakeBase(ApiBase):
         recovery = Cleanup(current_app.logger)
 
         audit: Optional[Audit] = None
-        username: Optional[str] = None
         intake_dir: Optional[Path] = None
         notes = []
 
@@ -259,8 +258,6 @@ class IntakeBase(ApiBase):
                 user_id = authorized_user.id
                 username = authorized_user.username
             except Exception as e:
-                username = None
-                user_id = None
                 raise APIAbort(
                     HTTPStatus.UNAUTHORIZED, "Verifying user_id failed"
                 ) from e
