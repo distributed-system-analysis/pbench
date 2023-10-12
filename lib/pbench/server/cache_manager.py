@@ -21,7 +21,6 @@ class CacheManagerError(Exception):
     """Base class for exceptions raised from this module."""
 
     pass
-    pass
 
 
 class BadDirpath(CacheManagerError):
@@ -345,8 +344,6 @@ class Inventory:
         """Close the byte stream and clean up the Popen object"""
 
         exception = None
-
-        exception = None
         if self.subproc:
             try:
                 if self.subproc.poll() is None:
@@ -369,20 +366,12 @@ class Inventory:
                 # object can be reclaimed.
                 self.subproc = None
                 exception = e
-                exception = e
         if self.lock:
             try:
                 self.lock.release()
             except Exception as e:
                 exception = e
         self.stream.close()
-
-        # NOTE: if both subprocess cleanup and unlock fail with exceptions, we
-        # raise the latter, and the former will be ignored. In practice, that's
-        # not a problem as we only construct an Inventory with a subprocess
-        # reference for extract, which doesn't need to lock a cache directory.
-        if exception:
-            raise exception
 
         # NOTE: if both subprocess cleanup and unlock fail with exceptions, we
         # raise the latter, and the former will be ignored. In practice, that's
@@ -483,16 +472,6 @@ class Tarball:
         # is (self.cache / self.name) and will be None when the cache is
         # inactive.
         self.unpacked: Optional[Path] = None
-
-        # Record the lockf file path used to control cache access
-        self.lock: Path = self.cache / "lock"
-
-        # Record a marker file path used to record the last cache access
-        # timestamp
-        self.last_ref: Path = self.cache / "last_ref"
-
-        # Record the path of the companion MD5 file
-        self.md5_path: Path = path.with_suffix(".xz.md5")
 
         # Record the lockf file path used to control cache access
         self.lock: Path = self.cache / "lock"
@@ -685,7 +664,7 @@ class Tarball:
             with LockManager(self.lock) as lock:
                 self.get_results(lock)
 
-        if str(path) in (".", ""):
+        if str(path) == ".":
             return self.cachemap
 
         path_parts = path.parts[:-1]

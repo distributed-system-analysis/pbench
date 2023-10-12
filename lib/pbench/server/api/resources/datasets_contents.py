@@ -127,9 +127,13 @@ class DatasetsContents(ApiBase):
 
             # Normalize because we want the "root" directory to be reported as
             # "" rather than as Path's favored "."
-            loc = "" if str(details.location) == "." else str(details.location)
+            loc = str(details.location)
+            name = details.name
+            if loc == ".":
+                loc = ""
+                name = ""
             val = {
-                "name": details.name,
+                "name": name,
                 "type": details.type.name,
                 "directories": dir_list,
                 "files": file_list,

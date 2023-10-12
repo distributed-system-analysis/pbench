@@ -60,10 +60,10 @@ class TestDatasetsAccess:
             "message": "User drb is not authorized to READ a resource owned by test with private access"
         }
 
-    @pytest.mark.parametrize("key", (None, "", "subdir1"))
+    @pytest.mark.parametrize("key", ("", ".", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
-            file = path if path else Path("")
+            file = path if path else Path(".")
             return {
                 "children": {},
                 "details": CacheObject(
@@ -77,16 +77,14 @@ class TestDatasetsAccess:
             }
 
         monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
-        monkeypatch.setattr(Path, "is_file", lambda self: False)
-        monkeypatch.setattr(Path, "exists", lambda self: True)
-
-        response = query_get_as("fio_2", key if key else "", HTTPStatus.OK)
+        response = query_get_as("fio_2", key, HTTPStatus.OK)
+        name = "" if key == "." else key
         assert response.json == {
             "directories": [],
             "files": [],
-            "name": key if key else "",
+            "name": name,
             "type": "DIRECTORY",
-            "uri": f"https://localhost/api/v1/datasets/random_md5_string4/contents/{key if key else ''}",
+            "uri": f"https://localhost/api/v1/datasets/random_md5_string4/contents/{name}",
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
@@ -94,9 +92,6 @@ class TestDatasetsAccess:
             raise BadDirpath("Nobody home")
 
         monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
-        monkeypatch.setattr(Path, "is_file", lambda self: False)
-        monkeypatch.setattr(Path, "exists", lambda self: False)
-
         response = query_get_as("fio_2", "subdir1/f1_sym", HTTPStatus.NOT_FOUND)
         assert response.json == {"message": "Nobody home"}
 

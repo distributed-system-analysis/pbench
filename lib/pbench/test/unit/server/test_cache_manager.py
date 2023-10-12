@@ -560,8 +560,6 @@ class TestCacheManager:
             self.isolator = controller.path / resource_id
             self.lock = self.cache / "lock"
             self.last_ref = self.cache / "last_ref"
-            self.lock = self.cache / "lock"
-            self.last_ref = self.cache / "last_ref"
             self.unpacked = None
             self.cachemap = None
             self.controller = controller
@@ -1888,9 +1886,7 @@ class TestCacheManager:
             assert not lock.exclusive
             assert lock.wait
             assert FakeLockRef.operations == [("acquire", False, True)]
-            assert FakeLockRef.operations == [("acquire", False, True)]
             lock.upgrade()
-            assert FakeLockRef.operations == [("acquire", False, True), ("upgrade")]
             assert FakeLockRef.operations == [("acquire", False, True), ("upgrade")]
             lock.downgrade()
             assert FakeLockRef.operations == [
