@@ -96,22 +96,13 @@ class TarballModeChangeError(CacheManagerError):
 
 
 class CacheType(Enum):
+    """The type of a file or symlink destination"""
 
-    """A directory"""
-
-    DIRECTORY = auto()
-
-    """A regular file"""
-    FILE = auto()
-
-    """An invalid symlink (absolute or outside tarball)"""
-    BROKEN = auto()
-
-    """A device or mount point or other unsupported inode type"""
-    OTHER = auto()
-
-    """A relative symbolic link within the tarball"""
-    SYMLINK = auto()
+    DIRECTORY = auto()  # A directory
+    FILE = auto()  # A regular file
+    BROKEN = auto()  # An invalid symlink (absolute or outside tarball)
+    OTHER = auto()  # An unsupported file type (mount point, etc.)
+    SYMLINK = auto()  # A symbolic link
 
 
 @dataclass

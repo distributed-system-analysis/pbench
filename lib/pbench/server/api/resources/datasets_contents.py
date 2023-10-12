@@ -75,7 +75,7 @@ class DatasetsContents(ApiBase):
         except (BadDirpath, CacheExtractBadPath, TarballNotFound) as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
         except Exception as e:
-            raise APIInternalError(str(e))
+            raise APIInternalError(f"Cache find error: {str(e)!r}")
 
         prefix = current_app.server_config.rest_uri
         origin = (
@@ -98,29 +98,31 @@ class DatasetsContents(ApiBase):
                             "uri": f"{origin}/contents/{d.location}",
                         }
                     )
-                elif d.type in (CacheType.FILE, CacheType.OTHER):
-                    file_list.append(
-                        {
-                            "name": c,
-                            "size": d.size,
-                            "type": d.type.name,
-                            "uri": f"{origin}/inventory/{d.location}",
-                        }
-                    )
                 elif d.type is CacheType.SYMLINK:
                     if d.resolve_type is CacheType.DIRECTORY:
-                        access = "contents"
+                        uri = f"{origin}/contents/{d.resolve_path}"
+                    elif d.resolve_type is CacheType.FILE:
+                        uri = f"{origin}/inventory/{d.resolve_path}"
                     else:
-                        access = "inventory"
+                        uri = f"{origin}/inventory/{d.location}"
                     file_list.append(
                         {
                             "name": c,
                             "type": d.type.name,
                             "link": str(d.resolve_path),
                             "link_type": d.resolve_type.name,
-                            "uri": f"{origin}/{access}/{d.resolve_path}",
+                            "uri": uri,
                         }
                     )
+                else:
+                    r = {
+                        "name": c,
+                        "type": d.type.name,
+                        "uri": f"{origin}/inventory/{d.location}",
+                    }
+                    if d.type is CacheType.FILE:
+                        r["size"] = d.size
+                    file_list.append(r)
 
             dir_list.sort(key=lambda d: d["name"])
             file_list.sort(key=lambda d: d["name"])
@@ -141,10 +143,13 @@ class DatasetsContents(ApiBase):
             }
         else:
             access = "inventory"
+            link = str(details.location)
             if details.type is CacheType.SYMLINK:
                 link = str(details.resolve_path)
                 if details.resolve_type is CacheType.DIRECTORY:
                     access = "contents"
+                elif details.resolve_type is not CacheType.FILE:
+                    link = str(details.location)
             else:
                 link = str(details.location)
             val = {
@@ -153,7 +158,7 @@ class DatasetsContents(ApiBase):
                 "uri": f"{origin}/{access}/{link}",
             }
             if details.type is CacheType.SYMLINK:
-                val["link"] = str(details.resolve_path)
+                val["link"] = link
                 val["link_type"] = details.resolve_type.name
             elif details.type is CacheType.FILE:
                 val["size"] = details.size
@@ -161,4 +166,4 @@ class DatasetsContents(ApiBase):
         try:
             return jsonify(val)
         except Exception as e:
-            raise APIInternalError(str(e))
+            raise APIInternalError(f"JSONIFY {val}: {str(e)!r}")

@@ -164,6 +164,26 @@ class TestDatasetsAccess:
                             CacheType.FILE,
                         )
                     },
+                    "badlink": {
+                        "details": CacheObject(
+                            "badlink",
+                            base / "badlink",
+                            Path("../../../.."),
+                            CacheType.BROKEN,
+                            None,
+                            CacheType.SYMLINK,
+                        ),
+                    },
+                    "mountlink": {
+                        "details": CacheObject(
+                            "mountlink",
+                            base / "mountlink",
+                            Path("mount"),
+                            CacheType.OTHER,
+                            None,
+                            CacheType.SYMLINK,
+                        ),
+                    },
                     "symfile": {
                         "details": CacheObject(
                             "symfile",
@@ -213,6 +233,13 @@ class TestDatasetsAccess:
             ],
             "files": [
                 {
+                    "name": "badlink",
+                    "type": "SYMLINK",
+                    "link": "../../../..",
+                    "link_type": "BROKEN",
+                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/badlink",
+                },
+                {
                     "name": "file.txt",
                     "size": 42,
                     "type": "FILE",
@@ -220,9 +247,15 @@ class TestDatasetsAccess:
                 },
                 {
                     "name": "mount",
-                    "size": 20,
                     "type": "OTHER",
                     "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/mount",
+                },
+                {
+                    "name": "mountlink",
+                    "type": "SYMLINK",
+                    "link": "mount",
+                    "link_type": "OTHER",
+                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/mountlink",
                 },
                 {
                     "name": "symdir",
