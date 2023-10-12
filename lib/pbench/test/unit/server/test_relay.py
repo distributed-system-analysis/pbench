@@ -1,3 +1,4 @@
+import hashlib
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
@@ -54,6 +55,13 @@ class TestRelay:
                 self.md5_path = path.with_suffix(".xz.md5")
                 self.name = Dataset.stem(path)
                 self.metadata = None
+                # Note that, while this resource ID -is- a real MD5 hash and
+                # that it -is- unique to this file _path_, it won't match the
+                # actual hash of the file _contents_ (i.e., it won't match the
+                # value from the `tarball` fixture).
+                self.resource_id = hashlib.md5(
+                    str(path).encode(errors="ignore")
+                ).hexdigest()
 
             def delete(self):
                 TestRelay.tarball_deleted = self.name

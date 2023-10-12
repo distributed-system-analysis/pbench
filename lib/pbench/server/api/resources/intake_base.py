@@ -1,4 +1,3 @@
-import contextlib
 from dataclasses import dataclass
 import datetime
 import errno
@@ -57,12 +56,6 @@ class Intake:
 class Access:
     length: int
     stream: IO[bytes]
-
-
-@dataclass
-class Backup:
-    tarfile: Path
-    md5: Path
 
 
 class IntakeBase(ApiBase):
@@ -133,36 +126,28 @@ class IntakeBase(ApiBase):
             )
         return metadata
 
-    def _backup_tarball(self, tarball_path: Path, md5_path: Path) -> Backup:
-        """Helper function which creates a backup copy of a tarball/md5 file-pair"""
-
-        # The type returned by shutil.copy() depends on the types of the inputs;
-        # since we want Path's, construct them explicitly.
+    def _backup_tarball(self, tarball_path: Path, md5_str: str) -> Path:
+        """Helper function which creates a backup copy of a tarball file"""
+        backup_target = self.backup_dir / md5_str / tarball_path.name
         try:
-            md5_backup = Path(shutil.copy(md5_path, self.backup_dir))
+            backup_target.parent.mkdir(exist_ok=True)
         except Exception as e:
-            raise APIInternalError(f"Failure backing up MD5 file: {e}")
+            raise APIInternalError(f"Failure creating backup subdirectory: {e}")
         try:
-            tb_backup = Path(shutil.copy(tarball_path, self.backup_dir))
+            shutil.copy(tarball_path, backup_target)
         except Exception as e:
-            # We're already failing, so just ignore any exceptions.
-            with contextlib.suppress(Exception):
-                md5_backup.unlink()
+            IntakeBase._remove_backup(backup_target)
             raise APIInternalError(f"Failure backing up tarball: {e}")
-        return Backup(tarfile=tb_backup, md5=md5_backup)
+        return backup_target
 
     @staticmethod
-    def _remove_backup(backup: Backup):
-        """Helper function which encapsulates the removal of a backup
-        tarball/md5 file-pair
+    def _remove_backup(backup: Path):
+        """Helper function which encapsulates the removal of a backup tarball
 
         This is intended to be used during error recovery, so it simply
         eats any errors and returns nothing.
         """
-        with contextlib.suppress(Exception):
-            backup.tarfile.unlink(missing_ok=True)
-        with contextlib.suppress(Exception):
-            backup.md5.unlink(missing_ok=True)
+        shutil.rmtree(backup.parent, ignore_errors=True)
 
     def _identify(self, args: ApiParams, request: Request) -> Intake:
         """Identify the tarball to be streamed.
@@ -535,7 +520,7 @@ class IntakeBase(ApiBase):
             except Exception as e:
                 raise APIInternalError(f"Unable to set metadata: {e!s}") from e
 
-            backup = self._backup_tarball(tarball.tarball_path, tarball.md5_path)
+            backup = self._backup_tarball(tarball.tarball_path, tarball.resource_id)
             recovery.add(lambda: self._remove_backup(backup))
 
             # Finally, update the operational state and Audit success.
