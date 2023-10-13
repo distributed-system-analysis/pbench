@@ -1,3 +1,4 @@
+import hashlib
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
@@ -54,6 +55,13 @@ class TestRelay:
                 self.md5_path = path.with_suffix(".xz.md5")
                 self.name = Dataset.stem(path)
                 self.metadata = None
+                # Note that, while this resource ID -is- a real MD5 hash and
+                # that it -is- unique to this file _path_, it won't match the
+                # actual hash of the file _contents_ (i.e., it won't match the
+                # value from the `tarball` fixture).
+                self.resource_id = hashlib.md5(
+                    str(path).encode(errors="ignore")
+                ).hexdigest()
 
             def delete(self):
                 TestRelay.tarball_deleted = self.name
@@ -92,7 +100,9 @@ class TestRelay:
     @pytest.mark.freeze_time("2023-07-01")
     @pytest.mark.parametrize("delete", ("false", "true", None))
     @responses.activate
-    def test_relay(self, client, server_config, pbench_drb_token, tarball, delete):
+    def test_relay(
+        self, client, mock_backup, server_config, pbench_drb_token, tarball, delete
+    ):
         """Verify the success path
 
         Ensure successful completion when the primary relay URI returns a valid
@@ -430,6 +440,7 @@ class TestRelay:
     def test_delete_failures(
         self,
         client,
+        mock_backup,
         server_config,
         pbench_drb_token,
         tarball,

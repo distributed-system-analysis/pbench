@@ -1,4 +1,3 @@
-import contextlib
 from dataclasses import dataclass
 import datetime
 import errno
@@ -57,12 +56,6 @@ class Intake:
 class Access:
     length: int
     stream: IO[bytes]
-
-
-@dataclass
-class Backup:
-    tarfile: Path
-    md5: Path
 
 
 class IntakeBase(ApiBase):
@@ -133,36 +126,41 @@ class IntakeBase(ApiBase):
             )
         return metadata
 
-    def _backup_tarball(self, tarball_path: Path, md5_path: Path) -> Backup:
-        """Helper function which creates a backup copy of a tarball/md5 file-pair"""
+    def _backup_tarball(self, tarball_path: Path, md5_str: str) -> Path:
+        """Helper function which creates a backup copy of a tarball file
 
-        # The type returned by shutil.copy() depends on the types of the inputs;
-        # since we want Path's, construct them explicitly.
+        Args:
+            tarball_path:  the path to the tarball to be backed up
+            md5_str:  the MD5 hash value for the file
+
+        Returns:
+            The Path to the backup file location
+        """
+        backup_target = self.backup_dir / md5_str / tarball_path.name
         try:
-            md5_backup = Path(shutil.copy(md5_path, self.backup_dir))
+            backup_target.parent.mkdir(exist_ok=True)
         except Exception as e:
-            raise APIInternalError(f"Failure backing up MD5 file: {e}")
+            raise APIInternalError(f"Failure creating backup subdirectory: {e}")
         try:
-            tb_backup = Path(shutil.copy(tarball_path, self.backup_dir))
+            shutil.copy(tarball_path, backup_target)
         except Exception as e:
-            # We're already failing, so just ignore any exceptions.
-            with contextlib.suppress(Exception):
-                md5_backup.unlink()
+            IntakeBase._remove_backup(backup_target)
             raise APIInternalError(f"Failure backing up tarball: {e}")
-        return Backup(tarfile=tb_backup, md5=md5_backup)
+        return backup_target
 
     @staticmethod
-    def _remove_backup(backup: Backup):
-        """Helper function which encapsulates the removal of a backup
-        tarball/md5 file-pair
+    def _remove_backup(backup: Path):
+        """Helper function which encapsulates the removal of a tarball backup
 
-        This is intended to be used during error recovery, so it simply
-        eats any errors and returns nothing.
+        This is intended to be used during error recovery to rewind the steps
+        taken by the _backup_tarball() method, so it simply eats any errors
+        and returns nothing.  Note that it removes the backup tarball file as
+        well as the directory which contains it!
+
+        Args:
+            backup:  the path to the backup file
         """
-        with contextlib.suppress(Exception):
-            backup.tarfile.unlink(missing_ok=True)
-        with contextlib.suppress(Exception):
-            backup.md5.unlink(missing_ok=True)
+        shutil.rmtree(backup.parent, ignore_errors=True)
 
     def _identify(self, args: ApiParams, request: Request) -> Intake:
         """Identify the tarball to be streamed.
@@ -206,7 +204,7 @@ class IntakeBase(ApiBase):
         pass
 
     def _intake(
-        self, args: ApiParams, request: Request, context: ApiContext
+        self, args: ApiParams, request: Request, _context: ApiContext
     ) -> Response:
         """Common code to assimilate a remote tarball onto the server
 
@@ -238,7 +236,7 @@ class IntakeBase(ApiBase):
                     access: The desired access policy (default is "private")
                     metadata: Metadata key/value pairs to set on dataset
             request: The original Request object containing query parameters
-            context: API context dictionary
+            _context: API context dictionary (not used by this function)
         """
 
         # Used to record what steps have been completed during the upload, and
@@ -246,7 +244,6 @@ class IntakeBase(ApiBase):
         recovery = Cleanup(current_app.logger)
 
         audit: Optional[Audit] = None
-        username: Optional[str] = None
         intake_dir: Optional[Path] = None
         notes = []
 
@@ -259,8 +256,6 @@ class IntakeBase(ApiBase):
                 user_id = authorized_user.id
                 username = authorized_user.username
             except Exception as e:
-                username = None
-                user_id = None
                 raise APIAbort(
                     HTTPStatus.UNAUTHORIZED, "Verifying user_id failed"
                 ) from e
@@ -538,7 +533,7 @@ class IntakeBase(ApiBase):
             except Exception as e:
                 raise APIInternalError(f"Unable to set metadata: {e!s}") from e
 
-            backup = self._backup_tarball(tarball.tarball_path, tarball.md5_path)
+            backup = self._backup_tarball(tarball.tarball_path, tarball.resource_id)
             recovery.add(lambda: self._remove_backup(backup))
 
             # Finally, update the operational state and Audit success.

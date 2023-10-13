@@ -1,4 +1,5 @@
 import errno
+import hashlib
 from http import HTTPStatus
 from io import BytesIO
 from logging import Logger
@@ -10,7 +11,7 @@ import pytest
 
 from pbench.server import OperationCode, PathLike, PbenchServerConfig
 from pbench.server.api.resources import APIInternalError, ApiMethod, ApiSchema
-from pbench.server.api.resources.intake_base import Access, Backup, IntakeBase
+from pbench.server.api.resources.intake_base import Access, IntakeBase
 from pbench.server.api.resources.upload import Upload
 from pbench.server.cache_manager import CacheManager, DuplicateTarball
 from pbench.server.database.models.audit import (
@@ -62,6 +63,13 @@ class TestUpload:
                 self.md5_path = path.with_suffix(".xz.md5")
                 self.name = Dataset.stem(path)
                 self.metadata = None
+                # Note that, while this resource ID -is- a real MD5 hash and
+                # that it -is- unique to this file _path_, it won't match the
+                # actual hash of the file _contents_ (i.e., it won't match the
+                # value from the `tarball` fixture).
+                self.resource_id = hashlib.md5(
+                    str(path).encode(errors="ignore")
+                ).hexdigest()
 
             def delete(self):
                 TestUpload.tarball_deleted = self.name
@@ -104,17 +112,6 @@ class TestUpload:
         TestUpload.tarball_deleted = None
         monkeypatch.setattr(CacheManager, "__init__", FakeCacheManager.__init__)
         monkeypatch.setattr(CacheManager, "create", FakeCacheManager.create)
-
-    @staticmethod
-    def mock_out_backup(server_config, monkeypatch):
-        def mock_backup_tarball(_self, tarball_path: Path, md5_path: Path) -> Backup:
-            return Backup(
-                tarfile=server_config.BACKUP / tarball_path.name,
-                md5=server_config.BACKUP / md5_path.name,
-            )
-
-        monkeypatch.setattr(IntakeBase, "_backup_tarball", mock_backup_tarball)
-        monkeypatch.setattr(IntakeBase, "_remove_backup", lambda *_a, **_k: None)
 
     def test_missing_authorization_header(self, client, server_config):
         response = client.put(self.gen_uri(server_config))
@@ -552,16 +549,17 @@ class TestUpload:
         """
         datafile, _, md5 = tarball
         name = Dataset.stem(datafile)
-        backup_file = server_config.BACKUP / datafile.name
-        backup: Optional[Backup] = None
+        backup_target = server_config.BACKUP / md5 / datafile.name
+        backup_created = False
         backup_removed = False
 
-        def mock_backup_tarball(_self, tarball_path: Path, md5_path: Path) -> Backup:
-            nonlocal backup
-            dst_tbp = server_config.BACKUP / tarball_path.name
-            dst_md5 = server_config.BACKUP / md5_path.name
-            backup = Backup(tarfile=dst_tbp, md5=dst_md5)
-            return backup
+        def mock_backup_tarball(_self, tarball_path: Path, dataset_id: str) -> Path:
+            # Note that the `dataset_id` here comes from a `FakeTarball`
+            # instance, and it probably doesn't match the MD5 hash from the
+            # `tarball` fixture in `md5`....
+            nonlocal backup_created
+            backup_created = True
+            return server_config.BACKUP / dataset_id / tarball_path.name
 
         def mock_remove_backup(*_args, **_kwargs):
             nonlocal backup_removed
@@ -608,15 +606,13 @@ class TestUpload:
         assert dataset.name in self.cachemanager_created
         assert self.cachemanager_create_path
 
-        assert backup.tarfile == backup_file
-        assert backup.md5 == backup_file.with_suffix(".xz.md5")
+        assert backup_created
         assert not backup_removed
 
         # The test mocks the actual creation of these files, so they should not exist.
         assert not self.cachemanager_create_path.exists()
         assert not self.cachemanager_create_path.with_suffix(".xz.md5").exists()
-        assert not backup_file.exists()
-        assert not backup_file.with_suffix(".xz.md5").exists()
+        assert not backup_target.exists()
 
         audit = Audit.query()
         assert len(audit) == 2
@@ -690,10 +686,9 @@ class TestUpload:
 
     @pytest.mark.freeze_time("2023-07-01")
     def test_upload_duplicate(
-        self, client, server_config, pbench_drb_token, tarball, monkeypatch
+        self, client, server_config, pbench_drb_token, tarball, mock_backup
     ):
         datafile, _, md5 = tarball
-        self.mock_out_backup(server_config, monkeypatch)
 
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -750,14 +745,17 @@ class TestUpload:
         handling.
         """
         datafile, _, md5 = tarball
-        backup_file = server_config.BACKUP / datafile.name
-        backup: Optional[Backup] = None
+        backup_target = server_config.BACKUP / md5 / datafile.name
+        backup_created = False
         backup_removed = False
 
-        def mock_backup_tarball(*_args, **_kwargs) -> Backup:
-            nonlocal backup
-            backup = Backup(tarfile=backup_file, md5=backup_file.with_suffix(".xz.md5"))
-            return backup
+        def mock_backup_tarball(_self, tarball_path: Path, dataset_id: str) -> Path:
+            # Note that the `dataset_id` here comes from a `FakeTarball`
+            # instance, and it probably doesn't match the MD5 hash from the
+            # `tarball` fixture in `md5`....
+            nonlocal backup_created
+            backup_created = True
+            return server_config.BACKUP / dataset_id / tarball_path.name
 
         def mock_remove_backup(*_args, **_kwargs):
             nonlocal backup_removed
@@ -787,9 +785,8 @@ class TestUpload:
         assert not self.cachemanager_create_path.exists()
         assert not self.cachemanager_create_path.with_suffix(".xz.md5").exists()
         assert self.tarball_deleted == Dataset.stem(datafile)
-        assert not backup_file.exists()
-        assert not backup_file.with_suffix(".xz.md5").exists()
-        assert backup
+        assert not backup_target.exists()
+        assert backup_created
         assert backup_removed
 
         audit = Audit.query()
@@ -824,7 +821,7 @@ class TestUpload:
         )
 
     def test_upload_metadata_error(
-        self, client, monkeypatch, server_config, pbench_drb_token, tarball
+        self, client, mock_backup, monkeypatch, server_config, pbench_drb_token, tarball
     ):
         """Test handling of post-intake error setting metadata
 
@@ -838,7 +835,6 @@ class TestUpload:
                 Exception("fake"), operation="test", dataset=dataset, key=key
             )
 
-        self.mock_out_backup(server_config, monkeypatch)
         monkeypatch.setattr(Metadata, "setvalue", setvalue)
 
         with datafile.open("rb") as data_fp:
@@ -857,11 +853,10 @@ class TestUpload:
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_archive(
-        self, client, pbench_drb_token, server_config, tarball, monkeypatch
+        self, client, pbench_drb_token, server_config, tarball, mock_backup
     ):
         """Test a successful archiveonly dataset upload."""
         datafile, _, md5 = tarball
-        self.mock_out_backup(server_config, monkeypatch)
 
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -929,13 +924,12 @@ class TestUpload:
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_nometa(
-        self, client, pbench_drb_token, server_config, tarball, monkeypatch
+        self, client, pbench_drb_token, server_config, tarball, mock_backup
     ):
         """Test a successful upload of a dataset without metadata.log."""
         datafile, _, md5 = tarball
         TestUpload.create_metadata = False
         name = Dataset.stem(datafile)
-        self.mock_out_backup(server_config, monkeypatch)
 
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -1021,31 +1015,29 @@ class TestUpload:
         }
 
     @pytest.mark.parametrize(
-        ("copy_err", "unlink_err", "exc_expected", "expected_ops"),
+        ("mkdir_err", "copy_err", "exc_expected", "expected_ops"),
         (
             (  # Success
-                None,
-                None,
                 False,
-                [["copy", "md5", "bdir"], ["copy", "tbp", "bdir"]],
+                False,
+                False,
+                [["mkdir", "parent"], ["copy", "tbp", "target"]],
             ),
-            (  # MD5 file copy fails
+            (  # mkdir() fails
                 True,
                 None,
                 True,
-                [["copy", "md5", "bdir"]],
+                [["mkdir", "parent"]],
             ),
-            (  # MD5 file copy doesn't fail, tarball file copy fails, unlink works
-                False,
-                False,
-                True,
-                [["copy", "md5", "bdir"], ["copy", "tbp", "bdir"], ["unlink", "bmd5"]],
-            ),
-            (  # MD5 file copy doesn't fail, tarball file copy fails, unlink fails
+            (  # mkdir() doesn't fail, tarball file copy fails
                 False,
                 True,
                 True,
-                [["copy", "md5", "bdir"], ["copy", "tbp", "bdir"], ["unlink", "bmd5"]],
+                [
+                    ["mkdir", "parent"],
+                    ["copy", "tbp", "target"],
+                    ["_remove_backup", "target"],
+                ],
             ),
         ),
     )
@@ -1054,43 +1046,55 @@ class TestUpload:
         server_config,
         tarball,
         monkeypatch,
+        mkdir_err: bool,
         copy_err: Optional[bool],
-        unlink_err: Optional[bool],
         exc_expected: bool,
         expected_ops: list[list[str]],
     ):
         """Test the tarball backup function
 
-        When the `copy_err` or `unlink_err` flags are `None`, there is no
-        exception raised by the corresponding mock (in the case where
-        `unlink_err` is `None`, the mock should not even be called).  When
-        `copy_err` is not `None`, the mock raises an exception for one of the
-        two files, depending on the value.  When `unlink_err` is `True`, the
-        mock raises an exception; otherwise, the function "succeeds".
+        When the `unlink_err` or `copy_err` flags are `True`, an exception is
+        raised by the corresponding mock.  (When their value is `None`, the
+        mock should not be called).
         """
-        tbp, md5, _ = tarball
+        tbp, _, md5 = tarball
+        expected_target = server_config.BACKUP / md5 / tbp.name
         ops = []
 
+        def mock_mkdir(path, *args, **kwargs):
+            """Mock for Path.mkdir()
+
+            Note that mkdir() is called multiple times during the upload
+            processing; we handle the one that we're looking for specially,
+            and the rest we pass off to the real mkdir().
+            """
+            if path == expected_target.parent:
+                ops.append(["mkdir", path])
+                if mkdir_err:
+                    raise RuntimeError("mock_mkdir: mock-failure")
+            else:
+                return path.real_mkdir(*args, **kwargs)
+
         def mock_copy(src, dst, **_kwargs) -> PathLike:
-            if dst == server_config.BACKUP:
+            if dst == expected_target:
                 op = ["copy", src, dst]
-                ret = Path(dst) / Path(src).name
+                ret = expected_target
             else:
                 op = ["Unexpected 'dst' value in copy:", dst]
                 ret = dst
             ops.append(op)
-            if copy_err is not None and src == (md5 if copy_err else tbp):
+            if copy_err:
                 raise RuntimeError("mock_copy: mock-failure")
             return ret
 
-        def mock_unlink(path, **_kwargs):
-            ops.append(["unlink", path])
-            if unlink_err:
-                raise RuntimeError("mock_unlink: mock-failure")
+        def mock_remove_backup(backup: Path):
+            ops.append(["_remove_backup", backup])
 
         with monkeypatch.context() as m:
+            m.setattr(Path, "real_mkdir", Path.mkdir, raising=False)
+            m.setattr(Path, "mkdir", mock_mkdir)
             m.setattr(shutil, "copy", mock_copy)
-            m.setattr(Path, "unlink", mock_unlink)
+            m.setattr(IntakeBase, "_remove_backup", mock_remove_backup)
 
             dummy_schema = ApiSchema(ApiMethod.GET, OperationCode.READ)
             ib = IntakeBase(server_config, dummy_schema)
@@ -1099,46 +1103,28 @@ class TestUpload:
             except APIInternalError:
                 assert exc_expected, "Unexpected APIInternalError exception received"
             else:
-                assert result == Backup(
-                    tarfile=server_config.BACKUP / tbp.name,
-                    md5=server_config.BACKUP / md5.name,
-                )
+                assert result == expected_target
 
             # Replace the placeholders in the expected ops with the actual
             # values, which are hard to obtain in parametrization context, and
             # then compare the result to the actual operations and arguments.
             ph = {
                 "tbp": tbp,
-                "md5": md5,
-                "bdir": server_config.BACKUP,
-                "bmd5": server_config.BACKUP / md5.name,
+                "target": expected_target,
+                "parent": expected_target.parent,
             }
             eo = [[ph.get(o[i], o[i]) for i in range(len(o))] for o in expected_ops]
             assert ops == eo
 
-    @pytest.mark.parametrize(
-        ("tb_err", "md5_err"),
-        (
-            (False, False),  # Both work
-            (False, True),  # tarball unlink works, MD5 unlink fails
-            (True, False),  # tarball unlink fails, MD5 unlink works
-            (True, True),  # Both fail
-        ),
-    )
-    def test_intake_backup_remove(self, server_config, monkeypatch, tb_err, md5_err):
+    def test_intake_backup_remove(self, server_config, monkeypatch):
         """Test the tarball backup removal function"""
-        backup = Backup(
-            tarfile=Path("the_backup_dir/mytb.tar.xz"),
-            md5=Path("the_backup_dir/mytb.md5"),
-        )
+        backup = Path("the_backup_dir/id/mytb.tar.xz")
         ops = []
 
-        def mock_unlink(path, **_kwargs):
-            ops.append(("unlink", path))
-            if tb_err and path == backup.tarfile or md5_err and path == backup.md5:
-                raise RuntimeError("mock_unlink: mock-failure")
+        def mock_rmtree(path, **_kwargs):
+            ops.append(("rmtree", path))
 
         with monkeypatch.context() as m:
-            m.setattr(Path, "unlink", mock_unlink)
+            m.setattr(shutil, "rmtree", mock_rmtree)
             IntakeBase._remove_backup(backup)
-            assert ops == [("unlink", backup.tarfile), ("unlink", backup.md5)]
+            assert ops == [("rmtree", backup.parent)]
