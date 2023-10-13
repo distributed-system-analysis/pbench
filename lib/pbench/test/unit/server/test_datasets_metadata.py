@@ -464,7 +464,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "user.one": None,
         }
 
-    def test_put_set_errors(self, capinternal, monkeypatch, query_get_as, query_put_as):
+    def test_put_set_errors(self, monkeypatch, query_get_as, query_put_as):
         """Test a partial success. We set a scalar value on a key and then try
         to set a nested value: i.e., with "global.dashboard.nested = False", we
         attempt to set "global.dashboard.nested.dummy". We expect this to fail,

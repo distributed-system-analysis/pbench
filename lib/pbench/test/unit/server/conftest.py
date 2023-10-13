@@ -17,7 +17,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from freezegun import freeze_time
 import jwt
 import pytest
-from requests import Response
+from werkzeug.wrappers.response import Response
 import responses
 
 from pbench.common import MetadataLog
@@ -225,9 +225,10 @@ def capinternal(caplog):
             if r.levelno == logging.ERROR:
                 if internal.match(str(r.msg)):
                     return
-        assert (
-            False
-        ), f"Expected pattern {internal.pattern!r} not logged at level 'ERROR': {[str(r.msg) for r in caplog.get_records('call')]}"
+        assert False, (
+            f"Expected pattern {internal.pattern!r} not logged "
+            f"at level 'ERROR': {[str(r.msg) for r in caplog.get_records('call')]}"
+        )
 
     return compare
 
