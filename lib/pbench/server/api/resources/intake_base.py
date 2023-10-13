@@ -127,7 +127,15 @@ class IntakeBase(ApiBase):
         return metadata
 
     def _backup_tarball(self, tarball_path: Path, md5_str: str) -> Path:
-        """Helper function which creates a backup copy of a tarball file"""
+        """Helper function which creates a backup copy of a tarball file
+
+        Args:
+            tarball_path:  the path to the tarball to be backed up
+            md5_str:  the MD5 hash value for the file
+
+        Returns:
+            The Path to the backup file location
+        """
         backup_target = self.backup_dir / md5_str / tarball_path.name
         try:
             backup_target.parent.mkdir(exist_ok=True)
@@ -142,10 +150,15 @@ class IntakeBase(ApiBase):
 
     @staticmethod
     def _remove_backup(backup: Path):
-        """Helper function which encapsulates the removal of a backup tarball
+        """Helper function which encapsulates the removal of a tarball backup
 
-        This is intended to be used during error recovery, so it simply
-        eats any errors and returns nothing.
+        This is intended to be used during error recovery to rewind the steps
+        taken by the _backup_tarball() method, so it simply eats any errors
+        and returns nothing.  Note that it removes the backup tarball file as
+        well as the directory which contains it!
+
+        Args:
+            backup:  the path to the backup file
         """
         shutil.rmtree(backup.parent, ignore_errors=True)
 
