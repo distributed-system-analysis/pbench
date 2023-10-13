@@ -14,10 +14,10 @@ import uuid
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+from flask.wrappers import Response
 from freezegun import freeze_time
 import jwt
 import pytest
-from flask.wrappers import Response
 import responses
 
 from pbench.common import MetadataLog

@@ -8,7 +8,7 @@ from logging import Logger
 import os
 from pathlib import Path
 from time import time as _time
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
