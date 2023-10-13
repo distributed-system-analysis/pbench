@@ -17,7 +17,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from freezegun import freeze_time
 import jwt
 import pytest
-from werkzeug.wrappers.response import Response
+from flask.wrappers import Response
 import responses
 
 from pbench.common import MetadataLog

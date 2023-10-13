@@ -17,8 +17,8 @@ from pbench.common.exceptions import BadConfig
 # with Python syntax.
 JSONSTRING = str
 JSONNUMBER = Union[int, float]
-JSONARRAY = List["JSONVALUE"]
-JSONOBJECT = Dict[JSONSTRING, "JSONVALUE"]
+JSONARRAY = list["JSONVALUE"]
+JSONOBJECT = dict[JSONSTRING, "JSONVALUE"]
 JSONVALUE = Union[JSONOBJECT, JSONARRAY, JSONSTRING, JSONNUMBER, bool, None]
 JSON = JSONVALUE
 
