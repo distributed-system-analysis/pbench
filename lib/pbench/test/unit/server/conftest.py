@@ -24,6 +24,7 @@ from pbench.common import MetadataLog
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app
+from pbench.server.api.resources.intake_base import IntakeBase
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
@@ -1078,3 +1079,14 @@ def generate_api_key(
     api_key = APIKey(key=key, user=user, label=label)
     api_key.add()
     return api_key
+
+
+@pytest.fixture()
+def mock_backup(server_config, monkeypatch):
+    def mock_backup_tarball(_self, tarball_path: Path, md5_str: str) -> Path:
+        return server_config.BACKUP / md5_str / tarball_path.name
+
+    with monkeypatch.context() as m:
+        m.setattr(IntakeBase, "_backup_tarball", mock_backup_tarball)
+        m.setattr(IntakeBase, "_remove_backup", lambda *_a, **_k: None)
+        yield

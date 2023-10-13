@@ -100,7 +100,9 @@ class TestRelay:
     @pytest.mark.freeze_time("2023-07-01")
     @pytest.mark.parametrize("delete", ("false", "true", None))
     @responses.activate
-    def test_relay(self, client, server_config, pbench_drb_token, tarball, delete):
+    def test_relay(
+        self, client, mock_backup, server_config, pbench_drb_token, tarball, delete
+    ):
         """Verify the success path
 
         Ensure successful completion when the primary relay URI returns a valid
@@ -438,6 +440,7 @@ class TestRelay:
     def test_delete_failures(
         self,
         client,
+        mock_backup,
         server_config,
         pbench_drb_token,
         tarball,

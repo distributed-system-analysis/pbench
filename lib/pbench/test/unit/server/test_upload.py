@@ -113,14 +113,6 @@ class TestUpload:
         monkeypatch.setattr(CacheManager, "__init__", FakeCacheManager.__init__)
         monkeypatch.setattr(CacheManager, "create", FakeCacheManager.create)
 
-    @staticmethod
-    def mock_out_backup(server_config, monkeypatch):
-        def mock_backup_tarball(_self, tarball_path: Path, md5_str: str) -> Path:
-            return server_config.BACKUP / md5_str / tarball_path.name
-
-        monkeypatch.setattr(IntakeBase, "_backup_tarball", mock_backup_tarball)
-        monkeypatch.setattr(IntakeBase, "_remove_backup", lambda *_a, **_k: None)
-
     def test_missing_authorization_header(self, client, server_config):
         response = client.put(self.gen_uri(server_config))
         assert response.status_code == HTTPStatus.UNAUTHORIZED
@@ -694,10 +686,9 @@ class TestUpload:
 
     @pytest.mark.freeze_time("2023-07-01")
     def test_upload_duplicate(
-        self, client, server_config, pbench_drb_token, tarball, monkeypatch
+        self, client, server_config, pbench_drb_token, tarball, mock_backup
     ):
         datafile, _, md5 = tarball
-        self.mock_out_backup(server_config, monkeypatch)
 
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -830,7 +821,7 @@ class TestUpload:
         )
 
     def test_upload_metadata_error(
-        self, client, monkeypatch, server_config, pbench_drb_token, tarball
+        self, client, mock_backup, monkeypatch, server_config, pbench_drb_token, tarball
     ):
         """Test handling of post-intake error setting metadata
 
@@ -844,7 +835,6 @@ class TestUpload:
                 Exception("fake"), operation="test", dataset=dataset, key=key
             )
 
-        self.mock_out_backup(server_config, monkeypatch)
         monkeypatch.setattr(Metadata, "setvalue", setvalue)
 
         with datafile.open("rb") as data_fp:
@@ -863,11 +853,10 @@ class TestUpload:
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_archive(
-        self, client, pbench_drb_token, server_config, tarball, monkeypatch
+        self, client, pbench_drb_token, server_config, tarball, mock_backup
     ):
         """Test a successful archiveonly dataset upload."""
         datafile, _, md5 = tarball
-        self.mock_out_backup(server_config, monkeypatch)
 
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -935,13 +924,12 @@ class TestUpload:
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_nometa(
-        self, client, pbench_drb_token, server_config, tarball, monkeypatch
+        self, client, pbench_drb_token, server_config, tarball, mock_backup
     ):
         """Test a successful upload of a dataset without metadata.log."""
         datafile, _, md5 = tarball
         TestUpload.create_metadata = False
         name = Dataset.stem(datafile)
-        self.mock_out_backup(server_config, monkeypatch)
 
         with datafile.open("rb") as data_fp:
             response = client.put(
