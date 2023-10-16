@@ -533,7 +533,7 @@ class TestCacheManager:
                 sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1413_sym",
             )
             os.symlink(
-                Path(".") / "f1411.txt",
+                Path("./f1411.txt"),
                 sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1414_sym",
             )
             os.symlink(

@@ -66,24 +66,19 @@ class TestDatasetsAccess:
     @pytest.mark.parametrize("key", ("", ".", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
         """Mock a directory cache node to check the returned data"""
+        name = "" if key == "." else key
 
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
             file = path if path else Path(".")
             return {
                 "children": {},
                 "details": CacheObject(
-                    "" if key == "." else key,
-                    file,
-                    None,
-                    None,
-                    None,
-                    CacheType.DIRECTORY,
+                    name, file, None, None, None, CacheType.DIRECTORY
                 ),
             }
 
         monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
         response = query_get_as("fio_2", key, HTTPStatus.OK)
-        name = "" if key == "." else key
         assert response.json == {
             "directories": [],
             "files": [],
