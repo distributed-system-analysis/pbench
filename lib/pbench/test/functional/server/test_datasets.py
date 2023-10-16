@@ -660,11 +660,10 @@ class TestList:
     def test_list_filter_owner_mine(
         self, server_client: PbenchServerClient, login_user
     ):
-        """Check that we can filter and sort by dataset owner
+        """Check that we can filter by dataset owner
 
-        Authorized as our "tester" user, we can see all the datasets we've
-        uploaded, including the NOMETADATA dataset uploaded (and published)
-        by the "testadmin" user.
+        The NOMETADATA dataset is owned by "testadmin" but public: verify that
+        the filter shows all "tester" datasets but not NOMETADATA.
         """
         mine = sorted(Dataset.md5(x) for x in all_tarballs() if x != NOMETADATA)
         datasets = server_client.get_list(
@@ -911,8 +910,8 @@ class TestUpdate:
     def test_transfer(self, server_client: PbenchServerClient, login_admin):
         """Change the ownership of our NOMETADATA to tester
 
-        This tests the ownership change, but also prepares allows the delete
-        test to delete all our datasets as the unprivileged "tester".
+        This tests the ownership change, but also allows the delete_all test to
+        delete all the datasets we uploaded from the unprivileged "tester".
         """
         id = Dataset.md5(NOMETADATA)
         response = server_client.update(id, owner="tester", raise_error=False)
