@@ -98,9 +98,9 @@ class TarballModeChangeError(CacheManagerError):
 class CacheType(Enum):
     """The type of a file or symlink destination"""
 
+    BROKEN = auto()  # An invalid symlink (absolute or outside tarball)
     DIRECTORY = auto()  # A directory
     FILE = auto()  # A regular file
-    BROKEN = auto()  # An invalid symlink (absolute or outside tarball)
     OTHER = auto()  # An unsupported file type (mount point, etc.)
     SYMLINK = auto()  # A symbolic link
 
@@ -143,23 +143,21 @@ class CacheObject:
         if path.is_symlink():
             ftype = CacheType.SYMLINK
             link_path = path.readlink()
-            if link_path.is_absolute():
+            try:
+                if link_path.is_absolute():
+                    raise ValueError("symlink target can't be absolute")
+                r_path = path.resolve(strict=True)
+                resolve_path = r_path.relative_to(root)
+            except (FileNotFoundError, ValueError):
                 resolve_path = link_path
                 resolve_type = CacheType.BROKEN
             else:
-                try:
-                    r_path = path.resolve(strict=True)
-                    resolve_path = r_path.relative_to(root)
-                except (FileNotFoundError, ValueError):
-                    resolve_path = link_path
-                    resolve_type = CacheType.BROKEN
+                if r_path.is_dir():
+                    resolve_type = CacheType.DIRECTORY
+                elif r_path.is_file():
+                    resolve_type = CacheType.FILE
                 else:
-                    if r_path.is_dir():
-                        resolve_type = CacheType.DIRECTORY
-                    elif r_path.is_file():
-                        resolve_type = CacheType.FILE
-                    else:
-                        resolve_type = CacheType.OTHER
+                    resolve_type = CacheType.OTHER
         elif path.is_file():
             ftype = CacheType.FILE
             size = path.stat().st_size

@@ -503,10 +503,6 @@ class TestCacheManager:
             (sub_dir / "metadata.log").write_text(
                 "[pbench]\nkey = value\n", encoding="utf-8"
             )
-            (sub_dir / "f1.json").write_text("{'json': 'value'}", encoding="utf-8")
-            (sub_dir / "metadata.log").write_text(
-                "[pbench]\nkey = value\n", encoding="utf-8"
-            )
             for i in range(1, 4):
                 (sub_dir / "subdir1" / f"subdir1{i}").mkdir(parents=True, exist_ok=True)
             (sub_dir / "subdir1" / "f11.txt").write_text(
@@ -518,11 +514,11 @@ class TestCacheManager:
             (sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1411.txt").touch()
             os.symlink(Path("../../.."), sub_dir / "subdir1" / "f12_sym")
             os.symlink(
-                Path("../..") / "subdir1" / "subdir15",
+                Path("../../subdir1/subdir15"),
                 sub_dir / "subdir1" / "subdir12" / "f121_sym",
             )
             os.symlink(
-                Path(".") / "bad_subdir" / "nonexistent_file.txt",
+                Path("./bad_subdir/nonexistent_file.txt"),
                 sub_dir / "subdir1" / "subdir12" / "f122_sym",
             )
             os.symlink(
@@ -533,7 +529,7 @@ class TestCacheManager:
                 sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1412_sym",
             )
             os.symlink(
-                Path("..") / "subdir141",
+                Path("../subdir141"),
                 sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1413_sym",
             )
             os.symlink(
@@ -541,11 +537,11 @@ class TestCacheManager:
                 sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1414_sym",
             )
             os.symlink(
-                Path(".") / "f1412_sym",
+                Path("./f1412_sym"),
                 sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1415_sym",
             )
             os.symlink(
-                Path("../..") / "subdir12" / "f122_sym",
+                Path("../../subdir12/f122_sym"),
                 sub_dir / "subdir1" / "subdir14" / "subdir141" / "f1416_sym",
             )
 
@@ -652,7 +648,7 @@ class TestCacheManager:
                 args, returncode=0, stdout="Successfully Unpacked!", stderr=None
             )
 
-        def mock_resolve(_path, strict: bool = False):
+        def mock_resolve(_path, **_kwargs):
             """In this scenario, there are no symlinks,
             so resolve() should never be called."""
             raise AssertionError("Unexpected call to Path.resolve()")

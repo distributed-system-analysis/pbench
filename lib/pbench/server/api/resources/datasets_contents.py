@@ -145,13 +145,10 @@ class DatasetsContents(ApiBase):
             access = "inventory"
             link = str(details.location)
             if details.type is CacheType.SYMLINK:
-                link = str(details.resolve_path)
                 if details.resolve_type is CacheType.DIRECTORY:
                     access = "contents"
-                elif details.resolve_type is not CacheType.FILE:
-                    link = str(details.location)
-            else:
-                link = str(details.location)
+                if details.resolve_type in (CacheType.FILE, CacheType.DIRECTORY):
+                    link = str(details.resolve_path)
             val = {
                 "name": details.name,
                 "type": details.type.name,

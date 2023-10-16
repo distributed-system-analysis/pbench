@@ -43,18 +43,21 @@ class TestDatasetsAccess:
         return query_api
 
     def test_get_no_dataset(self, query_get_as):
+        """This fails in Dataset SQL lookup"""
         response = query_get_as(
             "nonexistent-dataset", "metadata.log", HTTPStatus.NOT_FOUND
         )
         assert response.json == {"message": "Dataset 'nonexistent-dataset' not found"}
 
     def test_dataset_not_present(self, query_get_as):
+        """This fails in the cache manager find_dataset as there are none"""
         response = query_get_as("fio_2", "metadata.log", HTTPStatus.NOT_FOUND)
         assert response.json == {
             "message": "The dataset tarball named 'random_md5_string4' is not found"
         }
 
     def test_unauthorized_access(self, query_get_as):
+        """This fails because our default user can't read the 'test' dataset"""
         response = query_get_as("test", "metadata.log", HTTPStatus.FORBIDDEN)
         assert response.json == {
             "message": "User drb is not authorized to READ a resource owned by test with private access"
@@ -62,12 +65,14 @@ class TestDatasetsAccess:
 
     @pytest.mark.parametrize("key", ("", ".", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
+        """Mock a directory cache node to check the returned data"""
+
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
             file = path if path else Path(".")
             return {
                 "children": {},
                 "details": CacheObject(
-                    file.name if key else "",
+                    "" if key == "." else key,
                     file,
                     None,
                     None,
@@ -88,6 +93,8 @@ class TestDatasetsAccess:
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
+        """When 'find_entry' fails with an exception, we report the text"""
+
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
             raise BadDirpath("Nobody home")
 
@@ -96,6 +103,7 @@ class TestDatasetsAccess:
         assert response.json == {"message": "Nobody home"}
 
     def test_file_info(self, query_get_as, monkeypatch):
+        """Mock a file cache node to check the returned data"""
         name = "f1.json"
 
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
@@ -114,6 +122,7 @@ class TestDatasetsAccess:
         }
 
     def test_link_info(self, query_get_as, monkeypatch):
+        """Mock a symlink cache node to check the returned data"""
         name = "test/slink"
 
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
@@ -130,7 +139,6 @@ class TestDatasetsAccess:
 
         monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
         response = query_get_as("fio_2", name, HTTPStatus.OK)
-        assert response.status_code == HTTPStatus.OK
         assert response.json == {
             "name": "slink",
             "type": "SYMLINK",
@@ -140,6 +148,8 @@ class TestDatasetsAccess:
         }
 
     def test_dir_info(self, query_get_as, monkeypatch):
+        """Confirm the returned data for a directory with various children"""
+
         def mock_find_entry(_s, _d: str, path: Optional[Path]):
             base = path if path else Path("")
             return {
@@ -222,7 +232,6 @@ class TestDatasetsAccess:
 
         monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
         response = query_get_as("fio_2", "sample1", HTTPStatus.OK)
-        assert response.status_code == HTTPStatus.OK
         assert response.json == {
             "directories": [
                 {
