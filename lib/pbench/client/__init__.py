@@ -444,6 +444,8 @@ class PbenchServerClient:
                 access: dataset access setting
                 start:  earliest creation date
                 end:    latest creation date
+                filter: filter on metadata
+                sort:   sort on metadata
                 limit:  page size to override default
 
         Returns:

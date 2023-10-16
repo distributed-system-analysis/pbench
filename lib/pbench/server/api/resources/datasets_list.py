@@ -39,6 +39,7 @@ from pbench.server.database.models.datasets import (
     MetadataBadKey,
     MetadataError,
 )
+from pbench.server.database.models.users import User
 
 
 @dataclass
@@ -479,6 +480,8 @@ class DatasetsList(ApiBase):
                 # columns in the Dataset table.
                 if second == Metadata.METALOG:
                     native_key = keys.pop(0).lower()
+                elif second == "owner":
+                    filter = make_operator(User.username, term.operator, value)
                 else:
                     try:
                         c = getattr(Dataset, second)
@@ -572,13 +575,17 @@ class DatasetsList(ApiBase):
         Database.dump_query(query, current_app.logger)
         aggregate: JSONOBJECT = {}
 
-        datasets = query.all()
-        for d in datasets:
+        results = query.all()
+        for result in results:
+            # NOTE: to allow sorting by User.username, our query is defined to
+            # return (Dataset, User), so we need to isolate the Dataset from
+            # the tuple.
+            dataset = result[0]
             if not aggregate:
-                aggregate.update(
-                    {"dataset": {c.name: None for c in Dataset.__table__._columns}}
-                )
-            for m in d.metadatas:
+                columns = {c.name: None for c in Dataset.__table__._columns}
+                columns["owner"] = None
+                aggregate.update({"dataset": columns})
+            for m in dataset.metadatas:
                 # "metalog" is a top-level key in the Metadata schema, but we
                 # report it as a sub-key of "dataset".
                 if m.key == Metadata.METALOG:
@@ -665,6 +672,8 @@ class DatasetsList(ApiBase):
                 # columns in the Dataset table.
                 if second == Metadata.METALOG:
                     native_key = keys.pop(0).lower()
+                elif second == "owner":
+                    sorter = order(User.username)
                 else:
                     try:
                         c = getattr(Dataset, second)
@@ -681,7 +690,7 @@ class DatasetsList(ApiBase):
         query = query.order_by(*sorters)
 
         try:
-            datasets, paginated_result = self.get_paginated_obj(
+            results, paginated_result = self.get_paginated_obj(
                 query=query, json=json, raw_params=raw_params, url=request.url
             )
         except (AttributeError, ProgrammingError, StatementError) as e:
@@ -694,7 +703,11 @@ class DatasetsList(ApiBase):
         keys = json.get("metadata")
 
         response = []
-        for dataset in datasets:
+        for result in results:
+            # NOTE: to allow sorting by User.username, our query is defined to
+            # return (Dataset, User), so we need to isolate the Dataset from
+            # the tuple.
+            dataset = result[0]
             d = {
                 "name": dataset.name,
                 "resource_id": dataset.resource_id,
@@ -770,7 +783,7 @@ class DatasetsList(ApiBase):
             Metadata.GLOBAL: aliased(Metadata),
             Metadata.USER: aliased(Metadata),
         }
-        query = Database.db_session.query(Dataset)
+        query = Database.db_session.query(Dataset).add_entity(User)
         for key, table in aliases.items():
             terms = [table.dataset_ref == Dataset.id, table.key == key]
             if key == Metadata.USER:
@@ -778,6 +791,7 @@ class DatasetsList(ApiBase):
                     continue
                 terms.append(table.user_ref == auth_id)
             query = query.outerjoin(table, and_(*terms))
+        query = query.outerjoin(User, User.id == Dataset.owner_id)
 
         if "start" in json and "end" in json:
             query = query.filter(Dataset.uploaded.between(json["start"], json["end"]))

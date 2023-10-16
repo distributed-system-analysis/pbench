@@ -269,6 +269,12 @@ class TestDatasetsList:
                 },
                 ["fio_1"],
             ),
+            (
+                "test",
+                {"filter": "dataset.owner:~test"},
+                ["test", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            ("drb", {"filter": "dataset.owner:test"}, ["fio_2"]),
         ],
     )
     def test_dataset_list(self, server_config, query_as, login, query, results):
@@ -888,6 +894,7 @@ class TestDatasetsList:
                         "run": {"controller": None},
                     },
                     "name": None,
+                    "owner": None,
                     "owner_id": None,
                     "resource_id": None,
                     "uploaded": None,
@@ -994,6 +1001,7 @@ class TestDatasetsList:
                         "run": {"controller": None},
                     },
                     "name": None,
+                    "owner": None,
                     "owner_id": None,
                     "resource_id": None,
                     "uploaded": None,
@@ -1067,6 +1075,11 @@ class TestDatasetsList:
                 # Sort by a JSON sub-object containing two keys descending
                 "global.test:desc",
                 ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                # Sort by a dataset owner, descending
+                "dataset.owner:desc",
+                ["test", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4", "fio_1"],
             ),
         ],
     )

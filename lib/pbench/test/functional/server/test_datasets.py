@@ -243,16 +243,18 @@ class TestPut:
         assert "INDEX" not in operations
 
     @staticmethod
-    def test_no_metadata(server_client: PbenchServerClient, login_user):
+    def test_no_metadata(server_client: PbenchServerClient, login_admin):
         """Test handling for a tarball without a metadata.log.
 
         Try to upload a new tarball with no `metadata.log` file, and
         validate that it doesn't get enabled for unpacking or indexing.
+
+        This will be owned by the "testadmin" user to allow queries by owner.
         """
         tarball = NOMETADATA
         name = Dataset.stem(tarball)
         md5 = Dataset.md5(tarball)
-        response = server_client.upload(tarball)
+        response = server_client.upload(tarball, access="public")
         assert (
             response.status_code == HTTPStatus.CREATED
         ), f"upload {name} returned unexpected status {response.status_code}, {response.text}"
@@ -520,9 +522,13 @@ class TestList:
         assert server_client.api_key, "No API key was set on the session"
         datasets = server_client.get_list(mine="true")
 
+        # Figure out which datasets we expect to find, which is "all_tarballs"
+        # minus the NOMETADATA dataset which we uploaded under a different
+        # account.
         expected = [
             {"resource_id": Dataset.md5(f), "name": Dataset.stem(f), "metadata": {}}
             for f in all_tarballs()
+            if f != NOMETADATA
         ]
         expected.sort(key=lambda e: e["resource_id"])
         actual = [d.json for d in datasets]
@@ -649,6 +655,51 @@ class TestList:
             assert (
                 deletion >= soonish
             ), f"Filter failed to return {m['dataset.name']}, with expiration in range ({deletion:%Y-%m-%d})"
+
+    @pytest.mark.dependency(name="list_owner", depends=["upload"], scope="session")
+    def test_list_filter_owner_mine(
+        self, server_client: PbenchServerClient, login_user
+    ):
+        """Check that we can filter by dataset owner
+
+        The NOMETADATA dataset is owned by "testadmin" but public: verify that
+        the filter shows all "tester" datasets but not NOMETADATA.
+        """
+        mine = sorted(Dataset.md5(x) for x in all_tarballs() if x != NOMETADATA)
+        datasets = server_client.get_list(
+            metadata=["dataset.owner"],
+            filter=["dataset.owner:tester"],
+        )
+        datasets = list(datasets)
+        for d in datasets:
+            assert d.metadata["dataset.owner"] == "tester"
+        assert sorted(d.resource_id for d in datasets) == mine
+
+    @pytest.mark.dependency(name="list_owner_sort", depends=["upload"], scope="session")
+    def test_list_filter_owner_sort(
+        self, server_client: PbenchServerClient, login_user
+    ):
+        """Check that we can filter and sort by dataset owner
+
+        Authorized as our "tester" user, we can see all the datasets we've
+        uploaded, including the NOMETADATA dataset uploaded (and published)
+        by the "testadmin" user.
+        """
+        all = sorted(Dataset.md5(x) for x in all_tarballs())
+        datasets = server_client.get_list(
+            metadata=["dataset.owner"],
+            filter=["dataset.owner:~test"],
+            sort=["dataset.owner:desc"],
+        )
+
+        # With a single "testadmin" dataset and descending sort order, we
+        # expect to find the "testadmin" owner at the end of the list with the
+        # remainder all owned by "tester".
+        datasets = list(datasets)
+        assert datasets[-1].metadata["dataset.owner"] == "testadmin"
+        for d in datasets[:-1]:
+            assert d.metadata["dataset.owner"] == "tester"
+        assert sorted(d.resource_id for d in datasets) == all
 
 
 class TestInventory:
@@ -836,6 +887,7 @@ class TestUpdate:
     @pytest.mark.dependency(name="publish", depends=["index"], scope="session")
     @pytest.mark.parametrize("access", ("public", "private"))
     def test_publish(self, server_client: PbenchServerClient, login_user, access):
+        """Test updating the access of the datasets"""
         expected = "public" if access == "private" else "private"
         datasets = server_client.get_list(access=access, mine="true")
         print(f" ... updating {access} datasets to {expected} ...")
@@ -852,6 +904,23 @@ class TestUpdate:
             )
             assert meta["dataset.access"] == expected
 
+    @pytest.mark.dependency(
+        name="transfer", depends=["list_owner", "list_owner_sort"], scope="session"
+    )
+    def test_transfer(self, server_client: PbenchServerClient, login_admin):
+        """Change the ownership of our NOMETADATA to tester
+
+        This tests the ownership change, but also allows the delete_all test to
+        delete all the datasets we uploaded from the unprivileged "tester".
+        """
+        id = Dataset.md5(NOMETADATA)
+        response = server_client.update(id, owner="tester", raise_error=False)
+        assert (
+            response.ok
+        ), f"Dataset {Dataset.stem(NOMETADATA)} failed to update with {response.json()['message']}"
+        meta = server_client.get_metadata(id, metadata="dataset.owner")
+        assert meta["dataset.owner"] == "tester"
+
 
 class TestDelete:
     @pytest.mark.dependency(
@@ -864,6 +933,7 @@ class TestDelete:
             "list_or",
             "list_type",
             "publish",
+            "transfer",
         ],
         scope="session",
     )
