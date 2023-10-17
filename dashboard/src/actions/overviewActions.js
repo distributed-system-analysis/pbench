@@ -71,8 +71,10 @@ const initializeRuns = () => (dispatch, getState) => {
       !!item?.metadata?.user?.dashboard?.favorite;
   });
 
-  const savedRuns = data.filter((item) => item.metadata.global.dashboard.saved);
-  const newRuns = data.filter((item) => !item.metadata.global.dashboard.saved);
+  const savedRuns = data.filter(
+    (item) => item.metadata.global?.dashboard.saved
+  );
+  const newRuns = data.filter((item) => !item.metadata.global?.dashboard.saved);
 
   const expiringRuns = data.filter(
     (item) =>
@@ -149,6 +151,12 @@ export const updateDataset =
             item.metadata = setValueFromPath(
               key,
               item.metadata,
+              response.data.metadata[key]
+            );
+          } else if (item.metadata[key.split(".")[0]] === null) {
+            assignToNull(
+              item.metadata,
+              key.split("."),
               response.data.metadata[key]
             );
           }
@@ -556,3 +564,16 @@ const setValueFromPath = (path, obj, value) => {
 
 const checkNestedPath = (path, obj = {}) =>
   path.split(".").reduce((a, p) => a?.[p], obj) !== undefined;
+
+const assignToNull = (obj, keyPath, value) => {
+  const lastKeyIndex = keyPath.length - 1;
+
+  for (let i = 0; i < lastKeyIndex; ++i) {
+    const key = keyPath[i];
+    if (!(key in obj) || obj[key] === null) {
+      obj[key] = {};
+    }
+    obj = obj[key];
+  }
+  obj[keyPath[lastKeyIndex]] = value;
+};

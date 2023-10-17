@@ -18,12 +18,7 @@ import {
   SERVER_DELETION_KEY,
   START_PAGE_NUMBER,
 } from "assets/constants/overviewConstants";
-import {
-  MetaDataModal,
-  MetadataRow,
-  NewRunsRow,
-  RenderPagination,
-} from "./common-component";
+import { MetadataRow, NewRunsRow, RenderPagination } from "./common-component";
 import React, { useCallback, useState } from "react";
 import {
   deleteDataset,
