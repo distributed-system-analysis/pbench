@@ -4,6 +4,7 @@ import * as TYPES from "./types";
 import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
+import Cookies from "js-cookie";
 import { clearCachedSession } from "./authActions";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
@@ -11,6 +12,7 @@ import { uriTemplate } from "../utils/helper";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
+  const loggedIn = Cookies.get("isLoggedIn");
   try {
     if (alreadyRendered) {
       dispatch({ type: TYPES.LOADING });
@@ -22,7 +24,10 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("metadata", "global");
     params.append("metadata", "user");
 
-    params.append("mine", "true");
+    if (loggedIn) {
+      params.append("mine", "true");
+    }
+
     dispatch(setSelectedRuns([]));
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(uriTemplate(endpoints, "datasets_list"), {
