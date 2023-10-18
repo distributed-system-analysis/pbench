@@ -72,7 +72,7 @@ const SavedRunsComponent = () => {
       },
     },
     {
-      title: dataset.metadata.global.dashboard.seen
+      title: dataset.metadata?.global?.dashboard?.seen
         ? "Mark unread"
         : "Mark read",
       onClick: () =>
@@ -80,7 +80,7 @@ const SavedRunsComponent = () => {
           getMetaDataActions(
             dataset,
             "read",
-            !dataset.metadata.global.dashboard.seen
+            !dataset.metadata?.global?.dashboard?.seen
           )
         ),
     },

@@ -72,9 +72,11 @@ const initializeRuns = () => (dispatch, getState) => {
   });
 
   const savedRuns = data.filter(
-    (item) => item.metadata.global?.dashboard.saved
+    (item) => item.metadata.global?.dashboard?.saved
   );
-  const newRuns = data.filter((item) => !item.metadata.global?.dashboard.saved);
+  const newRuns = data.filter(
+    (item) => !item.metadata.global?.dashboard?.saved
+  );
 
   const expiringRuns = data.filter(
     (item) =>

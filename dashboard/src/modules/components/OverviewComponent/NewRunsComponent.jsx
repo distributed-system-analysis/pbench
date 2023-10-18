@@ -96,7 +96,7 @@ const NewRunsComponent = () => {
       onClick: () => dispatch(getMetaDataActions(dataset, "save", true)),
     },
     {
-      title: dataset.metadata?.global?.dashboard.seen
+      title: dataset.metadata?.global?.dashboard?.seen
         ? "Mark unread"
         : "Mark read",
       onClick: () =>
@@ -104,7 +104,7 @@ const NewRunsComponent = () => {
           getMetaDataActions(
             dataset,
             "read",
-            !dataset.metadata?.global?.dashboard.seen
+            !dataset.metadata?.global?.dashboard?.seen
           )
         ),
     },
