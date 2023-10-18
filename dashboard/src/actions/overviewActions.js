@@ -156,7 +156,7 @@ export const updateDataset =
               response.data.metadata[key]
             );
           } else if (item.metadata[key.split(".")[0]] === null) {
-            assignToNull(
+            assignKeyPath(
               item.metadata,
               key.split("."),
               response.data.metadata[key]
@@ -567,7 +567,7 @@ const setValueFromPath = (path, obj, value) => {
 const checkNestedPath = (path, obj = {}) =>
   path.split(".").reduce((a, p) => a?.[p], obj) !== undefined;
 
-const assignToNull = (obj, keyPath, value) => {
+const assignKeyPath = (obj, keyPath, value) => {
   const lastKeyIndex = keyPath.length - 1;
 
   for (let i = 0; i < lastKeyIndex; ++i) {
