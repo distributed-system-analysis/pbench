@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-"""Index migration utility (prototype)
+"""Index migration utility
 
 This tool reads "server.index-map" metadata from datasets and converts them to
 IndexMap model objects.
+
+This is a migration tool for live database upgrade to Alembic revision
+313cfbf6e74b, which adds the separate index map SQL tables.
 """
 
 from argparse import ArgumentParser
