@@ -58,7 +58,7 @@ def upload(
     )
     meta = [f"global.server.legacy.migrated:{uploaded:%Y-%m-%dT%H:%M}"]
     if "::" in tarball.parent.name:
-        satellite, _ = tarball.parent.name.split("::")
+        satellite, _ = tarball.parent.name.split("::", 1)
         meta.append(f"server.origin:{satellite}")
     if metadata:
         meta.extend(metadata)
@@ -230,7 +230,9 @@ def main() -> int:
     #
     # We maintain the checkpoint file for --preview to assist in testing: if
     # you want to test with --preview and then do a real upload, delete the
-    # checkpoint file!
+    # checkpoint file! Also, note that using --preview after a failure will
+    # change the checkpoint file; if you want to do that, you should use a
+    # copy of the checkpoint file.
     if parsed.verify:
         print("Uploading target files...")
     success = 0
