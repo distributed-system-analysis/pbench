@@ -32,9 +32,8 @@ import socket
 import sys
 from typing import Optional
 
-from dateutil import parser as date_parser
+import dateutil.parser
 import requests
-from requests import Response
 
 
 def get_md5(tarball: Path) -> str:
@@ -52,32 +51,27 @@ def get_md5(tarball: Path) -> str:
 
 def upload(
     server: str, token: str, tarball: Path, metadata: Optional[list[str]] = None
-) -> Response:
-    query_parameters = {}
-
+) -> requests.Response:
     md5 = get_md5(tarball)
-    query_parameters["access"] = "public"
-    dataset = tarball.name
-    satellite, _ = tarball.parent.name.split("::")
-    meta = [
-        f"global.server.legacy.migrated:{datetime.datetime.now(tz=datetime.timezone.utc):%Y-%m-%dT%H:%M}"
-    ]
-    if satellite:
+    uploaded = datetime.datetime.fromtimestamp(
+        tarball.stat().st_mtime, tz=datetime.timezone.utc
+    )
+    meta = [f"global.server.legacy.migrated:{uploaded:%Y-%m-%dT%H:%M}"]
+    if "::" in tarball.parent.name:
+        satellite, _ = tarball.parent.name.split("::")
         meta.append(f"server.origin:{satellite}")
     if metadata:
         meta.extend(metadata)
-    query_parameters["metadata"] = meta
-    headers = {
-        "Content-MD5": md5,
-        "content-type": "application/octet-stream",
-        "authorization": f"bearer {token}",
-    }
 
     with tarball.open("rb") as f:
         return requests.put(
-            f"{server}/api/v1/upload/{dataset}",
-            headers=headers,
-            params=query_parameters,
+            f"{server}/api/v1/upload/{tarball.name}",
+            headers={
+                "Content-MD5": md5,
+                "content-type": "application/octet-stream",
+                "authorization": f"bearer {token}",
+            },
+            params={"metadata": meta, "access": "public"},
             data=f,
         )
 
@@ -127,6 +121,9 @@ def main() -> int:
     s = Path("/opt/pbench-server/SHA1")
     version = v.read_text().strip() if v.exists() else "unknown"
     sha1 = s.read_text().strip() if s.exists() else "unknown"
+
+    # The standard metadata keys here are modeled on those provided by the
+    # 0.69-11 passthrough server.
     metadata = [
         f"global.server.legacy.hostname:{host}",
         f"global.server.legacy.sha1:{sha1}",
@@ -135,6 +132,7 @@ def main() -> int:
     if parsed.metadata:
         metadata.extend(parsed.metadata)
 
+    # Process date range filtering arguments
     since: Optional[datetime.datetime] = None
     before: Optional[datetime.datetime] = None
 
@@ -142,14 +140,21 @@ def main() -> int:
     before_ts: Optional[float] = None
 
     if parsed.since:
-        since = date_parser.parse(parsed.since)
+        since = dateutil.parser.parse(parsed.since)
         since_ts = since.timestamp()
 
     if parsed.before:
-        before = date_parser.parse(parsed.before)
+        before = dateutil.parser.parse(parsed.before)
         before_ts = before.timestamp()
 
     if since and before:
+        if before <= since:
+            print(
+                f"SINCE ({since}) must be earlier than BEFORE ({before})",
+                file=sys.stderr,
+            )
+            return 1
+
         when = f" (from {since:%Y-%m-%d %H:%M} to {before:%Y-%m-%d %H:%M})"
     elif since:
         when = f" (since {since:%Y-%m-%d %H:%M})"
@@ -165,21 +170,23 @@ def main() -> int:
 
     print(f"{what}{when} -> SERVER {parsed.server}")
 
+    # If a checkpoint file is specified, and already exists, load the list of
+    # files already uploaded.
     checkpoint: Optional[Path] = None
     processed: list[str] = []
     if parsed.checkpoint:
         checkpoint = parsed.checkpoint
-        if parsed.verify:
-            print(f"Processing checkpoint state from {checkpoint}...")
         if checkpoint.exists():
+            if parsed.verify:
+                print(f"Processing checkpoint state from {checkpoint}...")
             processed = checkpoint.read_text().splitlines()
             if parsed.verify:
-                print(f"[CPT] done {len(processed)}")
-        if parsed.verify:
-            print(
-                f"Finished processing checkpoint data: {len(processed)} checkpointed files"
-            )
+                print(
+                    f"Finished processing checkpoint data: {len(processed)} checkpointed files"
+                )
 
+    # Using the specified filters and checkpoint data, determine the set of
+    # tarballs we'll try to upload.
     if parsed.verify:
         print("Identifying target tarballs")
     skipped = 0
@@ -201,23 +208,29 @@ def main() -> int:
             if str(t) in processed:
                 skipped += 1
                 if parsed.verify:
-                    print(f"[CPT] skip {t}")
+                    print(f"[checkpoint] skip {t}")
                 continue
             which.append(t)
     elif parsed.tarball.is_file():
         which = [parsed.tarball]
     else:
-        print(f"Path {parsed.tarball} doesn't exist", file=sys.stderr)
+        print(f"Path {parsed.tarball} isn't a directory or file", file=sys.stderr)
         return 1
     if parsed.verify:
         print(
             f"Identified {len(which)} target tarballs: skipped {skipped}, {early} too old, {late} too new"
         )
 
+    # We'll append successful uploads to the checkpoint file.
     checkwriter: Optional[TextIOWrapper] = None
     if checkpoint:
         checkwriter = checkpoint.open(mode="a")
 
+    # Now start the upload, checkpointing each file after a successful upload
+    #
+    # We maintain the checkpoint file for --preview to assist in testing: if
+    # you want to test with --preview and then do a real upload, delete the
+    # checkpoint file!
     if parsed.verify:
         print("Uploading target files...")
     success = 0
