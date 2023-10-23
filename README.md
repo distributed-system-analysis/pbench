@@ -2,37 +2,42 @@
 A Benchmarking and Performance Analysis Framework
 
 The code base includes three sub-systems. The first is the collection agent,
-`pbench-agent`, responsible for providing commands for running benchmarks
-across one or more systems while properly collecting the configuration data for
-those systems as well as specified telemetry or data from various tools (`sar`,
-`vmstat`, `perf`, etc.).
+[Pbench Agent](docs/Agent/agent.md), responsible for collecting configuration
+data for test systems, managing the collection of performance tool data from
+those systems (`sar`, `vmstat`, `perf`, etc.), and executing and postprocessing
+standardized or arbitrary benchmarked workloads (`uperf`, `fio`, `linpack`, as
+well as real system activity).
 
-The second sub-system is the `pbench-server`, which is responsible for
-archiving result tar balls, indexing them, and managing access to their
-contents.
-It provides a RESTful API which can be used by client applications, such as
-the Pbench Dashboard, to curate the results as well as to explore their
-contents.
+The second sub-system is the [Pbench Server](docs/Server/server.md), which is
+responsible for archiving result tar balls and providing a secure
+[RESTful API](docs/Server/API/README.md) to client applications, such as the
+Pbench Dashboard. The API supports curation of results data, the ability to
+annotate results with arbitrary metadata, and to explore the results and
+collected data.
 
-The third sub-system is the Pbench Dashboard, which provides a web-based GUI
-for the Pbench Server allowing users to list and view public results.  After
-logging in, users can view their own results, make them available for others
-to view, or delete them.  On the _User Profile_ page, a logged-in user can
-generate API keys for use with the Pbench Server API or with the Agent
-`pbench-results-push` command.  The Pbench Dashboard also serves as a platform
-for exploring and visualizing result data.
+The third sub-system is the [Pbench Dashboard](docs/Dashboard/user_guide.md), which
+provides a web-based GUI for the Pbench Server allowing users to list and view
+public results. After logging in, users can view their own results, publish
+results for others to view, and delete results which are no longer of use.
+On the _User Profile_ page, a logged-in user can generate API keys for use with
+the Pbench Server API or with the Agent `pbench-results-move` command. The
+Pbench Dashboard also serves as a platform for exploring and visualizing result
+data.
 
 ## How is it installed?
 Instructions for installing `pbench-agent`, can be found
 in the Pbench Agent [Getting Started Guide](
 https://distributed-system-analysis.github.io/pbench/gh-pages/start.html).
 
-For Fedora, CentOS, and RHEL users, we have made available [COPR
+For Fedora, CentOS, and RHEL users, we have made available [COPR RPM
 builds](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/) for the
 `pbench-agent` and some benchmark and tool packages.
 
 You might want to consider browsing through the [rest of the documentation](
 https://distributed-system-analysis.github.io/pbench/gh-pages/doc.html).
+
+You can also use `podman` or `docker` to pull Pbench Agent containers from
+[Quay.io](https://quay.io/pbench/).
 
 ## How do I use pbench?
 Refer to the [Pbench Agent Getting Started Guide](
