@@ -3,7 +3,7 @@
 The following options are available:
 
 	-t str[,str...] --test-types=str[,str...]
-		one or more of read,write,rw,randread,randwrite,randrw
+		one or more of read,write,rw,randread,randwrite,randrw (default is foo,bar)
 
 	--direct=[0/1]
 		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
