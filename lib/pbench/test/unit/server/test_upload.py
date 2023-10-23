@@ -186,7 +186,7 @@ class TestUpload:
     def test_missing_length_header_upload(
         self, client, caplog, server_config, pbench_drb_token
     ):
-        expected_message = "Missing or invalid 'Content-Length' header"
+        expected_message = "Missing 'Content-Length' header"
         response = client.put(
             self.gen_uri(server_config),
             headers={
@@ -202,7 +202,7 @@ class TestUpload:
     def test_bad_length_header_upload(
         self, client, caplog, server_config, pbench_drb_token
     ):
-        expected_message = "Missing or invalid 'Content-Length' header"
+        expected_message = "Missing 'Content-Length' header"
         response = client.put(
             self.gen_uri(server_config),
             headers={
@@ -418,7 +418,7 @@ class TestUpload:
         filename = "tmp.tar.xz"
         datafile = tmp_path / filename
         datafile.touch()
-        expected_message = "'Content-Length' 0 must be greater than 0"
+        expected_message = "Invalid 'Content-Length' header"
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, filename),
@@ -429,7 +429,7 @@ class TestUpload:
                     pbench_drb_token, "d41d8cd98f00b204e9800998ecf8427e"
                 ),
             )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.status_code == HTTPStatus.LENGTH_REQUIRED
         assert response.json.get("message") == expected_message
         self.verify_logs(caplog)
         assert not self.cachemanager_created
