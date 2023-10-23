@@ -45,4 +45,4 @@ make -C agent/rpm ci
 make -C dashboard build
 
 # Display our victory
-ls -l "${HOME}/rpmbuild*/RPMS/noarch/*"
+ls -l "${HOME}"/rpmbuild*/RPMS/noarch/*
