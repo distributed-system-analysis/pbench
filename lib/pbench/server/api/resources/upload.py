@@ -110,10 +110,10 @@ class Upload(IntakeBase):
         content_length = request.content_length
         if not content_length:
             cl_val = request.headers.get("Content-Length")
-            msg = "Missing" if cl_val is None else "Invalid"
-            msg += " 'Content-Length' header"
-            if cl_val is not None:
-                msg += f": {cl_val}"
+            if cl_val is None:
+                msg = "Missing or invalid 'Content-Length' header"
+            else:
+                msg = f"Invalid 'Content-Length' header: {cl_val}"
             raise APIAbort(HTTPStatus.LENGTH_REQUIRED, msg)
         return Access(content_length, request.stream)
 
