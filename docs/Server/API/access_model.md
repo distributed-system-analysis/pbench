@@ -19,12 +19,12 @@ the administrator *role*, can UPDATE or DELETE the dataset.
 
 ## User Identity
 
-The Pbench Server works with an external OIDC identity provider, for example
-Red Hat, Google, or GitHub SSO. The Pbench Server authenticates user access using
-the OIDC JWT tokens. The token's encoded `sub` field is the primary "user ID"
-controlling ownership of and access to data. The token's `preferred_username`
-field will be remembered and used when trying to report the "user ID" in human
-readable form.
+The Pbench Server must be configured with an external OIDC identity provider,
+such as Red Hat, Google, or GitHub. The Pbench Server authenticates user access
+by validating signed OIDC JWT tokens. The token's encoded `sub` field is the
+primary "user ID" controlling ownership of and access to data. The Pbench
+Server caches each token's `sub` UUID and `preferred_username` to translate
+user ID values back into human readable form.
 
 ## Roles
 

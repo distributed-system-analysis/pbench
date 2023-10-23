@@ -17,7 +17,7 @@ It has three components.
 
 ![Overview](assets/images/Overview.png)
 
-The *User Profile* page can be used to view profile information from the OIDC authentication as well as to view and manage Pbench Server API keys. This page is accessed by selecting the *My profile* option from the dropdown menu activated by clicking on the username at the right end of the header bar.
+The _User Profile_ page can be used to view profile information from the OIDC authentication as well as to view and manage Pbench Server API keys. This page is accessed by selecting the *My profile* option from the dropdown menu activated by clicking on the username at the right end of the header bar.
 
 From this page, Pbench Server API keys can be created by clicking on the *New API Key* button; existing keys are listed with their labels and creation dates; and, the keys can be copied or deleted using the icon buttons.
 
