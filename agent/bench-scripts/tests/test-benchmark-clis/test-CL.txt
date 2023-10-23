@@ -5,7 +5,7 @@ Bench Script: pbench-fio --help
 The following options are available:
 
 	-t str[,str...] --test-types=str[,str...]
-		one or more of read,write,rw,randread,randwrite,randrw
+		one or more of read,write,rw,randread,randwrite,randrw (default is read,randread)
 
 	--direct=[0/1]
 		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
@@ -100,7 +100,7 @@ Bench Script: pbench-fio --tool-group=bad --sysinfo=bad
 The following options are available:
 
 	-t str[,str...] --test-types=str[,str...]
-		one or more of read,write,rw,randread,randwrite,randrw
+		one or more of read,write,rw,randread,randwrite,randrw (default is read,randread)
 
 	--direct=[0/1]
 		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
@@ -195,7 +195,7 @@ pbench-fio --bad-to-the-bone
 The following options are available:
 
 	-t str[,str...] --test-types=str[,str...]
-		one or more of read,write,rw,randread,randwrite,randrw
+		one or more of read,write,rw,randread,randwrite,randrw (default is read,randread)
 
 	--direct=[0/1]
 		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled

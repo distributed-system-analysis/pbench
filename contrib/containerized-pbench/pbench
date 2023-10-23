@@ -32,7 +32,7 @@
 #    contrib/containerized-pbench/pbench pbench-results-move \
 #      --server https://<server>:8443 --token <api-token>
 
-image_name=${PB_AGENT_IMAGE_NAME:-quay.io/pbench/pbench-agent-all-centos-8:main}
+image_name=${PB_AGENT_IMAGE_NAME:-quay.io/pbench/pbench-agent-all-centos-8:latest}
 pbench_run_dir=${PB_AGENT_RUN_DIR:-/var/tmp/${USER}/pbench-agent/run}
 ca=${PB_AGENT_CA:-${REQUESTS_CA_BUNDLE}}
 if [[ ${ca} ]]; then

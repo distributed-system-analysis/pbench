@@ -105,26 +105,16 @@ class Upload(IntakeBase):
         Raises:
             APIAbort on failure
         """
-        try:
-            length_string = request.headers["Content-Length"]
-            content_length = int(length_string)
-        except KeyError as e:
-            # NOTE: Werkzeug is "smart" about header access, and knows that
-            # Content-Length is an integer. Therefore, a non-integer value
-            # will raise KeyError. It's virtually impossible to report the
-            # actual incorrect value as we'd just get a KeyError again.
-            raise APIAbort(
-                HTTPStatus.LENGTH_REQUIRED,
-                "Missing or invalid 'Content-Length' header",
-            ) from e
-        except ValueError as e:
-            # NOTE: Because of the way Werkzeug works, this should not be
-            # possible: if Content-Length isn't an integer, we'll see the
-            # KeyError. This however serves as a clarifying backup case.
-            raise APIAbort(
-                HTTPStatus.BAD_REQUEST,
-                f"Invalid 'Content-Length' header, not an integer ({length_string})",
-            ) from e
+        # Werkzeug returns an integer or None; either way, a false-y value is
+        # bad, so report it as an error.
+        content_length = request.content_length
+        if not content_length:
+            cl_val = request.headers.get("Content-Length")
+            if cl_val is None:
+                msg = "Missing or invalid 'Content-Length' header"
+            else:
+                msg = f"Invalid 'Content-Length' header: {cl_val}"
+            raise APIAbort(HTTPStatus.LENGTH_REQUIRED, msg)
         return Access(content_length, request.stream)
 
     def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:

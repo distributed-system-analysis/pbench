@@ -245,10 +245,12 @@ class IntakeBase(ApiBase):
 
         audit: Optional[Audit] = None
         intake_dir: Optional[Path] = None
-        notes = []
+        notes: list[str] = []
 
         prefix = current_app.server_config.rest_uri
         origin = f"{self._get_uri_base(request).host}{prefix}/datasets/"
+
+        dataset: Optional[Dataset] = None
 
         try:
             try:
@@ -488,7 +490,7 @@ class IntakeBase(ApiBase):
                     )
                     attributes["missing_metadata"] = True
                 else:
-                    p = metalog.get("pbench")
+                    p: Optional[JSONOBJECT] = metalog.get("pbench")
                     if p:
                         benchmark = p.get("script", Metadata.SERVER_BENCHMARK_UNKNOWN)
                     else:

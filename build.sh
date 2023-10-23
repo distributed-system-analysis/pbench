@@ -13,7 +13,7 @@ python3 -m pip install --user -r lint-requirements.txt
 # match the owner of the Git checkout, then Git issues an error; these config
 # settings avoid the problem.
 GITTOP=$(git rev-parse --show-toplevel 2>&1 | head -n 1)
-if [[ ${GITTOP} =~ "fatal: unsafe repository ('/home/root/pbench'" ]] ; then
+if [[ ${GITTOP} = "fatal: unsafe repository ('/home/root/pbench'"* ]] ; then
 	git config --global --add safe.directory /home/root/pbench
 	GITTOP=$(git rev-parse --show-toplevel)
 fi
@@ -45,4 +45,4 @@ make -C agent/rpm ci
 make -C dashboard build
 
 # Display our victory
-ls -l ${HOME}/rpmbuild*/RPMS/noarch/*
+ls -l "${HOME}"/rpmbuild*/RPMS/noarch/*

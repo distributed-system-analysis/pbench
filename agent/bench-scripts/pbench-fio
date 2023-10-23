@@ -35,7 +35,8 @@ nr_samples=5
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below ${maxstddevpct}, move on to the next test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
-test_types="read,randread"		# default is -non- destructive
+default_test_types="read,randread"		# default is -non- destructive
+test_types=${default_test_types}
 pre_check="n"
 export config=""
 rate_iops=""
@@ -71,7 +72,7 @@ function usage {
 	printf "The following options are available:\n"
 	printf "\n"
 	printf -- "\t-t str[,str...] --test-types=str[,str...]\n"
-	printf "\t\tone or more of %s\n" $supported_test_types
+	printf "\t\tone or more of %s (default is %s)\n" $supported_test_types $default_test_types
 	printf "\n"
 	printf -- "\t--direct=[0/1]\n"
 	printf "\t\t1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled\n"

@@ -549,7 +549,7 @@ const isServerInternal = (string) =>
  * @function
  * @param {String} path - nested key to update
  * @param {Object} obj - nested object
- * @param {String} obj - new value to be updated in the object
+ * @param {String} value - new value to be updated in the object
  * @return {Object} - updated object with new value
  */
 

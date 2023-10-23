@@ -1,5 +1,5 @@
 #
-# A simple Makefile for building and pushing the various pbench-devel-*
+# A simple Makefile for building and pushing the various pbench-ci-fedora
 # and pbench-rpmbuild container images.
 #
 # This makefile defines the following targets:
