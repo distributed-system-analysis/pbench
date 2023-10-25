@@ -1,4 +1,4 @@
-# Pbench Dashboard 
+# Pbench Dashboard
 
 Pbench Dashboard is the web-based platform for consuming indexed performance benchmark data. It provides data curation capabilities for the performance datasets.
 
@@ -15,13 +15,10 @@ It has three components.
 - *Saved Runs* lists the saved runs which can be published to share with others
 - *Expiring Runs* lists the saved runs which will be deleted from the server within the next 20 days
 
-
 ![Overview](assets/images/Overview.png)
 
-
-The *User Profile* page can be used to view profile information from the OIDC authentication as well as to view and manage Pbench Server API keys. This page is accessed by selecting the *My profile* option from the dropdown menu activated by clicking on the username at the right end of the header bar. 
+The _User Profile_ page can be used to view profile information from the OIDC authentication as well as to view and manage Pbench Server API keys. This page is accessed by selecting the *My profile* option from the dropdown menu activated by clicking on the username at the right end of the header bar.
 
 From this page, Pbench Server API keys can be created by clicking on the *New API Key* button; existing keys are listed with their labels and creation dates; and, the keys can be copied or deleted using the icon buttons.
 
 ![User Profile](assets/images/UserProfile.png)
-
