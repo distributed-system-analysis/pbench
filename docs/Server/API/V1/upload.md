@@ -37,6 +37,34 @@ In particular the client can set any of:
 
 For example, `?metadata=server.archiveonly:true,global.project:oidc`
 
+__Typed metadata__
+
+When you set metadata dynamically using `PUT /datasets/<id>/metadata`, you
+specify a JSON object for each key, so defining typed metadata is implicit in
+the JSON object interpretation.
+
+When using the `?metadata` query parameter, you're limited to writing strings,
+and it's not quite so straightfoward. The string can contain type information
+to compensate for the limitation. Each `?metadata` string is a comma-separated
+list of "metadata expressions" of the form "<key>:<value>[:<type>]". If the
+":<type>" is omitted, type is assumed to be "str". For example, you can specify
+integer metadata values using ":int" (`global.mine.count:1:int`).
+
+Types:
+* `str` (default) The value is a string. If you want to include "," or ":"
+  characters, you can quote the value using matched (and potentially nested)
+  single and double quote characters. For example `<key>:'2023-10-01:10:23':str`
+  will set the specified key to the value `2023-10-01:10:23`.
+* `bool` The value is a (JSON format) boolean, `true` or `false`. For example
+  `<key>:true:bool` will set the specified key to the boolean value `true`.
+* `int` The value is an integer. For example `<key>:1:int` will set the
+  specified key to the integer value 1.
+* `float` The value is a floating point number. For example `<key>:1.0:float`
+  will set the specified key to the floating point value 1.0.
+* `json` The value is a quoted serialized JSON object representation. For
+  example, `<key>:'{"str": "string", "int": 1, "bool": true}':json` will set
+  the specified key to the JSON object `{"str": "string", "int": 1, "bool": true}`
+
 ## Request headers
 
 `authorization: bearer` token \

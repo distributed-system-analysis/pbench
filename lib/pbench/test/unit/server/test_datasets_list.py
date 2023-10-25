@@ -736,17 +736,17 @@ class TestDatasetsList:
             (
                 "global.x=3",
                 HTTPStatus.BAD_REQUEST,
-                "Missing ':' terminator in 'global.x=3'",
+                "Missing ':' terminator after 'global.x=3'",
             ),
             (
                 "'global.x'",
                 HTTPStatus.BAD_REQUEST,
-                "Missing ':' terminator in 'global.x'",
+                "Missing ':' terminator after \"'global.x'\"",
             ),
             (
                 "dataset.x':v",
                 HTTPStatus.BAD_REQUEST,
-                'Metadata key "dataset.x\'" is not supported',
+                'Unterminated quote at "dataset.x[\']:v"',
             ),
             (
                 "dataset.notright:10",
@@ -756,22 +756,22 @@ class TestDatasetsList:
             (
                 "'dataset.name:foo",
                 HTTPStatus.BAD_REQUEST,
-                'Bad quote termination in "\'dataset.name:foo"',
+                'Unterminated quote at "[\']dataset.name:foo"',
             ),
             (
                 "dataset.name:'foo",
                 HTTPStatus.BAD_REQUEST,
-                'Bad quote termination in "dataset.name:\'foo"',
+                'Unterminated quote at "dataset.name:[\']foo"',
             ),
             (
                 "server.deletion:<2023-05-01:time",
                 HTTPStatus.BAD_REQUEST,
-                "The filter type 'time' must be one of bool,date,int,str",
+                "The metadata type 'time' must be one of bool,date,int,str",
             ),
             (
                 "server.deletion:2023-05-01:date:",
                 HTTPStatus.BAD_REQUEST,
-                "The filter type 'date:' must be one of bool,date,int,str",
+                "The metadata type 'date:' must be one of bool,date,int,str",
             ),
         ],
     )

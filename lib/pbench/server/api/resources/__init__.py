@@ -5,7 +5,7 @@ from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
 import re
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
+from typing import Any, Callable, Dict, NamedTuple, Optional, Union
 import uuid
 
 from dateutil import parser as date_parser
@@ -26,6 +26,7 @@ from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
     Metadata,
+    MetadataBadKey,
     MetadataError,
     OperationName,
 )
@@ -204,7 +205,7 @@ class MissingParameters(SchemaError):
     unexpectedly empty.
     """
 
-    def __init__(self, keys: List[str]):
+    def __init__(self, keys: list[str]):
         super().__init__()
         self.keys = sorted(keys)
 
@@ -215,7 +216,7 @@ class MissingParameters(SchemaError):
 class BadQueryParam(SchemaError):
     """One or more unrecognized URL query parameters were specified."""
 
-    def __init__(self, keys: List[str]):
+    def __init__(self, keys: list[str]):
         super().__init__()
         self.keys = sorted(keys)
 
@@ -285,9 +286,9 @@ class KeywordError(SchemaError):
         self,
         parameter: "Parameter",
         expected_type: str,
-        unrecognized: List[str],
+        unrecognized: list[str],
         *,
-        keywords: List[str] = [],
+        keywords: list[str] = [],
     ):
         """Construct a KeywordError exception.
 
@@ -321,7 +322,7 @@ class KeywordError(SchemaError):
 class ListElementError(SchemaError):
     """Used to report an unrecognized list element value."""
 
-    def __init__(self, parameter: "Parameter", bad: List[str]):
+    def __init__(self, parameter: "Parameter", bad: list[str]):
         """Construct a ListElementError exception
 
         Args:
@@ -584,7 +585,7 @@ def convert_keyword(value: str, parameter: "Parameter") -> Union[str, Enum]:
     raise KeywordError(parameter, "keyword", [value])
 
 
-def convert_list(value: Union[str, List[str]], parameter: "Parameter") -> List[Any]:
+def convert_list(value: Union[str, list[str]], parameter: "Parameter") -> list[Any]:
     """Verify that the parameter value is a list and that each element of the
     list is a valid instance of the referenced element type.
 
@@ -696,6 +697,203 @@ def convert_boolean(value: Any, parameter: "Parameter") -> bool:
 ApiContext = Dict[str, Any]
 
 
+@dataclass
+class Type:
+    """Help keep track of filter types
+
+    Used to link a filter type name to the equivalent SQLAlchemy type and the
+    Pbench API conversion method to create a compatible object from a string.
+
+    Fields:
+        sqtype: The base SQLAlchemy type corresponding to a Python target type
+        convert: The Pbench API conversion method to verify and convert a
+                string
+    """
+
+    sqltype: Any
+    convert: Callable[[str, Any], Any]
+
+
+class Term:
+    """Help parsing metadata expressions."""
+
+    def __init__(
+        self,
+        term: str,
+        delimiter: str = ":",
+        types: Optional[dict[str, Type]] = None,
+        operators: Optional[dict[str, str]] = None,
+        default_type: Optional[str] = None,
+        default_operator: Optional[str] = None,
+    ):
+        """Construct an instance to help parse metadata expressions
+
+        There are basically three styles supported:
+
+        1. Without `types` or `operators` parse a simple "key:value"
+           expression;
+        2. With `types` allow a typed metadata expression like "key:value:type"
+        3. With `operators` allow a metadata expression like "key:=value"
+           to support general metadata comparisons. (These may also be typed if
+           `types` is specified.)
+
+        If "operators" is specified, we're comparing existing metadata whereas
+        without operators we're defining metadata. This changes the set of keys
+        which will be allowed.
+
+        Args:
+            term: A filter expression to parse
+            delimiter: The phrase delimiter (default ":")
+            types: A set of datatypes to parse
+            operators: A set of operators to support
+            default_type: Type to assume if none specified
+            default_operator: Operator to assume if none specified
+        """
+        self.chain = None
+        self.delimiter = delimiter
+        self.keys = (
+            Metadata.METADATA_KEYS if operators else Metadata.USER_UPDATEABLE_METADATA
+        )
+        self.key = None
+        self.types = types
+        self.default_type = default_type
+        self.type = default_type
+        self.operators = operators
+        self.default_operator = default_operator
+        self.operator = default_operator
+        self.value = None
+        self.term = term
+        self.buffer = term
+        self.context = term
+        self.offset = 0
+
+    def parse_list(self) -> list[str]:
+        phrases = []
+        while token := self._next_token(optional=True):
+            phrases.append(token)
+        return phrases
+
+    def parse_expression(self) -> "Term":
+        """Parse a filter expression like "<key>:[<operator>]<value>[:<type>]"
+
+        Separates the "key", "operator", "value", and "type" fields of a filter
+        expression.
+
+        The key and value can be quoted to include mixed case and symbols,
+        including the ":" character, by starting and starting and ending the
+        key or value with the "'" or '"' character, e.g.,
+        "'dataset.metalog.tool/iteration:1':'foo:1#bar':str".
+
+        The "operator" and "type", if omitted, can be defaulted from the object
+        configuration, so that `dataset.name:foo` can have the same effect as
+        `dataset.name:=foo:str`.
+
+        Returns:
+            self
+        """
+
+        # The "chain" allows chaining multiple expressions as an OR
+        self.chain = self._remove_prefix(("^",))
+
+        # The metadata key token
+        self.key = self._next_token()
+        if not Metadata.is_key_path(
+            self.key, self.keys, metalog_key_ok=bool(self.operators)
+        ):
+            raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(self.key)))
+
+        # The comparison operator (defaults to "=")
+        if self.operators:
+            self.operator = self._remove_prefix(
+                self.operators.keys(), default=self.default_operator
+            )
+
+        # The filter value
+        self.value = self._next_token(optional=True)
+
+        # The comparison type, defaults to "str"
+        if self.types:
+            self.type = self.buffer.lower() if self.buffer else self.default_type
+            if self.type and self.type not in self.types:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    f"The metadata type {self.type!r} must be one of {','.join(t for t in self.types.keys())}",
+                )
+        if not self.key or not self.value:
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST,
+                f"Metadata {self.term!r} must have the form 'k:v[:type]'",
+            )
+        return self
+
+    def _remove_prefix(
+        self, prefixes: tuple[str], default: Optional[str] = None
+    ) -> Optional[str]:
+        """Remove a string prefix.
+
+        Looking at the current buffer, remove a known prefix before processing
+        the next character. A list of prefixes may be specified: they're sorted
+        longest first so that we don't accidentally match a substring.
+
+        Args:
+            prefixes: a collection of prefix strings
+            default: the default prefix if none appears in the string.
+
+        Returns:
+            The prefix, or the default.
+        """
+        prefix = default
+        for p in sorted(prefixes, key=lambda k: len(k), reverse=True):
+            if self.buffer.startswith(p):
+                prefix = self.buffer[: len(p)]
+                self.buffer = self.buffer[len(p) :]
+                self.offset += len(p)
+                break
+        return prefix
+
+    def _next_token(self, optional: bool = False) -> Optional[str]:
+        @dataclass
+        class Quote:
+            open: int
+            quote: str
+
+        quoted: list[Quote] = []
+        next = None
+        token = ""
+        first_quote = None
+        for o in range(len(self.buffer)):
+            next = self.buffer[o]
+            if next == self.delimiter and not quoted:
+                self.buffer = self.buffer[o + 1 :]
+                self.offset += o + 1
+                break
+            elif next in ('"', "'"):
+                if o == 0:
+                    first_quote = next
+                if quoted and quoted[-1].quote == next:
+                    quoted.pop()
+                else:
+                    quoted.append(Quote(o, next))
+            token += next
+        else:
+            if quoted:
+                q = quoted[-1]
+                c = self.context
+                i = q.open + self.offset
+                annotated = c[:i] + "[" + c[i] + "]" + c[i + 1 :]
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST, f"Unterminated quote at {annotated!r}"
+                )
+            if next != self.delimiter and not optional:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    f"Missing {self.delimiter!r} terminator after {token!r}",
+                )
+            self.buffer = ""
+            self.offset = len(self.context)
+        return token if not first_quote else token[1:-1]
+
+
 class ParamType(Enum):
     """Define the possible JSON query parameter keys, and their type.
 
@@ -737,7 +935,7 @@ class Parameter:
         name: str,
         type: ParamType,
         *,  # Following are keyword-only
-        keywords: Optional[List[str]] = None,
+        keywords: Optional[list[str]] = None,
         element_type: Optional[ParamType] = None,
         required: bool = False,
         key_path: bool = False,
@@ -1580,7 +1778,7 @@ class ApiBase(Resource):
         return query
 
     def _get_dataset_metadata(
-        self, dataset: Dataset, requested_items: List[str]
+        self, dataset: Dataset, requested_items: list[str]
     ) -> JSON:
         """Get requested metadata for a specific Dataset
 

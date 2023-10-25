@@ -56,7 +56,7 @@ def upload(
     uploaded = datetime.datetime.fromtimestamp(
         tarball.stat().st_mtime, tz=datetime.timezone.utc
     )
-    meta = [f"global.server.legacy.migrated:{uploaded:%Y-%m-%dT%H:%M}"]
+    meta = [f"global.server.legacy.migrated:'{uploaded:%Y-%m-%dT%H:%M}'"]
     if "::" in tarball.parent.name:
         satellite, _ = tarball.parent.name.split("::", 1)
         meta.append(f"server.origin:{satellite}")

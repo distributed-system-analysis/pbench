@@ -1,7 +1,5 @@
-from dataclasses import dataclass
 from http import HTTPStatus
-import logging
-from typing import Any, Callable, Optional
+from typing import Any
 from urllib.parse import urlencode, urlparse
 
 from flask import current_app
@@ -29,6 +27,8 @@ from pbench.server.api.resources import (
     Parameter,
     ParamType,
     Schema,
+    Term,
+    Type,
 )
 import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
@@ -40,24 +40,6 @@ from pbench.server.database.models.datasets import (
     MetadataError,
 )
 from pbench.server.database.models.users import User
-
-
-@dataclass
-class Type:
-    """Help keep track of filter types
-
-    Used to link a filter type name to the equivalent SQLAlchemy type and the
-    Pbench API conversion method to create a compatible object from a string.
-
-    Fields:
-        sqtype: The base SQLAlchemy type corresponding to a Python target type
-        convert: The Pbench API conversion method to verify and convert a
-                string
-    """
-
-    sqltype: Any
-    convert: Callable[[str, Any], Any]
-
 
 """Associate the name of a filter type to the Type record describing it."""
 TYPES = {
@@ -105,146 +87,6 @@ def urlencode_json(json: JSON) -> str:
     for k, v in sorted(json.items()):
         new_json[k] = ",".join(v) if k in ("metadata", "filter") else v
     return urlencode(new_json)
-
-
-class Term:
-    """Help parsing a filter term."""
-
-    def __init__(self, term: str):
-        self.chain = None
-        self.key = None
-        self.operator = None
-        self.value = None
-        self.type = None
-        self.term = term
-        self.buffer = term
-        self.logger = logging.getLogger("term")
-
-    @classmethod
-    def parse(cls, term: str) -> "Term":
-        """Factory method to construct an instance and parse a string
-
-        Args:
-            term: A filter expression to parse
-        """
-        return cls(term).parse_filter()
-
-    def _remove_prefix(
-        self, prefixes: tuple[str], default: Optional[str] = None
-    ) -> Optional[str]:
-        """Remove a string prefix.
-
-        Looking at the current buffer, remove a known prefix before processing
-        the next character. A list of prefixes may be specified: they're sorted
-        longest first so that we don't accidentally match a substring.
-
-        Args:
-            prefixes: a collection of prefix strings
-            default: the default prefix if none appears in the string.
-
-        Returns:
-            The prefix, or the default.
-        """
-        prefix = default
-        for p in sorted(prefixes, key=lambda k: len(k), reverse=True):
-            if self.buffer.startswith(p):
-                prefix = self.buffer[: len(p)]
-                self.buffer = self.buffer[len(p) :]
-                break
-        return prefix
-
-    def _next_token(self, optional: bool = False) -> str:
-        """Extract a string from the head of the buffer.
-
-        To filter using metadata keys (e.g., unusual benchmark generated
-        metadata.log keys) or values (e.g. a date/time string) which may
-        contain ":" symbols, the key or value may be enclosed in quotes.
-        Either single or double quotes are allowed.
-
-        We're looking for the ":" symbol delimiting the next term of the filter
-        expression, or (if that's marked "optional") the end of the buffer.
-
-        Args:
-            optional: The terminating ":" separator is optional.
-
-        Returns:
-            The token, unquoted
-        """
-        buffer = self.buffer
-        if buffer.startswith(("'", '"')):
-            quote = buffer[:1]
-            end = buffer.find(quote, 1)
-            if end < 0:
-                raise APIAbort(
-                    HTTPStatus.BAD_REQUEST, f"Bad quote termination in {self.term!r}"
-                )
-            next = buffer[1:end]
-            end += 1
-        else:
-            end = buffer.find(":")
-            if end < 0:
-                next = buffer
-                end = len(buffer)
-            else:
-                next = buffer[:end]
-        buffer = buffer[end:]
-        if buffer.startswith(":"):
-            buffer = buffer[1:]
-        elif not optional:
-            raise APIAbort(
-                HTTPStatus.BAD_REQUEST, f"Missing ':' terminator in {next!r}"
-            )
-        self.buffer = buffer
-        return next
-
-    def parse_filter(self) -> "Term":
-        """Parse a filter term like "<key>:[<operator>]<value>[:<type>]"
-
-        Separates the "key", "operator", "value", and "type" fields of a filter
-        expression.
-
-        The key and value can be quoted to include mixed case and symbols,
-        including the ":" character, by starting and starting and ending the
-        key or value with the "'" or '"' character, e.g.,
-        "'dataset.metalog.tool/iteration:1':'foo:1#bar':str".
-
-        The "operator", if omitted, defaults to "=", and "type" defaults to
-        "str" (string), so that `dataset.name:foo` has the same effect as
-        `dataset.name:=foo:str`.
-
-        Returns:
-            self
-        """
-
-        # The "chain" allows chaining multiple expressions as an OR
-        self.chain = self._remove_prefix(("^",))
-
-        # The metadata key token
-        self.key = self._next_token()
-        if not Metadata.is_key_path(
-            self.key, Metadata.METADATA_KEYS, metalog_key_ok=True
-        ):
-            raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(self.key)))
-
-        # The comparison operator (defaults to "=")
-        self.operator = self._remove_prefix(OPERATORS.keys(), default="=")
-
-        # The filter value
-        self.value = self._next_token(optional=True)
-
-        # The comparison type, defaults to "str"
-        self.type = self.buffer.lower() if self.buffer else "str"
-        if self.type and self.type not in TYPES:
-            raise APIAbort(
-                HTTPStatus.BAD_REQUEST,
-                f"The filter type {self.type!r} must be one of {','.join(t for t in TYPES.keys())}",
-            )
-        if not self.key or not self.value:
-            raise APIAbort(
-                HTTPStatus.BAD_REQUEST,
-                f"filter {self.term!r} must have the form 'k:v[:type]'",
-            )
-        return self
 
 
 class DatasetsList(ApiBase):
@@ -464,7 +306,13 @@ class DatasetsList(ApiBase):
         or_list = []
         and_list = []
         for kw in filters:
-            term = Term.parse(kw)
+            term = Term(
+                term=kw,
+                types=TYPES,
+                operators=OPERATORS,
+                default_type="str",
+                default_operator="=",
+            ).parse_expression()
             combine_or = term.chain == "^"
             keys = term.key.split(".")
             native_key = keys.pop(0).lower()

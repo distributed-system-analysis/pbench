@@ -3,6 +3,7 @@ import datetime
 import errno
 import hashlib
 from http import HTTPStatus
+import json
 import os
 from pathlib import Path
 import shutil
@@ -11,6 +12,7 @@ from typing import Any, IO, Optional
 from flask import current_app, jsonify
 from flask.wrappers import Request, Response
 import humanize
+from sqlalchemy import Boolean, Float, Integer, JSON, String
 
 from pbench.common.utils import Cleanup
 from pbench.server import JSONOBJECT, PbenchServerConfig
@@ -21,6 +23,12 @@ from pbench.server.api.resources import (
     APIInternalError,
     ApiParams,
     ApiSchema,
+    ConversionError,
+    convert_boolean,
+    convert_int,
+    convert_string,
+    Term,
+    Type,
 )
 import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import CacheManager, DuplicateTarball, MetadataError
@@ -58,6 +66,30 @@ class Access:
     stream: IO[bytes]
 
 
+def str_to_json(value: str, _) -> JSONOBJECT:
+    try:
+        return json.loads(value)
+    except Exception as e:
+        raise ConversionError(value, "JSON string") from e
+
+
+def str_to_float(value: str, _) -> float:
+    try:
+        return float(value)
+    except Exception as e:
+        raise ConversionError(value, "floating point number") from e
+
+
+"""Associate the name of a metadata type to the Type record describing it."""
+TYPES = {
+    "bool": Type(Boolean, convert_boolean),
+    "float": Type(Float, str_to_float),
+    "int": Type(Integer, convert_int),
+    "json": Type(JSON, str_to_json),
+    "str": Type(String, convert_string),
+}
+
+
 class IntakeBase(ApiBase):
     """Framework to assimilate a dataset into the Pbench Server.
 
@@ -87,7 +119,16 @@ class IntakeBase(ApiBase):
 
         We allow the client to set metadata on the new dataset. We won't do
         anything about this until upload is successful, but we process and
-        validate it here so we can fail early.
+        validate it first so we can fail early.
+
+        This supports typed metadata expressions using the syntax key : value
+        : type, such as `global.key:1:int`, `global.key:true:bool`, or
+        `global.key:'{"a": true, "b": 1}`:json`.
+
+        NOTE: Multiple metadata expressions may occur in each item in the list,
+        separated by unquoted "," characters. We don't rely on the common
+        ParamType.LIST "string_list" option as that doesn't provide the quote
+        sensitivity required to support JSON metadata.
 
         Args:
             metas: A list of "key:value[,key:value]..." strings)
@@ -100,24 +141,29 @@ class IntakeBase(ApiBase):
         """
         metadata: dict[str, Any] = {}
         errors = []
+        expanded = []
         for kw in metas:
+            expanded.extend(Term(term=kw, delimiter=",").parse_list())
+
+        for kw in expanded:
             # an individual value for the "key" parameter is a simple key:value
             # pair.
             try:
-                k, v = kw.split(":", maxsplit=1)
-            except ValueError:
-                errors.append(f"improper metadata syntax {kw} must be 'k:v'")
-                continue
-            k = k.lower()
-            if not Metadata.is_key_path(k, Metadata.USER_UPDATEABLE_METADATA):
-                errors.append(f"Key {k} is invalid or isn't settable")
+                m = Term(term=kw, types=TYPES, default_type="str").parse_expression()
+            except APIAbort as e:
+                errors.append(str(e))
                 continue
             try:
-                v = Metadata.validate(dataset=None, key=k, value=v)
+                v = TYPES[m.type].convert(m.value, None)
+            except APIAbort as e:
+                errors.append(str(e))
+                continue
+            try:
+                v = Metadata.validate(dataset=None, key=m.key, value=v)
             except MetadataBadValue as e:
                 errors.append(str(e))
                 continue
-            metadata[k] = v
+            metadata[m.key] = v
         if errors:
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST,

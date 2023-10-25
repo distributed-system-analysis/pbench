@@ -35,10 +35,7 @@ class Relay(IntakeBase):
                     Parameter("access", ParamType.ACCESS),
                     Parameter("delete", ParamType.BOOLEAN),
                     Parameter(
-                        "metadata",
-                        ParamType.LIST,
-                        element_type=ParamType.STRING,
-                        string_list=",",
+                        "metadata", ParamType.LIST, element_type=ParamType.STRING
                     ),
                 ),
                 audit_type=AuditType.NONE,
