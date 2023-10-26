@@ -304,29 +304,47 @@ class TestDatasetsList:
         self.compare_results(result.json, results, query, server_config)
 
     @pytest.mark.parametrize(
-        "login,query,message",
+        "login,query,status,message",
         (
-            (None, {"mine": True}, "'mine' filter requires authentication"),
-            (None, {"mine": "no"}, "'mine' filter requires authentication"),
+            (
+                None,
+                {"mine": True},
+                HTTPStatus.UNAUTHORIZED,
+                "'mine' filter requires authentication",
+            ),
+            (
+                None,
+                {"mine": "no"},
+                HTTPStatus.UNAUTHORIZED,
+                "'mine' filter requires authentication",
+            ),
             (
                 "drb",
                 {"mine": "yes", "owner": "drb"},
+                HTTPStatus.BAD_REQUEST,
                 "'owner' and 'mine' filters cannot be used together",
             ),
             (
                 "drb",
                 {"mine": False, "owner": "test"},
+                HTTPStatus.BAD_REQUEST,
                 "'owner' and 'mine' filters cannot be used together",
             ),
             (
                 "drb",
                 {"mine": "no way!"},
+                HTTPStatus.BAD_REQUEST,
                 "Value 'no way!' (str) cannot be parsed as a boolean",
             ),
-            ("drb", {"mine": 0}, "Value '0' (str) cannot be parsed as a boolean"),
+            (
+                "drb",
+                {"mine": 0},
+                HTTPStatus.BAD_REQUEST,
+                "Value '0' (str) cannot be parsed as a boolean",
+            ),
         ),
     )
-    def test_bad_mine(self, query_as, login, query, message):
+    def test_bad_mine(self, query_as, login, query, status, message):
         """Test the `mine` filter error conditions.
 
         Args:
@@ -335,7 +353,7 @@ class TestDatasetsList:
             query: A JSON representation of the query parameters
             message: The expected error message
         """
-        result = query_as(query, login, HTTPStatus.BAD_REQUEST)
+        result = query_as(query, login, status)
         assert result.json["message"] == message
 
     def test_mine_novalue(self, server_config, client, more_datasets, get_token_func):
