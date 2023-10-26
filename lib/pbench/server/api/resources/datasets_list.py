@@ -817,7 +817,7 @@ class DatasetsList(ApiBase):
                 )
             if not auth_id:
                 raise APIAbort(
-                    HTTPStatus.BAD_REQUEST, "'mine' filter requires authentication"
+                    HTTPStatus.UNAUTHORIZED, "'mine' filter requires authentication"
                 )
             if json["mine"]:
                 owner = auth_id
