@@ -66,12 +66,12 @@ class PostprocessError(Exception):
     """
 
     def __init__(self, status: int, message: str, data: JSON = None):
+        super().__init__(
+            f"Postprocessing error returning {status}: {message!r} [{data}]"
+        )
         self.status = status
         self.message = message
         self.data = data
-
-    def __str__(self) -> str:
-        return f"Postprocessing error returning {self.status}: {self.message!r} [{self.data}]"
 
 
 class ElasticBase(ApiBase):
@@ -456,13 +456,12 @@ class ElasticBase(ApiBase):
     def _post(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
-        """
-        Handle a Pbench server POST operation that will involve a call to the
-        server's configured Elasticsearch instance. The assembly and
-        post-processing of the Elasticsearch query are handled by the
-        subclasses through the assemble() and postprocess() methods;
-        we rely on the ApiBase superclass to provide basic JSON parameter
-        validation and normalization.
+        """Handle a Pbench server POST operation involving Elasticsearch
+
+        The assembly and post-processing of the Elasticsearch query are
+        handled by the subclasses through the assemble() and postprocess()
+        methods; we rely on the ApiBase superclass to provide basic JSON
+        parameter validation and normalization.
 
         Args:
             method: The API HTTP method
@@ -476,10 +475,10 @@ class ElasticBase(ApiBase):
     def _get(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
-        """
-        Handle a GET operation involving a call to the server's Elasticsearch
-        instance. The post-processing of the Elasticsearch query is handled
-        the subclasses through their postprocess() methods.
+        """Handle a GET operation involving a call to Elasticsearch
+
+        The post-processing of the Elasticsearch query is handled the
+        subclasses through their postprocess() methods.
 
         Args:
             method: The API HTTP method
@@ -499,10 +498,10 @@ class BulkResults:
 
 
 class ElasticBulkBase(ApiBase):
-    """
-    A base class for bulk Elasticsearch queries that allows subclasses to
-    provide a generator to produce bulk command documents with common setup and
-    results processing.
+    """A base class for bulk Elasticsearch queries
+
+    This allows subclasses to provide a generator to produce bulk command documents
+    with common setup and results processing.
 
     This class extends the ApiBase class in order to connect the post
     and get methods to Flask's URI routing algorithms. It implements a common
@@ -517,8 +516,7 @@ class ElasticBulkBase(ApiBase):
         config: PbenchServerConfig,
         *schemas: ApiSchema,
     ):
-        """
-        Base class constructor.
+        """Base class constructor.
 
         This method assumes and requires that a dataset will be located using
         the dataset name, so a ParamType.DATASET parameter must be defined
@@ -614,9 +612,9 @@ class ElasticBulkBase(ApiBase):
         context: ApiContext,
         map: Iterator[IndexStream],
     ) -> Iterator[dict]:
-        """
-        Generate a series of Elasticsearch bulk operation actions driven by the
-        dataset document map. For example:
+        """Generate a series of Elasticsearch bulk operation actions
+
+        This is driven by the dataset document map. For example:
 
         {
             "_op_type": "update",
@@ -640,9 +638,10 @@ class ElasticBulkBase(ApiBase):
     def complete(
         self, dataset: Dataset, context: ApiContext, summary: JSONOBJECT
     ) -> None:
-        """
-        Complete a bulk Elasticsearch operation, perhaps by modifying the
-        source Dataset resource.
+        """Complete a bulk Elasticsearch operation
+
+        This may finalize the state of the Dataset and perform error analysis
+        on the Elasticsearch results.
 
         This is an abstract method that may be implemented by a subclass to
         perform some completion action; the default is to do nothing.
@@ -659,8 +658,9 @@ class ElasticBulkBase(ApiBase):
     def _analyze_bulk(
         self, results: Iterator[tuple[bool, Any]], context: ApiContext
     ) -> BulkResults:
-        """Elasticsearch returns one response result per action. Each is a
-        JSON document where the first-level key is the action name
+        """Elasticsearch returns one response result per action.
+
+        Each is a JSON document where the first-level key is the action name
         ("update", "delete", etc.) and the value of that key includes the
         action's "status", "_index", etc; and, on failure, an "error" key
         the value of which gives the type and reason for the failure.
@@ -730,8 +730,7 @@ class ElasticBulkBase(ApiBase):
     def _post(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
-        """
-        Perform the requested POST operation, and handle any exceptions.
+        """Perform the requested POST operation, and handle any exceptions.
 
         This is called by the ApiBase post() method through its dispatch
         method, which provides parameter validation.
@@ -755,8 +754,7 @@ class ElasticBulkBase(ApiBase):
     def _delete(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
-        """
-        Perform the requested DELETE operation, and handle any exceptions.
+        """Perform the requested DELETE operation, and handle any exceptions.
 
         This is called by the ApiBase delete() method through its dispatch
         method, which provides parameter validation.
@@ -779,8 +777,7 @@ class ElasticBulkBase(ApiBase):
     def _bulk_dispatch(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
-        """
-        Perform the requested operation, and handle any exceptions.
+        """Perform the requested operation, and handle any exceptions.
 
         Args:
             params: Type-normalized client parameters
@@ -793,6 +790,8 @@ class ElasticBulkBase(ApiBase):
 
         # Our schema requires a valid dataset and uses it to authorize access;
         # therefore the unconditional dereference is assumed safe.
+        sync: Optional[Sync] = None
+        auditing: dict[str, Any] = context["auditing"]
 
         dataset = self.schemas.get_param_by_type(
             ApiMethod.POST, ParamType.DATASET, params
@@ -806,10 +805,9 @@ class ElasticBulkBase(ApiBase):
             )
 
         component = context["attributes"].operation_name
+        sync = Sync(logger=current_app.logger, component=component)
         try:
-            sync = Sync(logger=current_app.logger, component=component)
             sync.update(dataset=dataset, state=OperationState.WORKING)
-            context["sync"] = sync
         except Exception as e:
             current_app.logger.warning(
                 "{} {} unable to set {} operational state: '{}'",
@@ -820,61 +818,82 @@ class ElasticBulkBase(ApiBase):
             )
             raise APIAbort(HTTPStatus.CONFLICT, "Unable to set operational state")
 
+        # Pass the sync object to subclasses
+        context["sync"] = sync
+
         try:
-            self.prepare(params, dataset, context)
-        except APIAbort:
-            raise
-        except Exception as e:
-            raise APIInternalError(f"Prepare {dataset.name} error: '{e}'")
-
-        # If we don't have an Elasticsearch index map, then the dataset isn't
-        # indexed and we skip the Elasticsearch actions.
-        if IndexMap.exists(dataset):
-            # Build an Elasticsearch instance to manage the bulk update
-            elastic = Elasticsearch(self.elastic_uri)
-            map = IndexMap.stream(dataset=dataset)
-
-            # NOTE: because both generate_actions and streaming_bulk return
-            # generators, the entire sequence is inside a single try block.
             try:
-                results = helpers.streaming_bulk(
-                    elastic,
-                    self.generate_actions(dataset, context, map),
-                    raise_on_exception=False,
-                    raise_on_error=False,
-                )
-                report = self._analyze_bulk(results, context)
+                self.prepare(params, dataset, context)
+            except APIAbort:
+                raise
             except Exception as e:
-                raise APIInternalError("Unexpected backend error '{e}'") from e
-        elif context["attributes"].require_map and self.expect_index(dataset):
-            # If the dataset has no index map, the bulk operation requires one,
-            # and we expect one to appear, fail rather than risking abandoning
-            # Elasticsearch documents.
-            raise APIAbort(
-                HTTPStatus.CONFLICT,
-                f"Operation unavailable: dataset {dataset.resource_id} is not indexed.",
-            )
-        else:
-            report = BulkResults(errors=0, count=0, report={})
+                raise APIInternalError(f"Prepare {dataset.name} error: '{e}'")
 
-        summary: JSONOBJECT = {
-            "ok": report.count - report.errors,
-            "failure": report.errors,
-        }
-        auditing: dict[str, Any] = context["auditing"]
-        attributes: JSONOBJECT = {"summary": summary}
-        auditing["attributes"] = attributes
+            # If we don't have an Elasticsearch index map, then the dataset isn't
+            # indexed and we skip the Elasticsearch actions.
+            if IndexMap.exists(dataset):
+                # Build an Elasticsearch instance to manage the bulk update
+                elastic = Elasticsearch(self.elastic_uri)
+                map = IndexMap.stream(dataset=dataset)
 
-        # Let the subclass complete the operation
-        try:
-            self.complete(dataset, context, summary)
-            if "sync" in context:
-                context["sync"].update(dataset=dataset, state=OperationState.OK)
+                # NOTE: because both generate_actions and streaming_bulk return
+                # generators, the entire sequence is inside a single try block.
+                try:
+                    results = helpers.streaming_bulk(
+                        elastic,
+                        self.generate_actions(dataset, context, map),
+                        raise_on_exception=False,
+                        raise_on_error=False,
+                    )
+                    report = self._analyze_bulk(results, context)
+                except Exception as e:
+                    raise APIInternalError("Unexpected backend error '{e}'") from e
+            elif context["attributes"].require_map and self.expect_index(dataset):
+                # If the dataset has no index map, the bulk operation requires one,
+                # and we expect one to appear, fail rather than risking abandoning
+                # Elasticsearch documents.
+                raise APIAbort(
+                    HTTPStatus.CONFLICT,
+                    f"Operation unavailable: dataset {dataset.resource_id} is not indexed.",
+                )
+            else:
+                report = BulkResults(errors=0, count=0, report={})
+
+            summary: JSONOBJECT = {
+                "ok": report.count - report.errors,
+                "failure": report.errors,
+            }
+            attributes: JSONOBJECT = {"summary": summary}
+            auditing["attributes"] = attributes
+
+            # Let the subclass complete the operation
+            try:
+                self.complete(dataset, context, summary)
+            except Exception as e:
+                raise APIInternalError(f"Unexpected completion error '{e}'") from e
         except Exception as e:
-            attributes["message"] = str(e)
-            auditing["status"] = AuditStatus.WARNING
+            # Make sure that we correctly audit errors, and clean up the
+            # operational state.
+            auditing["attributes"] = {"message": str(e)}
+            auditing["status"] = AuditStatus.FAILURE
             auditing["reason"] = AuditReason.INTERNAL
-            raise APIInternalError(f"Unexpected completion error '{e}'") from e
+
+            # The DELETE operator removes the "sync" context to signal that
+            # the operations table rows no longer exist, so check.
+            if context.get("sync"):
+                context["sync"].error(dataset, f"update error {e}")
+            raise
+
+        # The DELETE operator removes the "sync" context to signal that
+        # the operations table rows no longer exist, so check.
+        if context.get("sync"):
+            try:
+                context["sync"].update(dataset=dataset, state=OperationState.OK)
+            except Exception as e:
+                auditing["attributes"] = {"message": str(e)}
+                auditing["status"] = AuditStatus.WARNING
+                auditing["reason"] = AuditReason.INTERNAL
+                raise APIInternalError(f"Unexpected sync unlock error '{e}'") from e
 
         # Return the summary document as the success response, or abort with an
         # internal error if we tried to operate on Elasticsearch documents but
