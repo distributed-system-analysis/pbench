@@ -477,7 +477,7 @@ class ElasticBase(ApiBase):
     ) -> Response:
         """Handle a GET operation involving a call to Elasticsearch
 
-        The post-processing of the Elasticsearch query is handled the
+        The post-processing of the Elasticsearch query is handled by the
         subclasses through their postprocess() methods.
 
         Args:
@@ -790,9 +790,6 @@ class ElasticBulkBase(ApiBase):
 
         # Our schema requires a valid dataset and uses it to authorize access;
         # therefore the unconditional dereference is assumed safe.
-        sync: Optional[Sync] = None
-        auditing: dict[str, Any] = context["auditing"]
-
         dataset = self.schemas.get_param_by_type(
             ApiMethod.POST, ParamType.DATASET, params
         ).value
@@ -805,6 +802,7 @@ class ElasticBulkBase(ApiBase):
             )
 
         component = context["attributes"].operation_name
+        auditing: dict[str, Any] = context["auditing"]
         sync = Sync(logger=current_app.logger, component=component)
         try:
             sync.update(dataset=dataset, state=OperationState.WORKING)
@@ -878,17 +876,19 @@ class ElasticBulkBase(ApiBase):
             auditing["status"] = AuditStatus.FAILURE
             auditing["reason"] = AuditReason.INTERNAL
 
-            # The DELETE operator removes the "sync" context to signal that
-            # the operations table rows no longer exist, so check.
+            # The DELETE API removes the "sync" context to signal that the
+            # operations table rows no longer exist, so check; but if it's
+            # still set then our `sync` local is valid.
             if context.get("sync"):
-                context["sync"].error(dataset, f"update error {e}")
+                sync.error(dataset, f"update error {e}")
             raise
 
-        # The DELETE operator removes the "sync" context to signal that
-        # the operations table rows no longer exist, so check.
+        # The DELETE API removes the "sync" context to signal that the
+        # operations table rows no longer exist, so check; but if it's still
+        # set then our `sync` local is valid.
         if context.get("sync"):
             try:
-                context["sync"].update(dataset=dataset, state=OperationState.OK)
+                sync.update(dataset=dataset, state=OperationState.OK)
             except Exception as e:
                 auditing["attributes"] = {"message": str(e)}
                 auditing["status"] = AuditStatus.WARNING

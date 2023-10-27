@@ -134,12 +134,12 @@ class Sync:
                         op: Operation = ops.get(self.component)
                         if op:
                             if state:
-                                # If we're declaring OK, clear any old error
-                                if state is OperationState.OK and not message:
-                                    op.message = "OK"
                                 op.state = state
                             if message:
                                 op.message = message
+                            elif state is OperationState.OK:
+                                # If we're declaring OK, clear any old message
+                                op.message = "OK"
                         else:
                             op = Operation(
                                 dataset_ref=ds_id,
