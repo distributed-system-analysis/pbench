@@ -1770,6 +1770,7 @@ class ApiBase(Resource):
             current_app.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
         except APIAbort as e:
+            current_app.logger.warning("{} {}", api_name, e)
             abort(e.http_status, message=str(e))
         except Exception:
             # Construct an APIInternalError to get the UUID and standard return
@@ -1844,6 +1845,7 @@ class ApiBase(Resource):
             current_app.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
         except APIAbort as e:
+            current_app.logger.warning("{} {}", api_name, e)
             if auditing["finalize"]:
                 attr = auditing.get("attributes", {"message": str(e)})
                 try:

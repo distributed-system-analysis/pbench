@@ -137,6 +137,9 @@ class Sync:
                                 op.state = state
                             if message:
                                 op.message = message
+                            elif state is OperationState.OK:
+                                # If we're declaring OK, clear any old message
+                                op.message = "OK"
                         else:
                             op = Operation(
                                 dataset_ref=ds_id,

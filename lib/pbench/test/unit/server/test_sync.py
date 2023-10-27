@@ -80,13 +80,13 @@ class TestSync:
         sync1.update(drb, OperationState.OK)
         assert Metadata.getvalue(drb, "dataset.operations") == {
             "DELETE": {"state": "READY", "message": None},
-            "INDEX": {"state": "OK", "message": None},
+            "INDEX": {"state": "OK", "message": "OK"},
         }
         sync2 = Sync(make_logger, OperationName.DELETE)
         sync2.update(drb, OperationState.FAILED, message="oops")
         assert Metadata.getvalue(drb, "dataset.operations") == {
             "DELETE": {"state": "FAILED", "message": "oops"},
-            "INDEX": {"state": "OK", "message": None},
+            "INDEX": {"state": "OK", "message": "OK"},
         }
 
     def test_update_state_new(self, make_logger, more_datasets):
@@ -185,7 +185,7 @@ class TestSync:
             enabled=[OperationName.UPLOAD, OperationName.TOOLINDEX],
         )
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "INDEX": {"state": "OK", "message": None},
+            "INDEX": {"state": "OK", "message": "OK"},
             "UPLOAD": {"state": "READY", "message": None},
             "TOOLINDEX": {"state": "READY", "message": None},
         }
