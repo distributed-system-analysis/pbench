@@ -15,8 +15,14 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
       getState().datasetlist;
     let publicData = [...getState().datasetlist.publicData];
     const params = new URLSearchParams();
-    params.append("metadata", "dataset.uploaded");
+
     params.append("access", "public");
+
+    params.append("metadata", "server");
+    params.append("metadata", "dataset");
+    params.append("metadata", "global");
+    params.append("metadata", "user");
+
     params.append("offset", offset);
     params.append("limit", limit);
 

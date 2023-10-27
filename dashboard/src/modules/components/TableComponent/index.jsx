@@ -24,7 +24,6 @@ import {
 } from "actions/datasetListActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import { DATASET_UPLOADED } from "assets/constants/overviewConstants";
 import DatePickerWidget from "../DatePickerComponent";
 import { RenderPagination } from "../OverviewComponent/common-component";
 import TablePagination from "../PaginationComponent";
@@ -87,7 +86,7 @@ const TableWithFavorite = () => {
     !!favoriteRepoNames?.find((element) => element?.name === repo?.name);
 
   const getSortableRowValues = (data) => {
-    const uploadedDate = data.metadata[DATASET_UPLOADED];
+    const uploadedDate = data.metadata.dataset.uploaded;
     return [data.name, uploadedDate, isRepoFavorited(data)];
   };
   if (activeSortIndex !== null) {
@@ -208,7 +207,7 @@ const TableWithFavorite = () => {
                           {repo?.name}
                         </Td>
                         <Td dataLabel={columnNames.uploadedDate}>
-                          {repo?.metadata[DATASET_UPLOADED]}
+                          {repo?.metadata.dataset.uploaded}
                         </Td>
                         <Td
                           favorites={{

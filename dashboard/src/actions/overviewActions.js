@@ -16,13 +16,7 @@ export const getDatasets = () => async (dispatch, getState) => {
       dispatch({ type: TYPES.LOADING });
     }
     const params = new URLSearchParams();
-    params.append("metadata", CONSTANTS.DASHBOARD_SAVED);
-    params.append("metadata", CONSTANTS.DASHBOARD_SEEN);
-    params.append("metadata", CONSTANTS.DATASET_ACCESS);
-    params.append("metadata", CONSTANTS.DATASET_OWNER);
-    params.append("metadata", CONSTANTS.DATASET_UPLOADED);
-    params.append("metadata", CONSTANTS.SERVER_DELETION);
-    params.append("metadata", CONSTANTS.USER_FAVORITE);
+
     params.append("metadata", "server");
     params.append("metadata", "dataset");
     params.append("metadata", "global");
@@ -68,26 +62,25 @@ const initializeRuns = () => (dispatch, getState) => {
   data.forEach((item) => {
     item[CONSTANTS.IS_EDIT] = false;
     item[CONSTANTS.NAME_COPY] = item.name;
-    item[CONSTANTS.SERVER_DELETION_COPY] =
-      item.metadata[CONSTANTS.SERVER_DELETION];
+    item[CONSTANTS.SERVER_DELETION_COPY] = item.metadata.server.deletion;
 
     clearEditableFields(item);
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
-    item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
+    item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.global?.dashboard?.seen;
     item[CONSTANTS.IS_ITEM_FAVORITED] =
-      !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
+      !!item?.metadata?.user?.dashboard?.favorite;
   });
 
   const savedRuns = data.filter(
-    (item) => item.metadata[CONSTANTS.DASHBOARD_SAVED]
+    (item) => item.metadata.global?.dashboard?.saved
   );
   const newRuns = data.filter(
-    (item) => !item.metadata[CONSTANTS.DASHBOARD_SAVED]
+    (item) => !item.metadata.global?.dashboard?.saved
   );
 
   const expiringRuns = data.filter(
     (item) =>
-      findNoOfDays(item.metadata[CONSTANTS.SERVER_DELETION]) <
+      findNoOfDays(item.metadata.server.deletion) <
       CONSTANTS.EXPIRATION_DAYS_LIMIT
   );
   dispatch({
@@ -156,17 +149,18 @@ export const updateDataset =
         );
 
         for (const key in response.data.metadata) {
-          if (checkNestedPath(key, item.metadata) || key in item.metadata) {
-            if (checkNestedPath(key, item.metadata)) {
-              item.metadata = setValueFromPath(
-                key,
-                item.metadata,
-                response.data.metadata[key]
-              );
-            }
-            if (key in item.metadata) {
-              item.metadata[key] = response.data.metadata[key];
-            }
+          if (checkNestedPath(key, item.metadata)) {
+            item.metadata = setValueFromPath(
+              key,
+              item.metadata,
+              response.data.metadata[key]
+            );
+          } else if (item.metadata[key.split(".")[0]] === null) {
+            assignKeyPath(
+              item.metadata,
+              key.split("."),
+              response.data.metadata[key]
+            );
           }
         }
         dispatch({
@@ -302,7 +296,7 @@ export const publishDataset =
         const dataIndex = savedRuns.findIndex(
           (item) => item.resource_id === dataset.resource_id
         );
-        savedRuns[dataIndex].metadata[CONSTANTS.DATASET_ACCESS] = updateValue;
+        savedRuns[dataIndex].metadata.dataset.access = updateValue;
 
         dispatch({
           type: TYPES.SAVED_RUNS,
@@ -371,7 +365,7 @@ export const editMetadata =
       }
     } else if (metadata === CONSTANTS.SERVER_DELETION_KEY) {
       data[rIndex][CONSTANTS.IS_DIRTY_SERVER_DELETE] = true;
-      data[rIndex].metadata[CONSTANTS.SERVER_DELETION] = value;
+      data[rIndex].metadata.server.deletion = value;
     }
     dispatch(updateDatasetType(data, type));
   };
@@ -392,7 +386,7 @@ export const setRowtoEdit =
 
     if (!isEdit) {
       data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
-      data[rIndex].metadata[CONSTANTS.SERVER_DELETION] =
+      data[rIndex].metadata.server.deletion =
         data[rIndex][CONSTANTS.SERVER_DELETION_COPY];
       clearEditableFields(data[rIndex]);
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
@@ -419,7 +413,7 @@ export const getEditedMetadata =
 
     if (item[CONSTANTS.IS_DIRTY_SERVER_DELETE]) {
       editedMetadata[metaDataActions[CONSTANTS.SERVER_DELETION_KEY]] = new Date(
-        item.metadata[CONSTANTS.SERVER_DELETION]
+        item.metadata.server.deletion
       ).toISOString();
     }
     dispatch(updateDataset(dataset, editedMetadata));
@@ -572,3 +566,16 @@ const setValueFromPath = (path, obj, value) => {
 
 const checkNestedPath = (path, obj = {}) =>
   path.split(".").reduce((a, p) => a?.[p], obj) !== undefined;
+
+const assignKeyPath = (obj, keyPath, value) => {
+  const lastKeyIndex = keyPath.length - 1;
+
+  for (let i = 0; i < lastKeyIndex; ++i) {
+    const key = keyPath[i];
+    if (!(key in obj) || obj[key] === null) {
+      obj[key] = {};
+    }
+    obj = obj[key];
+  }
+  obj[keyPath[lastKeyIndex]] = value;
+};

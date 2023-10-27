@@ -1,15 +1,6 @@
 import "./index.less";
 
 import {
-  DASHBOARD_SEEN,
-  IS_ITEM_SEEN,
-  NAME_KEY,
-  ROWS_PER_PAGE,
-  SERVER_DELETION_KEY,
-  START_PAGE_NUMBER,
-  USER_FAVORITE,
-} from "assets/constants/overviewConstants";
-import {
   ExpandableRowContent,
   InnerScrollContainer,
   OuterScrollContainer,
@@ -20,6 +11,13 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
+import {
+  IS_ITEM_SEEN,
+  NAME_KEY,
+  ROWS_PER_PAGE,
+  SERVER_DELETION_KEY,
+  START_PAGE_NUMBER,
+} from "assets/constants/overviewConstants";
 import { MetadataRow, NewRunsRow, RenderPagination } from "./common-component";
 import React, { useCallback, useState } from "react";
 import {
@@ -98,14 +96,20 @@ const NewRunsComponent = () => {
       onClick: () => dispatch(getMetaDataActions(dataset, "save", true)),
     },
     {
-      title: dataset.metadata[DASHBOARD_SEEN] ? "Mark unread" : "Mark read",
+      title: dataset.metadata?.global?.dashboard?.seen
+        ? "Mark unread"
+        : "Mark read",
       onClick: () =>
         dispatch(
-          getMetaDataActions(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
+          getMetaDataActions(
+            dataset,
+            "read",
+            !dataset.metadata?.global?.dashboard?.seen
+          )
         ),
     },
     {
-      title: dataset.metadata[USER_FAVORITE]
+      title: dataset.metadata.user?.dashboard?.favorite
         ? "Mark unfavorite"
         : "Mark favorite",
       onClick: () =>
@@ -113,7 +117,7 @@ const NewRunsComponent = () => {
           getMetaDataActions(
             dataset,
             "favorite",
-            !dataset.metadata[USER_FAVORITE]
+            !dataset.metadata.user?.dashboard?.favorite
           )
         ),
     },
