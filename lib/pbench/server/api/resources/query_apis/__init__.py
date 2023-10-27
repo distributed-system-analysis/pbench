@@ -844,6 +844,8 @@ class ElasticBulkBase(ApiBase):
                         raise_on_error=False,
                     )
                     report = self._analyze_bulk(results, context)
+                except APIAbort:
+                    raise
                 except Exception as e:
                     raise APIInternalError("Unexpected backend error '{e}'") from e
             elif context["attributes"].require_map and self.expect_index(dataset):
@@ -867,7 +869,11 @@ class ElasticBulkBase(ApiBase):
             # Let the subclass complete the operation
             try:
                 self.complete(dataset, context, summary)
+            except APIAbort:
+                # propagate intentional API errors
+                raise
             except Exception as e:
+                # anything else is unexpected
                 raise APIInternalError(f"Unexpected completion error '{e}'") from e
         except Exception as e:
             # Make sure that we correctly audit errors, and clean up the
@@ -879,14 +885,14 @@ class ElasticBulkBase(ApiBase):
             # The DELETE API removes the "sync" context to signal that the
             # operations table rows no longer exist, so check; but if it's
             # still set then our `sync` local is valid.
-            if context.get("sync"):
+            if "sync" in context:
                 sync.error(dataset, f"update error {e}")
             raise
 
         # The DELETE API removes the "sync" context to signal that the
         # operations table rows no longer exist, so check; but if it's still
         # set then our `sync` local is valid.
-        if context.get("sync"):
+        if "sync" in context:
             try:
                 sync.update(dataset=dataset, state=OperationState.OK)
             except Exception as e:
