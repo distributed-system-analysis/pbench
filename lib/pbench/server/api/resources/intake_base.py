@@ -123,7 +123,7 @@ class IntakeBase(ApiBase):
 
         This supports typed metadata expressions using the syntax key : value
         : type, such as `global.key:1:int`, `global.key:true:bool`, or
-        `global.key:'{"a": true, "b": 1}`:json`.
+        `global.key:'{"a": true, "b": 1}':json`.
 
         NOTE: Multiple metadata expressions may occur in each item in the list,
         separated by unquoted "," characters. We don't rely on the common

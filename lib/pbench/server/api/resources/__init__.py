@@ -5,7 +5,7 @@ from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
 import re
-from typing import Any, Callable, Dict, NamedTuple, Optional, Union
+from typing import Any, Callable, NamedTuple, Optional, Union
 import uuid
 
 from dateutil import parser as date_parser
@@ -694,7 +694,7 @@ def convert_boolean(value: Any, parameter: "Parameter") -> bool:
 
 
 # A type defined to pass context through API methods.
-ApiContext = Dict[str, Any]
+ApiContext = dict[str, Any]
 
 
 @dataclass
@@ -780,13 +780,13 @@ class Term:
         expression.
 
         The key and value can be quoted to include mixed case and symbols,
-        including the ":" character, by starting and starting and ending the
-        key or value with the "'" or '"' character, e.g.,
-        "'dataset.metalog.tool/iteration:1':'foo:1#bar':str".
+        including the ":" and "," characters, by wrapping the key or value in
+        quotes (single "'" and '"' quotes may be nested), for example,
+        `'dataset.metalog.tool/iteration:1':'foo:"1"#bar':str`
 
-        The "operator" and "type", if omitted, can be defaulted from the object
-        configuration, so that `dataset.name:foo` can have the same effect as
-        `dataset.name:=foo:str`.
+        The "operator" and "type", if omitted, can be defaulted from the Term
+        object configuration, so that with default_operator="=", the expression
+        `dataset.name:foo` has the same effect as `dataset.name:=foo:str`.
 
         Returns:
             self
@@ -845,8 +845,8 @@ class Term:
         prefix = default
         for p in sorted(prefixes, key=lambda k: len(k), reverse=True):
             if self.buffer.startswith(p):
-                prefix = self.buffer[: len(p)]
-                self.buffer = self.buffer[len(p) :]
+                prefix = p
+                self.buffer = self.buffer.removeprefix(p)
                 self.offset += len(p)
                 break
         return prefix
@@ -1337,7 +1337,7 @@ class ApiSchemaSet:
         """
         if not schemas:
             raise RuntimeError("At least one ApiSchema must be provided")
-        self.schemas: Dict[ApiMethod, ApiSchema] = {s.method: s for s in schemas}
+        self.schemas: dict[ApiMethod, ApiSchema] = {s.method: s for s in schemas}
 
     def __getitem__(self, key: ApiMethod):
         return self.schemas.get(key)

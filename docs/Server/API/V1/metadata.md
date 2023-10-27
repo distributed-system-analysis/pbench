@@ -2,7 +2,8 @@
 
 This API sets or retrieves metadata for the identified dataset. For `GET` you
 specify a list of metadata keys with the `?metadata` query parameter; for `PUT`
-you specify an `application/json` request body to identify
+you specify an `application/json` request body to specify a set of keys and
+values.
 
 ## URI parameters
 
@@ -16,14 +17,35 @@ A list of metadata keys to retrieve. For example, `?metadata=dataset,global,serv
 will retrieve all metadata values, each namespace as a nested JSON object. (This can
 be a lot of data, and is generally not recommended.)
 
-Less radically, `?metadata=dataset.name,dataset.access,server.deletion` will return
+The metadata query string `?metadata=dataset.name,dataset.access,server` will return
 an `application/json` response something like this:
 
 ```json
 {
     "dataset.access": "public",
-    "dataset.name": "pbench-user-benchmark__2022.12.24T15.00.58",
-    "server.deletion": "2025-10-20"
+    "dataset.name": "uperf__2023.08.21T15.09.46",
+    "server": {
+        "benchmark": "uperf",
+        "deletion": "2025-08-21",
+        "tarball-path": "<internal path>"
+    }
+}
+```
+## Request body
+
+For `PUT`, specify the keys and values in an `application/json` request body
+under the `"metadata"` field, like this:
+
+```json
+{
+  "metadata": {
+    "dataset.name": "I shall call you squishie",
+    "server.deletion": "2024-12-13",
+    "global.pbench": {
+      "tag": "ABC",
+      "version": 1.0
+    }
+  }
 }
 ```
 
@@ -52,10 +74,11 @@ See [Access model](../access_model.md)
 Successful request.
 
 `401`   **UNAUTHORIZED** \
-The client is not authenticated.
+The client is not authenticated for a `PUT` call.
 
 `403`   **FORBIDDEN** \
-The authenticated client does not have `UPDATE`` access to the specified dataset.
+The authenticated client does not have `READ` access (for `GET`) or `UPDATE`
+access (for `PUT`) to the specified dataset.
 
 `404`   **NOT FOUND** \
 The `<dataset>` resource ID does not exist.
