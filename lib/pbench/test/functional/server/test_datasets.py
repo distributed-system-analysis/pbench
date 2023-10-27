@@ -80,8 +80,8 @@ class TestPut:
             a = access[cur_access]
             if a == "public":
                 metadata = (
-                    "server.origin:test,user.pbench.access:public,server.archiveonly:n",
-                    f"server.deletion:{expire_soon:%Y-%m-%d %H:%M%z}",
+                    "server.origin:test,user.pbench.access:public,server.archiveonly:n:bool",
+                    f"server.deletion:'{expire_soon:%Y-%m-%d %H:%M%z}'",
                 )
             else:
                 metadata = None

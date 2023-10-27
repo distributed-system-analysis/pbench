@@ -227,7 +227,7 @@ class TestUpload:
                     "Content-MD5": "ANYMD5",
                 },
                 query_string={
-                    "metadata": "global.xyz#A@b=z:y,foobar.badpath:data,server.deletion:3000-12-25T23:59:59+00:00"
+                    "metadata": "global.xyz#A@b=z:y,foobar.badpath:data,server.deletion:'3000-12-25T23:59:59+00:00'"
                 },
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -235,8 +235,8 @@ class TestUpload:
         assert "errors" in json and "message" in json
         assert json["message"] == "at least one specified metadata key is invalid"
         assert json["errors"] == [
-            "Key global.xyz#a@b=z is invalid or isn't settable",
-            "Key foobar.badpath is invalid or isn't settable",
+            "Metadata key 'global.xyz#A@b=z' is not supported",
+            "Metadata key 'foobar.badpath' is not supported",
             "Metadata key 'server.deletion' value '3000-12-25T23:59:59+00:00' "
             "for dataset must be a date/time before 1979-12-30",
         ]
@@ -573,7 +573,12 @@ class TestUpload:
                 self.gen_uri(server_config, datafile.name),
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, md5),
-                query_string={"metadata": "global.pbench.test:data"},
+                query_string={
+                    "metadata": [
+                        "global.pbench.test:data,global.pbench.bar:true:bool,global.pbench.fl:1.0:float",
+                        'global.pbench.int:1:int,global.pbench.json:\'{"a":1,"b":true,"c":"z"}\':json',
+                    ]
+                },
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response.text)
@@ -596,7 +601,15 @@ class TestUpload:
         assert dataset.resource_id == md5
         assert dataset.name == name
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
-        assert Metadata.getvalue(dataset, "global") == {"pbench": {"test": "data"}}
+        assert Metadata.getvalue(dataset, "global") == {
+            "pbench": {
+                "test": "data",
+                "bar": True,
+                "int": 1,
+                "fl": 1.0,
+                "json": {"a": 1, "b": True, "c": "z"},
+            }
+        }
         assert Metadata.getvalue(dataset, Metadata.SERVER_DELETION) == "1972-01-02"
         assert Metadata.getvalue(dataset, "dataset.operations") == {
             "INDEX": {"state": "READY", "message": None},
@@ -629,7 +642,13 @@ class TestUpload:
         assert audit[0].reason is None
         assert audit[0].attributes == {
             "access": "private",
-            "metadata": {"global.pbench.test": "data"},
+            "metadata": {
+                "global.pbench.test": "data",
+                "global.pbench.bar": True,
+                "global.pbench.int": 1,
+                "global.pbench.fl": 1.0,
+                "global.pbench.json": {"a": 1, "b": True, "c": "z"},
+            },
         }
         assert audit[1].id == 2
         assert audit[1].root_id == 1
@@ -644,7 +663,13 @@ class TestUpload:
         assert audit[1].reason is None
         assert audit[1].attributes == {
             "access": "private",
-            "metadata": {"global.pbench.test": "data"},
+            "metadata": {
+                "global.pbench.test": "data",
+                "global.pbench.bar": True,
+                "global.pbench.int": 1,
+                "global.pbench.fl": 1.0,
+                "global.pbench.json": {"a": 1, "b": True, "c": "z"},
+            },
             "notes": [
                 "Identified benchmark workload 'unknown'.",
                 "Expected expiration date is 1972-01-01.",
@@ -679,8 +704,8 @@ class TestUpload:
             "message": "at least one specified metadata key is invalid",
             "errors": [
                 "Metadata key 'server.archiveonly' value 'abc' for dataset must be a boolean",
-                "improper metadata syntax dataset.name=test must be 'k:v'",
-                "Key test.foo is invalid or isn't settable",
+                "Missing ':' terminator after 'dataset.name=test'",
+                "Metadata key 'test.foo' is not supported",
             ],
         }
 

@@ -33,10 +33,7 @@ class Upload(IntakeBase):
                 query_schema=Schema(
                     Parameter("access", ParamType.ACCESS),
                     Parameter(
-                        "metadata",
-                        ParamType.LIST,
-                        element_type=ParamType.STRING,
-                        string_list=",",
+                        "metadata", ParamType.LIST, element_type=ParamType.STRING
                     ),
                 ),
                 audit_type=AuditType.NONE,
