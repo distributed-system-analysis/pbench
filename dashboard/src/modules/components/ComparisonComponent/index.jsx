@@ -28,11 +28,19 @@ const ComparisonComponent = () => {
   const navigate = useNavigate();
 
   const { datasets } = useSelector((state) => state.overview);
-  const { isCompareSwitchChecked, selectedResourceIds } = useSelector(
-    (state) => state.comparison
-  );
+  const {
+    isCompareSwitchChecked,
+    selectedResourceIds,
+    compareChartData,
+    chartData,
+  } = useSelector((state) => state.comparison);
   useEffect(() => {
-    if (datasets && datasets.length > 0) {
+    if (
+      datasets &&
+      datasets.length > 0 &&
+      !!!compareChartData.length &&
+      !!!chartData.length
+    ) {
       dispatch(getQuisbyData(datasets[0]));
     } else {
       dispatch(getDatasets());
