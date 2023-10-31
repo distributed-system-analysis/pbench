@@ -1,14 +1,6 @@
 import "./index.less";
-import "./index.less";
 
-import {
-  Button,
-  Form,
-  FormGroup,
-  Modal,
-  ModalVariant,
-  TextInput,
-} from "@patternfly/react-core";
+import { Button, Modal, ModalVariant, TextInput } from "@patternfly/react-core";
 import {
   sendNewKeyRequest,
   setNewKeyLabel,
