@@ -88,14 +88,14 @@ const App = () => {
                       element={<OverviewComponent />}
                     />
                     <Route
-                      path={APP_ROUTES.TABLE_OF_CONTENT}
-                      element={<TableOfContent />}
-                    />
-                    <Route
                       path={APP_ROUTES.VISUALIZATION}
                       element={<ComparisonComponent />}
                     />
                   </Route>
+                  <Route
+                    path={APP_ROUTES.TABLE_OF_CONTENT}
+                    element={<TableOfContent />}
+                  />
                 </Route>
                 <Route path="*" element={<NoMatchingPage />} />
               </Route>

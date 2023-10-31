@@ -45,7 +45,7 @@ const ComparisonComponent = () => {
     } else {
       dispatch(getDatasets());
     }
-  }, [datasets, dispatch, navigate]);
+  }, [chartData.length, compareChartData.length, datasets, dispatch, navigate]);
   return (
     <div className="chart-container">
       <Flex className="heading-container">
