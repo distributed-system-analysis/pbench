@@ -16,9 +16,12 @@ const NewKeyModal = (props) => {
   );
   const handleKeyPress = (e) => {
     const key = e.key;
-    if (key === "Enter" && newKeyLabel) {
-      dispatch(sendNewKeyRequest(newKeyLabel));
+    if (key === "Enter") {
+      newKeyRequest();
     }
+  };
+  const newKeyRequest = () => {
+    dispatch(sendNewKeyRequest(newKeyLabel));
   };
   return (
     <Modal
@@ -30,9 +33,8 @@ const NewKeyModal = (props) => {
         <Button
           key="create"
           variant="primary"
-          isDisabled={!newKeyLabel}
           form="modal-with-form-form"
-          onClick={() => dispatch(sendNewKeyRequest(newKeyLabel))}
+          onClick={() => newKeyRequest()}
         >
           Create
         </Button>,
