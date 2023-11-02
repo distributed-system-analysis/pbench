@@ -1,13 +1,6 @@
 import "./index.less";
 
-import {
-  Button,
-  Form,
-  FormGroup,
-  Modal,
-  ModalVariant,
-  TextInput,
-} from "@patternfly/react-core";
+import { Button, Modal, ModalVariant, TextInput } from "@patternfly/react-core";
 import {
   sendNewKeyRequest,
   setNewKeyLabel,
@@ -21,7 +14,15 @@ const NewKeyModal = (props) => {
   const { isModalOpen, newKeyLabel } = useSelector(
     (state) => state.keyManagement
   );
-
+  const handleKeyPress = (e) => {
+    const key = e.key;
+    if (key === "Enter") {
+      newKeyRequest();
+    }
+  };
+  const newKeyRequest = () => {
+    dispatch(sendNewKeyRequest(newKeyLabel));
+  };
   return (
     <Modal
       variant={ModalVariant.small}
@@ -33,7 +34,7 @@ const NewKeyModal = (props) => {
           key="create"
           variant="primary"
           form="modal-with-form-form"
-          onClick={() => dispatch(sendNewKeyRequest(newKeyLabel))}
+          onClick={() => newKeyRequest()}
         >
           Create
         </Button>,
@@ -42,17 +43,19 @@ const NewKeyModal = (props) => {
         </Button>,
       ]}
     >
-      <Form id="new-api-key-form">
-        <FormGroup label="Enter the label" fieldId="new-api-key-form">
-          <TextInput
-            type="text"
-            id="new-api-key-form"
-            name="new-api-key-form"
-            value={newKeyLabel}
-            onChange={(value) => dispatch(setNewKeyLabel(value))}
-          />
-        </FormGroup>
-      </Form>
+      <div id="new-api-key-form">
+        <div label="Enter the label" id="new-api-key-form-label">
+          Enter the label
+        </div>
+        <TextInput
+          type="text"
+          id="new-api-key-form"
+          name="new-api-key-form"
+          value={newKeyLabel}
+          onKeyPress={(e) => handleKeyPress(e)}
+          onChange={(value) => dispatch(setNewKeyLabel(value))}
+        />
+      </div>
     </Modal>
   );
 };
