@@ -988,7 +988,8 @@ class TestCacheManager:
             ("", True, b"tarball_as_a_byte_stream"),
             (None, True, b"tarball_as_a_byte_stream"),
             ("f1.json", True, b"{'json': 'value'}"),
-            ("subdir1/f12_sym", False, CacheExtractBadPath(Path("a"), "b")),
+            ("subdir1/subdir12/f122_sym", True, CacheExtractBadPath(Path("a"), "b")),
+            ("subdir1/f12_sym", False, None),
         ],
     )
     def test_get_inventory(
@@ -1030,10 +1031,14 @@ class TestCacheManager:
                 assert isinstance(e, type(exp_stream)), e
             else:
                 assert not isinstance(exp_stream, Exception)
-                assert file_info["type"] is CacheType.FILE
-                stream: Inventory = file_info["stream"]
-                assert stream.stream.read() == exp_stream
-                stream.close()
+                if exp_stream:
+                    assert file_info["type"] is CacheType.FILE
+                    stream: Inventory = file_info["stream"]
+                    assert stream.stream.read() == exp_stream
+                    stream.close()
+                else:
+                    assert file_info["type"] is CacheType.DIRECTORY
+                    assert file_info["stream"] is None
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""

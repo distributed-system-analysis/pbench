@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from pathlib import Path
 
-from flask import current_app, send_file
+from flask import current_app, redirect, send_file
 from flask.wrappers import Request, Response
 
 from pbench.server import OperationCode, PbenchServerConfig
@@ -70,7 +70,15 @@ class DatasetsInventory(ApiBase):
         except (TarballNotFound, CacheExtractBadPath) as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
-        if file_info["type"] != CacheType.FILE:
+        if file_info["type"] is CacheType.DIRECTORY:
+            prefix = current_app.server_config.rest_uri
+            uri = (
+                f"{self._get_uri_base(request).host}{prefix}/datasets/"
+                f"{dataset.resource_id}/contents/"
+            )
+            uri += target if target else ""
+            return redirect(uri, code=HTTPStatus.MOVED_PERMANENTLY)
+        elif file_info["type"] is not CacheType.FILE:
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST,
                 "The specified path does not refer to a regular file",
