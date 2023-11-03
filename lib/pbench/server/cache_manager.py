@@ -772,19 +772,17 @@ class Tarball:
             tarball_path, f"Unexpected error from {tar_path}: {error_text!r}"
         )
 
-    def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
-        """Access the file stream of a tarball member file.
-
-        Returns a JSON description of the entity at "path" within the tarball's
-        directory tree.
+    def get_inventory(self, path: str) -> dict[str, Any]:
+        """Return a JSON description of a tarball member file.
 
         If "path" is a directory, release the cache lock and return the path
         and type.
 
-        If "path" is a regular file, return an Inventory object, transferring
-        ownership of the cache lock to the caller. When done with the file
-        Inventory stream, the caller must close the Inventory object to release
-        the file stream and the cache lock.
+        If "path" is a regular file, the returned data includes an Inventory
+        object with a byte stream, and transfers ownership of the cache lock to
+        the caller. When done with the file Inventory stream, the caller must
+        close the Inventory object to release the file stream and the cache
+        lock.
 
         if "path" is anything else, the cache lock is released and an exception
         is raised.
@@ -800,7 +798,7 @@ class Tarball:
             Dictionary with file info and file stream
         """
         if not path:
-            info = {
+            return {
                 "name": self.tarball_path.name,
                 "type": CacheType.FILE,
                 "stream": Inventory(self.tarball_path.open("rb")),
@@ -811,14 +809,12 @@ class Tarball:
                 if artifact.is_dir():
                     stream = None
                     type = CacheType.DIRECTORY
-                elif not artifact.is_file():
-                    raise CacheExtractBadPath(self.tarball_path, path)
-                else:
+                elif artifact.is_file():
                     stream = Inventory(artifact.open("rb"), lock=lock.keep())
                     type = CacheType.FILE
-            info = {"name": path, "type": type, "stream": stream}
-
-        return info
+                else:
+                    raise CacheExtractBadPath(self.tarball_path, path)
+            return {"name": path, "type": type, "stream": stream}
 
     @staticmethod
     def _get_metadata(tarball_path: Path) -> Optional[JSONOBJECT]:

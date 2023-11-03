@@ -48,8 +48,14 @@ class DatasetsInventory(ApiBase):
     def _get(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
-        """
-        This function returns the contents of the requested file as a byte stream.
+        """Request the contents of a results file.
+
+        This function examines a "target" path within the results tarball of a
+        dataset. If the target path is a regular file, this returns the
+        contents of the requested file as a byte stream. If the target path is
+        a directory, it returns a client redirect (301 status with a new url
+        in the "location" header) to acquire metadata about the directory and
+        its contents. Otherwise, the request fails with a BAD_REQUEST error.
 
         Args:
             params: includes the uri parameters, which provide the dataset and target.
@@ -57,7 +63,7 @@ class DatasetsInventory(ApiBase):
             context: API context dictionary
 
         Raises:
-            APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"
+            APIAbort, reporting either "NOT_FOUND" or "BAD_REQUEST"
 
         GET /api/v1/datasets/{dataset}/inventory/{target}
         """
