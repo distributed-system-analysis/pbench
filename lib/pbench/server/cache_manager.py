@@ -638,10 +638,11 @@ class Tarball:
             path: relative path of the subdirectory/file
 
         Raises:
-            BadDirpath if the directory/file path is not valid
+            BadDirpath if the directory/file path is not valid or doesn't
+                correspond to an entity within the tarball.
 
         Returns:
-            cache map entry if present
+            cache map entry
         """
         if str(path).startswith("/"):
             raise BadDirpath(
@@ -771,35 +772,24 @@ class Tarball:
             tarball_path, f"Unexpected error from {tar_path}: {error_text!r}"
         )
 
-    def stream(self, path: str) -> Inventory:
-        """Return a cached inventory file as a binary stream
+    def get_inventory(self, path: str) -> dict[str, Any]:
+        """Return a JSON description of a tarball member file.
 
-        Args:
-            path: Relative path of a regular file within a tarball.
+        If "path" is a directory, release the cache lock and return the path
+        and type.
 
-        On failure, an exception is raised and the cache lock is released; on
-        success, returns an Inventory object which implicitly transfers
-        ownership and management of the cache lock to the caller. When done
-        with the inventory's file stream, the caller must close the Inventory
-        object to release the file stream and the cache lock.
+        If "path" is a regular file, the returned data includes an Inventory
+        object with a byte stream, and transfers ownership of the cache lock to
+        the caller. When done with the file Inventory stream, the caller must
+        close the Inventory object to release the file stream and the cache
+        lock.
+
+        if "path" is anything else, the cache lock is released and an exception
+        is raised.
 
         Raises:
-            CacheExtractBadPath: the path does not match a regular file within
-                the tarball.
-
-        Returns:
-            An Inventory object encapsulating the file stream and the cache
-            lock.
-        """
-
-        with LockManager(self.lock) as lock:
-            artifact: Path = self.get_results(lock) / path
-            if not artifact.is_file():
-                raise CacheExtractBadPath(self.tarball_path, path)
-            return Inventory(artifact.open("rb"), lock=lock.keep())
-
-    def get_inventory(self, path: str) -> Optional[JSONOBJECT]:
-        """Access the file stream of a tarball member file.
+            CacheExtractBadPath: the path does not match a directory or regular
+                file within the tarball.
 
         Args:
             path: relative path within the tarball of a file
@@ -808,16 +798,23 @@ class Tarball:
             Dictionary with file info and file stream
         """
         if not path:
-            info = {
+            return {
                 "name": self.tarball_path.name,
                 "type": CacheType.FILE,
                 "stream": Inventory(self.tarball_path.open("rb")),
             }
         else:
-            stream = self.stream(path)
-            info = {"name": path, "type": CacheType.FILE, "stream": stream}
-
-        return info
+            with LockManager(self.lock) as lock:
+                artifact: Path = self.get_results(lock) / path
+                if artifact.is_dir():
+                    stream = None
+                    type = CacheType.DIRECTORY
+                elif artifact.is_file():
+                    stream = Inventory(artifact.open("rb"), lock=lock.keep())
+                    type = CacheType.FILE
+                else:
+                    raise CacheExtractBadPath(self.tarball_path, path)
+            return {"name": path, "type": type, "stream": stream}
 
     @staticmethod
     def _get_metadata(tarball_path: Path) -> Optional[JSONOBJECT]:

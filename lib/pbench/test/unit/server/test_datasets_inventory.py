@@ -34,8 +34,9 @@ class TestDatasetsAccess:
             except DatasetNotFound:
                 dataset_id = dataset  # Allow passing deliberately bad value
             headers = {"authorization": f"bearer {pbench_drb_token}"}
+            t = target if target else ""
             response = client.get(
-                f"{server_config.rest_uri}/datasets/{dataset_id}/inventory/{target}",
+                f"{server_config.rest_uri}/datasets/{dataset_id}/inventory/{t}",
                 headers=headers,
             )
             assert response.status_code == expected_status
@@ -62,7 +63,7 @@ class TestDatasetsAccess:
         }
 
     @pytest.mark.parametrize("key", (None, "", "subdir1"))
-    def test_path_is_directory(self, query_get_as, monkeypatch, key):
+    def test_path_is_directory(self, server_config, query_get_as, monkeypatch, key):
         def mock_get_inventory(_s, _d: str, _t: str):
             return {"type": CacheType.DIRECTORY, "stream": None}
 
@@ -70,10 +71,9 @@ class TestDatasetsAccess:
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
 
-        response = query_get_as("fio_2", key, HTTPStatus.BAD_REQUEST)
-        assert response.json == {
-            "message": "The specified path does not refer to a regular file"
-        }
+        response = query_get_as("fio_2", key, HTTPStatus.MOVED_PERMANENTLY)
+        uri = "https://localhost/api/v1/datasets/random_md5_string4/contents/"
+        assert response.headers["location"] == uri + (key if key else "")
 
     def test_not_a_file(self, query_get_as, monkeypatch):
         def mock_get_inventory(_s, _d: str, _t: str):
@@ -132,7 +132,7 @@ class TestDatasetsAccess:
     def test_send_fail(self, query_get_as, monkeypatch):
         mock_close = False
 
-        def mock_close(_s):
+        def mock_close(*_args):
             nonlocal mock_close
             mock_close = True
 
