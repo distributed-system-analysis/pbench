@@ -85,7 +85,7 @@ const getChartValues = (run, benchmarkType) => {
   };
   const yaxisTitle = {
     uperf: run.metrics_unit,
-    fio: "Mb/sec",
+    fio: run.metrics_unit.includes("lat") ? "sec" : "Mb/sec",
   };
   const keys = {
     uperf: "name",
