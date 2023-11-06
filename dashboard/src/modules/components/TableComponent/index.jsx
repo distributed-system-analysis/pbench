@@ -199,6 +199,7 @@ const TableWithFavorite = () => {
                     selectedArray.map((repo, rowIndex) => (
                       <Tr key={repo?.resource_id}>
                         <Td
+                          className="dataset_name"
                           dataLabel={columnNames.name}
                           onClick={() =>
                             navigate(`/${HOME}${TOC}/${repo?.resource_id}`)
