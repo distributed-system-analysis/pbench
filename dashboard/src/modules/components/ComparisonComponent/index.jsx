@@ -21,11 +21,9 @@ import { useDispatch, useSelector } from "react-redux";
 
 import PanelConent from "./PanelContent";
 import { getDatasets } from "actions/overviewActions";
-import { useNavigate } from "react-router-dom";
 
 const ComparisonComponent = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const { datasets } = useSelector((state) => state.overview);
   const {
@@ -38,14 +36,14 @@ const ComparisonComponent = () => {
     if (
       datasets &&
       datasets.length > 0 &&
-      !!!compareChartData.length &&
-      !!!chartData.length
+      !compareChartData.length &&
+      !chartData.length
     ) {
       dispatch(getQuisbyData(datasets[0]));
     } else {
       dispatch(getDatasets());
     }
-  }, [chartData.length, compareChartData.length, datasets, dispatch, navigate]);
+  }, [chartData.length, compareChartData.length, datasets, dispatch]);
   return (
     <div className="chart-container">
       <Flex className="heading-container">
