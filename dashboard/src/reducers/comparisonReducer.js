@@ -12,6 +12,7 @@ const initialState = {
   activeChart: "",
   compareChartData: [],
   searchValue: "",
+  datasetType: "My Datasets",
 };
 
 const ComparisonReducer = (state = initialState, action = {}) => {
@@ -71,6 +72,11 @@ const ComparisonReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         searchValue: payload,
+      };
+    case TYPES.SET_DATASET_TYPE:
+      return {
+        ...state,
+        datasetType: payload,
       };
     default:
       return state;

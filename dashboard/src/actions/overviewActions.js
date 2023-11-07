@@ -12,6 +12,8 @@ import { uriTemplate } from "../utils/helper";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
+  const datasetType = getState().comparison.datasetType;
+
   const loggedIn = Cookies.get("isLoggedIn");
   try {
     if (alreadyRendered) {
@@ -23,9 +25,13 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("metadata", "dataset");
     params.append("metadata", "global");
     params.append("metadata", "user");
-
-    if (loggedIn) {
+    if (loggedIn && datasetType === "My Datasets") {
       params.append("mine", "true");
+    } else if (loggedIn && datasetType === "All Datasets") {
+      params.append("mine", "true");
+      params.append("access", "public");
+    } else {
+      params.append("access", "public");
     }
 
     dispatch(setSelectedRuns([]));

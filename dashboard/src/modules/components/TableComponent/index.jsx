@@ -24,9 +24,11 @@ import {
 } from "actions/datasetListActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import Cookies from "js-cookie";
 import DatePickerWidget from "../DatePickerComponent";
 import { RenderPagination } from "../OverviewComponent/common-component";
 import TablePagination from "../PaginationComponent";
+import { ViewOptions } from "../ComparisonComponent/common-components";
 import { useKeycloak } from "@react-keycloak/web";
 import { useNavigate } from "react-router";
 
@@ -35,6 +37,7 @@ const TableWithFavorite = () => {
     name: "Name",
     uploadedDate: "Uploaded On",
   };
+  const loggedIn = Cookies.get("isLoggedIn");
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { keycloak } = useKeycloak();
   const [activeSortIndex, setActiveSortIndex] = useState(null);
@@ -157,8 +160,14 @@ const TableWithFavorite = () => {
         ></Heading>
         <div className="filterContainer">
           <SearchBox setPage={setPage} aria-label="search box" />
-
           <DatePickerWidget setPage={setPage} aria-label="date picker" />
+          {loggedIn && (
+            <>
+              {" "}
+              <span className="runs-text"> Datasets </span>
+              <ViewOptions currPage="results" />
+            </>
+          )}
         </div>
 
         <ToggleGroup aria-label="Result Selection Options">

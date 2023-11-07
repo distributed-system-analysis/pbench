@@ -4,6 +4,9 @@ import * as TYPES from "./types.js";
 import { DANGER, ERROR_MSG, WARNING } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
+import { START_PAGE_NUMBER } from "assets/constants/browsingPageConstants";
+import { fetchPublicDatasets } from "actions/datasetListActions";
+import { getDatasets } from "actions/overviewActions";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "../utils/helper";
 
@@ -275,3 +278,19 @@ export const setSearchValue = (value) => ({
   type: TYPES.SET_SEARCH_VALUE,
   payload: value,
 });
+
+export const setDatasetType = (value, currPage) => (dispatch) => {
+  dispatch({
+    type: TYPES.SET_DATASET_TYPE,
+    payload: value,
+  });
+  if (currPage === "visualization") {
+    dispatch(getDatasets());
+  } else {
+    dispatch({
+      type: TYPES.SET_RESULT_OFFSET,
+      payload: 0,
+    });
+    dispatch(fetchPublicDatasets(START_PAGE_NUMBER));
+  }
+};

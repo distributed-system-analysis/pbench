@@ -8,14 +8,14 @@ import Cookies from "js-cookie";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "utils/helper";
 
-const loggedIn = Cookies.get("isLoggedIn");
-
 export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
+    const loggedIn = Cookies.get("isLoggedIn");
     const { offset, limit, filter, searchKey, perPage } =
       getState().datasetlist;
+    const datasetType = getState().comparison.datasetType;
     let publicData = [...getState().datasetlist.publicData];
     const params = new URLSearchParams();
 
@@ -29,8 +29,13 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
     params.append("offset", offset);
     params.append("limit", limit);
 
-    if (loggedIn) {
+    if (loggedIn && datasetType === "My Datasets") {
       params.append("mine", "true");
+    } else if (loggedIn && datasetType === "All Datasets") {
+      params.append("mine", "true");
+      params.append("access", "public");
+    } else {
+      params.append("access", "public");
     }
     if (searchKey) {
       params.append("name", searchKey);

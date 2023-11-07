@@ -10,7 +10,7 @@ import {
   SidebarPanel,
   Switch,
 } from "@patternfly/react-core";
-import { MainContent, SearchByName } from "./common-components";
+import { MainContent, SearchByName, ViewOptions } from "./common-components";
 import React, { useEffect } from "react";
 import {
   compareMultipleDatasets,
@@ -19,11 +19,17 @@ import {
 } from "actions/comparisonActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import Cookies from "js-cookie";
 import PanelConent from "./PanelContent";
 import { getDatasets } from "actions/overviewActions";
 
 const ComparisonComponent = () => {
   const dispatch = useDispatch();
+<<<<<<< HEAD
+=======
+  const navigate = useNavigate();
+  const loggedIn = Cookies.get("isLoggedIn");
+>>>>>>> 1e8b2dc6c (public datasets list)
 
   const { datasets } = useSelector((state) => state.overview);
   const {
@@ -73,6 +79,8 @@ const ComparisonComponent = () => {
               Compare Datasets
             </Button>
           )}
+          {loggedIn && <ViewOptions currPage="visualization" />}
+
           <SearchByName />
           <PanelConent />
         </SidebarPanel>
