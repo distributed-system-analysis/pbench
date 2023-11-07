@@ -25,11 +25,7 @@ import { getDatasets } from "actions/overviewActions";
 
 const ComparisonComponent = () => {
   const dispatch = useDispatch();
-<<<<<<< HEAD
-=======
-  const navigate = useNavigate();
   const loggedIn = Cookies.get("isLoggedIn");
->>>>>>> 1e8b2dc6c (public datasets list)
 
   const { datasets } = useSelector((state) => state.overview);
   const {

@@ -19,8 +19,6 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
     let publicData = [...getState().datasetlist.publicData];
     const params = new URLSearchParams();
 
-    params.append("access", "public");
-
     params.append("metadata", "server");
     params.append("metadata", "dataset");
     params.append("metadata", "global");
