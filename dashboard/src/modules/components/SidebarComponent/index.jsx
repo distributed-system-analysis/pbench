@@ -5,26 +5,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { menuOptions } from "./sideMenuOptions";
 import { setActiveItem } from "actions/sideBarActions";
-import { useKeycloak } from "@react-keycloak/web";
 
 const MenuItem = ({ data, activeItem }) => {
   const navigate = useNavigate();
-  const { keycloak } = useKeycloak();
-  return data.map((option) => {
-    return option.key === "overview" && !keycloak.authenticated ? (
-      <></>
-    ) : (
-      <NavItem
-        preventDefault
-        onClick={() => navigate(option.link)}
-        key={option.key}
-        itemId={option.key}
-        isActive={activeItem === option.key}
-      >
-        {option.name}
-      </NavItem>
-    );
-  });
+  return data.map((option) => (
+    <NavItem
+      preventDefault
+      onClick={() => navigate(option.link)}
+      key={option.key}
+      itemId={option.key}
+      isActive={activeItem === option.key}
+    >
+      {option.name}
+    </NavItem>
+  ));
 };
 
 const Menu = () => {
