@@ -28,7 +28,3 @@ export const menuOptions = [
     ],
   },
 ];
-
-export const menuOptionsNonLoggedIn = [
-  { key: "dashboard", link: "/", name: "Dashboard" },
-];
