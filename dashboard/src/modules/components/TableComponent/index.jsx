@@ -164,7 +164,7 @@ const TableWithFavorite = () => {
           {loggedIn && (
             <>
               {" "}
-              <span className="runs-text"> Datasets </span>
+              <span className="runs-text">Datasets</span>
               <ViewOptions currPage="results" />
             </>
           )}

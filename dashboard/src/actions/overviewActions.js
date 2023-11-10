@@ -28,9 +28,6 @@ export const getDatasets = () => async (dispatch, getState) => {
     if (loggedIn && datasetType === "My Datasets") {
       params.append("mine", "true");
     } else if (loggedIn && datasetType === "All Datasets") {
-      params.append("mine", "true");
-      params.append("access", "public");
-    } else {
       params.append("access", "public");
     }
 

@@ -29,10 +29,7 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
 
     if (loggedIn && datasetType === "My Datasets") {
       params.append("mine", "true");
-    } else if (loggedIn && datasetType === "All Datasets") {
-      params.append("mine", "true");
-      params.append("access", "public");
-    } else {
+    } else if (loggedIn && datasetType === "Public Datasets") {
       params.append("access", "public");
     }
     if (searchKey) {
