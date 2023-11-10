@@ -796,6 +796,7 @@ def pbench_admin_token(client, server_config, create_admin_user, rsa_keys):
         user=create_admin_user,
         private_key=rsa_keys["private_key"],
         client_id=server_config.get("openid", "client"),
+        audience=server_config.get("openid", "audience"),
         username=admin_username,
         pbench_client_roles=["ADMIN"],
     )
@@ -807,6 +808,7 @@ def pbench_drb_token(client, server_config, create_drb_user, rsa_keys):
     return generate_token(
         username="drb",
         client_id=server_config.get("openid", "client"),
+        audience=server_config.get("openid", "audience"),
         private_key=rsa_keys["private_key"],
         user=create_drb_user,
     )
@@ -819,6 +821,7 @@ def pbench_drb_token_invalid(client, server_config, create_drb_user, rsa_keys):
         username="drb",
         private_key=rsa_keys["private_key"],
         client_id=server_config.get("openid", "client"),
+        audience=server_config.get("openid", "audience"),
         user=create_drb_user,
         valid=False,
     )
@@ -842,6 +845,7 @@ def get_token_func(pbench_admin_token, server_config, rsa_keys):
             username=user,
             private_key=rsa_keys["private_key"],
             client_id=server_config.get("openid", "client"),
+            audience=server_config.get("openid", "audience"),
         )
     )
 
@@ -874,6 +878,7 @@ def generate_token(
     username: str,
     private_key: str,
     client_id: str,
+    audience: str,
     user: Optional[User] = None,
     pbench_client_roles: Optional[list[str]] = None,
     valid: bool = True,
@@ -889,6 +894,7 @@ def generate_token(
         username: username to include in the token payload
         private_key: RS256 private key to encode the jwt token
         client_id: OIDC client id to include in the encoded string.
+        audience: OIDC client audience to encode
         user: user attributes will be extracted from the user object to include
             in the token payload.
         pbench_client_roles: Any OIDC client specifc roles we want to include
@@ -911,7 +917,7 @@ def generate_token(
         "iat": current_utc,
         "exp": exp,
         "sub": user.id,
-        "aud": client_id,
+        "aud": audience,
         "azp": client_id,
         "resource_access": {},
         "scope": "openid profile email",
@@ -919,7 +925,7 @@ def generate_token(
         "preferred_username": username,
     }
     if pbench_client_roles:
-        payload["resource_access"].update({client_id: {"roles": pbench_client_roles}})
+        payload["resource_access"].update({audience: {"roles": pbench_client_roles}})
     token_str = jwt.encode(payload, private_key, algorithm="RS256")
     return token_str
 

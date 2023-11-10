@@ -20,6 +20,84 @@ from pbench.test.unit.server import DRB_USER_ID
 from pbench.test.unit.server.conftest import jwt_secret
 
 
+@pytest.fixture
+def mock_oidc(monkeypatch, on_disk_server_config):
+    def mock_connection(
+        client_id: str, public_key: Optional[str] = None
+    ) -> PbenchServerConfig:
+        """Create a mocked Connection object whose behavior is driven off of
+        the realm name and / or client ID.
+
+        NOTE: we build our own PbenchServerConfig here rather than using the
+        `server_config` fixture as that's `session` scope and will pollute
+        other tests with our custom `openid` configuration.
+
+        Args:
+            client_id : A client ID used to influence the behavior of the mocked
+                Connection object
+            public_key : Optional public key to use
+
+        Returns:
+            A PbenchServerConfig object for use constructing an
+                OpenIDClient object
+        """
+        server_url = "https://example.com"
+        realm_name = "camelot"
+        audience = "server"
+        secret = "shhh"
+        cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
+        server_config = PbenchServerConfig(str(cfg_file))
+        config = server_config._conf
+        config["openid"] = {
+            "server_url": server_url,
+            "client": client_id,
+            "audience": audience,
+            "realm": realm_name,
+            "secret": secret,
+        }
+        public_key = "abcdefg" if public_key is None else public_key
+
+        class MockResponse:
+            """A mocked requests.Response object which just provides a json()
+            method.
+            """
+
+            def __init__(self, json: str):
+                self._json = json
+
+            def json(self):
+                return self._json
+
+        class MockConnection:
+            """A mocked Connection to allow behavioral control for testing
+
+            The client configuration parameter value is the vehicle for
+            directing various good or bad behaviors as required.
+            """
+
+            def __init__(
+                self,
+                server_url: str,
+                headers: Optional[Dict[str, str]] = None,
+                verify: bool = True,
+            ):
+                self.server_url = server_url
+                self.headers = CaseInsensitiveDict({} if headers is None else headers)
+                self.verify = verify
+
+            def get(self, path: str, **kwargs) -> MockResponse:
+                if path.endswith(f"realms/{realm_name}"):
+                    json_d = {"public_key": public_key}
+                else:
+                    raise Exception(f"MockConnection: unrecognized .get(path={path})")
+                return MockResponse(json_d)
+
+        monkeypatch.setattr(pbench.server.auth, "Connection", MockConnection)
+        return server_config
+
+    return mock_connection
+
+
 def test_openid_client_error_exc():
     """Verify behavior of OpenIDClientError exception class"""
     obj = OpenIDClientError(HTTPStatus.CONFLICT)
@@ -218,72 +296,6 @@ def gen_rsa_token(
     return jwt.encode(payload, key=private_key, algorithm="RS256"), payload
 
 
-def mock_connection(
-    monkeypatch, client_id: str, public_key: Optional[str] = None
-) -> configparser.ConfigParser:
-    """Create a mocked Connection object whose behavior is driven off of
-    the realm name and / or client ID.
-
-    Args:
-        client_id : A client ID used to influence the behavior of the mocked
-            Connection object
-        public_key : Optional public key to use
-
-    Returns:
-        A configparser.ConfigParser object for use constructing an
-            OpenIDClient object
-    """
-    server_url = "https://example.com"
-    realm_name = "camelot"
-    secret = "shhh"
-    config = configparser.ConfigParser()
-    config["openid"] = {
-        "server_url": server_url,
-        "client": client_id,
-        "realm": realm_name,
-        "secret": secret,
-    }
-    public_key = "abcdefg" if public_key is None else public_key
-
-    class MockResponse:
-        """A mocked requests.Response object which just provides a json()
-        method.
-        """
-
-        def __init__(self, json: str):
-            self._json = json
-
-        def json(self):
-            return self._json
-
-    class MockConnection:
-        """A mocked Connection to allow behavioral control for testing
-
-        The client configuration parameter value is the vehicle for
-        directing various good or bad behaviors as required.
-        """
-
-        def __init__(
-            self,
-            server_url: str,
-            headers: Optional[Dict[str, str]] = None,
-            verify: bool = True,
-        ):
-            self.server_url = server_url
-            self.headers = CaseInsensitiveDict({} if headers is None else headers)
-            self.verify = verify
-
-        def get(self, path: str, **kwargs) -> MockResponse:
-            if path.endswith(f"realms/{realm_name}"):
-                json_d = {"public_key": public_key}
-            else:
-                raise Exception(f"MockConnection: unrecognized .get(path={path})")
-            return MockResponse(json_d)
-
-    monkeypatch.setattr(pbench.server.auth, "Connection", MockConnection)
-    return config
-
-
 class TestOpenIDClient:
     """Verify the OpenIDClient class."""
 
@@ -375,6 +387,10 @@ class TestOpenIDClient:
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.construct_oidc_client(config)
         section["client"] = "us"
+        # Missing audience
+        with pytest.raises(OpenIDClient.NotConfigured):
+            OpenIDClient.construct_oidc_client(config)
+        section["audience"] = "me"
         # Missing realm
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.construct_oidc_client(config)
@@ -383,19 +399,19 @@ class TestOpenIDClient:
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.construct_oidc_client(config)
 
-    def test_construct_oidc_client_succ(self, monkeypatch):
+    def test_construct_oidc_client_succ(self, mock_oidc):
         """Verify .construct_oidc_client() success mode"""
         client_id = "us"
+        audience = "server"
         public_key = "hijklmn"
-        config = mock_connection(monkeypatch, client_id, public_key)
-        server_url = config["openid"]["server_url"]
-        realm_name = config["openid"]["realm"]
-
+        config = mock_oidc(client_id, public_key)
+        server_url = config._conf["openid"]["server_url"]
+        realm_name = config._conf["openid"]["realm"]
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         assert repr(oidc_client) == (
             f"OpenIDClient(server_url={server_url}, "
-            f"client_id={client_id}, realm_name={realm_name}, "
+            f"client_id={client_id}, audience={audience}, realm_name={realm_name}, "
             "headers={})"
         )
         assert (
@@ -403,15 +419,14 @@ class TestOpenIDClient:
             == f"-----BEGIN PUBLIC KEY-----\n{public_key}\n-----END PUBLIC KEY-----\n"
         )
 
-    def test_token_introspect_succ(self, monkeypatch, rsa_keys):
+    def test_token_introspect_succ(self, mock_oidc, rsa_keys):
         """Verify .token_introspect() success path"""
         client_id = "us"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        audience = "server"
+        token, expected_payload = gen_rsa_token(audience, rsa_keys["private_key"])
 
         # Mock the Connection object and generate an OpenIDClient object.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         # We don't strictly need to verify these two fields, but it is helpful
@@ -430,52 +445,48 @@ class TestOpenIDClient:
         response = oidc_client.token_introspect(token)
         assert response == expected_payload
 
-    def test_token_introspect_exp(self, monkeypatch, rsa_keys):
+    def test_token_introspect_exp(self, mock_oidc, rsa_keys):
         """Verify .token_introspect() failure via expiration"""
         client_id = "us"
-        token, expected_payload = gen_rsa_token(
-            client_id, rsa_keys["private_key"], exp=42
-        )
+        audience = "server"
+        token, _ = gen_rsa_token(audience, rsa_keys["private_key"], exp=42)
 
         # Mock the Connection object and generate an OpenIDClient object.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         with pytest.raises(jwt.exceptions.ExpiredSignatureError):
             oidc_client.token_introspect(token)
 
-    def test_token_introspect_aud(self, monkeypatch, rsa_keys):
+    def test_token_introspect_aud(self, mock_oidc, rsa_keys):
         """Verify .token_introspect() failure via audience error"""
         client_id = "us"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        token, _ = gen_rsa_token("someone-else", rsa_keys["private_key"])
 
         # Mock the Connection object and generate an OpenIDClient object using
         # a different client ID (audience).
-        config = mock_connection(monkeypatch, "them", public_key=rsa_keys["public_key"])
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         with pytest.raises(jwt.exceptions.InvalidAudienceError):
             oidc_client.token_introspect(token)
 
-    def test_token_introspect_sig(self, monkeypatch, rsa_keys):
+    def test_token_introspect_sig(self, mock_oidc, rsa_keys):
         """Verify .token_introspect() failure via signature error"""
         client_id = "us"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        audience = "server"
+        token, _ = gen_rsa_token(audience, rsa_keys["private_key"])
 
         # Mock the Connection object and generate an OpenIDClient object using
         # a different client ID (audience).
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         with pytest.raises(jwt.exceptions.InvalidSignatureError):
             # Make the signature invalid.
             oidc_client.token_introspect(token + "1")
 
-    def test_token_introspect_alg(self, monkeypatch, rsa_keys):
+    def test_token_introspect_alg(self, mock_oidc, rsa_keys):
         """Verify .token_introspect() failure via algorithm error"""
         client_id = "us"
 
@@ -483,9 +494,7 @@ class TestOpenIDClient:
         generated_api_key = jwt.encode(
             {"some_key": "some_value"}, "my_secret", algorithm="HS256"
         )
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         with pytest.raises(jwt.exceptions.InvalidAlgorithmError):
@@ -602,28 +611,27 @@ class TestAuthModule:
 
     @pytest.mark.parametrize("roles", [["ROLE"], ["ROLE1", "ROLE2"], [], None])
     def test_verify_auth_oidc(
-        self, monkeypatch, server_config, db_session, rsa_keys, make_logger, roles
+        self, monkeypatch, mock_oidc, db_session, rsa_keys, make_logger, roles
     ):
         """Verify OIDC token offline verification success path"""
         client_id = "us"
+        audience = "server"
         if roles is None:
-            token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+            token, _ = gen_rsa_token(audience, rsa_keys["private_key"])
         else:
-            token, expected_payload = gen_rsa_token(
-                client_id, rsa_keys["private_key"], oidc_client_roles=roles
+            token, _ = gen_rsa_token(
+                audience, rsa_keys["private_key"], oidc_client_roles=roles
             )
 
         # Mock the Connection object and generate an OpenIDClient object,
         # installing it as Auth module's OIDC client.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
         app = Flask("test-verify-auth-oidc")
         app.logger = make_logger
-        app.server_config = server_config
+        app.server_config = config
         with app.app_context():
             user = Auth.verify_auth(token)
 
@@ -631,24 +639,23 @@ class TestAuthModule:
         assert user.roles == (roles if roles else [])
 
     def test_verify_auth_oidc_user_update(
-        self, monkeypatch, server_config, db_session, rsa_keys, make_logger
+        self, monkeypatch, mock_oidc, db_session, rsa_keys, make_logger
     ):
         """Verify we update our internal user database when we get updated user
         payload from the OIDC token for an existing user."""
         client_id = "us"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        audience = "server"
+        token, _ = gen_rsa_token(audience, rsa_keys["private_key"])
 
         # Mock the Connection object and generate an OpenIDClient object,
         # installing it as Auth module's OIDC client.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
         app = Flask("test-verify-auth-oidc-user-update")
         app.logger = make_logger
-        app.server_config = server_config
+        app.server_config = config
         with app.app_context():
             user = Auth.verify_auth(token)
 
@@ -658,7 +665,7 @@ class TestAuthModule:
 
         # Generate a token with a new username for the same UUID
         token, expected_payload = gen_rsa_token(
-            client_id,
+            audience,
             rsa_keys["private_key"],
             username="new_dummy",
             oidc_client_roles=["ROLE"],
@@ -672,7 +679,7 @@ class TestAuthModule:
     def test_verify_auth_oidc_user_admin(
         self,
         monkeypatch,
-        server_config: PbenchServerConfig,
+        mock_oidc,
         db_session,
         rsa_keys,
         make_logger,
@@ -680,30 +687,28 @@ class TestAuthModule:
         """Verify we update our internal user database when we get updated user
         payload from the OIDC token for an existing user."""
         client_id = "us"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        audience = "server"
+        token, _ = gen_rsa_token(audience, rsa_keys["private_key"], username="dummy")
 
         # Mock the Connection object and generate an OpenIDClient object,
         # installing it as Auth module's OIDC client.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
-        server_config._conf.set("pbench-server", "admin-role", "friend,dummy,admin")
+        config._conf.set("pbench-server", "admin-role", "friend,dummy,admin")
 
         app = Flask("test-verify-auth-oidc-user-admin")
         app.logger = make_logger
-        app.server_config = server_config
+        app.server_config = config
         with app.app_context():
             user = Auth.verify_auth(token)
-
         assert user.id == "12345"
         assert user.roles == ["ADMIN"]
         assert user.username == "dummy"
 
         # Generate a token with a role and new username for the same UUID
-        token, expected_payload = gen_rsa_token(
-            client_id,
+        token, _ = gen_rsa_token(
+            audience,
             rsa_keys["private_key"],
             username="friend",
             oidc_client_roles=["ROLE"],
@@ -715,24 +720,23 @@ class TestAuthModule:
         assert user.username == "friend"
 
     def test_verify_auth_oidc_user_duplicate(
-        self, monkeypatch, server_config, db_session, rsa_keys, make_logger
+        self, monkeypatch, mock_oidc, db_session, rsa_keys, make_logger
     ):
         """Verify behavior when an OIDC username already exists with a
         different UUID."""
         client_id = "us"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        audience = "server"
+        token, _ = gen_rsa_token(audience, rsa_keys["private_key"])
 
         # Mock the Connection object and generate an OpenIDClient object,
         # installing it as Auth module's OIDC client.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
         app = Flask("test-verify-auth-oidc-user-dup")
         app.logger = make_logger
-        app.server_config = server_config
+        app.server_config = config
 
         # The User cache for the OIDC UUID we're using shouldn't exist yet.
         # Create a User cache entry with the same username, but a different
@@ -752,19 +756,18 @@ class TestAuthModule:
         assert not User.query(id="12345")
 
     def test_verify_auth_oidc_invalid(
-        self, monkeypatch, server_config, rsa_keys, make_logger
+        self, monkeypatch, mock_oidc, rsa_keys, make_logger
     ):
         """Verify OIDC token offline verification via Auth.verify_auth() fails
         gracefully with an invalid token
         """
         client_id = "us"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        audience = "server"
+        token, _ = gen_rsa_token(audience, rsa_keys["private_key"])
 
         # Mock the Connection object and generate an OpenIDClient object,
         # installing it as Auth module's OIDC client.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
+        config = mock_oidc(client_id, public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
@@ -773,7 +776,7 @@ class TestAuthModule:
 
         app = Flask("test-verify-auth-oidc-invalid")
         app.logger = make_logger
-        app.server_config = server_config
+        app.server_config = config
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             user = Auth.verify_auth(token)
@@ -781,13 +784,13 @@ class TestAuthModule:
         assert user is None
 
     def test_verify_auth_api_key(
-        self, monkeypatch, server_config, rsa_keys, make_logger, pbench_drb_api_key
+        self, monkeypatch, mock_oidc, rsa_keys, make_logger, pbench_drb_api_key
     ):
         """Verify api_key verification via Auth.verify_auth()"""
 
         # Mock the Connection object and generate an OpenIDClient object,
         # installing it as Auth module's OIDC client.
-        config = mock_connection(monkeypatch, "us", public_key=rsa_keys["public_key"])
+        config = mock_oidc("us", public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
@@ -796,7 +799,7 @@ class TestAuthModule:
 
         app = Flask("test_verify_auth_api_key")
         app.logger = make_logger
-        app.server_config = server_config
+        app.server_config = config
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             current_app.secret_key = jwt_secret
@@ -804,14 +807,14 @@ class TestAuthModule:
         assert user.id == DRB_USER_ID
 
     def test_verify_auth_api_key_invalid(
-        self, monkeypatch, server_config, rsa_keys, make_logger, pbench_invalid_api_key
+        self, monkeypatch, mock_oidc, rsa_keys, make_logger, pbench_invalid_api_key
     ):
         """Verify api_key verification via Auth.verify_auth() fails
         gracefully with an invalid token
         """
         # Mock the Connection object and generate an OpenIDClient object,
         # installing it as Auth module's OIDC client.
-        config = mock_connection(monkeypatch, "us", public_key=rsa_keys["public_key"])
+        config = mock_oidc("us", public_key=rsa_keys["public_key"])
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
@@ -820,7 +823,7 @@ class TestAuthModule:
 
         app = Flask("test_verify_auth_api_key_invalid")
         app.logger = make_logger
-        app.server_config = server_config
+        app.server_config = config
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             current_app.secret_key = jwt_secret

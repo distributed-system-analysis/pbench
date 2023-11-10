@@ -144,46 +144,45 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
     Returns:
         User object if the verification succeeds, None on failure.
     """
-    try:
-        token_payload = oidc_client.token_introspect(token=auth_token)
-    except Exception:
-        try:
-            return verify_auth_api_key(auth_token)
-        except Exception:
-            current_app.logger.exception(
-                "Unexpected exception occurred while verifying the API key {}",
-                auth_token,
-            )
-        raise
-    else:
-        # Extract what we want to cache from the access token
-        user_id = token_payload["sub"]
-        username = token_payload.get("preferred_username", user_id)
-        audiences = token_payload.get("resource_access", {})
-        pb_aud = audiences.get(oidc_client.client_id, {})
-        roles = pb_aud.get("roles", [])
-        if Roles.ADMIN.name not in roles:
-            admin_users = current_app.server_config.get(
-                "pbench-server", "admin-role", fallback=""
-            )
-            if username in admin_users.split(","):
-                roles.append(Roles.ADMIN.name)
+    # First try an API key: while this is a less common case, it's quick and
+    # deterministic.
+    user = verify_auth_api_key(auth_token)
 
-        # Create or update the user in our cache
-        user = User.query(id=user_id)
-        if not user:
-            try:
-                user = User(id=user_id, username=username, roles=roles)
-                user.add()
-            except UserDuplicate:
-                raise Unauthorized(
-                    f"The username {username!r} already exists with a "
-                    "different user ID, possibly from a different OIDC "
-                    "provider. Please report this problem to a system "
-                    "administrator."
-                )
-        else:
-            user.update(username=username, roles=roles)
+    # If API key validation succeeds, we know that the User is in our DB
+    # and we can just return without trying to update our user cache.
+    if user:
         return user
 
-    return None
+    # If it's not an API key, try decoding the JWT token.
+    token_payload = oidc_client.token_introspect(token=auth_token)
+
+    # Extract what we want to cache from the access token and create or update
+    # the user cache.
+    user_id = token_payload["sub"]
+    username = token_payload.get("preferred_username", user_id)
+    audiences = token_payload.get("resource_access", {})
+    pb_aud = audiences.get(oidc_client.audience, {})
+    roles = pb_aud.get("roles", [])
+    if Roles.ADMIN.name not in roles:
+        admin_users = current_app.server_config.get(
+            "pbench-server", "admin-role", fallback=""
+        )
+        if username in admin_users.split(","):
+            roles.append(Roles.ADMIN.name)
+
+    # Create or update the user in our cache
+    user = User.query(id=user_id)
+    if not user:
+        try:
+            user = User(id=user_id, username=username, roles=roles)
+            user.add()
+        except UserDuplicate:
+            raise Unauthorized(
+                f"The username {username!r} already exists with a "
+                "different user ID, possibly from a different OIDC "
+                "provider. Please report this problem to a system "
+                "administrator."
+            )
+    else:
+        user.update(username=username, roles=roles)
+    return user

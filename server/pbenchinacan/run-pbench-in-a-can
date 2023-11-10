@@ -28,6 +28,7 @@ export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
 # the pbench-server.cfg file.
 export KEYCLOAK_REALM=${KEYCLOAK_REALM:-"pbench-server"}
 export KEYCLOAK_CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
+export KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-"pbench-server"}
 
 # Name or IP address to be used by the client to access the Pbench Server, to
 # load the Dashboard, and to interface with the canned Keycloak server
@@ -90,6 +91,7 @@ sed -Ei \
     -e "s|##KEYCLOAK_SERVER_URL##|https://${host_name}:8090|" \
     -e "s/##KEYCLOAK_REALM##/${KEYCLOAK_REALM}/" \
     -e "s/##KEYCLOAK_CLIENT##/${KEYCLOAK_CLIENT}/" \
+    -e "s/##KEYCLOAK_AUDIENCE##/${KEYCLOAK_AUDIENCE}/" \
     -e "s/##ADMIN_NAMES##/${PB_ADMIN_NAMES}/" \
     ${PB_DEPLOY_FILES}/pbench-server.cfg
 

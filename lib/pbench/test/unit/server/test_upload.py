@@ -400,7 +400,7 @@ class TestUpload:
         assert response.json.get("message").startswith(message)
 
     def test_invalid_authorization_upload(
-        self, client, caplog, server_config, pbench_drb_token_invalid
+        self, client, server_config, pbench_drb_token_invalid
     ):
         # Upload with invalid token
         response = client.put(
@@ -408,8 +408,6 @@ class TestUpload:
             headers=self.gen_headers(pbench_drb_token_invalid, "md5sum"),
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
-        for record in caplog.records:
-            assert record.levelname in ["DEBUG", "INFO", "WARNING"]
         assert not self.cachemanager_created
 
     def test_empty_upload(

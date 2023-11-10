@@ -11,7 +11,7 @@ from requests.adapters import HTTPAdapter
 from requests.structures import CaseInsensitiveDict
 from urllib3 import Retry
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSONOBJECT, PbenchServerConfig
 
 
 class OpenIDClientError(Exception):
@@ -262,13 +262,20 @@ class OpenIDClient:
         """Convenience class method to optionally construct and return an
         OpenIDClient.
 
+        Args:
+            server_config: a server configuration objects
+
         Raises:
             OpenIDClient.NotConfigured : when the openid-connect section is
-            missing, or any of the required options are missing.
+                missing, or any of the required options are missing.
+
+        Returns:
+            An OIDC client
         """
         try:
             server_url = server_config.get("openid", "server_url")
             client = server_config.get("openid", "client")
+            audience = server_config.get("openid", "audience")
             realm = server_config.get("openid", "realm")
             # Look for a custom CA to use in the verification of the TLS
             # connection to the OIDC server.  If it is undefined, the value of
@@ -278,7 +285,11 @@ class OpenIDClient:
             raise OpenIDClient.NotConfigured() from exc
 
         oidc_client = cls(
-            server_url=server_url, client_id=client, realm_name=realm, verify=ca_cert
+            server_url=server_url,
+            client_id=client,
+            audience=audience,
+            realm_name=realm,
+            verify=ca_cert,
         )
         oidc_client.set_oidc_public_key()
         return oidc_client
@@ -287,6 +298,7 @@ class OpenIDClient:
         self,
         server_url: str,
         client_id: str,
+        audience: str,
         realm_name: str,
         verify: bool = True,
         headers: Optional[dict[str, str]] = None,
@@ -305,21 +317,22 @@ class OpenIDClient:
         Args:
             server_url : OpenID Connect server auth url
             client_id : client id
+            audience : expected audience
             realm_name : realm name
             verify : True if require valid SSL
             headers : dict of custom header to pass to each HTML request
         """
         self.client_id = client_id
+        self.audience = audience
         self._realm_name = realm_name
-
         self._connection = Connection(server_url, headers, verify)
-
         self._pem_public_key = None
 
     def __repr__(self):
         return (
             f"OpenIDClient(server_url={self._connection.server_url}, "
-            f"client_id={self.client_id}, realm_name={self._realm_name}, "
+            f"client_id={self.client_id}, audience={self.audience}, "
+            f"realm_name={self._realm_name}, "
             f"headers={self._connection.headers})"
         )
 
@@ -335,7 +348,7 @@ class OpenIDClient:
         pem_public_key += "-----END PUBLIC KEY-----\n"
         self._pem_public_key = pem_public_key
 
-    def token_introspect(self, token: str) -> JSON:
+    def token_introspect(self, token: str) -> JSONOBJECT:
         """Utility method to decode access/Id tokens using the public key
         provided by the identity provider.
 
@@ -354,7 +367,7 @@ class OpenIDClient:
         Returns:
             Extracted token information
             {
-                "aud": <targeted_audience_id>,
+                "aud": <targeted_audience(s)>,
                 "email_verified": <boolean>,
                 "expires_in": <number_of_seconds>,
                 "access_type": "offline",
@@ -369,7 +382,7 @@ class OpenIDClient:
             token,
             self._pem_public_key,
             algorithms=[self._TOKEN_ALG],
-            audience=[self.client_id],
+            audience=[self.audience],
             options={
                 "verify_signature": True,
                 "verify_aud": True,
