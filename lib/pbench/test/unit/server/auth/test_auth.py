@@ -11,7 +11,7 @@ from requests.structures import CaseInsensitiveDict
 import responses
 from werkzeug.exceptions import Unauthorized
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSONOBJECT, PbenchServerConfig
 import pbench.server.auth
 from pbench.server.auth import Connection, OpenIDClient, OpenIDClientError
 import pbench.server.auth.auth as Auth
@@ -22,15 +22,16 @@ from pbench.test.unit.server.conftest import jwt_secret
 
 @pytest.fixture
 def mock_oidc(monkeypatch, on_disk_server_config):
+    """Define a helper to mock an OIDC connection for testing"""
+
     def mock_connection(
         client_id: str, public_key: Optional[str] = None
     ) -> PbenchServerConfig:
-        """Create a mocked Connection object whose behavior is driven off of
-        the realm name and / or client ID.
+        """Mock the OIDC connection class for testing.
 
         NOTE: we build our own PbenchServerConfig here rather than using the
-        `server_config` fixture as that's `session` scope and will pollute
-        other tests with our custom `openid` configuration.
+        `server_config` fixture as that's `session` scope and our openid
+        configuration changes would pollute other tests.
 
         Args:
             client_id : A client ID used to influence the behavior of the mocked
@@ -58,22 +59,16 @@ def mock_oidc(monkeypatch, on_disk_server_config):
         public_key = "abcdefg" if public_key is None else public_key
 
         class MockResponse:
-            """A mocked requests.Response object which just provides a json()
-            method.
-            """
+            """A mocked requests.Response object with a json() method."""
 
-            def __init__(self, json: str):
+            def __init__(self, json: JSONOBJECT):
                 self._json = json
 
-            def json(self):
+            def json(self) -> JSONOBJECT:
                 return self._json
 
         class MockConnection:
-            """A mocked Connection to allow behavioral control for testing
-
-            The client configuration parameter value is the vehicle for
-            directing various good or bad behaviors as required.
-            """
+            """A mocked OIDC connection class for testing"""
 
             def __init__(
                 self,
@@ -87,10 +82,9 @@ def mock_oidc(monkeypatch, on_disk_server_config):
 
             def get(self, path: str, **kwargs) -> MockResponse:
                 if path.endswith(f"realms/{realm_name}"):
-                    json_d = {"public_key": public_key}
+                    return MockResponse({"public_key": public_key})
                 else:
                     raise Exception(f"MockConnection: unrecognized .get(path={path})")
-                return MockResponse(json_d)
 
         monkeypatch.setattr(pbench.server.auth, "Connection", MockConnection)
         return server_config
@@ -771,7 +765,7 @@ class TestAuthModule:
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
-        def tio_exc(token: str) -> JSON:
+        def tio_exc(token: str) -> JSONOBJECT:
             raise Exception("OIDC validation is disabled")
 
         app = Flask("test-verify-auth-oidc-invalid")
@@ -794,7 +788,7 @@ class TestAuthModule:
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
-        def tio_exc(token: str) -> JSON:
+        def tio_exc(token: str) -> JSONOBJECT:
             raise Exception("OIDC validation is disabled")
 
         app = Flask("test_verify_auth_api_key")
@@ -818,7 +812,7 @@ class TestAuthModule:
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
-        def tio_exc(token: str) -> JSON:
+        def tio_exc(token: str) -> JSONOBJECT:
             raise Exception("OIDC validation is disabled")
 
         app = Flask("test_verify_auth_api_key_invalid")

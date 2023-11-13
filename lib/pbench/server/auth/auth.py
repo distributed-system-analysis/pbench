@@ -129,14 +129,12 @@ def verify_auth_api_key(api_key: str) -> Optional[User]:
 def verify_auth_oidc(auth_token: str) -> Optional[User]:
     """Authorization token verification function.
 
-    The verification will pass either if the token is from a third-party OIDC
-    identity provider or if the token is a Pbench Server API key.
+    The verification will pass if the token is a Pbench Server API Key or a
+    valid OIDC token from our configured identity provider.
 
-    The function will first attempt to validate the token as an OIDC access token.
-    If that fails, it will then attempt to validate it as a Pbench Server API key.
-
-    If the token is a valid access token (and not if it is an API key),
-    we will import its contents into the internal user database.
+    If the token is not an API key (which requires a cached user identity)
+    we'll create or update a User record so we can translate the user UUID to
+    a username.
 
     Args:
         auth_token : Token to authenticate
@@ -144,16 +142,11 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
     Returns:
         User object if the verification succeeds, None on failure.
     """
-    # First try an API key: while this is a less common case, it's quick and
-    # deterministic.
     user = verify_auth_api_key(auth_token)
-
-    # If API key validation succeeds, we know that the User is in our DB
-    # and we can just return without trying to update our user cache.
     if user:
         return user
 
-    # If it's not an API key, try decoding the JWT token.
+    # If it's not an API key, try decoding it as an OIDC token.
     token_payload = oidc_client.token_introspect(token=auth_token)
 
     # Extract what we want to cache from the access token and create or update
