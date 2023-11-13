@@ -290,7 +290,7 @@ class TestUpload:
     @pytest.mark.parametrize(
         "error,http_status,message",
         (
-            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space"),
+            (errno.ENOSPC, HTTPStatus.INSUFFICIENT_STORAGE, "Out of space"),
             (
                 errno.ENFILE,
                 HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -311,7 +311,7 @@ class TestUpload:
     ):
         """Test handling of errors from the intake stream read
 
-        The intake code reports errno.ENOSPC with 413/REQUEST_ENTITY_TOO_LARGE,
+        The intake code reports errno.ENOSPC with 507/INSUFFICIENT_STORAGE,
         but other file create errors are reported as 500/INTERNAL_SERVER_ERROR.
         """
         stream = BytesIO(b"12345")
@@ -341,7 +341,7 @@ class TestUpload:
     @pytest.mark.parametrize(
         "error,http_status,message",
         (
-            (errno.ENOSPC, HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space"),
+            (errno.ENOSPC, HTTPStatus.INSUFFICIENT_STORAGE, "Out of space"),
             (
                 errno.ENFILE,
                 HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -363,7 +363,7 @@ class TestUpload:
     ):
         """Test handling of errors from MD5 file creation.
 
-        The intake code reports errno.ENOSPC with 413/REQUEST_ENTITY_TOO_LARGE,
+        The intake code reports errno.ENOSPC with 507/INSUFFICIENT_STORAGE,
         but other file create errors are reported as 500/INTERNAL_SERVER_ERROR.
         """
         path: Optional[Path] = None
@@ -491,7 +491,7 @@ class TestUpload:
             (DuplicateTarball("x"), HTTPStatus.BAD_REQUEST),
             (
                 OSError(errno.ENOSPC, "The closet is too small!"),
-                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                HTTPStatus.INSUFFICIENT_STORAGE,
             ),
             (
                 OSError(errno.EACCES, "Can't get they-ah from he-ah"),

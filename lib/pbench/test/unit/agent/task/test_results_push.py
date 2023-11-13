@@ -287,11 +287,11 @@ class TestResultsPush:
             (HTTPStatus.NO_CONTENT, {"message": "No content"}, 0),
             (HTTPStatus.NO_CONTENT, "No content", 0),
             (
-                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                HTTPStatus.INSUFFICIENT_STORAGE,
                 {"message": "Request Entity Too Large"},
                 1,
             ),
-            (HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Request Entity Too Large", 1),
+            (HTTPStatus.INSUFFICIENT_STORAGE, "Request Entity Too Large", 1),
             (HTTPStatus.NOT_FOUND, {"message": "Not Found"}, 1),
             (HTTPStatus.NOT_FOUND, "Not Found", 1),
             (None, requests.exceptions.ConnectionError("Oops"), 1),
