@@ -4,11 +4,13 @@ Provides middleware for remote clients, either the associated Pbench Dashboard
 or any number of pbench agent users.
 """
 
+from http import HTTPStatus
 import os
 
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
+import werkzeug
 
 from pbench.common.exceptions import ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
@@ -229,5 +231,12 @@ def create_app(server_config: PbenchServerConfig) -> Flask:
         raise
 
     app.teardown_appcontext(shutdown_session)
+
+    class InsufficientStorage(werkzeug.exceptions.HTTPException):
+        code = HTTPStatus.INSUFFICIENT_STORAGE.value
+        description = HTTPStatus.INSUFFICIENT_STORAGE.phrase
+
+    # Add an entry for 507/INSUFFICIENT_STORAGE to Werkzeug's list
+    app.aborter.mapping[507] = InsufficientStorage
 
     return app

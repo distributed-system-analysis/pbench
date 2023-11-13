@@ -25,7 +25,7 @@ class TestResultsPush:
     RELAY_SWITCH = "--relay"
     BRIEF_SWITCH = "--brief"
     SRVR_SWITCH = "--server"
-    RELAY_TEXT = "http://relay.example.com"
+    RELAY_TEXT = "https://relay.example.com"
     SRVR_TEXT = "https://pbench.test.example.com"
     URL = "https://pbench.example.com/api/v1"
 
@@ -144,7 +144,7 @@ class TestResultsPush:
         assert result.exit_code == 0
         pattern = (
             "RELAY log.tar.xz: " if not brief else ""
-        ) + r"http://relay.example.com/[a-z0-9]+\n"
+        ) + r"https://relay.example.com/[a-z0-9]+\n"
         assert re.match(pattern, result.stdout)
 
     @staticmethod
@@ -287,11 +287,11 @@ class TestResultsPush:
             (HTTPStatus.NO_CONTENT, {"message": "No content"}, 0),
             (HTTPStatus.NO_CONTENT, "No content", 0),
             (
-                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                HTTPStatus.INSUFFICIENT_STORAGE,
                 {"message": "Request Entity Too Large"},
                 1,
             ),
-            (HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Request Entity Too Large", 1),
+            (HTTPStatus.INSUFFICIENT_STORAGE, "Request Entity Too Large", 1),
             (HTTPStatus.NOT_FOUND, {"message": "Not Found"}, 1),
             (HTTPStatus.NOT_FOUND, "Not Found", 1),
             (None, requests.exceptions.ConnectionError("Oops"), 1),

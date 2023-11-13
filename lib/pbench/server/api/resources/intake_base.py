@@ -186,11 +186,15 @@ class IntakeBase(ApiBase):
         try:
             backup_target.parent.mkdir(exist_ok=True)
         except Exception as e:
+            if isinstance(e, OSError) and e.errno == errno.ENOSPC:
+                raise APIAbort(HTTPStatus.INSUFFICIENT_STORAGE)
             raise APIInternalError(f"Failure creating backup subdirectory: {e}")
         try:
             shutil.copy(tarball_path, backup_target)
         except Exception as e:
             IntakeBase._remove_backup(backup_target)
+            if isinstance(e, OSError) and e.errno == errno.ENOSPC:
+                raise APIAbort(HTTPStatus.INSUFFICIENT_STORAGE)
             raise APIInternalError(f"Failure backing up tarball: {e}")
         return backup_target
 
@@ -446,7 +450,7 @@ class IntakeBase(ApiBase):
                         dataset.name,
                         humanize.naturalsize(stream.length),
                     )
-                    raise APIAbort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space")
+                    raise APIAbort(HTTPStatus.INSUFFICIENT_STORAGE, "Out of space")
                 raise APIInternalError(
                     f"Unexpected error encountered during file upload: {str(exc)!r} "
                 ) from exc
@@ -472,7 +476,7 @@ class IntakeBase(ApiBase):
                 md5_full_path.write_text(f"{intake.md5} {filename}\n")
             except OSError as exc:
                 if exc.errno == errno.ENOSPC:
-                    raise APIAbort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space")
+                    raise APIAbort(HTTPStatus.INSUFFICIENT_STORAGE, "Out of space")
                 raise APIInternalError(
                     f"Unexpected error encountered during MD5 creation: {str(exc)!r}"
                 ) from exc
@@ -502,7 +506,7 @@ class IntakeBase(ApiBase):
                 ) from exc
             except OSError as exc:
                 if exc.errno == errno.ENOSPC:
-                    raise APIAbort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Out of space")
+                    raise APIAbort(HTTPStatus.INSUFFICIENT_STORAGE, "Out of space")
                 raise APIInternalError(
                     f"Unexpected error encountered during archive: {str(exc)!r}"
                 ) from exc
