@@ -81,7 +81,7 @@ class BaseCommand(metaclass=abc.ABCMeta):
         self.date_suffix = now.strftime("%Y.%m.%dT%H.%M.%S")
 
     @abc.abstractmethod
-    def execute(self):
+    def execute(self, **kwargs):
         """
         This is the main method of the application
         """
