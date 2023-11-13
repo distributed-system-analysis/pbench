@@ -263,7 +263,7 @@ class OpenIDClient:
         OpenIDClient.
 
         Args:
-            server_config: a server configuration objects
+            server_config: a server configuration object
 
         Raises:
             OpenIDClient.NotConfigured : when the openid-connect section is
