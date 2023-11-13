@@ -128,7 +128,7 @@ def verify_auth_api_key(api_key: str) -> Optional[User]:
 
     """
     key = APIKey.query(key=api_key)
-    return key[0].user if key and len(key) == 1 else None
+    return key[0].user if key else None
 
 
 def verify_auth_oidc(auth_token: str) -> Optional[User]:
