@@ -80,7 +80,7 @@ class User(Database.Base):
             raise UserSqlError(e, user=self, operation="setrole", role=value) from e
 
     def __str__(self):
-        return f"User, id: {self.id}, username: {self.username}"
+        return f"User, id: {self.id}, username: {self.username}, roles {self._roles}"
 
     def get_json(self) -> JSONOBJECT:
         """Return a JSON object for this User object.

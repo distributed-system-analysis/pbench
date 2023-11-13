@@ -28,6 +28,7 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # "openid" section of the pbench server configuration file.
 REALM=${KEYCLOAK_REALM:-"pbench-server"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
+AUDIENCE=${KEYCLOAK_AUDIENCE:="pbench-server"}
 
 export CURL_CA_BUNDLE=${CURL_CA_BUNDLE:-"${PWD}/server/pbenchinacan/etc/pki/tls/certs/pbench_CA.crt"}
 
@@ -108,7 +109,7 @@ curl -si -f -X POST \
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "'"${CLIENT}"'",
+            "included.client.audience": "'"${AUDIENCE}"'",
             "id.token.claim": "false",
             "access.token.claim": "true"
           }

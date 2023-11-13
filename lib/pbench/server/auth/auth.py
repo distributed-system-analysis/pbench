@@ -129,14 +129,12 @@ def verify_auth_api_key(api_key: str) -> Optional[User]:
 def verify_auth_oidc(auth_token: str) -> Optional[User]:
     """Authorization token verification function.
 
-    The verification will pass either if the token is from a third-party OIDC
-    identity provider or if the token is a Pbench Server API key.
+    The verification will pass if the token is a Pbench Server API Key or a
+    valid OIDC token from our configured identity provider.
 
-    The function will first attempt to validate the token as an OIDC access token.
-    If that fails, it will then attempt to validate it as a Pbench Server API key.
-
-    If the token is a valid access token (and not if it is an API key),
-    we will import its contents into the internal user database.
+    If the token is not an API key (which requires a cached user identity)
+    we'll create or update a User record so we can translate the user UUID to
+    a username.
 
     Args:
         auth_token : Token to authenticate
@@ -144,46 +142,40 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
     Returns:
         User object if the verification succeeds, None on failure.
     """
-    try:
-        token_payload = oidc_client.token_introspect(token=auth_token)
-    except Exception:
-        try:
-            return verify_auth_api_key(auth_token)
-        except Exception:
-            current_app.logger.exception(
-                "Unexpected exception occurred while verifying the API key {}",
-                auth_token,
-            )
-        raise
-    else:
-        # Extract what we want to cache from the access token
-        user_id = token_payload["sub"]
-        username = token_payload.get("preferred_username", user_id)
-        audiences = token_payload.get("resource_access", {})
-        pb_aud = audiences.get(oidc_client.client_id, {})
-        roles = pb_aud.get("roles", [])
-        if Roles.ADMIN.name not in roles:
-            admin_users = current_app.server_config.get(
-                "pbench-server", "admin-role", fallback=""
-            )
-            if username in admin_users.split(","):
-                roles.append(Roles.ADMIN.name)
-
-        # Create or update the user in our cache
-        user = User.query(id=user_id)
-        if not user:
-            try:
-                user = User(id=user_id, username=username, roles=roles)
-                user.add()
-            except UserDuplicate:
-                raise Unauthorized(
-                    f"The username {username!r} already exists with a "
-                    "different user ID, possibly from a different OIDC "
-                    "provider. Please report this problem to a system "
-                    "administrator."
-                )
-        else:
-            user.update(username=username, roles=roles)
+    user = verify_auth_api_key(auth_token)
+    if user:
         return user
 
-    return None
+    # If it's not an API key, try decoding it as an OIDC token.
+    token_payload = oidc_client.token_introspect(token=auth_token)
+
+    # Extract what we want to cache from the access token and create or update
+    # the user cache.
+    user_id = token_payload["sub"]
+    username = token_payload.get("preferred_username", user_id)
+    audiences = token_payload.get("resource_access", {})
+    pb_aud = audiences.get(oidc_client.audience, {})
+    roles = pb_aud.get("roles", [])
+    if Roles.ADMIN.name not in roles:
+        admin_users = current_app.server_config.get(
+            "pbench-server", "admin-role", fallback=""
+        )
+        if username in admin_users.split(","):
+            roles.append(Roles.ADMIN.name)
+
+    # Create or update the user in our cache
+    user = User.query(id=user_id)
+    if not user:
+        try:
+            user = User(id=user_id, username=username, roles=roles)
+            user.add()
+        except UserDuplicate:
+            raise Unauthorized(
+                f"The username {username!r} already exists with a "
+                "different user ID, possibly from a different OIDC "
+                "provider. Please report this problem to a system "
+                "administrator."
+            )
+    else:
+        user.update(username=username, roles=roles)
+    return user
