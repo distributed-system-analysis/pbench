@@ -186,11 +186,15 @@ class IntakeBase(ApiBase):
         try:
             backup_target.parent.mkdir(exist_ok=True)
         except Exception as e:
+            if isinstance(e, OSError) and e.errno == errno.ENOSPC:
+                raise APIAbort(HTTPStatus.INSUFFICIENT_STORAGE)
             raise APIInternalError(f"Failure creating backup subdirectory: {e}")
         try:
             shutil.copy(tarball_path, backup_target)
         except Exception as e:
             IntakeBase._remove_backup(backup_target)
+            if isinstance(e, OSError) and e.errno == errno.ENOSPC:
+                raise APIAbort(HTTPStatus.INSUFFICIENT_STORAGE)
             raise APIInternalError(f"Failure backing up tarball: {e}")
         return backup_target
 
