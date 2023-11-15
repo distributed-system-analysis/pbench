@@ -164,7 +164,21 @@ class DatasetsList(ApiBase):
         """
         paginated_result = {}
         query = query.distinct()
-        total_count = query.count()
+
+        Database.dump_query(query, current_app.logger)
+
+        # This is the first actual query: so if we've constructed a query that
+        # the DB engine can't handle, we'll fail here. Try to report as much
+        # detail as possible in the log.
+        try:
+            total_count = query.count()
+        except Exception as e:
+            try:
+                q = str(query.statement.compile(compile_kwargs={"literal_binds": True}))
+                msg = f"problem executing {q!r}: {str(e)!r}"
+            except Exception as uhoh:
+                msg = f"Unable to compile query for {json} -> {str(uhoh)!r} after {str(e)!r}"
+            raise APIInternalError(msg)
 
         # Shift the query search by user specified offset value,
         # otherwise return the batch of results starting from the
@@ -177,8 +191,6 @@ class DatasetsList(ApiBase):
         limit = json.get("limit")
         if limit:
             query = query.limit(limit)
-
-        Database.dump_query(query, current_app.logger)
 
         items = query.all()
         raw = raw_params.query.copy()
@@ -495,8 +507,14 @@ class DatasetsList(ApiBase):
             if ":" not in sort:
                 k = sort
                 order = asc
+                type = "str"
+                defaulted_type = True
             else:
-                k, o = sort.split(":", maxsplit=1)
+                values = sort.split(":", maxsplit=2)
+                k = values[0]
+                o = values[1]
+                type = values[2] if len(values) >= 3 else "str"
+                defaulted_type = len(values) < 3
                 if o.lower() == "asc":
                     order = asc
                 elif o.lower() == "desc":
@@ -506,12 +524,18 @@ class DatasetsList(ApiBase):
                         HTTPStatus.BAD_REQUEST,
                         f"The sort order {o!r} for key {k!r} must be 'asc' or 'desc'",
                     )
+                if type not in TYPES:
+                    raise APIAbort(
+                        HTTPStatus.BAD_REQUEST,
+                        f"The sort type must be one of {','.join(TYPES.keys())}",
+                    )
 
             if not Metadata.is_key_path(k, Metadata.METADATA_KEYS, metalog_key_ok=True):
                 raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k)))
             keys = k.split(".")
             native_key = keys.pop(0).lower()
             sorter = None
+            cast_to = TYPES[type].sqltype
             if native_key == Metadata.DATASET:
                 second = keys[0].lower()
                 # The dataset namespace requires special handling because
@@ -529,9 +553,17 @@ class DatasetsList(ApiBase):
                         raise APIAbort(
                             HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k))
                         ) from e
-                    sorter = order(c)
+
+                    # For native SQL columns, use the SQL type unless
+                    # explicitly overridden.
+                    sorter = order(c if defaulted_type else c.cast(cast_to))
             if sorter is None:
-                sorter = order(aliases[native_key].value[keys])
+                query = query.add_column(
+                    cast(aliases[native_key].value[keys].as_string(), cast_to)
+                )
+                sorter = order(
+                    cast(aliases[native_key].value[keys].as_string(), cast_to)
+                )
             sorters.append(sorter)
 
         # Apply our list of sort terms

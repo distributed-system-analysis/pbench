@@ -701,6 +701,58 @@ class TestList:
             assert d.metadata["dataset.owner"] == "tester"
         assert sorted(d.resource_id for d in datasets) == all
 
+    @pytest.mark.dependency(name="list_int_sort", depends=["upload"], scope="session")
+    def test_list_int_sort(self, server_client: PbenchServerClient, login_user):
+        """Check that we can sort "raw size" as an integer"""
+        all = sorted(Dataset.md5(x) for x in all_tarballs())
+        datasets = list(
+            server_client.get_list(
+                metadata=["dataset.metalog.run.raw_size"],
+                sort=["dataset.metalog.run.raw_size:desc:int"],
+            )
+        )
+
+        # Assert that we got all the expected datasets
+        assert sorted(d.resource_id for d in datasets) == all
+
+        # Some (e.g., the no-metadata and some benchmarks) won't have a "raw
+        # size" field: we expect PostgreSQL to return them at the beginning of
+        # the list even though arguably "smaller" than any real value.
+        last_size = None
+        for d in datasets:
+            s = d.metadata["dataset.metalog.run.raw_size"]
+            assert s is not None or last_size is None
+            if s is None:
+                continue
+            size = int(s)
+            assert last_size is None or size <= last_size
+            last_size = size
+        assert last_size is not None
+
+    @pytest.mark.dependency(name="list_date_sort", depends=["upload"], scope="session")
+    def test_list_date_sort(self, server_client: PbenchServerClient, login_user):
+        """Check that we can sort run start timestamp as a date"""
+        all = sorted(Dataset.md5(x) for x in all_tarballs())
+        datasets = list(
+            server_client.get_list(
+                metadata=["dataset.metalog.run.start_run"],
+                sort=["dataset.metalog.run.start_run:desc:date"],
+            )
+        )
+
+        # Assert that we got all the expected datasets
+        assert sorted(d.resource_id for d in datasets) == all
+
+        last_date = None
+        for d in datasets:
+            s = d.metadata["dataset.metalog.run.start_run"]
+            if s is None:
+                continue
+            date = dateutil.parser.parse(s)
+            assert last_date is None or date <= last_date
+            last_date = date
+        assert last_date is not None
+
 
 class TestInventory:
     """Validate APIs involving tarball inventory"""
