@@ -1050,8 +1050,8 @@ class TestDatasetsList:
                 ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
             ),
             (
-                # Sort by date timestamp
-                "dataset.uploaded",
+                # Sort by uploaded timestamp (which is already a date)
+                "dataset.uploaded:asc:date",
                 ["test", "fio_1", "uperf_1", "uperf_2", "uperf_3", "uperf_4", "fio_2"],
             ),
             (
@@ -1060,17 +1060,12 @@ class TestDatasetsList:
                 ["fio_2", "uperf_4", "uperf_3", "uperf_2", "uperf_1", "fio_1", "test"],
             ),
             (
-                # Sort by a "dataset.metalog" value
-                "dataset.metalog.run.controller",
-                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
-            ),
-            (
-                # Sort by a general global metadata value in descending order
-                "global.test.sequence:desc",
+                # Sort by a global metadata value in descending order as int
+                "global.test.sequence:desc:int",
                 ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
             (
-                # Sprt by a general global metadata value in ascending order
+                # Sort by a global metadata value in ascending order as string
                 "global.test.sequence",
                 ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
             ),
@@ -1081,7 +1076,7 @@ class TestDatasetsList:
             ),
             (
                 # Sort two keys across distinct metadata namespaces desc/desc
-                "user.test.odd:desc,dataset.name:desc",
+                "user.test.odd:desc:bool,dataset.name:desc",
                 ["uperf_3", "uperf_1", "fio_2", "uperf_4", "uperf_2", "test", "fio_1"],
             ),
             (
@@ -1098,6 +1093,16 @@ class TestDatasetsList:
                 # Sort by a dataset owner, descending
                 "dataset.owner:desc",
                 ["test", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4", "fio_1"],
+            ),
+            (
+                # Sort by stringified integer
+                "global.test.mcguffin:asc:str",
+                ["uperf_4", "uperf_2", "uperf_1", "test", "fio_2", "fio_1", "uperf_3"],
+            ),
+            (
+                # Sort by integer
+                "global.test.mcguffin:asc:int",
+                ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
             ),
         ],
     )
@@ -1121,8 +1126,14 @@ class TestDatasetsList:
         all = Database.db_session.query(Dataset).order_by(desc(Dataset.name)).all()
         for i, d in enumerate(all):
             odd = i & 1
+
+            # A simple integer sequence
             Metadata.setvalue(d, "global.test.sequence", i)
-            Metadata.setvalue(d, "global.test.mcguffin", 100 - i)
+
+            # A sequence that will sort differently as integer vs string
+            Metadata.setvalue(d, "global.test.mcguffin", str(i * 8 + 1))
+
+            # A simple boolean in the per-user namespace
             Metadata.setvalue(d, "user.test.odd", odd, user=test)
         query = {"sort": sort, "metadata": ["dataset.uploaded"]}
         result = query_as(query, "test", HTTPStatus.OK)
@@ -1144,12 +1155,17 @@ class TestDatasetsList:
             (
                 # Specify a sort using bad sort order syntax
                 "dataset.name:desc:",
-                "The sort order 'desc:' for key 'dataset.name' must be 'asc' or 'desc'",
+                "The sort type must be one of bool,date,int,str",
             ),
             (
                 # Specify a sort using a bad metadata namespace
                 "xyzzy.uploaded",
                 "Metadata key 'xyzzy.uploaded' is not supported",
+            ),
+            (
+                # Specify a sort using bad sort order type
+                "dataset.name:desc:foobar",
+                "The sort type must be one of bool,date,int,str",
             ),
         ],
     )
