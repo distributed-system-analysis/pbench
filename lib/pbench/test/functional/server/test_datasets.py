@@ -721,8 +721,8 @@ class TestList:
         last_size = None
         for d in datasets:
             s = d.metadata["dataset.metalog.run.raw_size"]
-            assert s is not None or last_size is None
             if s is None:
+                assert last_size is None, "Null value sorted after a non-null"
                 continue
             size = int(s)
             assert last_size is None or size <= last_size
@@ -747,6 +747,7 @@ class TestList:
         for d in datasets:
             s = d.metadata["dataset.metalog.run.start_run"]
             if s is None:
+                assert last_date is None, "Null value sorted after a non-null"
                 continue
             date = dateutil.parser.parse(s)
             assert last_date is None or date <= last_date

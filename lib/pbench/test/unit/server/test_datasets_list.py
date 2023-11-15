@@ -1050,7 +1050,7 @@ class TestDatasetsList:
                 ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
             ),
             (
-                # Sort by date timestamp (redundantly typing as date)
+                # Sort by uploaded timestamp (which is already a date)
                 "dataset.uploaded:asc:date",
                 ["test", "fio_1", "uperf_1", "uperf_2", "uperf_3", "uperf_4", "fio_2"],
             ),
@@ -1124,12 +1124,16 @@ class TestDatasetsList:
         # Assign "sequence numbers" in the inverse order of name
         test = User.query(username="test")
         all = Database.db_session.query(Dataset).order_by(desc(Dataset.name)).all()
-        mover = 1
         for i, d in enumerate(all):
             odd = i & 1
+
+            # A simple integer sequence
             Metadata.setvalue(d, "global.test.sequence", i)
-            Metadata.setvalue(d, "global.test.mcguffin", str(mover))
-            mover += 8
+
+            # A sequence that will sort differently as integer vs string
+            Metadata.setvalue(d, "global.test.mcguffin", str(i * 8 + 1))
+
+            # A simple boolean in the per-user namespace
             Metadata.setvalue(d, "user.test.odd", odd, user=test)
         query = {"sort": sort, "metadata": ["dataset.uploaded"]}
         result = query_as(query, "test", HTTPStatus.OK)

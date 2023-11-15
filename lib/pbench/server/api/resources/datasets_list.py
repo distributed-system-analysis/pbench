@@ -558,12 +558,9 @@ class DatasetsList(ApiBase):
                     # explicitly overridden.
                     sorter = order(c if defaulted_type else c.cast(cast_to))
             if sorter is None:
-                query = query.add_column(
-                    cast(aliases[native_key].value[keys].as_string(), cast_to)
-                )
-                sorter = order(
-                    cast(aliases[native_key].value[keys].as_string(), cast_to)
-                )
+                casted = cast(aliases[native_key].value[keys].as_string(), cast_to)
+                query = query.add_column(casted)
+                sorter = order(casted)
             sorters.append(sorter)
 
         # Apply our list of sort terms
