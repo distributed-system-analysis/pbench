@@ -279,7 +279,7 @@ export const setSearchValue = (value) => ({
   payload: value,
 });
 
-export const setDatasetType = (value, currPage) => (dispatch) => {
+export const onDatasetTypeChange = (value, currPage) => (dispatch) => {
   dispatch({
     type: TYPES.SET_DATASET_TYPE,
     payload: value,

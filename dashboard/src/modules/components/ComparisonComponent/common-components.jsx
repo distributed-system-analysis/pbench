@@ -12,7 +12,7 @@ import {
   SelectOption,
   SelectVariant,
 } from "@patternfly/react-core";
-import { setDatasetType, setSearchValue } from "actions/comparisonActions";
+import { onDatasetTypeChange, setSearchValue } from "actions/comparisonActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import ChartGallery from "./ChartGallery";
@@ -81,8 +81,7 @@ export const ViewOptions = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const selected = useSelector((state) => state.comparison.datasetType);
   const onSelect = (_event, value) => {
-    console.log("selected", value);
-    dispatch(setDatasetType(value, props.currPage));
+    dispatch(onDatasetTypeChange(value, props.currPage));
     setIsOpen(false);
   };
   const onToggle = () => {
