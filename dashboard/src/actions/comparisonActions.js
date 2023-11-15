@@ -284,7 +284,7 @@ export const setDatasetType = (value, currPage) => (dispatch) => {
     type: TYPES.SET_DATASET_TYPE,
     payload: value,
   });
-  if (currPage === "visualization") {
+  if (currPage === CONSTANTS.VISUALIZATION) {
     dispatch(getDatasets());
   } else {
     dispatch({

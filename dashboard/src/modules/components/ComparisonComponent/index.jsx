@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Cookies from "js-cookie";
 import PanelConent from "./PanelContent";
+import { VISUALIZATION } from "assets/constants/compareConstants";
 import { getDatasets } from "actions/overviewActions";
 
 const ComparisonComponent = () => {
@@ -75,7 +76,7 @@ const ComparisonComponent = () => {
               Compare Datasets
             </Button>
           )}
-          {loggedIn && <ViewOptions currPage="visualization" />}
+          {loggedIn && <ViewOptions currPage={VISUALIZATION} />}
 
           <SearchByName />
           <PanelConent />

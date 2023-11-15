@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Cookies from "js-cookie";
 import DatePickerWidget from "../DatePickerComponent";
+import { RESULTS } from "assets/constants/compareConstants";
 import { RenderPagination } from "../OverviewComponent/common-component";
 import TablePagination from "../PaginationComponent";
 import { ViewOptions } from "../ComparisonComponent/common-components";
@@ -165,7 +166,7 @@ const TableWithFavorite = () => {
             <>
               {" "}
               <span className="runs-text">Datasets</span>
-              <ViewOptions currPage="results" />
+              <ViewOptions currPage={RESULTS} />
             </>
           )}
         </div>

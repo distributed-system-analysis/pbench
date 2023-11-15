@@ -1,4 +1,9 @@
 import {
+  ALL_DATASETS,
+  MY_DATASETS,
+  PUBLIC_DATASETS,
+} from "assets/constants/compareConstants";
+import {
   EmptyState,
   EmptyStateBody,
   EmptyStateVariant,
@@ -84,9 +89,9 @@ export const ViewOptions = (props) => {
     setIsOpen(!isOpen);
   };
   const options = [
-    <SelectOption key={1} value="All Datasets" />,
-    <SelectOption key={2} value="My Datasets" />,
-    <SelectOption key={3} value="Public Datasets" />,
+    <SelectOption key={1} value={ALL_DATASETS} />,
+    <SelectOption key={2} value={MY_DATASETS} />,
+    <SelectOption key={3} value={PUBLIC_DATASETS} />,
   ];
   return (
     <Select

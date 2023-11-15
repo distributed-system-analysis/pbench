@@ -7,6 +7,7 @@ import API from "../utils/axiosInstance";
 import Cookies from "js-cookie";
 import { clearCachedSession } from "./authActions";
 import { findNoOfDays } from "utils/dateFunctions";
+import { setParams } from "./datasetListActions";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "../utils/helper";
 
@@ -21,15 +22,7 @@ export const getDatasets = () => async (dispatch, getState) => {
     }
     const params = new URLSearchParams();
 
-    params.append("metadata", "server");
-    params.append("metadata", "dataset");
-    params.append("metadata", "global");
-    params.append("metadata", "user");
-    if (loggedIn && datasetType === "My Datasets") {
-      params.append("mine", "true");
-    } else if (loggedIn && datasetType === "All Datasets") {
-      params.append("access", "public");
-    }
+    setParams(params, loggedIn, datasetType);
 
     dispatch(setSelectedRuns([]));
     const endpoints = getState().apiEndpoint.endpoints;
