@@ -83,9 +83,7 @@ class DatasetsMappings(ApiBase):
             ),
         )
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Return mapping properties of the document specified by the dataset view
         specified in the URI parameter (supported dataset views are defined in

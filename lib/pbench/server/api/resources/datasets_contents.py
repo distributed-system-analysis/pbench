@@ -48,15 +48,13 @@ class DatasetsContents(ApiBase):
             ),
         )
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Returns metadata about the target file path within a tarball.
 
         Args:
             params: includes the uri parameters, which provide the dataset and target.
-            request: Original incoming Request object
+            req: Original incoming Request object
             context: API context dictionary
 
         Raises:
@@ -79,7 +77,7 @@ class DatasetsContents(ApiBase):
 
         prefix = current_app.server_config.rest_uri
         origin = (
-            f"{self._get_uri_base(request).host}{prefix}/datasets/{dataset.resource_id}"
+            f"{self._get_uri_base(req).host}{prefix}/datasets/{dataset.resource_id}"
         )
 
         details: CacheObject = info["details"]

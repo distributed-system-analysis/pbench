@@ -20,7 +20,7 @@ class OnlyGet(ApiBase):
     def __init__(self, server_config):
         super().__init__(server_config, ApiSchema(ApiMethod.GET, OperationCode.READ))
 
-    def _get(self, args: ApiParams, request: Request, context: ApiContext) -> str:
+    def _get(self, args: ApiParams, req: Request, context: ApiContext) -> str:
         return "OK - Only GET"
 
 
@@ -32,7 +32,7 @@ class Always(ApiBase):
             always_enabled=True,
         )
 
-    def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _get(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         return "OK - Always GET"
 
 
@@ -47,21 +47,19 @@ class All(ApiBase):
             ApiSchema(ApiMethod.DELETE, OperationCode.DELETE),
         )
 
-    def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _get(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         return "OK - All GET"
 
-    def _head(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _head(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         return "OK - All HEAD"
 
-    def _post(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _post(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         return "OK - All POST"
 
-    def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _put(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         return "OK - All PUT"
 
-    def _delete(
-        self, args: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _delete(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         return "OK - All DELETE"
 
 

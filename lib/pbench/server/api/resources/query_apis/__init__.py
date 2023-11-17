@@ -455,7 +455,7 @@ class ElasticBase(ApiBase):
         except Exception as e:
             raise APIInternalError(f"Unexpected backend exception '{e}'") from e
 
-    def _post(self, params: ApiParams, request: Request, context: ApiContext) -> JSON:
+    def _post(self, params: ApiParams, req: Request, context: ApiContext) -> JSON:
         """Handle a Pbench server POST operation involving Elasticsearch
 
         The assembly and post-processing of the Elasticsearch query are
@@ -465,13 +465,13 @@ class ElasticBase(ApiBase):
 
         Args:
             params: The API HTTP method parameters
-            request: The flask Request object containing payload and headers
+            req: The flask Request object containing payload and headers
             context: The API context dictionary
         """
-        context["request"] = request
+        context["request"] = req
         return self._call(requests.post, params, context)
 
-    def _get(self, params: ApiParams, request: Request, context: ApiContext) -> JSON:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> JSON:
         """Handle a GET operation involving a call to Elasticsearch
 
         The post-processing of the Elasticsearch query is handled by the
@@ -479,10 +479,10 @@ class ElasticBase(ApiBase):
 
         Args:
             params: The API HTTP method parameters
-            request: The flask Request object containing payload and headers
+            req: The flask Request object containing payload and headers
             context: The API context dictionary
         """
-        context["request"] = request
+        context["request"] = req
         return self._call(requests.get, params, context)
 
 
@@ -725,9 +725,7 @@ class ElasticBulkBase(ApiBase):
             report[status][index] += 1
         return BulkResults(errors=errors, count=count, report=report)
 
-    def _post(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _post(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """Perform the requested POST operation, and handle any exceptions.
 
         This is called by the ApiBase post() method through its dispatch
@@ -740,18 +738,16 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             params: Type-normalized client parameters
-            request: Original incoming Request object (not used)
+            req: Original incoming Request object (not used)
             context: API context
 
         Returns:
             Response to return to client
         """
 
-        return self._bulk_dispatch(params, request, context)
+        return self._bulk_dispatch(params, req, context)
 
-    def _delete(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _delete(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """Perform the requested DELETE operation, and handle any exceptions.
 
         This is called by the ApiBase delete() method through its dispatch
@@ -764,13 +760,13 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             params: Type-normalized client parameters
-            request: Original incoming Request object (not used)
+            req: Original incoming Request object (not used)
             context: API context
 
         Returns:
             Response to return to client
         """
-        return self._bulk_dispatch(params, request, context)
+        return self._bulk_dispatch(params, req, context)
 
     def _bulk_dispatch(
         self, params: ApiParams, _request: Request, context: ApiContext

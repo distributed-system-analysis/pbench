@@ -2091,14 +2091,14 @@ class ApiBase(Resource):
             )
         return response
 
-    def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _get(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         """Perform the requested GET operation, and handle any exceptions.
 
         ABSTRACT METHOD: override in subclass to perform operation.
 
         Args:
             args : Type-normalized client argument sets
-            request : Original incoming Request object
+            req : Original incoming Request object
             context : API context dictionary
 
         Returns:
@@ -2108,14 +2108,14 @@ class ApiBase(Resource):
             f"Class {self.__class__.__name__} doesn't override abstract _get method"
         )
 
-    def _head(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _head(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         """Perform the requested HEAD operation, and handle any exceptions.
 
         ABSTRACT METHOD: override in subclass to perform operation.
 
         Args:
             args : Type-normalized client argument sets
-            request : Original incoming Request object
+            req : Original incoming Request object
             context : API context dictionary
 
         Returns:
@@ -2125,14 +2125,14 @@ class ApiBase(Resource):
             f"Class {self.__class__.__name__} doesn't override abstract _head method"
         )
 
-    def _post(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _post(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         """Perform the requested POST operation, and handle any exceptions.
 
         ABSTRACT METHOD: override in subclass to perform operation.
 
         Args:
             args : Type-normalized client argument sets
-            request : Original incoming Request object
+            req : Original incoming Request object
             context : API context dictionary
 
         Returns:
@@ -2142,14 +2142,14 @@ class ApiBase(Resource):
             f"Class {self.__class__.__name__} doesn't override abstract _post method"
         )
 
-    def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _put(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         """Perform the requested PUT operation, and handle any exceptions.
 
         ABSTRACT METHOD: override in subclass to perform operation.
 
         Args:
             args : Type-normalized client argument sets
-            request : Original incoming Request object
+            req : Original incoming Request object
             context : API context dictionary
 
         Returns:
@@ -2159,16 +2159,14 @@ class ApiBase(Resource):
             f"Class {self.__class__.__name__} doesn't override abstract _put method"
         )
 
-    def _delete(
-        self, args: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _delete(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         """Perform the requested DELETE operation, and handle any exceptions.
 
         ABSTRACT METHOD: override in subclass to perform operation.
 
         Args:
             args : Type-normalized client argument sets
-            request : Original incoming Request object
+            req : Original incoming Request object
             context : API context dictionary
 
         Returns:

@@ -47,7 +47,7 @@ class EndpointConfig(ApiBase):
         super().__init__(config, ApiSchema(ApiMethod.GET, OperationCode.READ))
         self.server_config = config
 
-    def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _get(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
@@ -79,7 +79,7 @@ class EndpointConfig(ApiBase):
 
             template.replace('{target_username}', 'value')
         """
-        origin = self._get_uri_base(request)
+        origin = self._get_uri_base(req)
         current_app.logger.info(
             "Advertising endpoints at {} relative to {} ({})",
             origin.host,

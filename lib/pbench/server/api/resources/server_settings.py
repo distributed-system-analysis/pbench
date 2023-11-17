@@ -71,9 +71,7 @@ class ServerSettings(ApiBase):
             always_enabled=True,
         )
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Get the values of server settings.
 
@@ -87,7 +85,7 @@ class ServerSettings(ApiBase):
 
         Args:
             params: API parameters
-            request: The original Request object containing query parameters
+            req: The original Request object containing query parameters
             context: API context dictionary
 
         Returns:
@@ -205,9 +203,7 @@ class ServerSettings(ApiBase):
             raise APIAbort(HTTPStatus.BAD_REQUEST, message=", ".join(failures))
         return jsonify(response)
 
-    def _put(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _put(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Set or modify the values of server setting keys.
 
@@ -226,7 +222,7 @@ class ServerSettings(ApiBase):
 
         Args:
             params: API parameters
-            request: The original Request object containing query parameters
+            req: The original Request object containing query parameters
             context: API context dictionary
 
         Returns:
