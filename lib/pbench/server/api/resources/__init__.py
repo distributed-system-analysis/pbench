@@ -5,7 +5,7 @@ from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
 import re
-from typing import Any, Callable, NamedTuple, Optional, Union
+from typing import Any, Callable, Iterable, NamedTuple, Optional, Union
 import uuid
 
 from dateutil import parser as date_parser
@@ -288,7 +288,7 @@ class KeywordError(SchemaError):
         expected_type: str,
         unrecognized: list[str],
         *,
-        keywords: list[str] = [],
+        keywords: list[str] = None,
     ):
         """Construct a KeywordError exception.
 
@@ -448,22 +448,22 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
     """
     _valid_key = re.compile(r"[a-z0-9_-]+")
 
-    def keysafe(value: dict[str, Any]) -> list[str]:
+    def keysafe(val: dict[str, Any]) -> list[str]:
         """Test whether nested JSON keys are legal.
 
         Args:
-            value: A JSON structure
+            val: A JSON structure
 
         Returns:
             A list of bad keys (empty if all are good)
         """
-        bad = []
-        for k, v in value.items():
-            if not _valid_key.fullmatch(k):
-                bad.append(k)
-            if isinstance(v, dict):
-                bad.extend(keysafe(v))
-        return bad
+        bad_keys = []
+        for ks_k, ks_v in val.items():
+            if not _valid_key.fullmatch(ks_k):
+                bad_keys.append(ks_k)
+            if isinstance(ks_v, dict):
+                bad_keys.extend(keysafe(ks_v))
+        return bad_keys
 
     try:
         washed = json.loads(json.dumps(value))
@@ -681,16 +681,14 @@ def convert_boolean(value: Any, parameter: "Parameter") -> bool:
         ConversionError : input can't be validated or normalized
     """
     v = value
+    if isinstance(v, bool):
+        return v
     if isinstance(v, str):
         if v.lower() in ("", "t", "true", "y", "yes"):
-            v = True
-        elif v.lower() in ("f", "false", "n", "no"):
-            v = False
-        else:
-            raise ConversionError(v, "boolean")
-    elif not isinstance(v, bool):
-        raise ConversionError(v, "boolean")
-    return v
+            return True
+        if v.lower() in ("f", "false", "n", "no"):
+            return False
+    raise ConversionError(v, "boolean", parmeter=parameter)
 
 
 # A type defined to pass context through API methods.
@@ -827,7 +825,7 @@ class Term:
         return self
 
     def _remove_prefix(
-        self, prefixes: tuple[str], default: Optional[str] = None
+        self, prefixes: Iterable[str], default: Optional[str] = None
     ) -> Optional[str]:
         """Remove a string prefix.
 
@@ -858,23 +856,23 @@ class Term:
             quote: str
 
         quoted: list[Quote] = []
-        next = None
+        next_char = None
         token = ""
         first_quote = None
         for o in range(len(self.buffer)):
-            next = self.buffer[o]
-            if next == self.delimiter and not quoted:
+            next_char = self.buffer[o]
+            if next_char == self.delimiter and not quoted:
                 self.buffer = self.buffer[o + 1 :]
                 self.offset += o + 1
                 break
-            elif next in ('"', "'"):
+            elif next_char in ('"', "'"):
                 if o == 0:
-                    first_quote = next
-                if quoted and quoted[-1].quote == next:
+                    first_quote = next_char
+                if quoted and quoted[-1].quote == next_char:
                     quoted.pop()
                 else:
-                    quoted.append(Quote(o, next))
-            token += next
+                    quoted.append(Quote(o, next_char))
+            token += next_char
         else:
             if quoted:
                 q = quoted[-1]
@@ -884,7 +882,7 @@ class Term:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST, f"Unterminated quote at {annotated!r}"
                 )
-            if next != self.delimiter and not optional:
+            if next_char != self.delimiter and not optional:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST,
                     f"Missing {self.delimiter!r} terminator after {token!r}",
@@ -933,7 +931,7 @@ class Parameter:
     def __init__(
         self,
         name: str,
-        type: ParamType,
+        ptype: ParamType,
         *,  # Following are keyword-only
         keywords: Optional[list[str]] = None,
         element_type: Optional[ParamType] = None,
@@ -948,7 +946,7 @@ class Parameter:
 
         Args:
             name : Parameter name
-            type : Parameter type
+            ptype : Parameter type
             keywords : List of keywords for ParamType.KEYWORD
             element_type : List element type if ParamType.LIST
             required : whether the parameter is required (defaults to False)
@@ -963,7 +961,7 @@ class Parameter:
                 set in restricted cases.
         """
         self.name = name
-        self.type = type
+        self.type = ptype
         self.keywords = [k.lower() for k in keywords] if keywords else None
         self.element_type = element_type
         self.required = required
@@ -972,7 +970,7 @@ class Parameter:
         self.enum = enum
         self.metalog_ok = metalog_ok
 
-    def invalid(self, json: JSONOBJECT) -> bool:
+    def invalid(self, json_obj: JSONOBJECT) -> bool:
         """Check whether the value of this parameter in the JSON document is
         invalid.
 
@@ -980,12 +978,12 @@ class Parameter:
         required may be absent or null.
 
         Args:
-            json : The client JSON document being validated.
+            json_obj : The client JSON document being validated.
 
         Returns:
             True if the specified value is unacceptable
         """
-        return self.required and (self.name not in json or json[self.name] is None)
+        return self.required and json_obj.get(self.name, None) is None
 
     def normalize(self, data: JSONVALUE):
         """Validate and normalize user JSON input properties for the API code.
@@ -1329,7 +1327,7 @@ class ApiSchema:
 
 class ApiSchemaSet:
     def __init__(self, *schemas: ApiSchema):
-        """Construct a dict of schemas accessable by API method.
+        """Construct a dict of schemas accessible by API method.
 
         Args:
             schemas : A list of schemas for each HTTP method supported by an
@@ -1457,7 +1455,8 @@ class ApiBase(Resource):
         self.schemas = ApiSchemaSet(*schemas)
         self.always_enabled = always_enabled
 
-    def _gather_query_params(self, request: Request, schema: Schema) -> JSONOBJECT:
+    @staticmethod
+    def _gather_query_params(req: Request, schema: Schema) -> JSONOBJECT:
         """This collects query parameters (?key or &key) provided by the caller
         on the URL.
 
@@ -1466,7 +1465,7 @@ class ApiBase(Resource):
         values, not both.
 
         Args:
-            request : The HTTP Request object containing query parameters
+            req : The HTTP Request object containing query parameters
             schema : The Schema definition
 
         Raises:
@@ -1478,15 +1477,15 @@ class ApiBase(Resource):
         Returns:
             The resulting JSON object
         """
-        json = {}
+        json_obj = {}
         badkey = []
-        for key in request.args.keys():
+        for key in req.args.keys():
             if key in schema:
-                values = request.args.getlist(key)
+                values = req.args.getlist(key)
                 if schema[key].type == ParamType.LIST:
-                    json[key] = values
+                    json_obj[key] = values
                 elif len(values) == 1:
-                    json[key] = values[0]
+                    json_obj[key] = values[0]
                 else:
                     raise RepeatedQueryParam(key)
             else:
@@ -1495,9 +1494,10 @@ class ApiBase(Resource):
         if badkey:
             raise BadQueryParam(badkey)
 
-        return json
+        return json_obj
 
-    def _check_authorization(self, mode: ApiAuthorization):
+    @staticmethod
+    def _check_authorization(mode: ApiAuthorization):
         """Check whether an API call is able to access data, based on the API's
         authorization header, the requested user, the requested access policy,
         and the API's role.
@@ -1642,8 +1642,9 @@ class ApiBase(Resource):
                 # READ, the user owns the data, or the user has ADMIN role.
                 pass
 
+    @staticmethod
     def _build_sql_query(
-        self, owner_id: Optional[str], access: Optional[str], base_query: Query
+        owner_id: Optional[str], access: Optional[str], base_query: Query
     ) -> Query:
         """Extend a SQLAlchemy Query with additional terms applying specified
         owner and access constraints from the parameters JSON.
@@ -1777,9 +1778,8 @@ class ApiBase(Resource):
 
         return query
 
-    def _get_dataset_metadata(
-        self, dataset: Dataset, requested_items: list[str]
-    ) -> JSON:
+    @staticmethod
+    def _get_dataset_metadata(dataset: Dataset, requested_items: list[str]) -> JSON:
         """Get requested metadata for a specific Dataset
 
         This supports strict Metadata key/value items associated with the
@@ -1809,8 +1809,9 @@ class ApiBase(Resource):
 
         return metadata
 
+    @staticmethod
     def _set_dataset_metadata(
-        self, dataset: Dataset, metadata: dict[str, JSONVALUE]
+        dataset: Dataset, metadata: dict[str, JSONVALUE]
     ) -> dict[str, str]:
         """Set metadata on a specific Dataset
 
@@ -1843,7 +1844,7 @@ class ApiBase(Resource):
     X_HEADER_FORWARD = re.compile(r"\s*(?P<host>[^;\s,]+)")
     PARAM_TEMPLATE = re.compile(r"/<(?P<type>[^:]+):(?P<name>\w+)>")
 
-    def _get_uri_base(self, request: Request) -> UriBase:
+    def _get_uri_base(self, req: Request) -> UriBase:
         """Determine the original request URI
 
         When a request is directed through reverse proxies, the origin we see
@@ -1853,23 +1854,23 @@ class ApiBase(Resource):
         controls and visibility).
 
         Args:
-            request: the original HTTP Request
+            req: the original HTTP Request
 
         Return:
             An object describing the origin and how we got there
         """
         current_app.logger.debug(
             "Received headers: {!r}, access_route {!r}, base_url {!r}, host {!r}, host_url {!r}",
-            request.headers,
-            request.access_route,
-            request.base_url,
-            request.host,
-            request.host_url,
+            req.headers,
+            req.access_route,
+            req.base_url,
+            req.host,
+            req.host_url,
         )
         origin = None
         host_source = HostSource.REQUEST
-        host_value = request.host
-        header = request.headers.get("Forwarded")
+        host_value = req.host
+        header = req.headers.get("Forwarded")
         if header:
             m = self.HEADER_FORWARD.search(header)
             if m:
@@ -1877,7 +1878,7 @@ class ApiBase(Resource):
                 host_source = HostSource.FORWARDED
                 host_value = header
         if not origin:
-            header = request.headers.get("X-Forwarded-Host")
+            header = req.headers.get("X-Forwarded-Host")
             if header:
                 m = self.X_HEADER_FORWARD.match(header)
                 if m:
@@ -1886,7 +1887,7 @@ class ApiBase(Resource):
                     host_value = header
         if not origin:
             origin = host_value
-        proto = request.headers.get("X-Forwarded-Proto", "https")
+        proto = req.headers.get("X-Forwarded-Proto", "https")
         host = f"{proto}://{origin}"
         return UriBase(host, host_source, host_value)
 
@@ -1926,6 +1927,7 @@ class ApiBase(Resource):
         elif method is ApiMethod.DELETE:
             execute = self._delete
         else:
+            execute = None
             abort(
                 HTTPStatus.METHOD_NOT_ALLOWED,
                 message=HTTPStatus.METHOD_NOT_ALLOWED.phrase,
@@ -1959,6 +1961,8 @@ class ApiBase(Resource):
                     message=f"Invalid request payload: {str(e)!r}",
                 )
 
+        raw_params = None
+        params = None
         try:
             if schema.query_schema:
                 query_params = self._gather_query_params(request, schema.query_schema)
@@ -2037,6 +2041,8 @@ class ApiBase(Resource):
             "attributes": schema.attributes,
             "raw_params": raw_params,
         }
+
+        response = None
         try:
             response = execute(params, request, context)
         except APIInternalError as e:
