@@ -1,6 +1,7 @@
 from collections import deque
 from dataclasses import dataclass
 from enum import auto, Enum
+import errno
 import fcntl
 from logging import Logger
 from pathlib import Path
@@ -10,10 +11,12 @@ import subprocess
 import time
 from typing import Any, IO, Optional, Union
 
+import humanize
+
 from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, OperationCode, PathLike, PbenchServerConfig
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.server.utils import get_tarball_md5
 
 
@@ -436,6 +439,13 @@ class Tarball:
         # logic
         self.resource_id: str = resource_id
 
+        # Record the Dataset record
+        try:
+            dataset = Dataset.query(resource_id=resource_id)
+            self.dataset = dataset
+        except DatasetNotFound:
+            self.dataset = None
+
         # Record a backlink to the containing controller object
         self.controller: Controller = controller
 
@@ -461,6 +471,9 @@ class Tarball:
         # is (self.cache / self.name) and will be None when the cache is
         # inactive.
         self.unpacked: Optional[Path] = None
+
+        # Record the unpacked size of the dataset, if known
+        self.unpacked_size = 0
 
         # Record the lockf file path used to control cache access
         self.lock: Path = self.cache / "lock"
@@ -876,6 +889,35 @@ class Tarball:
                     f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
                 )
 
+    def get_unpacked_size(self) -> int:
+        """Get the unpacked size of a dataset
+
+        Once we've unpacked it once, the size is tracked in the metadata key
+        'server.unpacked'. If we haven't yet unpacked it, and the dataset's
+        metadata.log provides a 'raw_size", use that as an estimate
+
+        Returns:
+            unpacked size of the tarball, or 0 if unknown
+        """
+        if self.unpacked_size:
+            return self.unpacked_size
+
+        if not self.dataset:
+            return 0
+
+        size = Metadata.getvalue(self.dataset, Metadata.SERVER_UNPACKED)
+        self.logger.info("SIZE unpacked = {}", size)
+        if not size:
+            try:
+                size = int(
+                    Metadata.getvalue(self.dataset, "dataset.metalog.run.raw_size")
+                )
+                self.logger.info("SIZE metalog = {}", size)
+            except (ValueError, TypeError):
+                size = 0
+        self.unpacked_size = size
+        return size
+
     def get_results(self, lock: LockManager) -> Path:
         """Unpack a tarball into a temporary directory tree
 
@@ -884,7 +926,7 @@ class Tarball:
         direct to the caller.
 
         Args:
-            lock:   A lock context manager in shared lock state
+            lock: A lock context manager in shared lock state
 
         Returns:
             the root Path of the unpacked directory tree
@@ -892,6 +934,14 @@ class Tarball:
 
         if not self.unpacked:
             lock.upgrade()
+
+            # If necessary, attempt to reclaim some unused cache so we have
+            # enough room.
+            if self.controller and self.controller.cache_manager:
+                self.controller.cache_manager.reclaim_cache(
+                    goal_bytes=self.get_unpacked_size()
+                )
+
             audit = None
             error = None
             try:
@@ -940,6 +990,24 @@ class Tarball:
             self.build_map()
 
         self.last_ref.touch(exist_ok=True)
+
+        # If we have a Dataset, and haven't already done this, compute the
+        # unpacked size and record it in metadata so we can use it later.
+        if self.dataset and not Metadata.getvalue(
+            self.dataset, Metadata.SERVER_UNPACKED
+        ):
+            try:
+                process = subprocess.run(
+                    ["du", "-s", "-B1", str(self.unpacked)],
+                    capture_output=True,
+                    text=True,
+                )
+                if process.returncode == 0:
+                    size = int(process.stdout.split("\t", maxsplit=1)[0])
+                    self.unpacked_size = size
+                    Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACKED, size)
+            except Exception as e:
+                self.logger.warning("usage check failed: {}", e)
         return self.unpacked
 
     def cache_delete(self):
@@ -1017,6 +1085,9 @@ class Controller:
             logger: Logger object
         """
         self.logger = logger
+
+        # A link back to the cache manager object
+        self.cache_manager: Optional[CacheManager] = None
 
         # The controller file system (directory) name
         self.name = path.name
@@ -1267,6 +1338,7 @@ class CacheManager:
             directory: A controller directory within the ARCHIVE tree
         """
         controller = Controller(directory, self.options.CACHE, self.logger)
+        controller.cache_manager = self
         self.controllers[controller.name] = controller
         self.tarballs.update(controller.tarballs)
         self.datasets.update(controller.datasets)
@@ -1433,3 +1505,124 @@ class CacheManager:
         del self.tarballs[name]
 
         self._clean_empties(tarball.controller_name)
+
+    def reclaim_cache(self, goal_pct: float = 20.0, goal_bytes: int = 0) -> bool:
+        """Reclaim unused caches until at least goal (%) disk is available.
+
+        The cache tree need not be fully discovered at this point; we can
+        reclaim cache even on a partial tree. This is driven by discovery of
+        the cache directory tree, looking for <resource_id> directories that
+        contain an unpacked tarball root rather than only the `lock` and
+        `last_ref` files.
+
+        This is a "best effort" operation. It will free least recently used
+        caches that are currently unlocked until both the goal % is achieved
+        and the absolute goal bytes is achieved (if specified), or until there
+        are no more unlocked cached tarballs.
+
+        Args:
+            tree: the cache manager instance
+            goal_pct: goal percent of cache filesystem free
+            goal_bytes: goal in bytes
+
+        Returns:
+            True if both goals are met, or False otherwise
+        """
+
+        @dataclass
+        class Candidate:
+            last_ref: float  # last reference timestamp
+            cache: Path  # Unpacked artifact directory
+
+        def reached_goal():
+            usage = shutil.disk_usage(self.cache_root)
+            available = float(usage.free) / float(usage.total) * 100.0
+            return bool(available >= goal_pct and usage.free >= goal_bytes)
+
+        if reached_goal():
+            return True
+
+        total_count = 0
+        has_cache = 0
+        reclaimed = 0
+        reclaim_failed = 0
+        self.logger.info(
+            "RECLAIM: looking for {}% or {} free",
+            goal_pct,
+            humanize.naturalsize(goal_bytes),
+        )
+
+        # Identify cached datasets by examining the cache directory tree
+        candidates = deque()
+        for d in self.cache_root.iterdir():
+            if not d.is_dir():
+                self.logger.warning("unexpected file in cache root: {}", d)
+                continue
+            total_count += 1
+            last_ref = 0.0
+            for f in d.iterdir():
+                if f.name == "last_ref":
+                    last_ref = f.stat().st_mtime
+                elif f.is_dir():
+                    candidates.append(Candidate(last_ref, f))
+                    break
+
+        # Sort the candidates by last_ref timestamp, putting the oldest at
+        # the head of the queue. We'll flush each cache tree until we reach
+        # our goals.
+        candidates = sorted(candidates, key=lambda c: c.last_ref)
+        has_cache = len(candidates)
+        for candidate in candidates:
+            name = candidate.cache.name
+            cache_d = candidate.cache.parent
+            resource_id = cache_d.name
+
+            # Only if the dataset we're flushing has already been discovered,
+            # we want to update the Tarball object so that we don't break it.
+            # If it hasn't been discovered under this cache instance, that's
+            # fine because discovery will notice that the cache is empty.
+            if resource_id in self.datasets:
+                target = self.datasets[resource_id]
+            else:
+                target = None
+            try:
+                self.logger.info("RECLAIM: removing cache for {}", name)
+                with LockManager(cache_d / "lock", exclusive=True, wait=False):
+                    if target:
+                        target.cache_delete()
+                    else:
+                        try:
+                            shutil.rmtree(candidate.cache)
+                        except Exception as e:
+                            self.logger.error(
+                                "RECLAIM: unable to delete cache for {}: {}", name, e
+                            )
+                            continue
+                    reclaimed += 1
+                    if reached_goal():
+                        break
+            except OSError as e:
+                if e.errno in (errno.EAGAIN, errno.EACCES):
+                    self.logger.info(
+                        "RECLAIM {}: skipping because cache is locked", name
+                    )
+                    # Don't reclaim a cache that's in use
+                    continue
+                error = e
+            except Exception as e:
+                error = e
+                reclaim_failed += 1
+                self.logger.error("RECLAIM {} failed with '{}'", name, error)
+        reached = reached_goal()
+        self.logger.info(
+            "RECLAIM summary: goal {}%, {}b {}met: "
+            "{} datasets, {} had cache: {} reclaimed and {} errors",
+            goal_pct,
+            goal_bytes,
+            "" if reached else "not ",
+            total_count,
+            has_cache,
+            reclaimed,
+            reclaim_failed,
+        )
+        return reached

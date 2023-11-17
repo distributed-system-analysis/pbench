@@ -671,6 +671,9 @@ class Metadata(Database.Base):
     # ORIGIN allows the client to record the source of the dataset.
     SERVER_ORIGIN = "server.origin"
 
+    # UNPACKED records the size of the unpacked directory tree.
+    SERVER_UNPACKED = "server.unpacked-size"
+
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.
     #

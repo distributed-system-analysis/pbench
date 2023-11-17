@@ -424,6 +424,7 @@ class TestCacheManager:
             self.name = "ABC"
             self.path = path
             self.cache = cache
+            self.cache_manager = None
             self.logger = logger
             self.datasets = {}
             self.tarballs = {}
@@ -551,6 +552,7 @@ class TestCacheManager:
         def __init__(self, path: Path, resource_id: str, controller: Controller):
             self.name = Dataset.stem(path)
             self.resource_id = "ABC"
+            self.dataset = None
             self.tarball_path = path
             self.cache = controller.cache / self.resource_id
             self.isolator = controller.path / resource_id

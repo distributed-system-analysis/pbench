@@ -28,8 +28,10 @@ import datetime
 from http import HTTPStatus
 from io import TextIOWrapper
 from pathlib import Path
+import re
 import socket
 import sys
+import time
 from typing import Optional
 
 import dateutil.parser
@@ -192,10 +194,17 @@ def main() -> int:
     skipped = 0
     early = 0
     late = 0
+    timer = time.time()
     if parsed.tarball.is_dir():
         pool = parsed.tarball.glob("**/*.tar.xz")
         which = []
         for t in pool:
+            if time.time() >= timer + 5.0:
+                sel = len(which)
+                print(
+                    f"[{early + late + skipped + sel} examined, {sel} selected, {skipped} skipped]"
+                )
+                timer = time.time()
             if not t.is_file():
                 continue
             date = t.stat().st_mtime
@@ -260,10 +269,23 @@ def main() -> int:
                 else:
                     failure += 1
                     failures.add(response.status_code)
-                    try:
-                        message = response.json()
-                    except Exception:
-                        message = response.text
+
+                    # TODO: can we handle NGINX's ugly 500 "storage error"
+                    # gracefully somehow?
+                    if response.headers["content-type"] in (
+                        "text/html",
+                        "text/xml",
+                        "application/xml",
+                        "text/plain",
+                    ):
+                        message = re.sub(r"[\n\s]+", " ", response.text)
+                    elif response.headers["content-type"] == "application/json":
+                        try:
+                            message = response.json()
+                        except Exception:
+                            message = response.text
+                    else:
+                        message = f"{response.headers['content-type']}({response.text})"
                     print(
                         f"Upload of {t} failed: {response.status_code} ({message})",
                         file=sys.stderr,
