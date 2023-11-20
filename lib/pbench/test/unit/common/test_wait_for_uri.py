@@ -11,11 +11,13 @@ from pbench.common.exceptions import BadConfig
 
 @pytest.mark.parametrize(
     ("uri", "arg0", "arg1"),
-    ("http://localhost:42", "localhost", 42),
-    ("http://host1.example.com", "host1.example.com", 80),
-    ("https://host2.example.com", "host2.example.com", 443),
-    ("https://user@host3.example.com", "host3.example.com", 443),
-    ("https://user:password@host4.example.com", "host4.example.com", 443),
+    (
+        ("http://localhost:42", "localhost", 42),
+        ("http://host1.example.com", "host1.example.com", 80),
+        ("https://host2.example.com", "host2.example.com", 443),
+        ("https://user@host3.example.com", "host3.example.com", 443),
+        ("https://user:password@host4.example.com", "host4.example.com", 443),
+    ),
 )
 def test_wait_for_uri_success(uri: str, arg0: str, arg1: int, monkeypatch):
     called = [(("wrong_node", -1),)]

@@ -107,8 +107,8 @@ def _sleep_w_backoff(backoff):
 
 
 def _get_es_hosts(config):
-    """
-    Return list of dicts (a single dict for now) - that's what ES is expecting.
+    """Return a list of strings (containing only a single string for now) which
+    are the network locations (i.e., URIs) for the configured Elasticsearch hosts.
     """
     try:
         uri = config.get("Indexing", "uri")

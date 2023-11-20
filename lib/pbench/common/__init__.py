@@ -41,7 +41,9 @@ def wait_for_uri(uri: str, timeout: int):
     elif url.scheme == "http":
         port = 80
     else:
-        raise BadConfig(f"URI must include a scheme of 'http' or 'https'; found {url.scheme!r}")
+        raise BadConfig(
+            f"URI must include a scheme of 'http' or 'https'; found {url.scheme!r}"
+        )
     if url.port:
         port = url.port
 
