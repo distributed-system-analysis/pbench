@@ -29,14 +29,24 @@ def wait_for_uri(uri: str, timeout: int):
                   attempts to connect to the URI
 
     Raises:
-        BadConfig : when the URI does not contain either a host or port
+        BadConfig : when the URI is missing the host or when the scheme is
+                    missing or unrecognized
         ConnectionRefusedError : after the timeout period has been exhausted
     """
     url = urlparse(uri)
     if not url.hostname:
         raise BadConfig("URI must contain a host name")
-    if not url.port:
-        raise BadConfig("URI must contain a port number")
+    if url.scheme == "https":
+        port = 443
+    elif url.scheme == "http":
+        port = 80
+    elif not url.scheme:
+        raise BadConfig("URI must include the scheme ('http://' or 'https://')")
+    else:
+        raise BadConfig(f"URI contains an unrecognized scheme, {url.scheme!r}")
+    if url.port:
+        port = url.port
+
     end = time() + timeout
     while True:
         try:
@@ -44,7 +54,7 @@ def wait_for_uri(uri: str, timeout: int):
             # the retry logic, see:
             #
             # https://docs.python.org/3.9/library/socket.html#socket.create_connection
-            with socket.create_connection((url.hostname, url.port), timeout=1):
+            with socket.create_connection((url.hostname, port), timeout=1):
                 break
         except ConnectionRefusedError:
             if time() > end:

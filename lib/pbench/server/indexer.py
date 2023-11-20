@@ -114,16 +114,12 @@ def _get_es_hosts(config):
         uri = config.get("Indexing", "uri")
     except (configparser.NoSectionError, configparser.NoOptionError):
         raise BadConfig("Indexing URI missing")
+
     url = urlparse(uri)
     if not url.hostname:
         raise BadConfig("Indexing URI must contain a host name")
-    if not url.port:
-        raise BadConfig("Indexing URI must contain a port number")
-    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
-    return [
-        dict(host=url.hostname, port=url.port, timeout=timeoutobj),
-    ]
 
+    return [uri]
 
 
 def get_es(config):
@@ -134,11 +130,14 @@ def get_es(config):
     hosts = _get_es_hosts(config)
     if hosts is None:
         return None
+
     # FIXME: we should just change these two loggers to write to a
     # file instead of setting the logging level up so high.
     logging.getLogger("urllib3").setLevel(logging.FATAL)
     logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
-    return Elasticsearch(hosts, max_retries=0)
+
+    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
+    return Elasticsearch(hosts, max_retries=0, timeout=timeoutobj)
 
 
 # Always use "create" operations, as we also ensure each JSON document being

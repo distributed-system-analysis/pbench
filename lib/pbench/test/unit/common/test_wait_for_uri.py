@@ -18,9 +18,18 @@ def test_wait_for_uri_success(monkeypatch):
         yield None
 
     monkeypatch.setattr(socket, "create_connection", success)
+
     pbench.common.wait_for_uri("http://localhost:42", 142)
     first_arg = called[0][0]
     assert first_arg[0] == "localhost" and first_arg[1] == 42, f"{called[0]!r}"
+
+    pbench.common.wait_for_uri("http://host1.example.com", 143)
+    first_arg = called[0][0]
+    assert first_arg[0] == "host1.example.com" and first_arg[1] == 80, f"{called[0]!r}"
+
+    pbench.common.wait_for_uri("https://host2.example.com", 144)
+    first_arg = called[0][0]
+    assert first_arg[0] == "host2.example.com" and first_arg[1] == 443, f"{called[0]!r}"
 
 
 def test_wait_for_uri_bad():
@@ -29,8 +38,12 @@ def test_wait_for_uri_bad():
     assert str(exc.value).endswith("host name")
 
     with pytest.raises(BadConfig) as exc:
-        pbench.common.wait_for_uri("http://example.com", 142)
-    assert str(exc.value).endswith("port number")
+        pbench.common.wait_for_uri("example.com", 142)
+    assert "URI must include the scheme" in str(exc.value)
+
+    with pytest.raises(BadConfig) as exc:
+        pbench.common.wait_for_uri("postgres://example.com", 142)
+    assert "URI contains an unrecognized scheme" in str(exc.value)
 
 
 def setup_conn_ref(monkeypatch):
