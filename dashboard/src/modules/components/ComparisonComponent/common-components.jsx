@@ -81,7 +81,7 @@ export const ViewOptions = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const selected = useSelector((state) => state.comparison.datasetType);
   const onSelect = (_event, value) => {
-    dispatch(onDatasetTypeChange(value, props.currPage));
+    onDatasetTypeChange(value, props.currPage, dispatch);
     setIsOpen(false);
   };
   const onToggle = () => {

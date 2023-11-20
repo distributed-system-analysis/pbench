@@ -12,19 +12,21 @@ import Cookies from "js-cookie";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "utils/helper";
 
-export const setParams = (params, loggedIn, datasetType) => {
+export const addParams = (params, loggedIn, datasetType) => {
   params.append("metadata", "server");
   params.append("metadata", "dataset");
   params.append("metadata", "global");
   params.append("metadata", "user");
-  if (loggedIn && datasetType === MY_DATASETS) {
-    params.append("mine", "true");
-  } else if (loggedIn && datasetType === PUBLIC_DATASETS) {
-    params.append("access", "public");
+  if (loggedIn) {
+    if (datasetType === MY_DATASETS) {
+      params.append("mine", "true");
+    } else if (datasetType === PUBLIC_DATASETS) {
+      params.append("access", "public");
+    }
   }
 };
 
-export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
+export const fetchDatasets = (page) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
@@ -34,11 +36,9 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
     const datasetType = getState().comparison.datasetType;
     let publicData = [...getState().datasetlist.publicData];
     const params = new URLSearchParams();
-
+    addParams(params, loggedIn, datasetType);
     params.append("offset", offset);
     params.append("limit", limit);
-
-    setParams(params, loggedIn, datasetType);
     if (searchKey) {
       params.append("name", searchKey);
     }
@@ -124,7 +124,7 @@ export const applyFilter = () => (dispatch) => {
     type: TYPES.SET_RESULT_OFFSET,
     payload: CONSTANTS.INITIAL_RESULT_OFFSET,
   });
-  dispatch(fetchPublicDatasets(CONSTANTS.START_PAGE_NUMBER));
+  dispatch(fetchDatasets(CONSTANTS.START_PAGE_NUMBER));
 };
 
 export const setPerPage = (value) => ({

@@ -18,7 +18,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
 import {
-  fetchPublicDatasets,
+  fetchDatasets,
   getFavoritedDatasets,
   updateFavoriteRepoNames,
 } from "actions/datasetListActions";
@@ -58,7 +58,7 @@ const TableWithFavorite = () => {
 
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
-      dispatch(fetchPublicDatasets(CONSTANTS.START_PAGE_NUMBER));
+      dispatch(fetchDatasets(CONSTANTS.START_PAGE_NUMBER));
       dispatch(getFavoritedDatasets());
     }
   }, [dispatch, endpoints]);
@@ -164,7 +164,6 @@ const TableWithFavorite = () => {
           <DatePickerWidget setPage={setPage} aria-label="date picker" />
           {loggedIn && (
             <>
-              {" "}
               <span className="runs-text">Datasets</span>
               <ViewOptions currPage={RESULTS} />
             </>

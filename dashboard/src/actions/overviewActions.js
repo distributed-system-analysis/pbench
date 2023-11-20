@@ -5,9 +5,9 @@ import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
 import Cookies from "js-cookie";
+import { addParams } from "./datasetListActions";
 import { clearCachedSession } from "./authActions";
 import { findNoOfDays } from "utils/dateFunctions";
-import { setParams } from "./datasetListActions";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "../utils/helper";
 
@@ -22,7 +22,7 @@ export const getDatasets = () => async (dispatch, getState) => {
     }
     const params = new URLSearchParams();
 
-    setParams(params, loggedIn, datasetType);
+    addParams(params, loggedIn, datasetType);
 
     dispatch(setSelectedRuns([]));
     const endpoints = getState().apiEndpoint.endpoints;
