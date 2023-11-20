@@ -10,7 +10,7 @@ import {
   SidebarPanel,
   Switch,
 } from "@patternfly/react-core";
-import { MainContent, SearchByName } from "./common-components";
+import { MainContent, SearchByName, ViewOptions } from "./common-components";
 import React, { useEffect } from "react";
 import {
   compareMultipleDatasets,
@@ -19,31 +19,26 @@ import {
 } from "actions/comparisonActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import Cookies from "js-cookie";
 import PanelConent from "./PanelContent";
+import { VISUALIZATION } from "assets/constants/compareConstants";
 import { getDatasets } from "actions/overviewActions";
 
 const ComparisonComponent = () => {
   const dispatch = useDispatch();
+  const loggedIn = Cookies.get("isLoggedIn");
 
   const { datasets } = useSelector((state) => state.overview);
-  const {
-    isCompareSwitchChecked,
-    selectedResourceIds,
-    compareChartData,
-    chartData,
-  } = useSelector((state) => state.comparison);
+  const { isCompareSwitchChecked, selectedResourceIds } = useSelector(
+    (state) => state.comparison
+  );
   useEffect(() => {
-    if (
-      datasets &&
-      datasets.length > 0 &&
-      !compareChartData.length &&
-      !chartData.length
-    ) {
+    if (datasets && datasets.length > 0) {
       dispatch(getQuisbyData(datasets[0]));
     } else {
       dispatch(getDatasets());
     }
-  }, [chartData.length, compareChartData.length, datasets, dispatch]);
+  }, [datasets, dispatch]);
   return (
     <div className="chart-container">
       <Flex className="heading-container">
@@ -73,6 +68,8 @@ const ComparisonComponent = () => {
               Compare Datasets
             </Button>
           )}
+          {loggedIn && <ViewOptions currPage={VISUALIZATION} />}
+
           <SearchByName />
           <PanelConent />
         </SidebarPanel>

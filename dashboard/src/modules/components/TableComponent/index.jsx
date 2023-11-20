@@ -18,15 +18,18 @@ import {
 import React, { useEffect, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
 import {
-  fetchPublicDatasets,
+  fetchDatasets,
   getFavoritedDatasets,
   updateFavoriteRepoNames,
 } from "actions/datasetListActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import Cookies from "js-cookie";
 import DatePickerWidget from "../DatePickerComponent";
+import { RESULTS } from "assets/constants/compareConstants";
 import { RenderPagination } from "../OverviewComponent/common-component";
 import TablePagination from "../PaginationComponent";
+import { ViewOptions } from "../ComparisonComponent/common-components";
 import { useKeycloak } from "@react-keycloak/web";
 import { useNavigate } from "react-router";
 
@@ -35,6 +38,7 @@ const TableWithFavorite = () => {
     name: "Name",
     uploadedDate: "Uploaded On",
   };
+  const loggedIn = Cookies.get("isLoggedIn");
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { keycloak } = useKeycloak();
   const [activeSortIndex, setActiveSortIndex] = useState(null);
@@ -54,7 +58,7 @@ const TableWithFavorite = () => {
 
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
-      dispatch(fetchPublicDatasets(CONSTANTS.START_PAGE_NUMBER));
+      dispatch(fetchDatasets(CONSTANTS.START_PAGE_NUMBER));
       dispatch(getFavoritedDatasets());
     }
   }, [dispatch, endpoints]);
@@ -157,8 +161,13 @@ const TableWithFavorite = () => {
         ></Heading>
         <div className="filterContainer">
           <SearchBox setPage={setPage} aria-label="search box" />
-
           <DatePickerWidget setPage={setPage} aria-label="date picker" />
+          {loggedIn && (
+            <>
+              <span className="runs-text">Datasets</span>
+              <ViewOptions currPage={RESULTS} />
+            </>
+          )}
         </div>
 
         <ToggleGroup aria-label="Result Selection Options">

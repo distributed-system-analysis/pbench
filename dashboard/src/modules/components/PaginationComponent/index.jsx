@@ -2,7 +2,7 @@ import * as TYPES from "actions/types";
 
 import { Pagination, PaginationVariant } from "@patternfly/react-core";
 import {
-  fetchPublicDatasets,
+  fetchDatasets,
   setPageLimit,
   setPerPage,
 } from "actions/datasetListActions";
@@ -49,7 +49,7 @@ const TablePagination = ({ page, setPage }) => {
         type: TYPES.SET_RESULT_OFFSET,
         payload: startIdx,
       });
-      dispatch(fetchPublicDatasets(newPage));
+      dispatch(fetchDatasets(newPage));
     }
   };
 

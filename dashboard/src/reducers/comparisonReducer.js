@@ -1,5 +1,6 @@
 import * as TYPES from "../actions/types";
 
+import { MY_DATASETS } from "assets/constants/compareConstants";
 const initialState = {
   data: [],
   chartData: [],
@@ -12,6 +13,7 @@ const initialState = {
   activeChart: "",
   compareChartData: [],
   searchValue: "",
+  datasetType: MY_DATASETS,
 };
 
 const ComparisonReducer = (state = initialState, action = {}) => {
@@ -71,6 +73,11 @@ const ComparisonReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         searchValue: payload,
+      };
+    case TYPES.SET_DATASET_TYPE:
+      return {
+        ...state,
+        datasetType: payload,
       };
     default:
       return state;

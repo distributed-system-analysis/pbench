@@ -1,15 +1,23 @@
 import {
+  ALL_DATASETS,
+  MY_DATASETS,
+  PUBLIC_DATASETS,
+} from "assets/constants/compareConstants";
+import {
   EmptyState,
   EmptyStateBody,
   EmptyStateVariant,
   SearchInput,
+  Select,
+  SelectOption,
+  SelectVariant,
 } from "@patternfly/react-core";
+import { onDatasetTypeChange, setSearchValue } from "actions/comparisonActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import ChartGallery from "./ChartGallery";
 import ChartModal from "./ChartModal";
 import React from "react";
-import { setSearchValue } from "actions/comparisonActions";
 
 export const UnsupportedTextComponent = (props) => (
   <EmptyState variant={EmptyStateVariant.xs}>
@@ -65,5 +73,36 @@ export const SearchByName = () => {
       value={searchValue}
       onChange={(_event, value) => onSearchChange(value)}
     />
+  );
+};
+
+export const ViewOptions = (props) => {
+  const dispatch = useDispatch();
+  const [isOpen, setIsOpen] = React.useState(false);
+  const selected = useSelector((state) => state.comparison.datasetType);
+  const onSelect = (_event, value) => {
+    onDatasetTypeChange(value, props.currPage, dispatch);
+    setIsOpen(false);
+  };
+  const onToggle = () => {
+    setIsOpen(!isOpen);
+  };
+  const options = [
+    <SelectOption key={1} value={ALL_DATASETS} />,
+    <SelectOption key={2} value={MY_DATASETS} />,
+    <SelectOption key={3} value={PUBLIC_DATASETS} />,
+  ];
+  return (
+    <Select
+      variant={SelectVariant.single}
+      aria-label="Select Datasets Input"
+      onToggle={onToggle}
+      onSelect={onSelect}
+      selections={selected}
+      isOpen={isOpen}
+      aria-labelledby={"Datasets View List"}
+    >
+      {options}
+    </Select>
   );
 };

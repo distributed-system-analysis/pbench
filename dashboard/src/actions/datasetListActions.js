@@ -2,30 +2,43 @@ import * as CONSTANTS from "assets/constants/browsingPageConstants";
 import * as TYPES from "./types";
 
 import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
+import {
+  MY_DATASETS,
+  PUBLIC_DATASETS,
+} from "assets/constants/compareConstants";
 
 import API from "../utils/axiosInstance";
+import Cookies from "js-cookie";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "utils/helper";
 
-export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
+export const addParams = (params, loggedIn, datasetType) => {
+  params.append("metadata", "server");
+  params.append("metadata", "dataset");
+  params.append("metadata", "global");
+  params.append("metadata", "user");
+  if (loggedIn) {
+    if (datasetType === MY_DATASETS) {
+      params.append("mine", "true");
+    } else if (datasetType === PUBLIC_DATASETS) {
+      params.append("access", "public");
+    }
+  }
+};
+
+export const fetchDatasets = (page) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
+    const loggedIn = Cookies.get("isLoggedIn");
     const { offset, limit, filter, searchKey, perPage } =
       getState().datasetlist;
+    const datasetType = getState().comparison.datasetType;
     let publicData = [...getState().datasetlist.publicData];
     const params = new URLSearchParams();
-
-    params.append("access", "public");
-
-    params.append("metadata", "server");
-    params.append("metadata", "dataset");
-    params.append("metadata", "global");
-    params.append("metadata", "user");
-
+    addParams(params, loggedIn, datasetType);
     params.append("offset", offset);
     params.append("limit", limit);
-
     if (searchKey) {
       params.append("name", searchKey);
     }
@@ -111,7 +124,7 @@ export const applyFilter = () => (dispatch) => {
     type: TYPES.SET_RESULT_OFFSET,
     payload: CONSTANTS.INITIAL_RESULT_OFFSET,
   });
-  dispatch(fetchPublicDatasets(CONSTANTS.START_PAGE_NUMBER));
+  dispatch(fetchDatasets(CONSTANTS.START_PAGE_NUMBER));
 };
 
 export const setPerPage = (value) => ({
