@@ -75,7 +75,7 @@ class Report:
         else:
             if es is None:
                 try:
-                    self.es = get_es(config, self.logger)
+                    self.es = get_es(config)
                 except Exception:
                     self.logger.exception(
                         "Unexpected failure fetching" " Elasticsearch configuration"

@@ -106,7 +106,7 @@ def _sleep_w_backoff(backoff):
     _sleep(_calc_backoff_sleep(backoff))
 
 
-def _get_es_hosts(config, logger):
+def _get_es_hosts(config):
     """
     Return list of dicts (a single dict for now) - that's what ES is expecting.
     """
@@ -125,12 +125,13 @@ def _get_es_hosts(config, logger):
     ]
 
 
-def get_es(config, logger):
+
+def get_es(config):
     """Return an Elasticsearch() object derived from the given configuration.
     If the configuration does not provide the necessary data, we return None
     instead.
     """
-    hosts = _get_es_hosts(config, logger)
+    hosts = _get_es_hosts(config)
     if hosts is None:
         return None
     # FIXME: we should just change these two loggers to write to a
@@ -4100,7 +4101,7 @@ class IdxContext:
         self.getuid = os.getuid
         self.TS = self.config.TS
 
-        self.es = get_es(self.config, self.logger)
+        self.es = get_es(self.config)
         self.templates = PbenchTemplates(
             self.config.LIBDIR,
             self.idx_prefix,

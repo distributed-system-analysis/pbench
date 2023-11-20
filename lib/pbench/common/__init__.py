@@ -24,6 +24,7 @@ def wait_for_uri(uri: str, timeout: int):
     again.
 
     Args:
+        uri : a URL referencing the service to be waited for
         timeout : integer number of seconds to wait before giving up
                   attempts to connect to the URI
 

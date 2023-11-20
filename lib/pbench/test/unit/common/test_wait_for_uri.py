@@ -1,6 +1,7 @@
 """Test wait_for_uri() module method"""
 from contextlib import contextmanager
 import socket
+from typing import Tuple
 
 import pytest
 
@@ -8,11 +9,11 @@ import pbench.common
 from pbench.common.exceptions import BadConfig
 
 
-def test_wait_for_uri_succ(monkeypatch):
-    called = [None]
+def test_wait_for_uri_success(monkeypatch):
+    called = [(("wrong_node", -1),)]
 
     @contextmanager
-    def success(*args, **kwargs):
+    def success(*args: Tuple[str, int], **_kwargs):
         called[0] = args
         yield None
 
@@ -33,7 +34,7 @@ def test_wait_for_uri_bad():
 
 
 def setup_conn_ref(monkeypatch):
-    """Setup a mock'd up environment for socket.create_connection to drive
+    """Set up a mock'd up environment for socket.create_connection to drive
     ConnectionRefusedError behaviors.
 
     The `wait_for_uri()` method invokes `socket.create_connection()`,
@@ -66,13 +67,13 @@ def setup_conn_ref(monkeypatch):
     called = []
 
     @contextmanager
-    def conn_ref(*args, **kwargs):
+    def conn_ref(*_args, **_kwargs):
         called.append(f"conn_ref [{clock[0]}]")
         if clock[0] < 3:
             raise ConnectionRefusedError()
         yield None
 
-    def sleep(*args, **kwargs):
+    def sleep(*_args, **_kwargs):
         called.append("sleep")
 
     def time() -> int:
@@ -87,7 +88,7 @@ def setup_conn_ref(monkeypatch):
     return called
 
 
-def test_wait_for_uri_conn_ref_succ(monkeypatch):
+def test_wait_for_uri_conn_ref_success(monkeypatch):
     """Verify connection attempts initially fail, but then ultimately succeed
     before the timeout period.
     """
