@@ -17,6 +17,7 @@ from pbench.common.exceptions import BadConfig
         ("https://host2.example.com", "host2.example.com", 443),
         ("https://user@host3.example.com", "host3.example.com", 443),
         ("https://user:password@host4.example.com", "host4.example.com", 443),
+        ("postgresql://user:password@host5.example.com", "host5.example.com", 5432),
     ),
 )
 def test_wait_for_uri_success(uri: str, arg0: str, arg1: int, monkeypatch):
@@ -41,11 +42,11 @@ def test_wait_for_uri_bad():
 
     with pytest.raises(BadConfig) as exc:
         pbench.common.wait_for_uri("//example.com", 142)
-    assert "URI must include a scheme" in str(exc.value)
+    assert "URI scheme must be one of" in str(exc.value)
 
     with pytest.raises(BadConfig) as exc:
-        pbench.common.wait_for_uri("postgres://example.com", 142)
-    assert "URI must include a scheme" in str(exc.value)
+        pbench.common.wait_for_uri("badscheme://example.com", 142)
+    assert "URI scheme must be one of" in str(exc.value)
 
 
 def setup_conn_ref(monkeypatch):

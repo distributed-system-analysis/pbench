@@ -17,6 +17,14 @@ class MetadataLog(configparser.ConfigParser):
         super().__init__(*args, **kwargs)
 
 
+# List of supported URI schemas and their default ports
+SUPPORTED_SCHEMAS = {
+    "http": 80,
+    "https": 443,
+    "postgresql": 5432,
+}
+
+
 def wait_for_uri(uri: str, timeout: int):
     """Wait for the given URI to become available.
 
@@ -36,16 +44,11 @@ def wait_for_uri(uri: str, timeout: int):
     url = urlparse(uri)
     if not url.hostname:
         raise BadConfig("URI must contain a host name")
-    if url.scheme == "https":
-        port = 443
-    elif url.scheme == "http":
-        port = 80
-    else:
+    if url.scheme not in SUPPORTED_SCHEMAS:
         raise BadConfig(
-            f"URI must include a scheme of 'http' or 'https'; found {url.scheme!r}"
+            f"URI scheme must be one of {list(SUPPORTED_SCHEMAS)}; found {url.scheme!r}"
         )
-    if url.port:
-        port = url.port
+    port = url.port if url.port else SUPPORTED_SCHEMAS[url.scheme]
 
     end = time() + timeout
     while True:
