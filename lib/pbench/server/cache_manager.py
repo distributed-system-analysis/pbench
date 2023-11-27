@@ -472,8 +472,8 @@ class Tarball:
         # inactive.
         self.unpacked: Optional[Path] = None
 
-        # Record the unpacked size of the dataset, if known
-        self.unpacked_size = 0
+        # Record the unpacked dataset size.
+        self.unpacked_size: Optional[int] = None
 
         # Record the lockf file path used to control cache access
         self.lock: Path = self.cache / "lock"
@@ -1507,7 +1507,7 @@ class CacheManager:
         self._clean_empties(tarball.controller_name)
 
     def reclaim_cache(self, goal_pct: float = 20.0, goal_bytes: int = 0) -> bool:
-        """Reclaim unused caches until at least goal (%) disk is available.
+        """Reclaim unused caches to free disk space.
 
         The cache tree need not be fully discovered at this point; we can
         reclaim cache even on a partial tree. This is driven by discovery of
@@ -1515,13 +1515,11 @@ class CacheManager:
         contain an unpacked tarball root rather than only the `lock` and
         `last_ref` files.
 
-        This is a "best effort" operation. It will free least recently used
-        caches that are currently unlocked until both the goal % is achieved
-        and the absolute goal bytes is achieved (if specified), or until there
-        are no more unlocked cached tarballs.
+        This is a "best effort" operation. It will free unlocked caches, oldest
+        first, until both the goal % and the absolute goal bytes are available,
+        or until there are no more unlocked cached tarballs.
 
         Args:
-            tree: the cache manager instance
             goal_pct: goal percent of cache filesystem free
             goal_bytes: goal in bytes
 
@@ -1543,7 +1541,6 @@ class CacheManager:
             return True
 
         total_count = 0
-        has_cache = 0
         reclaimed = 0
         reclaim_failed = 0
         self.logger.info(
@@ -1565,7 +1562,6 @@ class CacheManager:
                     last_ref = f.stat().st_mtime
                 elif f.is_dir():
                     candidates.append(Candidate(last_ref, f))
-                    break
 
         # Sort the candidates by last_ref timestamp, putting the oldest at
         # the head of the queue. We'll flush each cache tree until we reach
@@ -1591,13 +1587,7 @@ class CacheManager:
                     if target:
                         target.cache_delete()
                     else:
-                        try:
-                            shutil.rmtree(candidate.cache)
-                        except Exception as e:
-                            self.logger.error(
-                                "RECLAIM: unable to delete cache for {}: {}", name, e
-                            )
-                            continue
+                        shutil.rmtree(candidate.cache)
                     reclaimed += 1
                     if reached_goal():
                         break
@@ -1609,6 +1599,7 @@ class CacheManager:
                     # Don't reclaim a cache that's in use
                     continue
                 error = e
+                reclaim_failed += 1
             except Exception as e:
                 error = e
                 reclaim_failed += 1

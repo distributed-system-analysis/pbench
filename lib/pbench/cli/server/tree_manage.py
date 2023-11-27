@@ -87,16 +87,12 @@ def tree_manage(
             print_tree(cache_m)
             rv = 0
         if reclaim_percent or reclaim_size:
-            if reclaim_size:
-                target_size = humanfriendly.parse_size(reclaim_size)
-            else:
-                target_size = 0
+            target_size = humanfriendly.parse_size(reclaim_size) if reclaim_size else 0
             target_pct = reclaim_percent if reclaim_percent else 20.0
             click.echo(f"Reclaiming {target_pct}% or {target_size} bytes")
             outcome = cache_m.reclaim_cache(goal_pct=target_pct, goal_bytes=target_size)
-            click.echo(
-                f"The cache manager was {'' if outcome else 'not '}able to free the requested space"
-            )
+            un = "" if outcome else "un"
+            click.echo(f"The cache manager was {un}able to free the requested space")
             rv = 0 if outcome else 1
     except Exception as exc:
         if logger:
