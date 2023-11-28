@@ -4,6 +4,7 @@ from enum import auto, Enum
 import errno
 import fcntl
 from logging import Logger
+import math
 from pathlib import Path
 import shlex
 import shutil
@@ -18,6 +19,8 @@ from pbench.server import JSONOBJECT, OperationCode, PathLike, PbenchServerConfi
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.server.utils import get_tarball_md5
+
+RECLAIM_BYTES_PAD = 1024  # Pad unpack reclaim requests by this much
 
 
 class CacheManagerError(Exception):
@@ -939,7 +942,7 @@ class Tarball:
             # enough room.
             if self.controller and self.controller.cache_manager:
                 self.controller.cache_manager.reclaim_cache(
-                    goal_bytes=self.get_unpacked_size()
+                    goal_bytes=self.get_unpacked_size() + RECLAIM_BYTES_PAD
                 )
 
             audit = None
@@ -1534,8 +1537,13 @@ class CacheManager:
 
         def reached_goal():
             usage = shutil.disk_usage(self.cache_root)
-            available = float(usage.free) / float(usage.total) * 100.0
-            return bool(available >= goal_pct and usage.free >= goal_bytes)
+            return bool(usage.free >= goal)
+
+        # Our reclamation goal can be expressed as % of total, absolute types,
+        # or both. We normalize to a single "bytes free" goal.
+        usage = shutil.disk_usage(self.cache_root)
+        pct_as_bytes = math.ceil(usage.total * goal_pct / 100.0)
+        goal = max(pct_as_bytes, goal_bytes)
 
         if reached_goal():
             return True
@@ -1544,8 +1552,10 @@ class CacheManager:
         reclaimed = 0
         reclaim_failed = 0
         self.logger.info(
-            "RECLAIM: looking for {}% or {} free",
+            "RECLAIM: looking for {} free (based on {}% of {} or {})",
+            humanize.naturalsize(goal),
             goal_pct,
+            humanize.naturalsize(usage.total),
             humanize.naturalsize(goal_bytes),
         )
 
@@ -1557,11 +1567,16 @@ class CacheManager:
                 continue
             total_count += 1
             last_ref = 0.0
+            unpacked = None
             for f in d.iterdir():
                 if f.name == "last_ref":
                     last_ref = f.stat().st_mtime
                 elif f.is_dir():
-                    candidates.append(Candidate(last_ref, f))
+                    unpacked = f
+                if last_ref and unpacked:
+                    break
+            if unpacked:
+                candidates.append(Candidate(last_ref, unpacked))
 
         # Sort the candidates by last_ref timestamp, putting the oldest at
         # the head of the queue. We'll flush each cache tree until we reach
@@ -1606,11 +1621,11 @@ class CacheManager:
                 self.logger.error("RECLAIM {} failed with '{}'", name, error)
         reached = reached_goal()
         self.logger.info(
-            "RECLAIM summary: goal {}%, {}b {}met: "
+            "RECLAIM summary: goal {}%, {} {}: "
             "{} datasets, {} had cache: {} reclaimed and {} errors",
             goal_pct,
-            goal_bytes,
-            "" if reached else "not ",
+            humanize.naturalsize(goal_bytes),
+            "achieved" if reached else "failed",
             total_count,
             has_cache,
             reclaimed,

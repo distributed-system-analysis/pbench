@@ -2,6 +2,7 @@ import datetime
 
 import click
 import humanfriendly
+import humanize
 
 from pbench.cli import pass_cli_context
 from pbench.cli.server import config_setup
@@ -89,7 +90,9 @@ def tree_manage(
         if reclaim_percent or reclaim_size:
             target_size = humanfriendly.parse_size(reclaim_size) if reclaim_size else 0
             target_pct = reclaim_percent if reclaim_percent else 20.0
-            click.echo(f"Reclaiming {target_pct}% or {target_size} bytes")
+            click.echo(
+                f"Reclaiming {target_pct}% or {humanize.naturalsize(target_size)} bytes"
+            )
             outcome = cache_m.reclaim_cache(goal_pct=target_pct, goal_bytes=target_size)
             un = "" if outcome else "un"
             click.echo(f"The cache manager was {un}able to free the requested space")
