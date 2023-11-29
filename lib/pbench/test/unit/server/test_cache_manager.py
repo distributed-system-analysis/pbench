@@ -212,7 +212,13 @@ class TestCacheManager:
             assert str(exc.value) == expected_metaerror
 
     def test_with_metadata(
-        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
+        self,
+        monkeypatch,
+        db_session,
+        selinux_disabled,
+        server_config,
+        make_logger,
+        tarball,
     ):
         """Test behavior with metadata.log access errors."""
         source_tarball, source_md5, md5 = tarball
@@ -225,7 +231,13 @@ class TestCacheManager:
             assert tarball.metadata == fake_get_metadata(tarball.tarball_path)
 
     def test_create_bad(
-        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
+        self,
+        monkeypatch,
+        db_session,
+        selinux_disabled,
+        server_config,
+        make_logger,
+        tarball,
     ):
         """
         Test several varieties of dataset errors:
@@ -263,7 +275,13 @@ class TestCacheManager:
         assert exc.value.tarball == tarball.name
 
     def test_duplicate(
-        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
+        self,
+        monkeypatch,
+        db_session,
+        selinux_disabled,
+        server_config,
+        make_logger,
+        tarball,
     ):
         """
         Test behavior when we create a new dataset with a tarball file name
