@@ -119,6 +119,7 @@ class ElasticBase(ApiBase):
         super().__init__(config, *schemas)
         self.prefix = config.get("Indexing", "index_prefix")
         self.es_url = config.get("Indexing", "uri")
+        self.ca_bundle = config.get("Indexing", "ca_bundle")
 
     @staticmethod
     def _build_elasticsearch_query(
@@ -405,7 +406,7 @@ class ElasticBase(ApiBase):
 
         try:
             # perform the Elasticsearch query
-            es_response = method(url, **es_request["kwargs"])
+            es_response = method(url, **es_request["kwargs"], verify=self.ca_bundle)
             current_app.logger.debug(
                 "ES query response {}:{}",
                 es_response.reason,
@@ -538,6 +539,7 @@ class ElasticBulkBase(ApiBase):
         api_name = self.__class__.__name__
 
         self.elastic_uri = config.get("Indexing", "uri")
+        self.ca_bundle = config.get("Indexing", "ca_bundle")
         self.config = config
 
         # Look for a parameter of type DATASET. It may be defined in any of the
@@ -827,7 +829,7 @@ class ElasticBulkBase(ApiBase):
             # indexed and we skip the Elasticsearch actions.
             if IndexMap.exists(dataset):
                 # Build an Elasticsearch instance to manage the bulk update
-                elastic = Elasticsearch(self.elastic_uri)
+                elastic = Elasticsearch(self.elastic_uri, ca_certs=self.ca_bundle)
                 doc_map = IndexMap.stream(dataset=dataset)
 
                 # NOTE: because both generate_actions and streaming_bulk return

@@ -137,7 +137,8 @@ def get_es(config):
     logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
 
     timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
-    return Elasticsearch(hosts, max_retries=0, timeout=timeoutobj)
+    ca_bundle = config.get("Indexing", "ca_bundle")
+    return Elasticsearch(hosts, max_retries=0, timeout=timeoutobj, ca_certs=ca_bundle)
 
 
 # Always use "create" operations, as we also ensure each JSON document being
