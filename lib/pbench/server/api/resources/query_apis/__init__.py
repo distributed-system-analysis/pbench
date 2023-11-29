@@ -1,5 +1,5 @@
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from http import HTTPStatus
 import json
@@ -77,10 +77,10 @@ class PostprocessError(Exception):
 class ElasticBase(ApiBase):
     """
     A base class for Elasticsearch queries that allows subclasses to provide
-    custom pre- and post- processing.
+    custom pre- and post-processing.
 
-    This class extends the ApiBase class in order to connect the post
-    and get methods to Flask's URI routing algorithms. It implements a common
+    This class extends the ApiBase class in order to connect the POST
+    and GET methods to Flask's URI routing algorithms. It implements a common
     mechanism for calling Elasticsearch and processing errors.
 
     Hooks are defined for subclasses extending this class to "preprocess"
@@ -88,8 +88,8 @@ class ElasticBase(ApiBase):
     server data and the client's JSON payload, and to "postprocess" a
     successful response payload from Elasticsearch.
 
-    Note that "preprocess" can provide context that's passed to the assemble
-    and postprocess methods.
+    Note that `preprocess` can provide context that's passed to the `assemble`
+    and `postprocess` methods.
     """
 
     def __init__(
@@ -120,8 +120,9 @@ class ElasticBase(ApiBase):
         self.prefix = config.get("Indexing", "index_prefix")
         self.es_url = config.get("Indexing", "uri")
 
+    @staticmethod
     def _build_elasticsearch_query(
-        self, user: Optional[str], access: Optional[str], terms: List[JSON]
+        user: Optional[str], access: Optional[str], terms: List[JSON]
     ) -> JSON:
         """
         Generate the "query" parameter for an Elasticsearch _search request
@@ -154,7 +155,7 @@ class ElasticBase(ApiBase):
                 ADMIN, AUTHENTICATED as drb: owner:drb
                 UNAUTHENTICATED (or non-drb): owner:drb AND access:public
 
-            {"user": "drb, "access": "private"}: private drb
+            {"user": "drb", "access": "private"}: private drb
                 All datasets owned by "drb" with "private" access
 
                 owner:drb AND access:private
@@ -198,7 +199,7 @@ class ElasticBase(ApiBase):
         authorized_id = str(authorized_user.id) if authorized_user else None
         is_admin = authorized_user.is_admin() if authorized_user else False
 
-        filter = terms.copy()
+        filter_list = terms.copy()
         current_app.logger.debug(
             "QUERY auth ID {}, user {!r}, access {!r}, admin {}",
             authorized_id,
@@ -259,13 +260,13 @@ class ElasticBase(ApiBase):
 
         # We control the order of terms here to allow stable unit testing.
         if combo_term:
-            filter.append(combo_term)
+            filter_list.append(combo_term)
         else:
             if access_term:
-                filter.append(access_term)
+                filter_list.append(access_term)
             if user_term:
-                filter.append(user_term)
-        return {"bool": {"filter": filter}}
+                filter_list.append(user_term)
+        return {"bool": {"filter": filter_list}}
 
     def _gen_month_range(self, index: str, start: datetime, end: datetime) -> str:
         """
@@ -333,7 +334,7 @@ class ElasticBase(ApiBase):
             context: API context dictionary
 
         Raises:
-            Any errors in the assemble method shall be reported by exceptions
+            Any errors in the `assemble` method shall be reported by exceptions
             which will be logged and will terminate the operation.
 
         Returns:
@@ -367,7 +368,7 @@ class ElasticBase(ApiBase):
         """
         raise NotImplementedError()
 
-    def _call(self, method: Callable, params: ApiParams, context: ApiContext):
+    def _call(self, method: Callable, params: ApiParams, context: ApiContext) -> JSON:
         """
         Perform the requested call to Elasticsearch, and handle any exceptions.
 
@@ -377,7 +378,7 @@ class ElasticBase(ApiBase):
             context: API context dictionary
 
         Returns:
-            Postprocessed JSON body to return to client
+            Post-processed JSON body to return to client
         """
         klasname = self.__class__.__name__
         try:
@@ -453,9 +454,7 @@ class ElasticBase(ApiBase):
         except Exception as e:
             raise APIInternalError(f"Unexpected backend exception '{e}'") from e
 
-    def _post(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _post(self, params: ApiParams, request: Request, context: ApiContext) -> JSON:
         """Handle a Pbench server POST operation involving Elasticsearch
 
         The assembly and post-processing of the Elasticsearch query are
@@ -464,27 +463,23 @@ class ElasticBase(ApiBase):
         parameter validation and normalization.
 
         Args:
-            method: The API HTTP method
+            params: The API HTTP method parameters
             request: The flask Request object containing payload and headers
-            uri_params: URI encoded keyword-arg supplied by the Flask
-                framework
+            context: The API context dictionary
         """
         context["request"] = request
         return self._call(requests.post, params, context)
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, request: Request, context: ApiContext) -> JSON:
         """Handle a GET operation involving a call to Elasticsearch
 
         The post-processing of the Elasticsearch query is handled by the
         subclasses through their postprocess() methods.
 
         Args:
-            method: The API HTTP method
+            params: The API HTTP method parameters
             request: The flask Request object containing payload and headers
-            uri_params: URI encoded keyword-arg supplied by the Flask
-                framework
+            context: The API context dictionary
         """
         context["request"] = request
         return self._call(requests.get, params, context)
@@ -492,9 +487,9 @@ class ElasticBase(ApiBase):
 
 @dataclass
 class BulkResults:
-    errors: int
-    count: int
-    report: defaultdict
+    errors: int = 0
+    count: int = 0
+    report: defaultdict = field(default_factory=lambda: defaultdict(int))
 
 
 class ElasticBulkBase(ApiBase):
@@ -565,7 +560,8 @@ class ElasticBulkBase(ApiBase):
             self.schemas[ApiMethod.POST].authorization == ApiAuthorizationType.DATASET
         ), f"API {self.__class__.__name__} authorization type must be DATASET"
 
-    def expect_index(self, dataset: Dataset) -> bool:
+    @staticmethod
+    def expect_index(dataset: Dataset) -> bool:
         """Are we waiting for an index map?
 
         If a dataset doesn't have an index map, and we require one, we need to
@@ -610,7 +606,7 @@ class ElasticBulkBase(ApiBase):
         self,
         dataset: Dataset,
         context: ApiContext,
-        map: Iterator[IndexStream],
+        doc_map: Iterator[IndexStream],
     ) -> Iterator[dict]:
         """Generate a series of Elasticsearch bulk operation actions
 
@@ -628,7 +624,7 @@ class ElasticBulkBase(ApiBase):
         Args:
             dataset: The associated Dataset object
             context: The operation's ApiContext
-            map: Elasticsearch index document map generator
+            doc_map: Elasticsearch index document map generator
 
         Returns:
             Sequence of Elasticsearch bulk action dict objects
@@ -775,13 +771,13 @@ class ElasticBulkBase(ApiBase):
         return self._bulk_dispatch(params, request, context)
 
     def _bulk_dispatch(
-        self, params: ApiParams, request: Request, context: ApiContext
+        self, params: ApiParams, _request: Request, context: ApiContext
     ) -> Response:
         """Perform the requested operation, and handle any exceptions.
 
         Args:
             params: Type-normalized client parameters
-            request: Original incoming Request object (not used)
+            _request: Original incoming Request object (not used)
             context: API context
 
         Returns:
@@ -832,14 +828,14 @@ class ElasticBulkBase(ApiBase):
             if IndexMap.exists(dataset):
                 # Build an Elasticsearch instance to manage the bulk update
                 elastic = Elasticsearch(self.elastic_uri)
-                map = IndexMap.stream(dataset=dataset)
+                doc_map = IndexMap.stream(dataset=dataset)
 
                 # NOTE: because both generate_actions and streaming_bulk return
                 # generators, the entire sequence is inside a single try block.
                 try:
                     results = helpers.streaming_bulk(
                         elastic,
-                        self.generate_actions(dataset, context, map),
+                        self.generate_actions(dataset, context, doc_map),
                         raise_on_exception=False,
                         raise_on_error=False,
                     )
@@ -857,7 +853,7 @@ class ElasticBulkBase(ApiBase):
                     f"Operation unavailable: dataset {dataset.resource_id} is not indexed.",
                 )
             else:
-                report = BulkResults(errors=0, count=0, report={})
+                report = BulkResults()
 
             summary: JSONOBJECT = {
                 "ok": report.count - report.errors,
@@ -916,6 +912,7 @@ class ElasticBulkBase(ApiBase):
                 "message"
             ] = f"Unable to {context['attributes'].action} some indexed documents"
             raise APIInternalError(
-                f"Failed to {context['attributes'].action} any of {report.count} Elasticsearch documents: {json.dumps(report.report)}"
+                f"Failed to {context['attributes'].action} any of {report.count} "
+                f"Elasticsearch documents: {json.dumps(report.report)}"
             )
         return jsonify(summary)
