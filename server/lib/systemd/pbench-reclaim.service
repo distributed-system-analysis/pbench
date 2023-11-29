@@ -7,7 +7,7 @@ Type = simple
 User = pbench
 Group = pbench
 Environment = _PBENCH_SERVER_CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
-ExecStart=-/opt/pbench-server/bin/pbench-tree-manage --reclaim
+ExecStart=-/opt/pbench-server/bin/pbench-tree-manage --reclaim-percent=20
 KillSignal = TERM
 
 [Install]
