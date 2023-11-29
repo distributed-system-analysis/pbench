@@ -91,7 +91,7 @@ def tree_manage(
             target_size = humanfriendly.parse_size(reclaim_size) if reclaim_size else 0
             target_pct = reclaim_percent if reclaim_percent else 20.0
             click.echo(
-                f"Reclaiming {target_pct}% or {humanize.naturalsize(target_size)} bytes"
+                f"Reclaiming {target_pct}% or {humanize.naturalsize(target_size)}"
             )
             outcome = cache_m.reclaim_cache(goal_pct=target_pct, goal_bytes=target_size)
             un = "" if outcome else "un"

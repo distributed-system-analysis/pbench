@@ -21,6 +21,7 @@ from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Met
 from pbench.server.utils import get_tarball_md5
 
 RECLAIM_BYTES_PAD = 1024  # Pad unpack reclaim requests by this much
+MB_BYTES = 1024 * 1024  # Bytes in Mb
 
 
 class CacheManagerError(Exception):
@@ -1519,8 +1520,9 @@ class CacheManager:
         `last_ref` files.
 
         This is a "best effort" operation. It will free unlocked caches, oldest
-        first, until both the goal % and the absolute goal bytes are available,
-        or until there are no more unlocked cached tarballs.
+        first, until both the goal % and the absolute goal bytes (rounded up to
+        the next megabyte) are available, or until there are no more unlocked
+        cached tarballs.
 
         Args:
             goal_pct: goal percent of cache filesystem free
@@ -1532,18 +1534,22 @@ class CacheManager:
 
         @dataclass
         class Candidate:
+            """Keep track of cache reclamation candidates"""
+
             last_ref: float  # last reference timestamp
             cache: Path  # Unpacked artifact directory
 
         def reached_goal():
+            """Check whether we've freed enough space"""
             usage = shutil.disk_usage(self.cache_root)
-            return bool(usage.free >= goal)
+            return usage.free >= goal
 
-        # Our reclamation goal can be expressed as % of total, absolute types,
+        # Our reclamation goal can be expressed as % of total, absolute bytes,
         # or both. We normalize to a single "bytes free" goal.
         usage = shutil.disk_usage(self.cache_root)
         pct_as_bytes = math.ceil(usage.total * goal_pct / 100.0)
-        goal = max(pct_as_bytes, goal_bytes)
+        bytes_rounded = ((goal_bytes + MB_BYTES) // MB_BYTES) * MB_BYTES
+        goal = max(pct_as_bytes, bytes_rounded)
 
         if reached_goal():
             return True
@@ -1556,7 +1562,7 @@ class CacheManager:
             humanize.naturalsize(goal),
             goal_pct,
             humanize.naturalsize(usage.total),
-            humanize.naturalsize(goal_bytes),
+            humanize.naturalsize(bytes_rounded),
         )
 
         # Identify cached datasets by examining the cache directory tree
@@ -1596,16 +1602,22 @@ class CacheManager:
                 target = self.datasets[resource_id]
             else:
                 target = None
+            error = None
             try:
                 self.logger.info("RECLAIM: removing cache for {}", name)
                 with LockManager(cache_d / "lock", exclusive=True, wait=False):
-                    if target:
-                        target.cache_delete()
+                    try:
+                        if target:
+                            target.cache_delete()
+                        else:
+                            shutil.rmtree(candidate.cache)
+                    except Exception as e:
+                        reclaim_failed += 1
+                        error = e
                     else:
-                        shutil.rmtree(candidate.cache)
-                    reclaimed += 1
-                    if reached_goal():
-                        break
+                        reclaimed += 1
+                        if reached_goal():
+                            break
             except OSError as e:
                 if e.errno in (errno.EAGAIN, errno.EACCES):
                     self.logger.info(
@@ -1613,11 +1625,12 @@ class CacheManager:
                     )
                     # Don't reclaim a cache that's in use
                     continue
-                error = e
                 reclaim_failed += 1
+                error = e
             except Exception as e:
-                error = e
                 reclaim_failed += 1
+                error = e
+            if error:
                 self.logger.error("RECLAIM {} failed with '{}'", name, error)
         reached = reached_goal()
         self.logger.info(
