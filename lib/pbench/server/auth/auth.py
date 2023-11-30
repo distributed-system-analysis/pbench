@@ -4,6 +4,7 @@ from typing import Optional
 from flask import current_app, Flask, request
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
+from jwt import ExpiredSignatureError
 from werkzeug.exceptions import Unauthorized
 
 from pbench.server import PbenchServerConfig
@@ -103,6 +104,9 @@ def verify_auth(auth_token: str) -> Optional[User]:
         user = verify_auth_oidc(auth_token)
     except Unauthorized:
         raise
+    except ExpiredSignatureError:
+        # This is expected periodically, and of no interest operationally
+        pass
     except Exception as e:
         current_app.logger.exception(
             "Unexpected exception occurred while verifying the auth token {!r}: {}",

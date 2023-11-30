@@ -441,7 +441,7 @@ class ElasticBase(ApiBase):
         except requests.exceptions.InvalidURL as e:
             raise APIInternalError(f"Invalid Elasticsearch URL {url}") from e
         except Exception as e:
-            raise APIInternalError("Unexpected backend error") from e
+            raise APIInternalError(f"Unexpected backend error '{e}'") from e
 
         try:
             # postprocess Elasticsearch response
@@ -451,7 +451,7 @@ class ElasticBase(ApiBase):
             current_app.logger.error("{}", msg)
             raise APIAbort(e.status, msg)
         except Exception as e:
-            raise APIInternalError("Unexpected backend exception") from e
+            raise APIInternalError(f"Unexpected backend exception '{e}'") from e
 
     def _post(
         self, params: ApiParams, request: Request, context: ApiContext
@@ -847,7 +847,7 @@ class ElasticBulkBase(ApiBase):
                 except APIAbort:
                     raise
                 except Exception as e:
-                    raise APIInternalError("Unexpected backend error '{e}'") from e
+                    raise APIInternalError(f"Unexpected backend error '{e}'") from e
             elif context["attributes"].require_map and self.expect_index(dataset):
                 # If the dataset has no index map, the bulk operation requires one,
                 # and we expect one to appear, fail rather than risking abandoning
