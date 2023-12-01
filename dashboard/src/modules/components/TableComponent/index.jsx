@@ -210,7 +210,9 @@ const TableWithFavorite = () => {
                           className="dataset_name"
                           dataLabel={columnNames.name}
                           onClick={() =>
-                            navigate(`/${HOME}${TOC}/${repo?.resource_id}`)
+                            navigate(
+                              `/${HOME}${TOC}/${repo?.resource_id}/${repo?.name}`
+                            )
                           }
                         >
                           {repo?.name}
