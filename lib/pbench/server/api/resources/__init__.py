@@ -2043,7 +2043,9 @@ class ApiBase(Resource):
             current_app.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
         except APIAbort as e:
-            current_app.logger.warning("{} {}", api_name, e)
+            current_app.logger.warning(
+                "{} client error {}: '{}'", api_name, e.http_status, e
+            )
             if auditing["finalize"]:
                 attr = auditing.get("attributes", {"message": str(e)})
                 try:

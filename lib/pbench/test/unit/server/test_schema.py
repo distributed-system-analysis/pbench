@@ -1,9 +1,8 @@
 from http import HTTPStatus
-import json
+import re
 from typing import Callable, Union
 
 from dateutil import parser as date_parser
-from flask.wrappers import Response
 import pytest
 
 from pbench.server import OperationCode
@@ -80,15 +79,12 @@ class TestExceptions:
         assert str(p) == "Postprocessing error returning 400: 'really bad' [None]"
         assert p.status == HTTPStatus.BAD_REQUEST
 
-    def test_internal_error(self, capinternal, make_logger):
+    def test_internal_error(self):
         x = APIInternalError("my error")
-        make_logger.error(f"TEST {x.details}")
-        r = Response(
-            response=json.dumps({"message": x.message}),
-            mimetype="application/json",
-            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+        assert re.match(
+            r"Internal error [a-zA-Z\d]{8}-([a-zA-Z\d]{4}-){3}[a-zA-Z\d]{12}: my error",
+            x.details,
         )
-        capinternal("my error", r)
 
 
 class TestParamType:
@@ -258,7 +254,7 @@ class TestParameter:
         assert z.string_list is None
 
     @pytest.mark.parametrize(
-        "json,expected",
+        "json_data,expected",
         (
             ({"data": "yes"}, False),
             ({"data": None}, True),
@@ -266,15 +262,15 @@ class TestParameter:
             ({"foo": None, "data": "yes"}, False),
         ),
     )
-    def test_invalid_required(self, json, expected):
+    def test_invalid_required(self, json_data, expected):
         """
         Test parameter validation of a `required` parameter
         """
         x = Parameter("data", ParamType.STRING, required=True)
-        assert x.invalid(json) is expected
+        assert x.invalid(json_data) is expected
 
     @pytest.mark.parametrize(
-        "json",
+        "json_data",
         (
             {"data": "yes"},
             {"data": None},
@@ -282,14 +278,14 @@ class TestParameter:
             {"foo": None},
         ),
     )
-    def test_invalid_optional(self, json):
+    def test_invalid_optional(self, json_data):
         """
         An optional parameter is either present or not: either is OK, and the
         value None is acceptable. (In other words, the "invalid" test isn't
         meaningful for required=False parameters, and should always succeed.)
         """
         x = Parameter("data", ParamType.STRING, required=False)
-        assert not x.invalid(json)
+        assert not x.invalid(json_data)
 
     @pytest.mark.parametrize(
         "value,expected",
