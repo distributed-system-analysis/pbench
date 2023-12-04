@@ -106,38 +106,39 @@ def _sleep_w_backoff(backoff):
     _sleep(_calc_backoff_sleep(backoff))
 
 
-def _get_es_hosts(config, logger):
-    """
-    Return list of dicts (a single dict for now) - that's what ES is expecting.
+def _get_es_hosts(config):
+    """Return a list of strings (containing only a single string for now) which
+    are the network locations (i.e., URIs) for the configured Elasticsearch hosts.
     """
     try:
         uri = config.get("Indexing", "uri")
     except (configparser.NoSectionError, configparser.NoOptionError):
         raise BadConfig("Indexing URI missing")
+
     url = urlparse(uri)
     if not url.hostname:
         raise BadConfig("Indexing URI must contain a host name")
-    if not url.port:
-        raise BadConfig("Indexing URI must contain a port number")
-    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
-    return [
-        dict(host=url.hostname, port=url.port, timeout=timeoutobj),
-    ]
+
+    return [uri]
 
 
-def get_es(config, logger):
+def get_es(config):
     """Return an Elasticsearch() object derived from the given configuration.
     If the configuration does not provide the necessary data, we return None
     instead.
     """
-    hosts = _get_es_hosts(config, logger)
+    hosts = _get_es_hosts(config)
     if hosts is None:
         return None
+
     # FIXME: we should just change these two loggers to write to a
     # file instead of setting the logging level up so high.
     logging.getLogger("urllib3").setLevel(logging.FATAL)
     logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
-    return Elasticsearch(hosts, max_retries=0)
+
+    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
+    ca_bundle = config.get("Indexing", "ca_bundle")
+    return Elasticsearch(hosts, max_retries=0, timeout=timeoutobj, ca_certs=ca_bundle)
 
 
 # Always use "create" operations, as we also ensure each JSON document being
@@ -4100,7 +4101,7 @@ class IdxContext:
         self.getuid = os.getuid
         self.TS = self.config.TS
 
-        self.es = get_es(self.config, self.logger)
+        self.es = get_es(self.config)
         self.templates = PbenchTemplates(
             self.config.LIBDIR,
             self.idx_prefix,

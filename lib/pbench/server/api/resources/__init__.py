@@ -155,7 +155,7 @@ class UnauthorizedAdminAccess(UnauthorizedAccess):
 class SchemaError(APIAbort):
     """Generic base class for errors in processing a JSON schema."""
 
-    def __init__(self, http_status: int = HTTPStatus.BAD_REQUEST):
+    def __init__(self, http_status: int = HTTPStatus.BAD_REQUEST, **_kwargs):
         super().__init__(http_status=http_status)
 
     def __str__(self) -> str:
