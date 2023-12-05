@@ -908,9 +908,9 @@ class ResultData(PbenchData):
             except Exception as e:
                 self.logger.warning(
                     "result-data-indexing: encountered invalid JSON file,"
-                    " {}: {str(e)!r} ({})",
+                    " {}: {!r} ({})",
                     result_json,
-                    e,
+                    str(e),
                     self.ptb._tbctx,
                 )
                 self.counters["not_valid_json_file"] += 1
@@ -920,8 +920,8 @@ class ResultData(PbenchData):
             # to see if that is true.
             if not isinstance(results, list):
                 self.logger.warning(
-                    "result-data-indexing: encountered unexpected"
-                    " JSON file format, {} ({})",
+                    "result-data-indexing: encountered unexpected JSON file format,"
+                    " {} ({})",
                     result_json,
                     self.ptb._tbctx,
                 )
