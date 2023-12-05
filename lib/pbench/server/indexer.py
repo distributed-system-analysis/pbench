@@ -908,7 +908,7 @@ class ResultData(PbenchData):
             except Exception as e:
                 self.logger.warning(
                     "result-data-indexing: encountered invalid JSON file,"
-                    " {}: {str(e)!s} ({})",
+                    " {}: {str(e)!r} ({})",
                     result_json,
                     e,
                     self.ptb._tbctx,
@@ -2216,7 +2216,7 @@ class ToolData(PbenchData):
         for csvf in self.files:
             assert (
                 csvf["header"][0] == "timestamp_ms"
-            ), f"Unexpected time stamp header, \"{csvf['header'][0]}\""
+            ), f"Unexpected time stamp header, '{csvf['header'][0]}'"
             header = csvf["header"]
             handler_rec = csvf["handler_rec"]
             klass = handler_rec["class"]
