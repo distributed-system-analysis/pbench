@@ -85,9 +85,16 @@ _STD_DATETIME_FMT = pbench._STD_DATETIME_FMT
 # Maximum length of messages logged by es_index()
 _MAX_ERRMSG_LENGTH = 16384
 
-# All indexing uses "create" (instead of "index") to avoid updating
-# existing records, allowing us to detect duplicates.
+# All indexing uses "create" (instead of "index") to avoid updating existing
+# records; we also ensure each JSON document being indexed has an "_id" field,
+# so we can tell when we are indexing duplicate data.
 _op_type = "create"
+
+# 100,000 minute timeouts talking to Elasticsearch; basically we just don't
+# want to timeout waiting for Elasticsearch and then have to retry, as that
+# can add undue burden to the Elasticsearch cluster.
+_read_timeout = 100000 * 60.0
+_request_timeout = 100000 * 60.0
 
 # global - defaults to normal dict, ordered dict for unit tests
 _dict_const = dict
@@ -139,17 +146,6 @@ def get_es(config):
     timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
     ca_bundle = config.get("Indexing", "ca_bundle")
     return Elasticsearch(hosts, max_retries=0, timeout=timeoutobj, ca_certs=ca_bundle)
-
-
-# Always use "create" operations, as we also ensure each JSON document being
-# indexed has an "_id" field, so we can tell when we are indexing duplicate
-# data.
-_op_type = "create"
-# 100,000 minute timeouts talking to Elasticsearch; basically we just don't
-# want to timeout waiting for Elasticsearch and then have to retry, as that
-# can add undue burden to the Elasticsearch cluster.
-_read_timeout = 100000 * 60.0
-_request_timeout = 100000 * 60.0
 
 
 def es_index(es, actions, errorsfp, logger, _dbg=0):
@@ -912,7 +908,7 @@ class ResultData(PbenchData):
             except Exception as e:
                 self.logger.warning(
                     "result-data-indexing: encountered invalid JSON file,"
-                    " {}: {:r} ({})",
+                    " {}: {str(e)!s} ({})",
                     result_json,
                     e,
                     self.ptb._tbctx,
@@ -925,7 +921,7 @@ class ResultData(PbenchData):
             if not isinstance(results, list):
                 self.logger.warning(
                     "result-data-indexing: encountered unexpected"
-                    " JSON file format, %s ({})",
+                    " JSON file format, {} ({})",
                     result_json,
                     self.ptb._tbctx,
                 )
