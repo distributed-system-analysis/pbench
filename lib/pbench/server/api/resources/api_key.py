@@ -56,9 +56,7 @@ class APIKeyManage(ApiBase):
             ),
         )
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """Get a list of API keys associated with the user.
 
         GET /api/v1/key
@@ -89,9 +87,7 @@ class APIKeyManage(ApiBase):
                 raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
             return key[0].as_json()
 
-    def _post(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _post(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Post request for generating a new persistent API key.
 
@@ -138,9 +134,7 @@ class APIKeyManage(ApiBase):
         response.status_code = status
         return response
 
-    def _delete(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _delete(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """Delete the requested key.
 
         DELETE /api/v1/key/{key}

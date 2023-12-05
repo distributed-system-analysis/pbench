@@ -85,9 +85,16 @@ _STD_DATETIME_FMT = pbench._STD_DATETIME_FMT
 # Maximum length of messages logged by es_index()
 _MAX_ERRMSG_LENGTH = 16384
 
-# All indexing uses "create" (instead of "index") to avoid updating
-# existing records, allowing us to detect duplicates.
+# All indexing uses "create" (instead of "index") to avoid updating existing
+# records; we also ensure each JSON document being indexed has an "_id" field,
+# so we can tell when we are indexing duplicate data.
 _op_type = "create"
+
+# 100,000 minute timeouts talking to Elasticsearch; basically we just don't
+# want to timeout waiting for Elasticsearch and then have to retry, as that
+# can add undue burden to the Elasticsearch cluster.
+_read_timeout = 100000 * 60.0
+_request_timeout = 100000 * 60.0
 
 # global - defaults to normal dict, ordered dict for unit tests
 _dict_const = dict
@@ -141,17 +148,6 @@ def get_es(config):
     return Elasticsearch(hosts, max_retries=0, timeout=timeoutobj, ca_certs=ca_bundle)
 
 
-# Always use "create" operations, as we also ensure each JSON document being
-# indexed has an "_id" field, so we can tell when we are indexing duplicate
-# data.
-_op_type = "create"
-# 100,000 minute timeouts talking to Elasticsearch; basically we just don't
-# want to timeout waiting for Elasticsearch and then have to retry, as that
-# can add undue burden to the Elasticsearch cluster.
-_read_timeout = 100000 * 60.0
-_request_timeout = 100000 * 60.0
-
-
 def es_index(es, actions, errorsfp, logger, _dbg=0):
     """
     es_index Encapsulate the interface to the pyesbulk module index code.
@@ -188,11 +184,9 @@ class PbenchData:
     """
 
     def __init__(self, ptb):
-        self.year, self.month, self.day = (
-            "{:04d}".format(ptb.start_run_ts.year),
-            "{:02d}".format(ptb.start_run_ts.month),
-            "{:02d}".format(ptb.start_run_ts.day),
-        )
+        self.year = f"{ptb.start_run_ts.year:04d}"
+        self.month = f"{ptb.start_run_ts.month:02d}"
+        self.day = f"{ptb.start_run_ts.day:02d}"
         self.ptb = ptb
         self.logger = ptb.idxctx.logger
         self.idxctx = ptb.idxctx
@@ -240,8 +234,8 @@ class PbenchData:
         except Exception as e:
             self.counters["ts_not_epoch_millis_float"] += 1
             raise BadDate(
-                "{!r} is not a float in milliseconds since the"
-                " epoch: {}".format(orig_ts, e)
+                "{!r} is not a float in milliseconds since the epoch: "
+                "{}".format(orig_ts, e)
             )
         ts_float = orig_ts_float / 1000
         try:
@@ -249,8 +243,8 @@ class PbenchData:
         except Exception as e:
             self.counters["ts_not_epoch_float"] += 1
             raise BadDate(
-                "{:f} ({!r}) is not a proper float in seconds since"
-                " the epoch: {}".format(ts_float, orig_ts, e)
+                "{:f} ({!r}) is not a proper float in seconds since the epoch: "
+                "{}".format(ts_float, orig_ts, e)
             )
         if ts < self.ptb.start_run_ts:
             # The calculated timestamp, `ts`, is earlier that the timestamp of
@@ -278,25 +272,25 @@ class PbenchData:
             except Exception as e:
                 self.counters["ts_calc_not_epoch_millis_float"] += 1
                 raise BadDate(
-                    "{:f} ({!r}) is not a proper float in"
-                    " milliseconds since the epoch: {}".format(
-                        orig_ts_float, orig_ts, e
-                    )
+                    "{:f} ({!r}) is not a proper float in milliseconds since the epoch:"
+                    " {}".format(orig_ts_float, orig_ts, e)
                 )
             newts = self.ptb.start_run_ts + d
             if newts > self.ptb.end_run_ts:
                 self.counters["ts_before_start_run_ts"] += 1
                 raise BadDate(
-                    "{} ({!r}) is before the start of the"
-                    " run ({})".format(ts, orig_ts, self.ptb.start_run_ts)
+                    "{} ({!r}) is before the start of the run ({})".format(
+                        ts, orig_ts, self.ptb.start_run_ts
+                    )
                 )
             else:
                 ts = newts
         elif ts > self.ptb.end_run_ts:
             self.counters["ts_after_end_run_ts"] += 1
             raise BadDate(
-                "{} ({!r}) is after the end of the"
-                " run ({})".format(ts, orig_ts, self.ptb.end_run_ts)
+                "{} ({!r}) is after the end of the run ({})".format(
+                    ts, orig_ts, self.ptb.end_run_ts
+                )
             )
         return ts.strftime(_STD_DATETIME_FMT)
 
@@ -914,9 +908,9 @@ class ResultData(PbenchData):
             except Exception as e:
                 self.logger.warning(
                     "result-data-indexing: encountered invalid JSON file,"
-                    " {}: {:r} ({})",
+                    " {}: {!r} ({})",
                     result_json,
-                    e,
+                    str(e),
                     self.ptb._tbctx,
                 )
                 self.counters["not_valid_json_file"] += 1
@@ -926,8 +920,8 @@ class ResultData(PbenchData):
             # to see if that is true.
             if not isinstance(results, list):
                 self.logger.warning(
-                    "result-data-indexing: encountered unexpected"
-                    " JSON file format, %s ({})",
+                    "result-data-indexing: encountered unexpected JSON file format,"
+                    " {} ({})",
                     result_json,
                     self.ptb._tbctx,
                 )
@@ -1381,15 +1375,11 @@ class ResultData(PbenchData):
                             orig_ts = res["date"]
                             del res["date"]
                             ts = cvt_ts(orig_ts)
-                            if prev_ts is not None:
-                                assert (
-                                    prev_ts <= ts
-                                ), "prev_ts (%r, %r) > ts (%r, %r)" % (
-                                    prev_ts,
-                                    prev_orig_ts,
-                                    ts,
-                                    orig_ts,
-                                )
+                            assert (
+                                prev_ts is None or prev_ts <= ts
+                            ), "prev_ts ({!r}, {!r}) > ts ({!r}, {!r})".format(
+                                prev_ts, prev_orig_ts, ts, orig_ts
+                            )
                             prev_orig_ts = orig_ts
                             prev_ts = ts
                             # Now we can emit the actual timeseries value
@@ -1823,7 +1813,7 @@ class ToolData(PbenchData):
         self.idxctx.opctx.append(
             _dict_const(
                 tbname=ptb.tbname,
-                object="ToolData-%s-%s-%s-%s" % (iteration, sample, host, tool),
+                object=f"ToolData-{iteration}-{sample}-{host}-{tool}",
                 counters=self.counters,
             )
         )
@@ -2152,15 +2142,11 @@ class ToolData(PbenchData):
             # to a floating point value in seconds, and then formatted as a
             # string.
             ts_val = self.mk_abs_timestamp_millis(first)
-            if prev_ts_val is not None:
-                assert (
-                    prev_ts_val <= ts_val
-                ), "prev_ts_val (%r, %r) > first (%r, %r)" % (
-                    prev_ts_val,
-                    prev_first,
-                    ts_val,
-                    first,
-                )
+            assert (
+                prev_ts_val is None or prev_ts_val <= ts_val
+            ), "prev_ts_val ({!r}, {!r}) > first ({!r}, {!r})".format(
+                prev_ts_val, prev_first, ts_val, first
+            )
             prev_first = first
             prev_ts_val = ts_val
             datum = _dict_const()
@@ -2230,7 +2216,7 @@ class ToolData(PbenchData):
         for csvf in self.files:
             assert (
                 csvf["header"][0] == "timestamp_ms"
-            ), "Unexpected time stamp header, '{}'".format(csvf["header"][0])
+            ), f"Unexpected time stamp header, '{csvf['header'][0]}'"
             header = csvf["header"]
             handler_rec = csvf["handler_rec"]
             klass = handler_rec["class"]
@@ -2267,15 +2253,11 @@ class ToolData(PbenchData):
                     # The timestamp column is index zero.
                     if col == 0:
                         ts_val = self.mk_abs_timestamp_millis(val)
-                        if prev_ts_val is not None:
-                            assert (
-                                prev_ts_val <= ts_val
-                            ), "prev_ts_val (%r, %r) > ts_val (%r, %r)" % (
-                                prev_ts_val,
-                                prev_val,
-                                ts_val,
-                                val,
-                            )
+                        assert (
+                            prev_ts_val is None or prev_ts_val <= ts_val
+                        ), "prev_ts_val ({!r}, {!r}) > first ({!r}, {!r})".format(
+                            prev_ts_val, prev_val, ts_val, val
+                        )
                         prev_val = val
                         prev_ts_val = ts_val
                         datum = _dict_const()
@@ -2400,11 +2382,9 @@ class ToolData(PbenchData):
                 # *seconds* since the epoch, and then convert to millis
                 # since the epoch.
                 ts_orig = float(line.split(":")[1])
-                if prev_ts_orig is not None:
-                    assert prev_ts_orig <= ts_orig, "prev_ts_orig %r > ts_orig %r" % (
-                        prev_ts_orig,
-                        ts_orig,
-                    )
+                assert (
+                    prev_ts_orig is None or prev_ts_orig <= ts_orig
+                ), f"prev_ts_orig {prev_ts_orig!r} > ts_orig {ts_orig!r}"
                 ts_str = self.mk_abs_timestamp_millis(ts_orig * 1000)
                 record = _dict_const()
                 record["@timestamp"] = ts_str
@@ -2494,11 +2474,9 @@ class ToolData(PbenchData):
                 # *seconds* since the epoch, and then convert to millis
                 # since the epoch.
                 ts_orig = float(line.split(":")[1])
-                if prev_ts_orig is not None:
-                    assert prev_ts_orig <= ts_orig, "prev_ts_orig %r > ts_orig %r" % (
-                        prev_ts_orig,
-                        ts_orig,
-                    )
+                assert (
+                    prev_ts_orig is None or prev_ts_orig <= ts_orig
+                ), f"prev_ts_orig {prev_ts_orig!r} > ts_orig {ts_orig!r}"
                 ts_str = self.mk_abs_timestamp_millis(ts_orig * 1000)
                 # The next line is assumed to be the header, so instead of
                 # looping to get to it, we just pull it out and process it
@@ -2851,7 +2829,7 @@ class ToolData(PbenchData):
                 handler, basepath, toolsgroup, tool, ptb
             )
         else:
-            raise Exception("Logic error! %s" % (handler["@prospectus"]["handling"]))
+            raise Exception(f"Logic error! {handler['@prospectus']['handling']}")
         datafiles.sort(key=itemgetter("path", "basename"))
         return datafiles
 
@@ -3245,7 +3223,7 @@ class PbenchTarBall:
         #
         # ... while we are at it, we verify we have a metadata.log file in the
         # tar ball before we start extracting.
-        metadata_log_path = "%s/metadata.log" % (self.dirname)
+        metadata_log_path = self.dirname + "/metadata.log"
         metadata_log_found = False
         self.members = self.tb.getmembers()
         for m in self.members:
@@ -4044,7 +4022,7 @@ class PbenchTarBall:
             assert doc_type in (
                 "sample",
                 "res",
-            ), "Invalid result data document type, {}".format(doc_type)
+            ), f"Invalid result data document type, {doc_type}"
             idx = "result-data" if doc_type == "res" else "result-data-sample"
             try:
                 idx_name = rd.generate_index_name(idx, source)

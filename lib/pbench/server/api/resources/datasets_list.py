@@ -598,9 +598,7 @@ class DatasetsList(ApiBase):
         paginated_result["results"] = response
         return paginated_result
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """Get a list of datasets matching a set of criteria.
 
         GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion
@@ -610,7 +608,7 @@ class DatasetsList(ApiBase):
 
         Args:
             params : API parameters
-            request : The original Request object
+            req : The original Request object
             context : API context dictionary
 
         Returns:
@@ -719,5 +717,5 @@ class DatasetsList(ApiBase):
             result.update(self.daterange(query))
             done = True
         if not done:
-            result = self.datasets(request, aliases, json, context["raw_params"], query)
+            result = self.datasets(req, aliases, json, context["raw_params"], query)
         return jsonify(result)

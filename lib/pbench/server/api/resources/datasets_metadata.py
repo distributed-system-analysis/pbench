@@ -74,15 +74,13 @@ class DatasetsMetadata(ApiBase):
             ),
         )
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Get the values of client-accessible dataset metadata keys.
 
         Args:
             params: API parameters
-            request: The original Request object containing query parameters
+            req: The original Request object containing query parameters
             context: API context dictionary
 
         GET /api/v1/datasets/metadata?name=dname&metadata=global.seen,server.deletion
@@ -98,15 +96,13 @@ class DatasetsMetadata(ApiBase):
 
         return jsonify(metadata)
 
-    def _put(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _put(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Set or modify the values of client-accessible dataset metadata keys.
 
         Args:
             params: API parameters
-            request: The original Request object containing query parameters
+            req: The original Request object containing query parameters
             context: API context dictionary
 
         PUT /api/v1/datasets/metadata

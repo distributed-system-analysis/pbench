@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import pytest
 import requests
@@ -34,7 +34,7 @@ def query_api(client, server_config, provide_metadata):
         payload: Dict[str, Any],
         expected_index: str,
         expected_status: str,
-        headers: dict = {},
+        headers: Optional[dict] = None,
         request_method=ApiMethod.POST,
         query_params: JSON = None,
         **kwargs,
@@ -66,7 +66,7 @@ def query_api(client, server_config, provide_metadata):
                 rsp.add(es_method, es_url, **kwargs)
             response = client_method(
                 f"{server_config.rest_uri}{pbench_uri}",
-                headers=headers,
+                headers=headers if headers else {},
                 json=payload,
                 query_string=query_params,
             )

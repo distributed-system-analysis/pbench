@@ -55,9 +55,7 @@ class ServerAudit(ApiBase):
             always_enabled=True,
         )
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         Retrieve audit trail records. Each operation that affects a resource
         (create, update, delete) generates two audit records, a BEGIN and
@@ -76,7 +74,7 @@ class ServerAudit(ApiBase):
 
         Args:
             params: API parameters
-            request: The original Request object containing query parameters
+            req: The original Request object containing query parameters
             context: API context dictionary
 
         Returns:

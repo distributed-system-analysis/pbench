@@ -114,6 +114,6 @@ class Upload(IntakeBase):
             raise APIAbort(HTTPStatus.LENGTH_REQUIRED, msg)
         return Access(content_length, request.stream)
 
-    def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _put(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         """Launch the upload operation from an HTTP PUT"""
-        return self._intake(args, request, context)
+        return self._intake(args, req, context)

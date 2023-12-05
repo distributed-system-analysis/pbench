@@ -41,15 +41,13 @@ class DatasetsVisualize(ApiBase):
             ),
         )
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """
         This function is using Quisby to process results into a form that supports visualization
 
         Args:
             params: includes the uri parameters, which provide the dataset.
-            request: Original incoming Request object
+            req: Original incoming Request object
             context: API context dictionary
 
         Raises:

@@ -14,7 +14,7 @@ from pbench.server.database.models.users import Roles, User, UserDuplicate
 
 # Module public
 token_auth = HTTPTokenAuth("Bearer")
-oidc_client: OpenIDClient = None
+oidc_client: Optional[OpenIDClient] = None
 
 
 def setup_app(app: Flask, server_config: PbenchServerConfig):
@@ -28,6 +28,7 @@ def setup_app(app: Flask, server_config: PbenchServerConfig):
     verification if the configuration is provided.
 
     Args:
+        app : the Flask application object
         server_config : Parsed Pbench server configuration
     """
     app.secret_key = server_config.get("flask-app", "secret-key")
@@ -127,7 +128,7 @@ def verify_auth_api_key(api_key: str) -> Optional[User]:
 
     """
     key = APIKey.query(key=api_key)
-    return key[0].user if key and len(key) == 1 else None
+    return key[0].user if key else None
 
 
 def verify_auth_oidc(auth_token: str) -> Optional[User]:

@@ -45,9 +45,7 @@ class DatasetsInventory(ApiBase):
             ),
         )
 
-    def _get(
-        self, params: ApiParams, request: Request, context: ApiContext
-    ) -> Response:
+    def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """Request the contents of a results file.
 
         This function examines a "target" path within the results tarball of a
@@ -59,7 +57,7 @@ class DatasetsInventory(ApiBase):
 
         Args:
             params: includes the uri parameters, which provide the dataset and target.
-            request: Original incoming Request object
+            req: Original incoming Request object
             context: API context dictionary
 
         Raises:
@@ -79,7 +77,7 @@ class DatasetsInventory(ApiBase):
         if file_info["type"] is CacheType.DIRECTORY:
             prefix = current_app.server_config.rest_uri
             uri = (
-                f"{self._get_uri_base(request).host}{prefix}/datasets/"
+                f"{self._get_uri_base(req).host}{prefix}/datasets/"
                 f"{dataset.resource_id}/contents/"
             )
             uri += target if target else ""

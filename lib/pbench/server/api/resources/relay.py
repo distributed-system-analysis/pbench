@@ -185,6 +185,6 @@ class Relay(IntakeBase):
             if not errors:
                 notes.append("Relay files were successfully removed.")
 
-    def _post(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+    def _post(self, args: ApiParams, req: Request, context: ApiContext) -> Response:
         """Launch the Relay operation from an HTTP POST"""
-        return self._intake(args, request, context)
+        return self._intake(args, req, context)
