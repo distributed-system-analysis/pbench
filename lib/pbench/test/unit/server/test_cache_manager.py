@@ -1590,7 +1590,13 @@ class TestCacheManager:
         assert list(new.tarballs) == [dataset_name]
 
     def test_lifecycle(
-        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+        self,
+        db_session,
+        selinux_enabled,
+        server_config,
+        make_logger,
+        tarball,
+        monkeypatch,
     ):
         """
         Create a dataset, unpack it, remove the unpacked version, and finally
@@ -1684,7 +1690,13 @@ class TestCacheManager:
         assert not cm.datasets
 
     def test_compatibility(
-        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+        self,
+        db_session,
+        selinux_enabled,
+        server_config,
+        make_logger,
+        tarball,
+        monkeypatch,
     ):
         """Test compatibility with both new "isolated" and old tarballs
 
