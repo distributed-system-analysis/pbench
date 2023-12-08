@@ -121,6 +121,7 @@ class IndexMapBase(ElasticBase):
 
         Raises:
             APIAbort(CONFLICT) if indexing was disabled on the target dataset.
+            APIAbort(NOT_FOUND) if the dataset has no matching index data
 
         Returns:
             A string that joins all selected indices with ",", suitable for use
@@ -133,7 +134,13 @@ class IndexMapBase(ElasticBase):
         if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
             raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
 
-        index_keys = IndexMap.indices(dataset, root_index_name)
+        index_keys = list(IndexMap.indices(dataset, root_index_name))
+
+        if not index_keys:
+            raise APIAbort(
+                HTTPStatus.NOT_FOUND, f"Dataset has no {root_index_name!r} data"
+            )
+
         indices = ",".join(index_keys)
         return indices
 

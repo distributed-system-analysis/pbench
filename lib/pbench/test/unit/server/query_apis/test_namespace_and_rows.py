@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server.api.resources import ApiMethod
+from pbench.server.api.resources import APIAbort, ApiMethod
 from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
@@ -774,7 +774,8 @@ class TestSampleValues(Commons):
 
         # The "test" dataset has no index map initially; verify that we get
         # no indices.
-        assert self.cls_obj.get_index(test, "result-data-sample") == ""
+        with pytest.raises(APIAbort, match="Dataset has no 'result-data-sample' data"):
+            self.cls_obj.get_index(test, "result-data-sample")
 
         # Add an index that doesn't have the desired root name, and verify that
         # we still don't find a match.
@@ -786,7 +787,8 @@ class TestSampleValues(Commons):
                 }
             },
         )
-        assert self.cls_obj.get_index(test, "result-data-sample") == ""
+        with pytest.raises(APIAbort, match="Dataset has no 'result-data-sample' data"):
+            self.cls_obj.get_index(test, "result-data-sample")
 
         # Add an index with the expected root, and verify that we get the one
         # matching index name.
