@@ -64,7 +64,7 @@ const NewRunsComponent = () => {
   );
   const columnNames = {
     result: "Result",
-    endtime: "Endtime",
+    endtime: "Scheduled for deletion on",
   };
 
   /* Selecting */
