@@ -64,7 +64,7 @@ const NewRunsComponent = () => {
   );
   const columnNames = {
     result: "Result",
-    endtime: "Scheduled for deletion on",
+    endtime: "Expiration Date",
   };
 
   /* Selecting */
