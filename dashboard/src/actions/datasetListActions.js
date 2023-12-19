@@ -17,6 +17,7 @@ export const addParams = (params, loggedIn, datasetType) => {
   params.append("metadata", "dataset");
   params.append("metadata", "global");
   params.append("metadata", "user");
+  params.append("sort", "dataset.uploaded:desc");
   if (loggedIn) {
     if (datasetType === MY_DATASETS) {
       params.append("mine", "true");
