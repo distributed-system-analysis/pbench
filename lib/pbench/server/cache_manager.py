@@ -909,16 +909,16 @@ class Tarball:
         if not self.dataset:
             return 0
 
-        size = Metadata.getvalue(self.dataset, Metadata.SERVER_UNPACKED)
-        self.logger.info("SIZE unpacked = {}", size)
+        source = Metadata.SERVER_UNPACKED
+        size = Metadata.getvalue(self.dataset, source)
         if not size:
             try:
-                size = int(
-                    Metadata.getvalue(self.dataset, "dataset.metalog.run.raw_size")
-                )
-                self.logger.info("SIZE metalog = {}", size)
+                source = "dataset.metalog.run.raw_size"
+                size = int(Metadata.getvalue(self.dataset, source))
             except (ValueError, TypeError):
+                source = None
                 size = 0
+        self.logger.info("{} unpacked size (from {}) = {}", self.name, source, size)
         self.unpacked_size = size
         return size
 
@@ -1009,6 +1009,7 @@ class Tarball:
                 if process.returncode == 0:
                     size = int(process.stdout.split("\t", maxsplit=1)[0])
                     self.unpacked_size = size
+                    self.logger.info("actual unpacked {} size = {}", self.name, size)
                     Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACKED, size)
             except Exception as e:
                 self.logger.warning("usage check failed: {}", e)
