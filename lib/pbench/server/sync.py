@@ -2,7 +2,9 @@ from logging import Logger
 import time
 from typing import Optional
 
+from psycopg2.errors import SerializationFailure
 from sqlalchemy import or_
+from sqlalchemy.exc import DBAPIError
 
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
@@ -160,13 +162,18 @@ class Sync:
                             session.add(op)
                 return
             except Exception as e:
-                self.logger.warning(
-                    "{} 'update' {} error ({}): {}",
-                    self.component,
-                    ds_name,
-                    retry,
-                    str(e),
-                )
+                if (
+                    not isinstance(e, DBAPIError)
+                    or not hasattr(e, "orig")
+                    or not isinstance(e.orig, SerializationFailure)
+                ):
+                    self.logger.warning(
+                        "{} 'update' {} error ({}): {}",
+                        self.component,
+                        ds_name,
+                        retry,
+                        str(e),
+                    )
                 last_error = e
             time.sleep(self.DELAY)
         raise SyncSqlError(self.component, "update") from last_error

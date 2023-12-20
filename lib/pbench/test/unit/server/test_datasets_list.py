@@ -608,19 +608,19 @@ class TestDatasetsList:
             ),
             (
                 ["global.something.integer:<1:int"],
-                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) < 1",
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS BIGINT) < 1",
             ),
             (
                 ["global.something.integer:>2:int"],
-                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) > 2",
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS BIGINT) > 2",
             ),
             (
                 ["global.something.integer:<=1:int"],
-                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) <= 1",
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS BIGINT) <= 1",
             ),
             (
                 ["global.something.integer:>=2:int"],
-                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) >= 2",
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS BIGINT) >= 2",
             ),
             (
                 ["global.something.boolean:t:bool"],
