@@ -24,7 +24,6 @@ from pbench.server.cache_manager import (
     Inventory,
     LockManager,
     LockRef,
-    MetadataError,
     Tarball,
     TarballModeChangeError,
     TarballNotFound,
@@ -167,49 +166,41 @@ class TestCacheManager:
         for c in controllers:
             assert not (cm.archive_root / c).exists()
 
+    @pytest.mark.parametrize(
+        "metadata",
+        (
+            {"pbench": {"date": "2002-05-16T00:00:00"}},
+            {"pbench": {"date": "2002-05-16T00:00:00"}, "run": {}},
+            {
+                "pbench": {"date": "2002-05-16T00:00:00"},
+                "run": {"controller": ""},
+            },
+        ),
+    )
     def test_metadata(
-        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
+        self,
+        monkeypatch,
+        db_session,
+        selinux_disabled,
+        server_config,
+        make_logger,
+        tarball,
+        metadata,
     ):
         """Test behavior with metadata.log access errors."""
 
         def fake_metadata(_tar_path):
-            return {"pbench": {"date": "2002-05-16T00:00:00"}}
-
-        def fake_metadata_run(_tar_path):
-            return {"pbench": {"date": "2002-05-16T00:00:00"}, "run": {}}
-
-        def fake_metadata_controller(_tar_path):
-            return {
-                "pbench": {"date": "2002-05-16T00:00:00"},
-                "run": {"controller": ""},
-            }
+            return metadata
 
         # fetching metadata from metadata.log file and key/value not
-        # being there should result in a MetadataError
+        # being there should result in assuming an "unknown" controller
         source_tarball, source_md5, md5 = tarball
         cm = CacheManager(server_config, make_logger)
 
-        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'run'\""
         with monkeypatch.context() as m:
             m.setattr(Tarball, "_get_metadata", fake_metadata)
-            with pytest.raises(MetadataError) as exc:
-                cm.create(source_tarball)
-            assert str(exc.value) == expected_metaerror
-
-        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'controller'\""
-        with monkeypatch.context() as m:
-            m.setattr(Tarball, "_get_metadata", fake_metadata_run)
-            with pytest.raises(MetadataError) as exc:
-                cm.create(source_tarball)
-            assert str(exc.value) == expected_metaerror
-
-        expected_metaerror = "A problem occurred processing metadata.log "
-        expected_metaerror += f"from {source_tarball!s}: 'no controller value'"
-        with monkeypatch.context() as m:
-            m.setattr(Tarball, "_get_metadata", fake_metadata_controller)
-            with pytest.raises(MetadataError) as exc:
-                cm.create(source_tarball)
-            assert str(exc.value) == expected_metaerror
+            tarball = cm.create(source_tarball)
+            assert tarball.controller_name == "unknown"
 
     def test_with_metadata(
         self,
