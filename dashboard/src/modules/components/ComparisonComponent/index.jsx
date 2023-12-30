@@ -15,30 +15,29 @@ import React, { useEffect } from "react";
 import {
   compareMultipleDatasets,
   getQuisbyData,
+  resetList,
   toggleCompareSwitch,
 } from "actions/comparisonActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import Cookies from "js-cookie";
 import PanelConent from "./PanelContent";
-import { VISUALIZATION } from "assets/constants/compareConstants";
-import { getDatasets } from "actions/overviewActions";
 
 const ComparisonComponent = () => {
   const dispatch = useDispatch();
   const loggedIn = Cookies.get("isLoggedIn");
 
-  const { datasets } = useSelector((state) => state.overview);
+  const { publicData } = useSelector((state) => state.overview);
   const { isCompareSwitchChecked, selectedResourceIds } = useSelector(
     (state) => state.comparison
   );
   useEffect(() => {
-    if (datasets && datasets.length > 0) {
-      dispatch(getQuisbyData(datasets[0]));
+    if (publicData && publicData.length > 0) {
+      dispatch(getQuisbyData(publicData[0]));
     } else {
-      dispatch(getDatasets());
+      dispatch(resetList());
     }
-  }, [datasets, dispatch]);
+  }, [publicData, dispatch]);
   return (
     <div className="chart-container">
       <Flex className="heading-container">
@@ -68,7 +67,7 @@ const ComparisonComponent = () => {
               Compare Datasets
             </Button>
           )}
-          {loggedIn && <ViewOptions currPage={VISUALIZATION} />}
+          {loggedIn && <ViewOptions />}
 
           <SearchByName />
           <PanelConent />

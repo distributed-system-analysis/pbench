@@ -1,13 +1,18 @@
 import "./index.less";
 
+import * as CONSTANTS from "assets/constants/browsingPageConstants";
+
 import { Checkbox, List, ListItem } from "@patternfly/react-core";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { getQuisbyData, setSelectedId } from "actions/comparisonActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import TablePagination from "../PaginationComponent";
+
 const PanelConent = () => {
   const dispatch = useDispatch();
-  const { datasets } = useSelector((state) => state.overview);
+
+  const { publicData } = useSelector((state) => state.datasetlist);
   const {
     activeResourceId,
     isCompareSwitchChecked,
@@ -24,10 +29,10 @@ const PanelConent = () => {
     [searchValue]
   );
   const filteredDatasets = useMemo(
-    () => datasets.filter(onFilter),
-    [datasets, onFilter]
+    () => publicData.filter(onFilter),
+    [publicData, onFilter]
   );
-
+  const [page, setPage] = useState(CONSTANTS.START_PAGE_NUMBER);
   return (
     <>
       {filteredDatasets.length > 0 && (
@@ -67,6 +72,17 @@ const PanelConent = () => {
           )}
         </div>
       )}
+      {/* <RenderPagination
+        items={filteredDatasets.length}
+        page={page}
+        setPage={setPage}
+        perPage={perPage}
+        setPerPage={setPerPage}
+        onSetPage={onSetPage}
+        perPageOptions={perPageOptions}
+        onPerPageSelect={onPerPageSelect}
+      /> */}
+      <TablePagination page={page} setPage={setPage} />
     </>
   );
 };

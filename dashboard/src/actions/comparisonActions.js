@@ -279,18 +279,18 @@ export const setSearchValue = (value) => ({
   payload: value,
 });
 
-export const onDatasetTypeChange = (value, currPage, dispatch) => {
+export const onDatasetTypeChange = (value, dispatch) => {
   dispatch({
     type: TYPES.SET_DATASET_TYPE,
     payload: value,
   });
-  if (currPage === CONSTANTS.VISUALIZATION) {
-    dispatch(getDatasets());
-  } else {
-    dispatch({
-      type: TYPES.SET_RESULT_OFFSET,
-      payload: 0,
-    });
-    dispatch(fetchDatasets(START_PAGE_NUMBER));
-  }
+  dispatch(resetList());
+};
+
+export const resetList = () => (dispatch) => {
+  dispatch({
+    type: TYPES.SET_RESULT_OFFSET,
+    payload: 0,
+  });
+  dispatch(fetchDatasets(START_PAGE_NUMBER));
 };
