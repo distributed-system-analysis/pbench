@@ -6,7 +6,6 @@ import { DANGER, ERROR_MSG, WARNING } from "assets/constants/toastConstants";
 import API from "../utils/axiosInstance";
 import { START_PAGE_NUMBER } from "assets/constants/browsingPageConstants";
 import { fetchDatasets } from "actions/datasetListActions";
-import { getDatasets } from "actions/overviewActions";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "../utils/helper";
 
