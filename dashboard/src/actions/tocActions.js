@@ -8,20 +8,20 @@ import { uriTemplate } from "utils/helper";
 /**
  * Function to fetch contents data
  * @function
- * @param {String} param - Dataset ID
+ * @param {String} datasetId - Dataset ID
  * @param {String} dataUri - URI
  * @param {String} item - Active item
  * @param {Boolean} isSubDir - To identify sub-directory expansion
  * @return {Function} - dispatch the action and update the state
  */
 export const fetchTOC =
-  (param, dataUri, item, isSubDir) => async (dispatch, getState) => {
+  (datasetId, dataUri, item, isSubDir) => async (dispatch, getState) => {
     try {
       dispatch({ type: TYPES.LOADING });
       const endpoints = getState().apiEndpoint.endpoints;
       const parent = dataUri?.split("contents/").pop();
       const uri = uriTemplate(endpoints, "datasets_contents", {
-        dataset: param,
+        dataset: datasetId,
         target: parent,
       });
       const response = await API.get(uri);
@@ -52,10 +52,9 @@ export const fetchTOC =
  */
 export const parseToTreeView =
   (contentData, activeItem, isSubDir, parent) => (dispatch, getState) => {
-    const treeOptions = [];
     const keyPath = parent.replaceAll("/", "*");
-    const drillMenuData = [...getState()?.toc?.drillMenuData];
-    for (const item of contentData.directories) {
+    const drillMenuData = [...getState().toc.drillMenuData];
+    const treeOptions = contentData.directories.map((item) => {
       const obj = {
         name: item.name,
         id: parent ? `${keyPath}*${item.name}` : item.name,
@@ -63,8 +62,8 @@ export const parseToTreeView =
         isDirectory: true,
         uri: item.uri,
       };
-      treeOptions.push(obj);
-    }
+      return obj;
+    });
     for (const item of contentData.files) {
       const obj = {
         name: item.name,
@@ -98,7 +97,7 @@ export const parseToTreeView =
  * @param {Object} arr - Drill down menu
  * @param {String} key - key path
  * @param {Array} childrenToUpdate - Active item children obtained through API request
- * @return {Function} - update the children
+ * @return {Array} - updated children
  */
 const updateActiveItemChildren = (arr, key, childrenToUpdate) => {
   // if children are undefined
@@ -110,9 +109,10 @@ const updateActiveItemChildren = (arr, key, childrenToUpdate) => {
     if (entry.id === key) {
       entry.children = childrenToUpdate;
     }
-
     // recursive call to traverse children
-    updateActiveItemChildren(entry.children, key, childrenToUpdate);
+    else {
+      updateActiveItemChildren(entry.children, key, childrenToUpdate);
+    }
   });
 
   return arr;

@@ -18,7 +18,7 @@ import { DownloadIcon } from "@patternfly/react-icons";
 import DrilldownMenu from "./DrillDownMenu";
 import { useParams } from "react-router";
 
-const TableOfContent1 = () => {
+const TableOfContent = () => {
   const dispatch = useDispatch();
   const params = useParams();
 
@@ -32,10 +32,10 @@ const TableOfContent1 = () => {
   }, [dispatch, endpoints, params]);
 
   const drillMenuItem = (item) => {
-    if (item.isDirectory && !item.children.length) {
-      dispatch(fetchTOC(params["dataset_id"], item.uri, item.id, true));
-    } else if (!item.isDirectory) {
+    if (!item.isDirectory) {
       dispatch(setActiveFileContent(item));
+    } else if (!item.children.length) {
+      dispatch(fetchTOC(params["dataset_id"], item.uri, item.id, true));
     }
   };
   return (
@@ -95,4 +95,4 @@ const TableOfContent1 = () => {
   );
 };
 
-export default TableOfContent1;
+export default TableOfContent;

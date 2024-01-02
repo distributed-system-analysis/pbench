@@ -14,7 +14,7 @@ const DrilldownMenu = (props) => {
 
   return (
     <div className="drilldownMenu-container">
-      {drillMenuData && drillMenuData.length > 0 && (
+      {drillMenuData?.length > 0 && (
         <TreeView
           data={drillMenuData}
           activeItems={activeItems}
