@@ -1441,17 +1441,20 @@ class CacheManager:
         if not tarfile_path.is_file():
             raise BadFilename(tarfile_path)
         name = Dataset.stem(tarfile_path)
-        controller_name = ""
+        controller_name = None
         try:
             metadata = Tarball._get_metadata(tarfile_path)
             controller_name = metadata["run"]["controller"]
         except Exception as exc:
             self.logger.warning(
-                "{} has no controller ({!r}): assuming {!r}", name, exc, controller_name
+                "{} metadata.log is missing run.controller: {!r}", name, exc
             )
 
         if not controller_name:
             controller_name = "unknown"
+            self.logger.warning(
+                "{} has no controller name, assuming {!r}", name, controller_name
+            )
 
         if name in self.tarballs:
             raise DuplicateTarball(name)

@@ -189,16 +189,13 @@ class TestCacheManager:
     ):
         """Test behavior with metadata.log access errors."""
 
-        def fake_metadata(_tar_path):
-            return metadata
-
         # fetching metadata from metadata.log file and key/value not
         # being there should result in assuming an "unknown" controller
         source_tarball, source_md5, md5 = tarball
         cm = CacheManager(server_config, make_logger)
 
         with monkeypatch.context() as m:
-            m.setattr(Tarball, "_get_metadata", fake_metadata)
+            m.setattr(Tarball, "_get_metadata", lambda p: metadata)
             tarball = cm.create(source_tarball)
             assert tarball.controller_name == "unknown"
 
