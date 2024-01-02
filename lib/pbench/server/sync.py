@@ -41,7 +41,7 @@ class Sync:
     def __str__(self) -> str:
         return f"<Synchronizer for component {self.component.name!r}>"
 
-    def next(self) -> list[Dataset]:
+    def next(self, count: Optional[int] = None) -> list[Dataset]:
         """
         This is a specialized query to return a list of datasets with the READY
         OperationState for the Sync component.
@@ -59,6 +59,9 @@ class Sync:
         transporting only the resource IDs across the barrier and fetching
         new proxy objects using the general session.
 
+        Args:
+            count: Limit the number of returned matches
+
         Returns:
             A list of Dataset objects which have an associated
             Operation object in READY state.
@@ -71,6 +74,8 @@ class Sync:
                     Operation.state == OperationState.READY,
                 )
                 query = query.order_by(Dataset.resource_id)
+                if count:
+                    query = query.limit(count)
                 Database.dump_query(query, self.logger)
                 id_list = [d.resource_id for d in query.all()]
             return [Dataset.query(resource_id=i) for i in id_list]

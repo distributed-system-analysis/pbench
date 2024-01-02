@@ -95,6 +95,8 @@ class Index:
     was a bash script.
     """
 
+    BATCH_SIZE = 100  # Number of READY datasets to grab at once
+
     error_code = Errors(
         ErrorCode("OK", 0, None, "Successful completion"),
         ErrorCode("OP_ERROR", 1, False, "Operational error while indexing"),
@@ -176,7 +178,7 @@ class Index:
         idxctx = self.idxctx
         error_code = self.error_code
         try:
-            for dataset in self.sync.next():
+            for dataset in self.sync.next(count=self.BATCH_SIZE):
                 tb = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
                 if not tb:
                     self.sync.error(dataset, "Dataset does not have a tarball-path")
