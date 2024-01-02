@@ -295,7 +295,7 @@ export const NewRunsRow = (props) => {
             onDateSelect={props.onDateSelect}
           />
         ) : (
-          formatDateTime(item.metadata.server.deletion)
+          item.metadata.server.deletion
         )}
       </Td>
       <Td
@@ -373,7 +373,7 @@ export const SavedRunsRow = (props) => {
             onDateSelect={props.onDateSelect}
           />
         ) : (
-          formatDateTime(item.metadata.server.deletion)
+          item.metadata.server.deletion
         )}
       </Td>
       <Td className="access">{item.metadata.dataset.access}</Td>
