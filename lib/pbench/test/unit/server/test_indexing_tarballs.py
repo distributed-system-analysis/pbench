@@ -248,7 +248,7 @@ class FakeSync:
         self.logger = logger
         self.component = component
 
-    def next(self) -> List[Dataset]:
+    def next(self, count: Optional[int] = None) -> List[Dataset]:
         __class__.called.append(f"next-{self.component.name}")
         assert self.component in __class__.tarballs
         return __class__.tarballs[self.component]

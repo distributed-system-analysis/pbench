@@ -34,6 +34,7 @@ import sys
 import time
 from typing import Optional
 
+import bs4
 import dateutil.parser
 import requests
 
@@ -246,7 +247,7 @@ def main() -> int:
         print("Uploading target files...")
     success = 0
     failure = 0
-    failures = set()
+    failures = []
     duplicate = 0
     for t in which:
         try:
@@ -268,24 +269,25 @@ def main() -> int:
                         print(t, file=checkwriter, flush=True)
                 else:
                     failure += 1
-                    failures.add(response.status_code)
 
-                    # TODO: can we handle NGINX's ugly 500 "storage error"
-                    # gracefully somehow?
                     if response.headers["content-type"] in (
                         "text/html",
                         "text/xml",
                         "application/xml",
-                        "text/plain",
                     ):
-                        message = re.sub(r"[\n\s]+", " ", response.text)
+                        try:
+                            m = bs4.BeautifulSoup(response.text, features="html.parser")
+                            message = m.title.text
+                        except Exception:
+                            message = re.sub(r"[\n\s]+", " ", response.text)
                     elif response.headers["content-type"] == "application/json":
                         try:
-                            message = response.json()
+                            message = response.json()["message"]
                         except Exception:
                             message = response.text
                     else:
                         message = f"{response.headers['content-type']}({response.text})"
+                    failures.append(f" {response.status_code}\t{t.name}\t{message}")
                     print(
                         f"Upload of {t} failed: {response.status_code} ({message})",
                         file=sys.stderr,
@@ -298,8 +300,10 @@ def main() -> int:
         checkwriter.close()
 
     print(
-        f"Uploaded {success} successfully; {duplicate} duplicates, {failure} failures: {failures}"
+        f"Uploaded {success} successfully; {duplicate} duplicates, {failure} failures:"
     )
+    for f in failures:
+        print(f)
     return 0
 
 
