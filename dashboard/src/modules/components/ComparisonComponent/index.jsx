@@ -15,14 +15,13 @@ import React, { useEffect } from "react";
 import {
   compareMultipleDatasets,
   getQuisbyData,
+  resetList,
   toggleCompareSwitch,
 } from "actions/comparisonActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import Cookies from "js-cookie";
 import PanelConent from "./PanelContent";
-import { VISUALIZATION } from "assets/constants/compareConstants";
-import { getDatasets } from "actions/overviewActions";
 
 const ComparisonComponent = () => {
   const dispatch = useDispatch();
@@ -36,7 +35,7 @@ const ComparisonComponent = () => {
     if (datasets && datasets.length > 0) {
       dispatch(getQuisbyData(datasets[0]));
     } else {
-      dispatch(getDatasets());
+      resetList(dispatch);
     }
   }, [datasets, dispatch]);
   return (
@@ -68,7 +67,7 @@ const ComparisonComponent = () => {
               Compare Datasets
             </Button>
           )}
-          {loggedIn && <ViewOptions currPage={VISUALIZATION} />}
+          {loggedIn && <ViewOptions />}
 
           <SearchByName />
           <PanelConent />
