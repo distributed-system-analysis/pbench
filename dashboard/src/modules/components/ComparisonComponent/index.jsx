@@ -27,17 +27,17 @@ const ComparisonComponent = () => {
   const dispatch = useDispatch();
   const loggedIn = Cookies.get("isLoggedIn");
 
-  const { publicData } = useSelector((state) => state.overview);
+  const { datasets } = useSelector((state) => state.overview);
   const { isCompareSwitchChecked, selectedResourceIds } = useSelector(
     (state) => state.comparison
   );
   useEffect(() => {
-    if (publicData && publicData.length > 0) {
-      dispatch(getQuisbyData(publicData[0]));
+    if (datasets && datasets.length > 0) {
+      dispatch(getQuisbyData(datasets[0]));
     } else {
-      dispatch(resetList());
+      resetList(dispatch);
     }
-  }, [publicData, dispatch]);
+  }, [datasets, dispatch]);
   return (
     <div className="chart-container">
       <Flex className="heading-container">

@@ -283,10 +283,10 @@ export const onDatasetTypeChange = (value, dispatch) => {
     type: TYPES.SET_DATASET_TYPE,
     payload: value,
   });
-  dispatch(resetList());
+  resetList(dispatch);
 };
 
-export const resetList = () => (dispatch) => {
+export const resetList = (dispatch) => {
   dispatch({
     type: TYPES.SET_RESULT_OFFSET,
     payload: 0,

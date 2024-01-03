@@ -72,16 +72,6 @@ const PanelConent = () => {
           )}
         </div>
       )}
-      {/* <RenderPagination
-        items={filteredDatasets.length}
-        page={page}
-        setPage={setPage}
-        perPage={perPage}
-        setPerPage={setPerPage}
-        onSetPage={onSetPage}
-        perPageOptions={perPageOptions}
-        onPerPageSelect={onPerPageSelect}
-      /> */}
       <TablePagination page={page} setPage={setPage} />
     </>
   );
