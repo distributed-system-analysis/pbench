@@ -12,12 +12,14 @@ import Cookies from "js-cookie";
 import { showToast } from "./toastActions";
 import { uriTemplate } from "utils/helper";
 
-export const addParams = (params, loggedIn, datasetType) => {
+export const addParams = (params) => {
   params.append("metadata", "server");
   params.append("metadata", "dataset");
   params.append("metadata", "global");
   params.append("metadata", "user");
   params.append("sort", "dataset.uploaded:desc");
+};
+export const setAccessTypeParams = (params, loggedIn, datasetType) => {
   if (loggedIn) {
     if (datasetType === MY_DATASETS) {
       params.append("mine", "true");
@@ -37,7 +39,8 @@ export const fetchDatasets = (page) => async (dispatch, getState) => {
     const datasetType = getState().comparison.datasetType;
     let publicData = [...getState().datasetlist.publicData];
     const params = new URLSearchParams();
-    addParams(params, loggedIn, datasetType);
+    addParams(params);
+    setAccessTypeParams(params, loggedIn, datasetType);
     params.append("offset", offset);
     params.append("limit", limit);
     if (searchKey) {
