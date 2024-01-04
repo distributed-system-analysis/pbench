@@ -40,6 +40,7 @@ export const MainContent = () => {
     ? "Benchmarks are of non-compatabile types!"
     : "Benchmark type is currently unsupported!";
   const data = isCompareSwitchChecked ? compareChartData : chartData;
+
   return (
     <>
       {isCompareSwitchChecked ? (
@@ -81,7 +82,7 @@ export const ViewOptions = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const selected = useSelector((state) => state.comparison.datasetType);
   const onSelect = (_event, value) => {
-    onDatasetTypeChange(value, props.currPage, dispatch);
+    onDatasetTypeChange(value, dispatch);
     setIsOpen(false);
   };
   const onToggle = () => {

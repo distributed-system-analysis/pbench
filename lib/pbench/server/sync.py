@@ -2,7 +2,9 @@ from logging import Logger
 import time
 from typing import Optional
 
+from psycopg2.errors import SerializationFailure
 from sqlalchemy import or_
+from sqlalchemy.exc import DBAPIError
 
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
@@ -39,7 +41,7 @@ class Sync:
     def __str__(self) -> str:
         return f"<Synchronizer for component {self.component.name!r}>"
 
-    def next(self) -> list[Dataset]:
+    def next(self, count: Optional[int] = None) -> list[Dataset]:
         """
         This is a specialized query to return a list of datasets with the READY
         OperationState for the Sync component.
@@ -57,6 +59,9 @@ class Sync:
         transporting only the resource IDs across the barrier and fetching
         new proxy objects using the general session.
 
+        Args:
+            count: Limit the number of returned matches
+
         Returns:
             A list of Dataset objects which have an associated
             Operation object in READY state.
@@ -69,6 +74,8 @@ class Sync:
                     Operation.state == OperationState.READY,
                 )
                 query = query.order_by(Dataset.resource_id)
+                if count:
+                    query = query.limit(count)
                 Database.dump_query(query, self.logger)
                 id_list = [d.resource_id for d in query.all()]
             return [Dataset.query(resource_id=i) for i in id_list]
@@ -160,13 +167,18 @@ class Sync:
                             session.add(op)
                 return
             except Exception as e:
-                self.logger.warning(
-                    "{} 'update' {} error ({}): {}",
-                    self.component,
-                    ds_name,
-                    retry,
-                    str(e),
-                )
+                if (
+                    not isinstance(e, DBAPIError)
+                    or not hasattr(e, "orig")
+                    or not isinstance(e.orig, SerializationFailure)
+                ):
+                    self.logger.warning(
+                        "{} 'update' {} error ({}): {}",
+                        self.component,
+                        ds_name,
+                        retry,
+                        str(e),
+                    )
                 last_error = e
             time.sleep(self.DELAY)
         raise SyncSqlError(self.component, "update") from last_error

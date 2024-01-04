@@ -909,16 +909,16 @@ class Tarball:
         if not self.dataset:
             return 0
 
-        size = Metadata.getvalue(self.dataset, Metadata.SERVER_UNPACKED)
-        self.logger.info("SIZE unpacked = {}", size)
+        source = Metadata.SERVER_UNPACKED
+        size = Metadata.getvalue(self.dataset, source)
         if not size:
             try:
-                size = int(
-                    Metadata.getvalue(self.dataset, "dataset.metalog.run.raw_size")
-                )
-                self.logger.info("SIZE metalog = {}", size)
+                source = "dataset.metalog.run.raw_size"
+                size = int(Metadata.getvalue(self.dataset, source))
             except (ValueError, TypeError):
+                source = None
                 size = 0
+        self.logger.info("{} unpacked size (from {}) = {}", self.name, source, size)
         self.unpacked_size = size
         return size
 
@@ -1009,6 +1009,7 @@ class Tarball:
                 if process.returncode == 0:
                     size = int(process.stdout.split("\t", maxsplit=1)[0])
                     self.unpacked_size = size
+                    self.logger.info("actual unpacked {} size = {}", self.name, size)
                     Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACKED, size)
             except Exception as e:
                 self.logger.warning("usage check failed: {}", e)
@@ -1421,6 +1422,9 @@ class CacheManager:
         controller directory. The controller directory will be created if
         necessary.
 
+        Datasets without an identifiable controller will be assigned to
+        "unknown".
+
         Args:
             tarfile_path: dataset tarball path
 
@@ -1434,20 +1438,24 @@ class CacheManager:
         Returns
             Tarball object
         """
-        try:
-            metadata = Tarball._get_metadata(tarfile_path)
-            if metadata:
-                controller_name = metadata["run"]["controller"]
-            else:
-                controller_name = "unknown"
-        except Exception as exc:
-            raise MetadataError(tarfile_path, exc)
-
-        if not controller_name:
-            raise MetadataError(tarfile_path, ValueError("no controller value"))
         if not tarfile_path.is_file():
             raise BadFilename(tarfile_path)
         name = Dataset.stem(tarfile_path)
+        controller_name = None
+        try:
+            metadata = Tarball._get_metadata(tarfile_path)
+            controller_name = metadata["run"]["controller"]
+        except Exception as exc:
+            self.logger.warning(
+                "{} metadata.log is missing run.controller: {!r}", name, exc
+            )
+
+        if not controller_name:
+            controller_name = "unknown"
+            self.logger.warning(
+                "{} has no controller name, assuming {!r}", name, controller_name
+            )
+
         if name in self.tarballs:
             raise DuplicateTarball(name)
         if controller_name in self.controllers:

@@ -87,11 +87,11 @@ const App = () => {
                       path={APP_ROUTES.OVERVIEW}
                       element={<OverviewComponent />}
                     />
-                    <Route
-                      path={APP_ROUTES.VISUALIZATION}
-                      element={<ComparisonComponent />}
-                    />
                   </Route>
+                  <Route
+                    path={APP_ROUTES.VISUALIZATION}
+                    element={<ComparisonComponent />}
+                  />
                   <Route
                     path={APP_ROUTES.TABLE_OF_CONTENT}
                     element={<TableOfContent />}

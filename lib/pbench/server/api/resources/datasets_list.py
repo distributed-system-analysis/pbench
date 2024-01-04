@@ -5,7 +5,7 @@ from urllib.parse import urlencode, urlparse
 from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from sqlalchemy import and_, asc, Boolean, cast, desc, func, Integer, or_, String
+from sqlalchemy import and_, asc, BigInteger, Boolean, cast, desc, func, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import aliased, Query
 from sqlalchemy.sql.expression import Alias, BinaryExpression, ColumnElement
@@ -45,7 +45,7 @@ from pbench.server.database.models.users import User
 TYPES = {
     "bool": Type(Boolean, convert_boolean),
     "date": Type(TZDateTime, convert_date),
-    "int": Type(Integer, convert_int),
+    "int": Type(BigInteger, convert_int),
     "str": Type(String, convert_string),
 }
 
