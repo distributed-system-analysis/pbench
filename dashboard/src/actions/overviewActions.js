@@ -439,7 +439,7 @@ export const getKeySummary = async (dispatch, getState) => {
   try {
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(uriTemplate(endpoints, "datasets_list"), {
-      params: { keysummary: true },
+      params: { keysummary: true, mine: true },
     });
     if (response.status === 200) {
       if (response.data.keys) {
