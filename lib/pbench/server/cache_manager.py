@@ -844,7 +844,7 @@ class Tarball:
         name = Dataset.stem(tarball_path)
         try:
             data = Tarball.extract(tarball_path, f"{name}/metadata.log")
-        except CacheExtractBadPath:
+        except Exception:
             return None
         else:
             metadata_log = MetadataLog()
@@ -1442,6 +1442,7 @@ class CacheManager:
             raise BadFilename(tarfile_path)
         name = Dataset.stem(tarfile_path)
         controller_name = None
+        metadata = None
         try:
             metadata = Tarball._get_metadata(tarfile_path)
             controller_name = metadata["run"]["controller"]
