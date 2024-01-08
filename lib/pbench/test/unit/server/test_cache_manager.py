@@ -1244,12 +1244,11 @@ class TestCacheManager:
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "extract", staticmethod(fake_extract))
-            metadata = Tarball._get_metadata(Path(tarball))
-
-        if stream:
-            assert metadata == {"test": {"foo": "bar"}}
-        else:
-            assert metadata is None
+            try:
+                metadata = Tarball._get_metadata(Path(tarball))
+                assert stream and metadata == {"test": {"foo": "bar"}}
+            except Exception as e:
+                assert isinstance(e, CacheExtractBadPath) and not stream
 
     def test_inventory_without_subprocess(self):
         """Test the Inventory class when used without a subprocess
