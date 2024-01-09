@@ -29,6 +29,7 @@ import DatePickerWidget from "../DatePickerComponent";
 import { RenderPagination } from "../OverviewComponent/common-component";
 import TablePagination from "../PaginationComponent";
 import { ViewOptions } from "../ComparisonComponent/common-components";
+import { uid } from "utils/helper";
 import { useKeycloak } from "@react-keycloak/web";
 import { useNavigate } from "react-router";
 
@@ -204,33 +205,37 @@ const TableWithFavorite = () => {
                 </Thead>
                 <Tbody>
                   {selectedArray.length > 0 ? (
-                    selectedArray.map((repo, rowIndex) => (
-                      <Tr key={repo?.resource_id}>
-                        <Td
-                          className="dataset_name"
-                          dataLabel={columnNames.name}
-                          onClick={() =>
-                            navigate(
-                              `/${HOME}${TOC}/${repo?.resource_id}/${repo?.name}`
-                            )
-                          }
-                        >
-                          {repo?.name}
-                        </Td>
-                        <Td dataLabel={columnNames.uploadedDate}>
-                          {repo?.metadata.dataset.uploaded}
-                        </Td>
-                        <Td
-                          favorites={{
-                            isFavorited: isRepoFavorited(repo),
-                            onFavorite: (_event, isFavoriting) => {
-                              markRepoFavorited(repo, isFavoriting);
-                            },
-                            rowIndex,
-                          }}
-                        />
-                      </Tr>
-                    ))
+                    selectedArray.map((repo, rowIndex) =>
+                      repo ? (
+                        <Tr key={repo.resource_id}>
+                          <Td
+                            className="dataset_name"
+                            dataLabel={columnNames.name}
+                            onClick={() =>
+                              navigate(
+                                `/${HOME}${TOC}/${repo.resource_id}/${repo.name}`
+                              )
+                            }
+                          >
+                            {repo.name}
+                          </Td>
+                          <Td dataLabel={columnNames.uploadedDate}>
+                            {repo.metadata.dataset.uploaded}
+                          </Td>
+                          <Td
+                            favorites={{
+                              isFavorited: isRepoFavorited(repo),
+                              onFavorite: (_event, isFavoriting) => {
+                                markRepoFavorited(repo, isFavoriting);
+                              },
+                              rowIndex,
+                            }}
+                          />
+                        </Tr>
+                      ) : (
+                        <Tr key={uid()}></Tr>
+                      )
+                    )
                   ) : (
                     <Tr key={"empty-row"}>
                       <Td colSpan={8}>
