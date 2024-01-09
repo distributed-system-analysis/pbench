@@ -1447,16 +1447,13 @@ class CacheManager:
             metadata = None
             errwhy = str(e)
         else:
-            if metadata:
-                run = metadata.get("run")
-                if run:
-                    controller_name = run.get("controller")
-                    if not controller_name:
-                        errwhy = "missing 'controller' in 'run' section"
-                else:
-                    errwhy = "missing 'run' section"
+            run = metadata.get("run")
+            if run:
+                controller_name = run.get("controller")
+                if not controller_name:
+                    errwhy = "missing 'controller' in 'run' section"
             else:
-                errwhy = "unable to extract 'metadata.log'"
+                errwhy = "missing 'run' section"
 
         if not controller_name:
             controller_name = "unknown"
