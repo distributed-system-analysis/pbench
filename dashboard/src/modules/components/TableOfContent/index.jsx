@@ -35,7 +35,14 @@ const TableOfContent = () => {
     if (!item.isDirectory) {
       dispatch(setActiveFileContent(item));
     } else if (!item.children.length) {
-      dispatch(fetchTOC(params["dataset_id"], item.uri, item.id, true));
+      dispatch(
+        fetchTOC(
+          params["dataset_id"],
+          item.id.replaceAll("*", "/"),
+          item.id,
+          true
+        )
+      );
     }
   };
   return (

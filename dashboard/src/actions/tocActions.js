@@ -9,30 +9,34 @@ import { uriTemplate } from "utils/helper";
  * Function to fetch contents data
  * @function
  * @param {String} datasetId - Dataset ID
- * @param {String} dataUri - URI
+ * @param {String} path - Path to the file/directory
  * @param {String} item - Active item
  * @param {Boolean} isSubDir - To identify sub-directory expansion
  * @return {Function} - dispatch the action and update the state
  */
 export const fetchTOC =
-  (datasetId, dataUri, item, isSubDir) => async (dispatch, getState) => {
+  (datasetId, path, item, isSubDir) => async (dispatch, getState) => {
     try {
       dispatch({ type: TYPES.LOADING });
       const endpoints = getState().apiEndpoint.endpoints;
-      const parent = dataUri?.split("contents/").pop();
+
       const uri = uriTemplate(endpoints, "datasets_contents", {
         dataset: datasetId,
-        target: parent,
+        target: path,
       });
       const response = await API.get(uri);
       if (response.status === 200 && response.data) {
         if (!isSubDir) {
+          const inventoryLink = uriTemplate(endpoints, "datasets_inventory", {
+            dataset: datasetId,
+            target: "",
+          });
           dispatch({
             type: TYPES.SET_INVENTORY_LINK,
-            payload: response.data.uri.replace("contents", "inventory"),
+            payload: inventoryLink,
           });
         }
-        dispatch(parseToTreeView(response.data, item, isSubDir, parent));
+        dispatch(parseToTreeView(response.data, item, isSubDir, path));
       }
     } catch (error) {
       const msg = error.response?.data?.message;
@@ -41,6 +45,20 @@ export const fetchTOC =
     dispatch({ type: TYPES.COMPLETED });
   };
 
+const setOptions = (data, isParent, keyPath, isDirectory) => {
+  const options = data.map((item) => ({
+    name: item.name,
+    id: isParent ? `${keyPath}*${item.name}` : item.name,
+    isDirectory,
+    uri: item.uri,
+  }));
+  if (isDirectory) {
+    options.forEach((opt) => {
+      opt["children"] = [];
+    });
+  }
+  return options;
+};
 /**
  * Function to parse contents data totree view
  * @function
@@ -54,35 +72,23 @@ export const parseToTreeView =
   (contentData, activeItem, isSubDir, parent) => (dispatch, getState) => {
     const keyPath = parent.replaceAll("/", "*");
     const drillMenuData = [...getState().toc.drillMenuData];
-    const treeOptions = contentData.directories.map((item) => {
-      const obj = {
-        name: item.name,
-        id: parent ? `${keyPath}*${item.name}` : item.name,
-        children: [],
-        isDirectory: true,
-        uri: item.uri,
-      };
-      return obj;
-    });
-    for (const item of contentData.files) {
-      const obj = {
-        name: item.name,
-        id: parent ? `${keyPath}*${item.name}` : item.name,
-        isDirectory: false,
-        size: item.size,
-        uri: item.uri,
-      };
-      treeOptions.push(obj);
-    }
+    const directories = setOptions(
+      contentData.directories,
+      parent,
+      keyPath,
+      true
+    );
+    const files = setOptions(contentData.files, parent, keyPath, false);
+    const treeOptions = [...directories, ...files];
     if (isSubDir) {
       if (activeItem.includes("*")) {
         updateActiveItemChildren(drillMenuData, keyPath, treeOptions);
       } else {
-        drillMenuData.forEach((item) => {
-          if (item.name === activeItem.split("*").pop()) {
-            item["children"] = treeOptions;
-          }
-        });
+        const itemName = activeItem.split("*").pop();
+        const itemOptions = drillMenuData.find((i) => i.name === itemName);
+        if (itemOptions) {
+          itemOptions["children"] = treeOptions;
+        }
       }
     }
     dispatch({
