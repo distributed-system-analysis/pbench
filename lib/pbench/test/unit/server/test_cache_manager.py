@@ -249,8 +249,8 @@ class TestCacheManager:
         # The create call will remove the source files, so trying again should
         # result in an error.
         with pytest.raises(BadFilename) as exc:
-            cm.create(source_md5)
-        assert exc.value.path == str(source_md5)
+            cm.create(source_tarball)
+        assert exc.value.path == str(source_tarball)
 
         # Attempting to create the same dataset again (from the archive copy)
         # should fail with a duplicate dataset error.
@@ -261,6 +261,29 @@ class TestCacheManager:
         assert str(exc.value) == msg
         assert tarball.metadata == fake_get_metadata(tarball.tarball_path)
         assert exc.value.tarball == tarball.name
+
+    def test_create_null_metalog(
+        self,
+        monkeypatch,
+        db_session,
+        selinux_disabled,
+        server_config,
+        make_logger,
+        tarball,
+    ):
+        """Test create when we can't get metadata.log"""
+
+        def get_throw(_p: Path):
+            raise Exception("Catch!")
+
+        source_tarball, source_md5, md5 = tarball
+        cm = CacheManager(server_config, make_logger)
+        monkeypatch.setattr(Tarball, "_get_metadata", get_throw)
+
+        # Attempting to create a dataset with a metadata error should succeed,
+        # with "unknown" controller
+        tarobj = cm.create(source_tarball)
+        assert tarobj.controller_name == "unknown"
 
     def test_duplicate(
         self,
@@ -1221,12 +1244,11 @@ class TestCacheManager:
 
         with monkeypatch.context() as m:
             m.setattr(Tarball, "extract", staticmethod(fake_extract))
-            metadata = Tarball._get_metadata(Path(tarball))
-
-        if stream:
-            assert metadata == {"test": {"foo": "bar"}}
-        else:
-            assert metadata is None
+            try:
+                metadata = Tarball._get_metadata(Path(tarball))
+                assert stream and metadata == {"test": {"foo": "bar"}}
+            except Exception as e:
+                assert isinstance(e, CacheExtractBadPath) and not stream
 
     def test_inventory_without_subprocess(self):
         """Test the Inventory class when used without a subprocess

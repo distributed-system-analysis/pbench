@@ -834,24 +834,22 @@ class Tarball:
             return {"name": path, "type": type, "stream": stream}
 
     @staticmethod
-    def _get_metadata(tarball_path: Path) -> Optional[JSONOBJECT]:
+    def _get_metadata(tarball_path: Path) -> JSONOBJECT:
         """Fetch the values in metadata.log from the tarball.
 
+        Args:
+            tarball_path: a file path to a tarball
+
         Returns:
-            A JSON representation of the dataset `metadata.log` or None if the
-            tarball has no metadata.log.
+            A JSON representation of the dataset `metadata.log`
         """
         name = Dataset.stem(tarball_path)
-        try:
-            data = Tarball.extract(tarball_path, f"{name}/metadata.log")
-        except CacheExtractBadPath:
-            return None
-        else:
-            metadata_log = MetadataLog()
-            metadata_log.read_file(e.decode() for e in data)
-            data.close()
-            metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
-            return metadata
+        data = Tarball.extract(tarball_path, f"{name}/metadata.log")
+        metadata_log = MetadataLog()
+        metadata_log.read_file(e.decode() for e in data)
+        data.close()
+        metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
+        return metadata
 
     @staticmethod
     def subprocess_run(
@@ -1442,18 +1440,28 @@ class CacheManager:
             raise BadFilename(tarfile_path)
         name = Dataset.stem(tarfile_path)
         controller_name = None
+        errwhy = "unknown"
         try:
             metadata = Tarball._get_metadata(tarfile_path)
-            controller_name = metadata["run"]["controller"]
-        except Exception as exc:
-            self.logger.warning(
-                "{} metadata.log is missing run.controller: {!r}", name, exc
-            )
+        except Exception as e:
+            metadata = None
+            errwhy = str(e)
+        else:
+            run = metadata.get("run")
+            if run:
+                controller_name = run.get("controller")
+                if not controller_name:
+                    errwhy = "missing 'controller' in 'run' section"
+            else:
+                errwhy = "missing 'run' section"
 
         if not controller_name:
             controller_name = "unknown"
             self.logger.warning(
-                "{} has no controller name, assuming {!r}", name, controller_name
+                "{} has no controller name ({}), assuming {!r}",
+                name,
+                errwhy,
+                controller_name,
             )
 
         if name in self.tarballs:
