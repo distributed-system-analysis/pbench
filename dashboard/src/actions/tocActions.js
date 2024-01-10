@@ -29,7 +29,7 @@ export const fetchTOC =
         if (!isSubDir) {
           const inventoryLink = uriTemplate(endpoints, "datasets_inventory", {
             dataset: datasetId,
-            target: "",
+            target: path,
           });
           dispatch({
             type: TYPES.SET_INVENTORY_LINK,
@@ -45,7 +45,7 @@ export const fetchTOC =
     dispatch({ type: TYPES.COMPLETED });
   };
 
-const setOptions = (data, isParent, keyPath, isDirectory) => {
+const makeOptions = (data, isParent, keyPath, isDirectory) => {
   const options = data.map((item) => ({
     name: item.name,
     id: isParent ? `${keyPath}*${item.name}` : item.name,
@@ -55,6 +55,14 @@ const setOptions = (data, isParent, keyPath, isDirectory) => {
   if (isDirectory) {
     options.forEach((opt) => {
       opt["children"] = [];
+    });
+  } else {
+    data.forEach((item) => {
+      options.forEach((opt) => {
+        if (item.name === opt.name) {
+          opt["size"] = item.size;
+        }
+      });
     });
   }
   return options;
@@ -72,13 +80,13 @@ export const parseToTreeView =
   (contentData, activeItem, isSubDir, parent) => (dispatch, getState) => {
     const keyPath = parent.replaceAll("/", "*");
     const drillMenuData = [...getState().toc.drillMenuData];
-    const directories = setOptions(
+    const directories = makeOptions(
       contentData.directories,
       parent,
       keyPath,
       true
     );
-    const files = setOptions(contentData.files, parent, keyPath, false);
+    const files = makeOptions(contentData.files, parent, keyPath, false);
     const treeOptions = [...directories, ...files];
     if (isSubDir) {
       if (activeItem.includes("*")) {
