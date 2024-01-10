@@ -401,7 +401,10 @@ export const SavedRunsRow = (props) => {
 
 export const SelectDateComponent = (props) => (
   <div className="date-picker-container">
-    <DatePicker value={props.value} onChange={props.onDateSelect} />
+    <DatePicker
+      value={props.value}
+      onChange={() => props.onDateSelect(props.value)}
+    />
   </div>
 );
 
