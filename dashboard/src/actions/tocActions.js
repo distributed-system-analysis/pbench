@@ -46,25 +46,20 @@ export const fetchTOC =
   };
 
 const makeOptions = (data, isParent, keyPath, isDirectory) => {
-  const options = data.map((item) => ({
-    name: item.name,
-    id: isParent ? `${keyPath}*${item.name}` : item.name,
-    isDirectory,
-    uri: item.uri,
-  }));
-  if (isDirectory) {
-    options.forEach((opt) => {
-      opt["children"] = [];
-    });
-  } else {
-    data.forEach((item) => {
-      options.forEach((opt) => {
-        if (item.name === opt.name) {
-          opt["size"] = item.size;
-        }
-      });
-    });
-  }
+  const options = data.map((item) => {
+    const option = {
+      name: item.name,
+      id: isParent ? `${keyPath}*${item.name}` : item.name,
+      isDirectory,
+      uri: item.uri,
+    };
+    if (isDirectory) {
+      option.children = [];
+    } else {
+      option.size = item.size;
+    }
+    return option;
+  });
   return options;
 };
 /**
