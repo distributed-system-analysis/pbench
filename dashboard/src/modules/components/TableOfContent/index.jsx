@@ -28,7 +28,7 @@ const TableOfContent = () => {
   );
   useEffect(() => {
     if (Object.keys(endpoints).length > 0)
-      dispatch(fetchTOC(params["dataset_id"], ""));
+      dispatch(fetchTOC(params["dataset_id"], "", undefined, false));
   }, [dispatch, endpoints, params]);
 
   const drillMenuItem = (item) => {
