@@ -1,50 +1,27 @@
-#rootMenu {
-  width: 500px;
-  height: 100%;
-  box-shadow: none;
-  border-right: 2px solid #d2d2d2;
-}
-
-.toc {
-  display: flex;
-  height: 100%;
-}
-
-.active {
-  background-color: #efefef;
-}
-
-.dropDown {
-  position: absolute;
-  left: 100%;
-  background-color: blanchedalmond;
-}
-
-.tableTOC {
-  display: flex;
-  flex-direction: column;
+.toc-container {
   width: 100%;
-  padding: 2vh;
-  .download-icon {
-    color: #6a6e73;
+  padding: 1vh;
+  .heading-container {
+    padding: 2vh 2vh 0;
+    font-weight: bold;
+    justify-content: space-between;
+    .heading-text {
+      padding-left: 10px;
+    }
   }
-}
-
-.searchTOCContainer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.tocBody {
-  margin-top: 0.5vw;
-}
-
-.searchInputGroup {
-  width: 25vw !important;
-}
-
-#d_down_parent {
-  svg {
-    fill: #6a6e73;
+  .header-separator {
+    margin: 5px 0 15px;
+  }
+  .pf-c-sidebar__panel {
+    padding: 1vh;
+    margin-right: 2.5vh;
+    min-width: 60vh;
+  }
+  .toc-content {
+    .file-label {
+      font-weight: bold;
+      padding-right: 5px;
+    }
+    width: 75vh;
   }
 }

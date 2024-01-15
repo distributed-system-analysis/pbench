@@ -6,7 +6,7 @@ import LoadingReducer from "./loadingReducer";
 import NavbarReducer from "./navbarReducer";
 import OverviewReducer from "./overviewReducer";
 import SidebarReducer from "./sidebarReducer";
-import TableOfContentReducer from "./tableOfContentReducer";
+import TableOfContentReducer from "./tocReducer";
 import ToastReducer from "./toastReducer";
 import { combineReducers } from "redux";
 
@@ -17,7 +17,7 @@ export default combineReducers({
   datasetlist: DatasetListReducer,
   apiEndpoint: EndpointReducer,
   overview: OverviewReducer,
-  tableOfContent: TableOfContentReducer,
+  toc: TableOfContentReducer,
   sidebar: SidebarReducer,
   keyManagement: KeyManagementReducer,
   comparison: ComparisonReducer,
