@@ -916,7 +916,6 @@ class Tarball:
             except (ValueError, TypeError):
                 source = None
                 size = 0
-        self.logger.info("{} unpacked size (from {}) = {}", self.name, source, size)
         self.unpacked_size = size
         return size
 
@@ -1007,7 +1006,6 @@ class Tarball:
                 if process.returncode == 0:
                     size = int(process.stdout.split("\t", maxsplit=1)[0])
                     self.unpacked_size = size
-                    self.logger.info("actual unpacked {} size = {}", self.name, size)
                     Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACKED, size)
             except Exception as e:
                 self.logger.warning("usage check failed: {}", e)
@@ -1555,10 +1553,17 @@ class CacheManager:
             last_ref: float  # last reference timestamp
             cache: Path  # Unpacked artifact directory
 
-        def reached_goal():
+        @dataclass
+        class GoalCheck:
+            """Report goal check"""
+
+            reached: bool
+            usage: shutil._ntuple_diskusage
+
+        def reached_goal() -> GoalCheck:
             """Check whether we've freed enough space"""
             usage = shutil.disk_usage(self.cache_root)
-            return usage.free >= goal
+            return GoalCheck(usage.free >= goal, usage)
 
         # Our reclamation goal can be expressed as % of total, absolute bytes,
         # or both. We normalize to a single "bytes free" goal.
@@ -1567,25 +1572,20 @@ class CacheManager:
         bytes_rounded = ((goal_bytes + MB_BYTES) // MB_BYTES) * MB_BYTES
         goal = max(pct_as_bytes, bytes_rounded)
 
-        if reached_goal():
+        if usage.free >= goal:
             return True
 
         total_count = 0
         reclaimed = 0
         reclaim_failed = 0
-        self.logger.info(
-            "RECLAIM: looking for {} free (based on {}% of {} or {})",
-            humanize.naturalsize(goal),
-            goal_pct,
-            humanize.naturalsize(usage.total),
-            humanize.naturalsize(bytes_rounded),
-        )
 
         # Identify cached datasets by examining the cache directory tree
         candidates = deque()
         for d in self.cache_root.iterdir():
             if not d.is_dir():
-                self.logger.warning("unexpected file in cache root: {}", d)
+                self.logger.warning(
+                    "RECLAIM: found unexpected file in cache root: {}", d
+                )
                 continue
             total_count += 1
             last_ref = 0.0
@@ -1632,12 +1632,12 @@ class CacheManager:
                         error = e
                     else:
                         reclaimed += 1
-                        if reached_goal():
+                        if reached_goal().reached:
                             break
             except OSError as e:
                 if e.errno in (errno.EAGAIN, errno.EACCES):
                     self.logger.info(
-                        "RECLAIM {}: skipping because cache is locked", name
+                        "RECLAIM: skipping {} because cache is locked", name
                     )
                     # Don't reclaim a cache that's in use
                     continue
@@ -1647,17 +1647,19 @@ class CacheManager:
                 reclaim_failed += 1
                 error = e
             if error:
-                self.logger.error("RECLAIM {} failed with '{}'", name, error)
-        reached = reached_goal()
+                self.logger.error("RECLAIM: {} failed with '{}'", name, error)
+        goal_check = reached_goal()
+        free_pct = goal_check.usage.free * 100.0 / goal_check.usage.total
         self.logger.info(
-            "RECLAIM summary: goal {}%, {} {}: "
-            "{} datasets, {} had cache: {} reclaimed and {} errors",
+            "RECLAIM (goal {}%, {}) {}: {} datasets, "
+            "{} had cache: {} reclaimed and {} errors: {:.1f}% free",
             goal_pct,
             humanize.naturalsize(goal_bytes),
-            "achieved" if reached else "failed",
+            "achieved" if goal_check.reached else "failed",
             total_count,
             has_cache,
             reclaimed,
             reclaim_failed,
+            free_pct,
         )
-        return reached
+        return goal_check.reached
