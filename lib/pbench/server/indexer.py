@@ -637,7 +637,7 @@ class ResultData(PbenchData):
                     # The csv_reader encountered the end-of-file on the first
                     # iteration (i.e., the file was empty), so skip it.
                     self.ptb.idxctx.logger.warning(
-                        "CSV file {csv_name!r} is empty ({self.ptb._tbctx})"
+                        "CSV file {!r} is empty ({})", csv_name, self.ptb._tbctx
                     )
                     continue
                 except OSError as exc:
