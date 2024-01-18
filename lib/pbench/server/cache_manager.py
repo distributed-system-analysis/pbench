@@ -834,24 +834,22 @@ class Tarball:
             return {"name": path, "type": type, "stream": stream}
 
     @staticmethod
-    def _get_metadata(tarball_path: Path) -> Optional[JSONOBJECT]:
+    def _get_metadata(tarball_path: Path) -> JSONOBJECT:
         """Fetch the values in metadata.log from the tarball.
 
+        Args:
+            tarball_path: a file path to a tarball
+
         Returns:
-            A JSON representation of the dataset `metadata.log` or None if the
-            tarball has no metadata.log.
+            A JSON representation of the dataset `metadata.log`
         """
         name = Dataset.stem(tarball_path)
-        try:
-            data = Tarball.extract(tarball_path, f"{name}/metadata.log")
-        except CacheExtractBadPath:
-            return None
-        else:
-            metadata_log = MetadataLog()
-            metadata_log.read_file(e.decode() for e in data)
-            data.close()
-            metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
-            return metadata
+        data = Tarball.extract(tarball_path, f"{name}/metadata.log")
+        metadata_log = MetadataLog()
+        metadata_log.read_file(e.decode() for e in data)
+        data.close()
+        metadata = {s: dict(metadata_log.items(s)) for s in metadata_log.sections()}
+        return metadata
 
     @staticmethod
     def subprocess_run(
@@ -918,7 +916,6 @@ class Tarball:
             except (ValueError, TypeError):
                 source = None
                 size = 0
-        self.logger.info("{} unpacked size (from {}) = {}", self.name, source, size)
         self.unpacked_size = size
         return size
 
@@ -1009,7 +1006,6 @@ class Tarball:
                 if process.returncode == 0:
                     size = int(process.stdout.split("\t", maxsplit=1)[0])
                     self.unpacked_size = size
-                    self.logger.info("actual unpacked {} size = {}", self.name, size)
                     Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACKED, size)
             except Exception as e:
                 self.logger.warning("usage check failed: {}", e)
@@ -1442,18 +1438,28 @@ class CacheManager:
             raise BadFilename(tarfile_path)
         name = Dataset.stem(tarfile_path)
         controller_name = None
+        errwhy = "unknown"
         try:
             metadata = Tarball._get_metadata(tarfile_path)
-            controller_name = metadata["run"]["controller"]
-        except Exception as exc:
-            self.logger.warning(
-                "{} metadata.log is missing run.controller: {!r}", name, exc
-            )
+        except Exception as e:
+            metadata = None
+            errwhy = str(e)
+        else:
+            run = metadata.get("run")
+            if run:
+                controller_name = run.get("controller")
+                if not controller_name:
+                    errwhy = "missing 'controller' in 'run' section"
+            else:
+                errwhy = "missing 'run' section"
 
         if not controller_name:
             controller_name = "unknown"
             self.logger.warning(
-                "{} has no controller name, assuming {!r}", name, controller_name
+                "{} has no controller name ({}), assuming {!r}",
+                name,
+                errwhy,
+                controller_name,
             )
 
         if name in self.tarballs:
@@ -1547,10 +1553,17 @@ class CacheManager:
             last_ref: float  # last reference timestamp
             cache: Path  # Unpacked artifact directory
 
-        def reached_goal():
+        @dataclass
+        class GoalCheck:
+            """Report goal check"""
+
+            reached: bool
+            usage: shutil._ntuple_diskusage
+
+        def reached_goal() -> GoalCheck:
             """Check whether we've freed enough space"""
             usage = shutil.disk_usage(self.cache_root)
-            return usage.free >= goal
+            return GoalCheck(usage.free >= goal, usage)
 
         # Our reclamation goal can be expressed as % of total, absolute bytes,
         # or both. We normalize to a single "bytes free" goal.
@@ -1559,25 +1572,20 @@ class CacheManager:
         bytes_rounded = ((goal_bytes + MB_BYTES) // MB_BYTES) * MB_BYTES
         goal = max(pct_as_bytes, bytes_rounded)
 
-        if reached_goal():
+        if usage.free >= goal:
             return True
 
         total_count = 0
         reclaimed = 0
         reclaim_failed = 0
-        self.logger.info(
-            "RECLAIM: looking for {} free (based on {}% of {} or {})",
-            humanize.naturalsize(goal),
-            goal_pct,
-            humanize.naturalsize(usage.total),
-            humanize.naturalsize(bytes_rounded),
-        )
 
         # Identify cached datasets by examining the cache directory tree
         candidates = deque()
         for d in self.cache_root.iterdir():
             if not d.is_dir():
-                self.logger.warning("unexpected file in cache root: {}", d)
+                self.logger.warning(
+                    "RECLAIM: found unexpected file in cache root: {}", d
+                )
                 continue
             total_count += 1
             last_ref = 0.0
@@ -1624,12 +1632,12 @@ class CacheManager:
                         error = e
                     else:
                         reclaimed += 1
-                        if reached_goal():
+                        if reached_goal().reached:
                             break
             except OSError as e:
                 if e.errno in (errno.EAGAIN, errno.EACCES):
                     self.logger.info(
-                        "RECLAIM {}: skipping because cache is locked", name
+                        "RECLAIM: skipping {} because cache is locked", name
                     )
                     # Don't reclaim a cache that's in use
                     continue
@@ -1639,17 +1647,19 @@ class CacheManager:
                 reclaim_failed += 1
                 error = e
             if error:
-                self.logger.error("RECLAIM {} failed with '{}'", name, error)
-        reached = reached_goal()
+                self.logger.error("RECLAIM: {} failed with '{}'", name, error)
+        goal_check = reached_goal()
+        free_pct = goal_check.usage.free * 100.0 / goal_check.usage.total
         self.logger.info(
-            "RECLAIM summary: goal {}%, {} {}: "
-            "{} datasets, {} had cache: {} reclaimed and {} errors",
+            "RECLAIM {} (goal {}%, {}): {} datasets, "
+            "{} had cache: {} reclaimed and {} errors: {:.1f}% free",
+            "achieved" if goal_check.reached else "partial",
             goal_pct,
             humanize.naturalsize(goal_bytes),
-            "achieved" if reached else "failed",
             total_count,
             has_cache,
             reclaimed,
             reclaim_failed,
+            free_pct,
         )
-        return reached
+        return goal_check.reached

@@ -5,6 +5,7 @@ import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
 import Cookies from "js-cookie";
+import { MY_DATASETS } from "assets/constants/compareConstants";
 import { addParams } from "./datasetListActions";
 import { clearCachedSession } from "./authActions";
 import { findNoOfDays } from "utils/dateFunctions";
@@ -13,8 +14,6 @@ import { uriTemplate } from "../utils/helper";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
-  const datasetType = getState().comparison.datasetType;
-
   const loggedIn = Cookies.get("isLoggedIn");
   try {
     if (alreadyRendered) {
@@ -22,7 +21,7 @@ export const getDatasets = () => async (dispatch, getState) => {
     }
     const params = new URLSearchParams();
 
-    addParams(params, loggedIn, datasetType);
+    addParams(params, loggedIn, MY_DATASETS);
 
     dispatch(setSelectedRuns([]));
     const endpoints = getState().apiEndpoint.endpoints;
@@ -439,7 +438,7 @@ export const getKeySummary = async (dispatch, getState) => {
   try {
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(uriTemplate(endpoints, "datasets_list"), {
-      params: { keysummary: true },
+      params: { keysummary: true, mine: true },
     });
     if (response.status === 200) {
       if (response.data.keys) {

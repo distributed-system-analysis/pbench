@@ -36,6 +36,7 @@ export const fetchDatasets = (page) => async (dispatch, getState) => {
       getState().datasetlist;
     const datasetType = getState().comparison.datasetType;
     let publicData = [...getState().datasetlist.publicData];
+
     const params = new URLSearchParams();
     addParams(params, loggedIn, datasetType);
     params.append("offset", offset);
