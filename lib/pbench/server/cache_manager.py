@@ -1651,11 +1651,11 @@ class CacheManager:
         goal_check = reached_goal()
         free_pct = goal_check.usage.free * 100.0 / goal_check.usage.total
         self.logger.info(
-            "RECLAIM (goal {}%, {}) {}: {} datasets, "
+            "RECLAIM {} (goal {}%, {}): {} datasets, "
             "{} had cache: {} reclaimed and {} errors: {:.1f}% free",
+            "achieved" if goal_check.reached else "partial",
             goal_pct,
             humanize.naturalsize(goal_bytes),
-            "achieved" if goal_check.reached else "failed",
             total_count,
             has_cache,
             reclaimed,
