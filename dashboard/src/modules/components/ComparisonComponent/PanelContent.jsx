@@ -80,20 +80,4 @@ const PanelConent = () => {
   );
 };
 
-const ListItemView = (props) => {
-  const isActiveItem = props.item.resource_id === props.activeResourceId;
-  const itemClassName = isActiveItem
-    ? "dataset-item active-item"
-    : "dataset-item";
-  return (
-    <ListItem
-      className={itemClassName}
-      onClick={() => props.dispatch(getQuisbyData(props.item))}
-      key={props.item.resource_id}
-    >
-      {props.item.name}
-    </ListItem>
-  );
-};
-
 export default PanelConent;
