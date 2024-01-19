@@ -21,10 +21,12 @@ const PanelConent = () => {
   } = useSelector((state) => state.comparison);
   const onFilter = useCallback(
     (item) => {
-      if (searchValue === "") {
-        return true;
+      if (item) {
+        if (searchValue === "") {
+          return true;
+        }
+        return item.name.search(searchValue) >= 0;
       }
-      return item.name.search(searchValue) >= 0;
     },
     [searchValue]
   );
@@ -40,33 +42,33 @@ const PanelConent = () => {
         <div className="datasets-container">
           {isCompareSwitchChecked ? (
             <div className="dataset-list-checkbox">
-              {filteredDatasets.map((item) =>
-                item ? (
-                  <Checkbox
-                    key={item.resource_id}
-                    label={item.name}
-                    id={item.resource_id}
-                    isChecked={selectedResourceIds?.includes(item.resource_id)}
-                    onChange={(checked) =>
-                      dispatch(setSelectedId(checked, item.resource_id))
-                    }
-                  />
-                ) : (
-                  <></>
-                )
-              )}
+              {filteredDatasets.map((item) => (
+                <Checkbox
+                  key={item.resource_id}
+                  label={item.name}
+                  id={item.resource_id}
+                  isChecked={selectedResourceIds?.includes(item.resource_id)}
+                  onChange={(checked) =>
+                    dispatch(setSelectedId(checked, item.resource_id))
+                  }
+                />
+              ))}
             </div>
           ) : (
             <List isBordered>
               {filteredDatasets.map((item) => {
-                return item ? (
-                  <ListItemView
-                    item={item}
-                    activeResourceId={activeResourceId}
-                    dispatch={dispatch}
-                  />
-                ) : (
-                  <></>
+                const isActiveItem = item.resource_id === activeResourceId;
+                const itemClassName = isActiveItem
+                  ? "dataset-item active-item"
+                  : "dataset-item";
+                return (
+                  <ListItem
+                    className={itemClassName}
+                    onClick={() => dispatch(getQuisbyData(item))}
+                    key={item.resource_id}
+                  >
+                    {item.name}
+                  </ListItem>
                 );
               })}
             </List>
