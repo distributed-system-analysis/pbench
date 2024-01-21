@@ -1261,6 +1261,9 @@ class CacheManager:
         # Record the root ARCHIVE directory path
         self.archive_root: Path = self.options.ARCHIVE
 
+        # Record the root BACKUP directory path
+        self.backup_root: Path = self.options.BACKUP
+
         # Record the root CACHE directory path
         self.cache_root: Path = self.options.CACHE
 
