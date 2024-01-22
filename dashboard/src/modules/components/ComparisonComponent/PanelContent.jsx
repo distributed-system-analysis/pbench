@@ -20,14 +20,8 @@ const PanelConent = () => {
     searchValue,
   } = useSelector((state) => state.comparison);
   const onFilter = useCallback(
-    (item) => {
-      if (item) {
-        if (searchValue === "") {
-          return true;
-        }
-        return item.name.search(searchValue) >= 0;
-      }
-    },
+    (item) =>
+      item && (searchValue === "" || item.name.search(searchValue) >= 0),
     [searchValue]
   );
   const filteredDatasets = useMemo(
