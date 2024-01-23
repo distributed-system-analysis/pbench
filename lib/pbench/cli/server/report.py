@@ -1,5 +1,6 @@
 from collections import defaultdict
 import datetime
+import re
 from typing import Optional
 
 import click
@@ -275,6 +276,9 @@ def report_sql():
 def report_states():
     """Report tarball operational states."""
 
+    index_pattern: re.Pattern = re.compile(r"^(\d+):(.*)$")
+    index_errors = defaultdict(int)
+    index_messages = defaultdict(str)
     operations = defaultdict(lambda: defaultdict(int))
     rows = Database.db_session.execute(
         statement=text(
@@ -286,11 +290,29 @@ def report_states():
         operations[row[1]][row[2]] += 1
         if row[2] == "FAILED":
             detailer.write(f"{row[1]} {row[2]} {row[0]} {row[3]!r}")
+            if row[1] == "INDEX":
+                match = index_pattern.match(row[3])
+                if match:
+                    try:
+                        code = int(match.group(1))
+                        message = match.group(2)
+                        index_errors[code] += 1
+                        if code not in index_messages:
+                            index_messages[code] = message
+                    except Exception as e:
+                        verifier.status(
+                            f"{row[0]} unexpected 'INDEX' error {row[3]}: {str(e)!r}"
+                        )
     click.echo("Operational states:")
     for name, states in operations.items():
         click.echo(f"  {name} states:")
         for state, count in states.items():
             click.echo(f"    {state:>8s} {count:>8d}")
+            if name == "INDEX" and state == "FAILED":
+                for code, count in index_errors.items():
+                    click.echo(
+                        f"           CODE {code:2d}: {count:>4d}  {index_messages[code]}"
+                    )
 
 
 @click.command(name="pbench-report-generator")
