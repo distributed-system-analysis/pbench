@@ -99,10 +99,11 @@ sed -Ei \
 podman unshare rm -rf ${SRV_PBENCH}/*
 mkdir -p -m 0755  \
     ${SRV_PBENCH}/archive/fs-version-001 \
-    ${SRV_PBENCH}/public_html/dashboard \
-    ${SRV_PBENCH}/tmp \
     ${SRV_PBENCH}/backup \
-    ${SRV_PBENCH}/cache
+    ${SRV_PBENCH}/cache \
+    ${SRV_PBENCH}/nginx \
+    ${SRV_PBENCH}/public_html/dashboard \
+    ${SRV_PBENCH}/tmp
 
 # Set up the static fallback pages for Nginx.
 #
