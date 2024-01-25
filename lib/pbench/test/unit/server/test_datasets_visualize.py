@@ -1,19 +1,12 @@
 from http import HTTPStatus
-from io import BytesIO
-from pathlib import Path
 from typing import Optional
 
 from pquisby.lib.post_processing import QuisbyProcessing
 import pytest
 import requests
 
-from pbench.server import JSON, JSONOBJECT
-from pbench.server.cache_manager import (
-    CacheManager,
-    CacheType,
-    Inventory,
-    TarballNotFound,
-)
+from pbench.server import JSON
+from pbench.server.cache_manager import CacheManager, TarballNotFound
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.server.database.models.users import User
 
@@ -49,12 +42,8 @@ class TestVisualize:
 
         return query_api
 
-    def mock_get_inventory(self, _dataset: str, target: str):
-        return {
-            "name": Path(target).name,
-            "type": CacheType.FILE,
-            "stream": Inventory(BytesIO(b"CSV_file_as_a_byte_stream")),
-        }
+    def mock_get_inventory_bytes(self, _dataset: str, target: str) -> str:
+        return "CSV_file_as_a_byte_stream"
 
     @staticmethod
     def mock_getvalue(_d: Dataset, _k: str, _u: Optional[User] = None) -> JSON:
@@ -69,11 +58,25 @@ class TestVisualize:
     def test_dataset_not_cached(self, monkeypatch, query_get_as):
         """The dataset exists, but isn't in the cache manager"""
 
-        def mock_inventory_not_found(self, d: str, _t: str) -> JSONOBJECT:
+        def mock_inventory_not_found(self, d: str, _t: str) -> str:
             raise TarballNotFound(d)
 
         monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
-        monkeypatch.setattr(CacheManager, "get_inventory", mock_inventory_not_found)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", mock_inventory_not_found
+        )
+        query_get_as("fio_2", "drb", HTTPStatus.BAD_REQUEST)
+
+    def test_dataset_unexpected_error(self, monkeypatch, query_get_as):
+        """The dataset exists, but isn't in the cache manager"""
+
+        def mock_inventory_not_found(self, d: str, _t: str) -> str:
+            raise OSError()
+
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", mock_inventory_not_found
+        )
         query_get_as("fio_2", "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_unauthorized_access(self, query_get_as):
@@ -90,7 +93,9 @@ class TestVisualize:
         def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
             return {"status": "success", "json_data": "quisby_data"}
 
-        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", self.mock_get_inventory_bytes
+        )
         monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
 
@@ -105,7 +110,9 @@ class TestVisualize:
         def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
             return {"status": "failed", "exception": "Unsupported Media Type"}
 
-        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", self.mock_get_inventory_bytes
+        )
         monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
@@ -126,7 +133,9 @@ class TestVisualize:
         def mock_get_metadata(_d: Dataset, _k: str, _u: Optional[User] = None) -> JSON:
             return "hammerDB"
 
-        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", self.mock_get_inventory_bytes
+        )
         monkeypatch.setattr(Metadata, "getvalue", mock_get_metadata)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.BAD_REQUEST)
@@ -162,7 +171,9 @@ class TestVisualize:
             else:
                 return "Not what you expected?"
 
-        monkeypatch.setattr(CacheManager, "get_inventory", self.mock_get_inventory)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", self.mock_get_inventory_bytes
+        )
         monkeypatch.setattr(Metadata, "getvalue", mock_get_metadata)
         monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
         response = query_get_as("uperf_1", "test", HTTPStatus.BAD_REQUEST)

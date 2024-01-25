@@ -18,12 +18,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.cache_manager import (
-    CacheExtractBadPath,
-    CacheManager,
-    CacheType,
-    TarballNotFound,
-)
+from pbench.server.cache_manager import CacheManager, CacheManagerError, CacheType
 
 
 class DatasetsInventory(ApiBase):
@@ -71,8 +66,12 @@ class DatasetsInventory(ApiBase):
         cache_m = CacheManager(self.config, current_app.logger)
         try:
             file_info = cache_m.get_inventory(dataset.resource_id, target)
-        except (TarballNotFound, CacheExtractBadPath) as e:
-            raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
+        except CacheManagerError as e:
+            raise APIAbort(HTTPStatus.NOT_FOUND, str(e)) from e
+        except Exception as e:
+            raise APIInternalError(
+                f"Unexpected error extracting {target} from {dataset.name}"
+            ) from e
 
         if file_info["type"] is CacheType.DIRECTORY:
             prefix = current_app.server_config.rest_uri

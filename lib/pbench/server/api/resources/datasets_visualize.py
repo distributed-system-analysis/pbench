@@ -20,7 +20,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.datasets_compare import DatasetsCompare
-from pbench.server.cache_manager import CacheManager
+from pbench.server.cache_manager import CacheManager, CacheManagerError
 
 
 class DatasetsVisualize(ApiBase):
@@ -66,19 +66,27 @@ class DatasetsVisualize(ApiBase):
 
         cache_m = CacheManager(self.config, current_app.logger)
         try:
-            info = cache_m.get_inventory(dataset.resource_id, "result.csv")
-            file = info["stream"].read().decode("utf-8")
-            info["stream"].close()
+            file = cache_m.get_inventory_bytes(dataset.resource_id, "result.csv")
+        except CacheManagerError as e:
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST,
+                "unable to extract postprocessed data from {dataset.name}",
+            ) from e
         except Exception as e:
-            raise APIInternalError(str(e)) from e
-
-        quisby_response = QuisbyProcessing().extract_data(
-            benchmark_type, dataset.name, InputType.STREAM, file
-        )
-
-        if quisby_response["status"] != "success":
             raise APIInternalError(
-                f"Quisby processing failure. Exception: {quisby_response['exception']}"
+                f"Unexpected error extracting postprocessed data from {dataset.name}"
+            ) from e
+
+        try:
+            quisby_response = QuisbyProcessing().extract_data(
+                benchmark_type, dataset.name, InputType.STREAM, file
             )
-        quisby_response["benchmark"] = benchmark
-        return jsonify(quisby_response)
+
+            if quisby_response["status"] != "success":
+                raise APIInternalError(
+                    f"Visualization processing failure. Exception: {quisby_response['exception']}"
+                )
+            quisby_response["benchmark"] = benchmark
+            return jsonify(quisby_response)
+        except Exception as e:
+            raise APIInternalError(f"Visualization failed with {str(e)!r}")

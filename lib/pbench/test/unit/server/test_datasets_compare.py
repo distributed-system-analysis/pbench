@@ -1,13 +1,12 @@
 from http import HTTPStatus
-from io import BytesIO
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import pytest
 import requests
 
 from pbench.server import JSON
-from pbench.server.cache_manager import CacheExtractBadPath, CacheManager, Inventory
+from pbench.server.cache_manager import CacheExtractBadPath, CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.server.database.models.users import User
 
@@ -55,20 +54,22 @@ class TestCompareDatasets:
 
         return query_api
 
-    def test_dataset_not_present(self, query_get_as, monkeypatch):
+    def test_no_postprocessed_data(self, query_get_as, monkeypatch):
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
 
-        query_get_as(["fio_2"], "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
+        query_get_as(["fio_2"], "drb", HTTPStatus.BAD_REQUEST)
 
     def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
-        def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
-            return {"stream": Inventory(BytesIO(b"IncorrectData"))}
+        def mock_get_inventory_bytes(_self, _dataset: str, _path: str) -> str:
+            return "IncorrectData"
 
         class MockQuisby:
             def compare_csv_to_json(self, _b, _i, _d) -> JSON:
                 return {"status": "failed", "exception": "Unsupported Media Type"}
 
-        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", mock_get_inventory_bytes
+        )
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_compare.QuisbyProcessing", MockQuisby
@@ -76,10 +77,22 @@ class TestCompareDatasets:
         query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def test_get_inventory_exception(self, query_get_as, monkeypatch):
-        def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
+        def mock_get_inventory_bytes(_self, _dataset: str, _path: str) -> str:
             raise CacheExtractBadPath(Path("tarball"), _path)
 
-        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", mock_get_inventory_bytes
+        )
+        monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
+        query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.BAD_REQUEST)
+
+    def test_get_inventory_unexpected_exception(self, query_get_as, monkeypatch):
+        def mock_get_inventory_bytes(_self, _dataset: str, _path: str) -> str:
+            raise OSError()
+
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", mock_get_inventory_bytes
+        )
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
 
@@ -131,10 +144,12 @@ class TestCompareDatasets:
             def compare_csv_to_json(self, _b, _i, _d) -> JSON:
                 return {"status": "success", "json_data": "quisby_data"}
 
-        def mock_get_inventory(_self, _dataset: str, _path: str) -> dict[str, Any]:
-            return {"stream": Inventory(BytesIO(b"IncorrectData"))}
+        def mock_get_inventory_bytes(_self, _dataset: str, _path: str) -> str:
+            return "IncorrectData"
 
-        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", mock_get_inventory_bytes
+        )
         monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_compare.QuisbyProcessing", MockQuisby
