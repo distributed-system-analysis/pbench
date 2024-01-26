@@ -1,5 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
+from datetime import datetime
 from enum import auto, Enum
 import errno
 import fcntl
@@ -1524,7 +1525,7 @@ class CacheManager:
 
         self._clean_empties(tarball.controller_name)
 
-    def reclaim_cache(self, goal_pct: float = 20.0, goal_bytes: int = 0) -> bool:
+    def reclaim_cache(self, goal_pct: float = 0.0, goal_bytes: int = 0) -> bool:
         """Reclaim unused caches to free disk space.
 
         The cache tree need not be fully discovered at this point; we can
@@ -1620,7 +1621,10 @@ class CacheManager:
                 target = None
             error = None
             try:
-                self.logger.info("RECLAIM: removing cache for {}", name)
+                ts = datetime.fromtimestamp(candidate.last_ref)
+                self.logger.info(
+                    "RECLAIM: removing cache for {} (referenced {})", name, ts
+                )
                 with LockManager(cache_d / "lock", exclusive=True, wait=False):
                     try:
                         if target:
