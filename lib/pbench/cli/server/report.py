@@ -1,6 +1,9 @@
 from collections import defaultdict
 import datetime
+import json
 import re
+from threading import Thread
+import time
 from typing import Optional
 
 import click
@@ -18,17 +21,35 @@ from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Metadata
 from pbench.server.database.models.index_map import IndexMap
 
+# An arbitrary really big number
+GINORMOUS = 2**64
+
 
 class Detail:
     """Encapsulate generation of additional diagnostics"""
 
     def __init__(self, detail: bool):
+        """Initialize the object.
+
+        Args:
+            detail: True if detailed messages should be generated
+        """
         self.detail = detail
 
     def __bool__(self) -> bool:
+        """Report whether detailed messages are enabled
+
+        Returns:
+            True if details are enabled
+        """
         return self.detail
 
     def write(self, message: str):
+        """Write a message if details are enabled.
+
+        Args:
+            message: Detail string
+        """
         if self.detail:
             click.echo(f"|| {message}")
 
@@ -37,14 +58,29 @@ class Verify:
     """Encapsulate -v status messages."""
 
     def __init__(self, verify: bool):
+        """Initialize the object.
+
+        Args:
+            verify: True to write status messages.
+        """
         self.verify = verify
 
     def __bool__(self) -> bool:
+        """Report whether verification is enabled.
+
+        Returns:
+            True if verification is enabled.
+        """
         return self.verify
 
     def status(self, message: str):
+        """Write a message if verification is enabled.
+
+        Args:
+            message: status string
+        """
         if self.verify:
-            ts = datetime.datetime.now()
+            ts = datetime.datetime.now().astimezone()
             click.echo(f"({ts:%H:%M:%S}) {message}")
 
 
@@ -56,18 +92,38 @@ class Watch:
     """
 
     def __init__(self, interval: float):
-        self.interval = datetime.timedelta(seconds=interval) if interval else None
-        self.start = datetime.datetime.now()
-        self.last = self.start
+        """Initialize the object.
+
+        Args:
+            interval: interval in seconds for status updates
+        """
+        self.start = time.time()
+        self.interval = interval
+        self.status = "starting"
+        if interval:
+            self.thread = Thread(target=self.watcher)
+            self.thread.setDaemon(True)
+            self.thread.start()
 
     def update(self, status: str):
-        now = datetime.datetime.now()
-        if self.interval and now > self.last + self.interval:
-            self.last = now
-            delta = now - self.start
-            hours, remainder = divmod(delta.seconds, 3600)
+        """Update status if appropriate.
+
+        If periodic updates are enabled, and {interval} time has elapsed since
+        the last update, print the update message.
+
+        Args:
+            status: status string
+        """
+        self.status = status
+
+    def watcher(self):
+        while True:
+            time.sleep(self.interval)
+            now = time.time()
+            delta = int(now - self.start)
+            hours, remainder = divmod(delta, 3600)
             minutes, seconds = divmod(remainder, 60)
-            click.echo(f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {status}")
+            click.echo(f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {self.status}")
 
 
 detailer: Optional[Detail] = None
@@ -82,9 +138,10 @@ def report_archive(tree: CacheManager):
         tree: a cache instance
     """
 
+    watcher.update("inspecting archive")
     tarball_count = len(tree.datasets)
     tarball_size = 0
-    smallest_tarball = 0
+    smallest_tarball = GINORMOUS
     smallest_tarball_name = None
     biggest_tarball = 0
     biggest_tarball_name = None
@@ -93,23 +150,23 @@ def report_archive(tree: CacheManager):
         watcher.update(f"({tarball_count}) archive {tarball.name}")
         size = tarball.tarball_path.stat().st_size
         tarball_size += size
-        if not smallest_tarball or size < smallest_tarball:
+        if size < smallest_tarball:
             smallest_tarball = size
             smallest_tarball_name = tarball.name
-        if not biggest_tarball or size > biggest_tarball:
+        if size > biggest_tarball:
             biggest_tarball = size
             biggest_tarball_name = tarball.name
     click.echo("Archive report:")
     click.echo(
-        f"  {tarball_count:d} tarballs consuming {humanize.naturalsize(tarball_size)}"
+        f"  {tarball_count:,d} tarballs consuming {humanize.naturalsize(tarball_size)}"
     )
     click.echo(
-        f"  The smallest tarball, {smallest_tarball_name}, is "
-        f"{humanize.naturalsize(smallest_tarball)}"
+        f"  The smallest tarball is {humanize.naturalsize(smallest_tarball)}, "
+        f"{smallest_tarball_name}"
     )
     click.echo(
-        f"  The biggest tarball, {biggest_tarball_name}, is "
-        f"{humanize.naturalsize(biggest_tarball)}"
+        f"  The biggest tarball is {humanize.naturalsize(biggest_tarball)}, "
+        f"{biggest_tarball_name}"
     )
 
 
@@ -120,6 +177,7 @@ def report_backup(tree: CacheManager):
         tree: a cache instance
     """
 
+    watcher.update("inspecting backups")
     backup_count = 0
     backup_size = 0
     for tarball in tree.backup_root.glob("**/*.tar.xz"):
@@ -129,8 +187,7 @@ def report_backup(tree: CacheManager):
 
     click.echo("Backup report:")
     click.echo(
-        f"  {backup_count} tarballs are backed up, consuming "
-        f"{humanize.naturalsize(backup_size)}"
+        f"  {backup_count:,d} tarballs consuming {humanize.naturalsize(backup_size)}"
     )
 
 
@@ -141,6 +198,7 @@ def report_cache(tree: CacheManager):
         tree: a cache instance
     """
 
+    watcher.update("inspecting cache")
     cached_count = 0
     cached_size = 0
     lacks_size = 0
@@ -149,7 +207,7 @@ def report_cache(tree: CacheManager):
     oldest_cache_name = None
     newest_cache = None
     newest_cache_name = None
-    smallest_cache = 0
+    smallest_cache = GINORMOUS
     smallest_cache_name = None
     biggest_cache = 0
     biggest_cache_name = None
@@ -182,10 +240,10 @@ def report_cache(tree: CacheManager):
                 )
                 bad_size += 1
             else:
-                if not smallest_cache or size < smallest_cache:
+                if size < smallest_cache:
                     smallest_cache = size
                     smallest_cache_name = tarball.name
-                if not biggest_cache or size > biggest_cache:
+                if size > biggest_cache:
                     biggest_cache = size
                     biggest_cache_name = tarball.name
                 cached_size += size
@@ -193,75 +251,92 @@ def report_cache(tree: CacheManager):
     newest = datetime.datetime.fromtimestamp(newest_cache, datetime.timezone.utc)
     click.echo("Cache report:")
     click.echo(
-        f"  {cached_count} datasets are cached, consuming "
+        f"  {cached_count:,d} datasets consuming "
         f"{humanize.naturalsize(cached_size)}"
     )
     click.echo(
-        f"  {lacks_size} datasets have never been unpacked, "
-        f"{last_ref_errors} are missing reference timestamps, "
-        f"{bad_size} have bad size metadata"
+        f"  {lacks_size:,d} datasets have never been unpacked, "
+        f"{last_ref_errors:,d} are missing reference timestamps, "
+        f"{bad_size:,d} have bad size metadata"
     )
     click.echo(
-        f"  The smallest cache, {smallest_cache_name}, is "
-        f"{humanize.naturalsize(smallest_cache)}"
+        f"  The smallest cache is {humanize.naturalsize(smallest_cache)}, "
+        f"{smallest_cache_name}"
     )
     click.echo(
-        f"  The biggest cache, {biggest_cache_name}, is "
-        f"{humanize.naturalsize(biggest_cache)}"
+        f"  The biggest cache is {humanize.naturalsize(biggest_cache)}, "
+        f"{biggest_cache_name}"
     )
     click.echo(
-        f"  The least recently used cache, {oldest_cache_name}, was "
-        f"referenced {humanize.naturaldate(oldest)}"
+        "  The least recently used cache was referenced "
+        f"{humanize.naturaldate(oldest)}, {oldest_cache_name}"
     )
     click.echo(
-        f"  The most recently used cache, {newest_cache_name}, was "
-        f"referenced {humanize.naturaldate(newest)}"
+        "  The most recently used cache was referenced "
+        f"{humanize.naturaldate(newest)}, {newest_cache_name}"
     )
 
 
 def report_sql():
     """Report the SQL table storage statistics"""
+
+    watcher.update("inspecting SQL tables")
     click.echo("SQL storage report:")
-    click.echo("  Table                Rows       Storage")
-    click.echo("  -------------------- ---------- ----------")
+    t_w = 20
+    r_w = 10
+    s_w = 10
+    click.echo(f"  {'Table':<{t_w}} {'Rows':<{r_w}} {'Storage':<{s_w}}")
+    click.echo(f"  {'':-<{t_w}} {'':-<{r_w}} {'':-<{s_w}}")
     for t in inspect(Database.db_session.get_bind()).get_table_names():
-        rows = list(
+        (rows,) = next(
             Database.db_session.execute(statement=text(f"SELECT COUNT(*) FROM {t}"))
-        )[0][0]
-        size = list(
+        )
+        (size,) = next(
             Database.db_session.execute(
                 statement=text("SELECT pg_total_relation_size(:table)"),
                 params={"table": t},
             )
-        )[0][0]
-        click.echo(f"  {t:20} {rows:>10} {humanize.naturalsize(size):>10}")
+        )
+        click.echo(f"  {t:<{t_w}} {rows:>{r_w},d} {humanize.naturalsize(size):>{s_w}}")
 
     if not detailer:
         return
 
-    query = select(IndexMap.root, IndexMap.index)
-    idxes = Database.db_session.execute(query).all()
+    watcher.update("inspecting index map details")
     record_count = 0
     roots = set()
     indices = set()
     root_size = 0
     index_size = 0
-    for idx in idxes:
+    document_count = 0
+    document_size = 0
+    json_size = 0
+    document_int_size = 0
+
+    query = select(IndexMap.root, IndexMap.index, IndexMap.documents)
+    for root, index, documents in Database.db_session.execute(
+        query, execution_options={"stream_results": True}
+    ).yield_per(500):
         record_count += 1
-        roots.add(idx[0])
-        indices.add(idx[1])
-        root_size += len(idx[0])
-        index_size += len(idx[1])
-    unique_root_size = 0
-    unique_index_size = 0
-    for r in roots:
-        unique_root_size += len(r)
-    for i in indices:
-        unique_index_size += len(i)
+        watcher.update(f"({record_count}: {root} -> {index}")
+        roots.add(root)
+        indices.add(index)
+        root_size += len(root)
+        index_size += len(index)
+        json_size += len(json.dumps(documents))
+        for d in documents:
+            document_count += 1
+            document_size += len(d)
+            i = int(d, base=16)
+            document_int_size += (i.bit_length() + 7) / 8
+        unique_root_size = 0
+        unique_index_size = 0
+        unique_root_size += sum(len(r) for r in roots)
+        unique_index_size += sum(len(i) for i in indices)
 
     detailer.write(
-        f"{record_count} indexmap records found with {len(indices)} indices "
-        f"and {len(roots)} roots:"
+        f"{record_count:,d} indexmap records found with {len(indices):,d} indices "
+        f"and {len(roots):,d} roots:"
     )
     detailer.write(
         f" {humanize.naturalsize(index_size)} for index names, "
@@ -271,11 +346,17 @@ def report_sql():
         f" deduped: {humanize.naturalsize(unique_index_size)} for index "
         f"names, {humanize.naturalsize(unique_root_size)} for root names"
     )
+    detailer.write(
+        f" {humanize.naturalsize(document_size)} for {document_count:,d} document IDs, "
+        f"{humanize.naturalsize(json_size)} as JSON, "
+        f"{humanize.naturalsize(document_int_size)} as (Python) ints"
+    )
 
 
 def report_states():
     """Report tarball operational states."""
 
+    watcher.update("inspecting operational states")
     index_pattern: re.Pattern = re.compile(r"^(\d+):(.*)$")
     index_errors = defaultdict(int)
     index_messages = defaultdict(str)
@@ -286,12 +367,13 @@ def report_states():
             "dataset_operations AS o ON o.dataset_ref = d.id"
         )
     )
-    for row in rows:
-        operations[row[1]][row[2]] += 1
-        if row[2] == "FAILED":
-            detailer.write(f"{row[1]} {row[2]} {row[0]} {row[3]!r}")
-            if row[1] == "INDEX":
-                match = index_pattern.match(row[3])
+    for dataset, operation, state, message in rows:
+        watcher.update(f"inspecting {dataset}:{operation}")
+        operations[operation][state] += 1
+        if state == "FAILED":
+            detailer.write(f"{operation} {state} {dataset} {message!r}")
+            if operation == "INDEX":
+                match = index_pattern.match(message)
                 if match:
                     try:
                         code = int(match.group(1))
@@ -301,40 +383,48 @@ def report_states():
                             index_messages[code] = message
                     except Exception as e:
                         verifier.status(
-                            f"{row[0]} unexpected 'INDEX' error {row[3]}: {str(e)!r}"
+                            f"{dataset} unexpected 'INDEX' error {message}: {str(e)!r}"
                         )
     click.echo("Operational states:")
     for name, states in operations.items():
         click.echo(f"  {name} states:")
         for state, count in states.items():
-            click.echo(f"    {state:>8s} {count:>8d}")
+            click.echo(f"    {state:>8s} {count:>8,d}")
             if name == "INDEX" and state == "FAILED":
                 for code, count in index_errors.items():
                     click.echo(
-                        f"           CODE {code:2d}: {count:>4d}  {index_messages[code]}"
+                        f"           CODE {code:2d}: {count:>6,d}  {index_messages[code]}"
                     )
 
 
 @click.command(name="pbench-report-generator")
 @pass_cli_context
-@click.option("--all", default=False, is_flag=True, help="Display full report")
+@click.option("--all", "-a", default=False, is_flag=True, help="Display full report")
 @click.option(
-    "--archive", default=False, is_flag=True, help="Display archive statistics"
-)
-@click.option("--backup", default=False, is_flag=True, help="Display backup statistics")
-@click.option("--cache", default=False, is_flag=True, help="Display cache statistics")
-@click.option(
-    "--detail", default=False, is_flag=True, help="Provide extra diagnostic information"
+    "--archive", "-A", default=False, is_flag=True, help="Display archive statistics"
 )
 @click.option(
-    "--progress", type=float, default=0.0, help="Show periodic progress messages"
-)
-@click.option("--sql", default=False, is_flag=True, help="Display SQL statistics")
-@click.option(
-    "--states", default=False, is_flag=True, help="Display operational states"
+    "--backup", "-b", default=False, is_flag=True, help="Display backup statistics"
 )
 @click.option(
-    "--verify", default=False, is_flag=True, help="Display intermediate messages"
+    "--cache", "-c", default=False, is_flag=True, help="Display cache statistics"
+)
+@click.option(
+    "--detail",
+    "-d",
+    default=False,
+    is_flag=True,
+    help="Provide extra diagnostic information",
+)
+@click.option(
+    "--progress", "-p", type=float, default=0.0, help="Show periodic progress messages"
+)
+@click.option("--sql", "-S", default=False, is_flag=True, help="Display SQL statistics")
+@click.option(
+    "--states", "-s", default=False, is_flag=True, help="Display operational states"
+)
+@click.option(
+    "--verify", "-v", default=False, is_flag=True, help="Display intermediate messages"
 )
 @common_options
 def report(
@@ -378,7 +468,9 @@ def report(
         if any((all, archive, backup, cache)):
             cache_m = CacheManager(config, logger)
             verifier.status("starting discovery")
+            watcher.update("discovering cache")
             cache_m.full_discovery()
+            watcher.update("processing reports")
             verifier.status("finished discovery")
             if all or archive:
                 report_archive(cache_m)
@@ -390,6 +482,7 @@ def report(
             report_sql()
         if all or states:
             report_states()
+        watcher.update("done")
 
         rv = 0
     except Exception as exc:
