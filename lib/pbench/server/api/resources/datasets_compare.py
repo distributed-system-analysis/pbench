@@ -96,6 +96,7 @@ class DatasetsCompare(ApiBase):
 
         datasets = params.query.get("datasets")
         benchmark_choice = None
+        benchmark = None
         for dataset in datasets:
 
             # Check that the user is authorized to read each dataset
@@ -144,11 +145,12 @@ class DatasetsCompare(ApiBase):
             quisby_response = QuisbyProcessing().compare_csv_to_json(
                 benchmark_type, InputType.STREAM, stream_file
             )
-            if quisby_response["status"] != "success":
-                raise APIInternalError(
-                    f"Comparison processing failure. Exception: {quisby_response['exception']}"
-                )
-            quisby_response["benchmark"] = benchmark
-            return jsonify(quisby_response)
         except Exception as e:
             raise APIInternalError(f"Comparison failed with {str(e)!r}")
+
+        if quisby_response["status"] != "success":
+            raise APIInternalError(
+                f"Comparison processing failure. Exception: {quisby_response['exception']}"
+            )
+        quisby_response["benchmark"] = benchmark
+        return jsonify(quisby_response)

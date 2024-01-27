@@ -8,7 +8,12 @@ import pytest
 import requests
 
 from pbench.server import JSONOBJECT
-from pbench.server.cache_manager import CacheManager, CacheType, Inventory
+from pbench.server.cache_manager import (
+    CacheExtractError,
+    CacheManager,
+    CacheType,
+    Inventory,
+)
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -87,6 +92,31 @@ class TestDatasetsAccess:
         assert response.json == {
             "message": "The specified path does not refer to a regular file"
         }
+
+    @pytest.mark.parametrize(
+        "status,exception,message",
+        (
+            (
+                HTTPStatus.NOT_FOUND,
+                CacheExtractError("fio_2", "target"),
+                "Unable to read 'target' from fio_2",
+            ),
+            (
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                Exception("I'm something else!"),
+                "Internal Pbench Server Error: log reference ",
+            ),
+        ),
+    )
+    def test_get_inventory_raises(
+        self, query_get_as, monkeypatch, status, exception, message
+    ):
+        def mock_get_inventory(_s, _d: str, _t: str):
+            raise exception
+
+        monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
+        response = query_get_as("fio_2", "target", status)
+        assert response.json["message"].startswith(message)
 
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
         mock_close = False

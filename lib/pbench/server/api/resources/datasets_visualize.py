@@ -81,12 +81,12 @@ class DatasetsVisualize(ApiBase):
             quisby_response = QuisbyProcessing().extract_data(
                 benchmark_type, dataset.name, InputType.STREAM, file
             )
-
-            if quisby_response["status"] != "success":
-                raise APIInternalError(
-                    f"Visualization processing failure. Exception: {quisby_response['exception']}"
-                )
-            quisby_response["benchmark"] = benchmark
-            return jsonify(quisby_response)
         except Exception as e:
             raise APIInternalError(f"Visualization failed with {str(e)!r}")
+
+        if quisby_response["status"] != "success":
+            raise APIInternalError(
+                f"Visualization processing failure. Exception: {quisby_response['exception']}"
+            )
+        quisby_response["benchmark"] = benchmark
+        return jsonify(quisby_response)

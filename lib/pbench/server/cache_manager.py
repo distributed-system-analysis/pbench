@@ -60,7 +60,7 @@ class CacheExtractError(CacheManagerError):
     """Unable to read a cached file"""
 
     def __init__(self, dataset: str, target: str):
-        super().__init__(f"Unable to read {target} from {dataset}")
+        super().__init__(f"Unable to read {target!r} from {dataset}")
         self.dataset = dataset
         self.target = target
 

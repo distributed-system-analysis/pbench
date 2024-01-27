@@ -17,6 +17,7 @@ from pbench.server.cache_manager import (
     BadDirpath,
     BadFilename,
     CacheExtractBadPath,
+    CacheExtractError,
     CacheManager,
     CacheType,
     Controller,
@@ -1026,14 +1027,13 @@ class TestCacheManager:
     def test_get_inventory(
         self, make_logger, monkeypatch, tmp_path, file_path, is_unpacked, exp_stream
     ):
-        """Test to extract file contents/stream from a file
+        """Test access to inventory file streams
 
-        NOTE: we check explicitly whether Tarball.stream() chooses to unpack
+        NOTE: we check explicitly whether Tarball.get_results() chooses to unpack
         the tarball, based on "is_unpacked", to be sure both cases are covered;
         but be aware that accessing the tarball itself (the "" and None
         file_path cases) don't ever unpack and should always have is_unpacked
-        set to True. (That is, we don't expect get_results to be called in
-        those cases.)
+        set to True.
         """
         archive = tmp_path / "mock" / "archive" / "ABC"
         archive.mkdir(parents=True, exist_ok=True)
@@ -1070,6 +1070,54 @@ class TestCacheManager:
                 else:
                     assert file_info["type"] is CacheType.DIRECTORY
                     assert file_info["stream"] is None
+
+    def test_get_inventory_bytes(
+        self, monkeypatch, server_config, tmp_path, make_logger
+    ):
+        archive = tmp_path / "mock" / "archive" / "ABC"
+        archive.mkdir(parents=True, exist_ok=True)
+        tar = archive / "dir_name.tar.xz"
+        cache = tmp_path / "mock" / ".cache"
+        cm = CacheManager(server_config, make_logger)
+        monkeypatch.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+        tb = Tarball(tar, "ABC", Controller(archive, cache, make_logger))
+        monkeypatch.setattr(CacheManager, "find_dataset", lambda s, i: tb)
+        monkeypatch.setattr(
+            Tarball,
+            "get_inventory",
+            lambda s, t: {"stream": Inventory(io.BytesIO(b"success"))},
+        )
+        bytes = cm.get_inventory_bytes("id", "target")
+        assert bytes == "success"
+
+    def test_get_inventory_bytes_raise(
+        self, monkeypatch, server_config, tmp_path, make_logger
+    ):
+        archive = tmp_path / "mock" / "archive" / "ABC"
+        archive.mkdir(parents=True, exist_ok=True)
+        tar = archive / "dir_name.tar.xz"
+        cache = tmp_path / "mock" / ".cache"
+        cm = CacheManager(server_config, make_logger)
+        monkeypatch.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+        tb = Tarball(tar, "ABC", Controller(archive, cache, make_logger))
+        monkeypatch.setattr(CacheManager, "find_dataset", lambda s, i: tb)
+
+        def raise_the_barn():
+            raise OSError()
+
+        closed = False
+
+        def close_the_barn_door():
+            nonlocal closed
+            closed = True
+
+        stream = Inventory(io.BytesIO(b"success"))
+        monkeypatch.setattr(Tarball, "get_inventory", lambda s, t: {"stream": stream})
+        monkeypatch.setattr(stream.stream, "read", raise_the_barn)
+        monkeypatch.setattr(stream.stream, "close", close_the_barn_door)
+        with pytest.raises(CacheExtractError):
+            cm.get_inventory_bytes("id", "target")
+        assert closed
 
     def test_cm_inventory(self, monkeypatch, server_config, make_logger):
         """Verify the happy path of the high level get_inventory"""
