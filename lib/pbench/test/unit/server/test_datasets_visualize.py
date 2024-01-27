@@ -104,11 +104,27 @@ class TestVisualize:
         assert response.json["benchmark"] == "uperf"
         assert response.json["json_data"] == "quisby_data"
 
-    def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
+    def test_with_incorrect_data(self, query_get_as, monkeypatch):
         """Quisby processing fails"""
 
         def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
             return {"status": "failed", "exception": "Unsupported Media Type"}
+
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", self.mock_get_inventory_bytes
+        )
+        monkeypatch.setattr(Metadata, "getvalue", self.mock_getvalue)
+        monkeypatch.setattr(QuisbyProcessing, "extract_data", mock_extract_data)
+        response = query_get_as("uperf_1", "test", HTTPStatus.INTERNAL_SERVER_ERROR)
+        assert response.json["message"].startswith(
+            "Internal Pbench Server Error: log reference "
+        )
+
+    def test_quisby_exception(self, query_get_as, monkeypatch):
+        """Quisby processing raises an exception"""
+
+        def mock_extract_data(self, test_name, dataset_name, input_type, data) -> JSON:
+            raise Exception("I don't want to be here")
 
         monkeypatch.setattr(
             CacheManager, "get_inventory_bytes", self.mock_get_inventory_bytes

@@ -59,7 +59,9 @@ class TestCompareDatasets:
 
         query_get_as(["fio_2"], "drb", HTTPStatus.BAD_REQUEST)
 
-    def test_unsuccessful_get_with_incorrect_data(self, query_get_as, monkeypatch):
+    def test_with_incorrect_data(self, query_get_as, monkeypatch):
+        """Quisby processing fails"""
+
         def mock_get_inventory_bytes(_self, _dataset: str, _path: str) -> str:
             return "IncorrectData"
 
@@ -74,7 +76,36 @@ class TestCompareDatasets:
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_compare.QuisbyProcessing", MockQuisby
         )
-        query_get_as(["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR)
+        response = query_get_as(
+            ["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR
+        )
+        assert response.json["message"].startswith(
+            "Internal Pbench Server Error: log reference "
+        )
+
+    def test_quisby_exception(self, query_get_as, monkeypatch):
+        """Quisby processing raises an exception"""
+
+        def mock_get_inventory_bytes(_self, _dataset: str, _path: str) -> str:
+            return "arbitraryData"
+
+        class MockQuisby:
+            def compare_csv_to_json(self, _b, _i, _d) -> JSON:
+                raise Exception("I'm not in the mood")
+
+        monkeypatch.setattr(
+            CacheManager, "get_inventory_bytes", mock_get_inventory_bytes
+        )
+        monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_compare.QuisbyProcessing", MockQuisby
+        )
+        response = query_get_as(
+            ["uperf_1", "uperf_2"], "test", HTTPStatus.INTERNAL_SERVER_ERROR
+        )
+        assert response.json["message"].startswith(
+            "Internal Pbench Server Error: log reference "
+        )
 
     def test_get_inventory_exception(self, query_get_as, monkeypatch):
         def mock_get_inventory_bytes(_self, _dataset: str, _path: str) -> str:
