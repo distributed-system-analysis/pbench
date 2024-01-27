@@ -28,13 +28,15 @@ GINORMOUS = 2**64
 class Detail:
     """Encapsulate generation of additional diagnostics"""
 
-    def __init__(self, detail: bool):
+    def __init__(self, detail: bool = False, errors: bool = False):
         """Initialize the object.
 
         Args:
             detail: True if detailed messages should be generated
+            errors: True if individual file errors should be reported
         """
         self.detail = detail
+        self.errors = errors
 
     def __bool__(self) -> bool:
         """Report whether detailed messages are enabled
@@ -44,7 +46,16 @@ class Detail:
         """
         return self.detail
 
-    def write(self, message: str):
+    def error(self, message: str):
+        """Write a message if details are enabled.
+
+        Args:
+            message: Detail string
+        """
+        if self.errors:
+            click.secho(f"|| {message}", fg="red")
+
+    def message(self, message: str):
         """Write a message if details are enabled.
 
         Args:
@@ -81,14 +92,14 @@ class Verify:
         """
         if self.verify:
             ts = datetime.datetime.now().astimezone()
-            click.echo(f"({ts:%H:%M:%S}) {message}")
+            click.secho(f"({ts:%H:%M:%S}) {message}", fg="green")
 
 
 class Watch:
-    """Encapsulate a periodic status check.
+    """Encapsulate a periodic status update.
 
-    Discovery (especially for cache and backup) can take a long time, so we
-    centralize a periodic update notice mechanism.
+    The active message can be updated at will; a background thread will
+    periodically print the most recent status.
     """
 
     def __init__(self, interval: float):
@@ -108,8 +119,8 @@ class Watch:
     def update(self, status: str):
         """Update status if appropriate.
 
-        If periodic updates are enabled, and {interval} time has elapsed since
-        the last update, print the update message.
+        Update the message to be printed at the next interval, if progress
+        reporting is enabled.
 
         Args:
             status: status string
@@ -117,13 +128,17 @@ class Watch:
         self.status = status
 
     def watcher(self):
+        """A worker thread to periodically write status messages."""
+
         while True:
             time.sleep(self.interval)
             now = time.time()
             delta = int(now - self.start)
             hours, remainder = divmod(delta, 3600)
             minutes, seconds = divmod(remainder, 60)
-            click.echo(f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {self.status}")
+            click.secho(
+                f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {self.status}", fg="cyan"
+            )
 
 
 detailer: Optional[Detail] = None
@@ -203,9 +218,9 @@ def report_cache(tree: CacheManager):
     cached_size = 0
     lacks_size = 0
     bad_size = 0
-    oldest_cache = None
+    oldest_cache = time.time() * 2.0  # moderately distant future
     oldest_cache_name = None
-    newest_cache = None
+    newest_cache = 0.0  # wayback machine
     newest_cache_name = None
     smallest_cache = GINORMOUS
     smallest_cache_name = None
@@ -219,22 +234,22 @@ def report_cache(tree: CacheManager):
             try:
                 referenced = tarball.last_ref.stat().st_mtime
             except Exception as e:
-                detailer.write(f"{tarball.name} last ref access: {str(e)!r}")
+                detailer.error(f"{tarball.name} last ref access: {str(e)!r}")
                 last_ref_errors += 1
             else:
-                if not oldest_cache or referenced < oldest_cache:
+                if referenced < oldest_cache:
                     oldest_cache = referenced
                     oldest_cache_name = tarball.name
-                if not newest_cache or referenced > newest_cache:
+                if referenced > newest_cache:
                     newest_cache = referenced
                     newest_cache_name = tarball.name
             cached_count += 1
             size = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACKED)
             if not size:
-                detailer.write(f"{tarball.name} has no unpacked size")
+                detailer.error(f"{tarball.name} has no unpacked size")
                 lacks_size += 1
             elif not isinstance(size, int):
-                detailer.write(
+                detailer.error(
                     f"{tarball.name} has non-integer unpacked size "
                     f"{size!r} ({type(size)})"
                 )
@@ -334,19 +349,19 @@ def report_sql():
         unique_root_size += sum(len(r) for r in roots)
         unique_index_size += sum(len(i) for i in indices)
 
-    detailer.write(
+    detailer.message(
         f"{record_count:,d} indexmap records found with {len(indices):,d} indices "
         f"and {len(roots):,d} roots:"
     )
-    detailer.write(
+    detailer.message(
         f" {humanize.naturalsize(index_size)} for index names, "
         f"{humanize.naturalsize(root_size)} for root names"
     )
-    detailer.write(
+    detailer.message(
         f" deduped: {humanize.naturalsize(unique_index_size)} for index "
         f"names, {humanize.naturalsize(unique_root_size)} for root names"
     )
-    detailer.write(
+    detailer.message(
         f" {humanize.naturalsize(document_size)} for {document_count:,d} document IDs, "
         f"{humanize.naturalsize(json_size)} as JSON, "
         f"{humanize.naturalsize(document_int_size)} as (Python) ints"
@@ -371,7 +386,7 @@ def report_states():
         watcher.update(f"inspecting {dataset}:{operation}")
         operations[operation][state] += 1
         if state == "FAILED":
-            detailer.write(f"{operation} {state} {dataset} {message!r}")
+            detailer.error(f"{operation} {state} for {dataset}: {message!r}")
             if operation == "INDEX":
                 match = index_pattern.match(message)
                 if match:
@@ -382,7 +397,7 @@ def report_states():
                         if code not in index_messages:
                             index_messages[code] = message
                     except Exception as e:
-                        verifier.status(
+                        detailer.error(
                             f"{dataset} unexpected 'INDEX' error {message}: {str(e)!r}"
                         )
     click.echo("Operational states:")
@@ -417,11 +432,18 @@ def report_states():
     help="Provide extra diagnostic information",
 )
 @click.option(
+    "--errors",
+    "-e",
+    default=False,
+    is_flag=True,
+    help="Show individual file errors",
+)
+@click.option(
     "--progress", "-p", type=float, default=0.0, help="Show periodic progress messages"
 )
-@click.option("--sql", "-S", default=False, is_flag=True, help="Display SQL statistics")
+@click.option("--sql", "-s", default=False, is_flag=True, help="Display SQL statistics")
 @click.option(
-    "--states", "-s", default=False, is_flag=True, help="Display operational states"
+    "--states", "-S", default=False, is_flag=True, help="Display operational states"
 )
 @click.option(
     "--verify", "-v", default=False, is_flag=True, help="Display intermediate messages"
@@ -434,6 +456,7 @@ def report(
     backup: bool,
     cache: bool,
     detail: bool,
+    errors: bool,
     progress: float,
     sql: bool,
     states: bool,
@@ -451,6 +474,7 @@ def report(
         backup: report backup statistics
         cache: report cache statistics
         detail: provide additional per-file diagnostics
+        errors: show individual file errors
         sql: report SQL statistics
         states: report operational states
         verify: Report internal status
@@ -458,7 +482,7 @@ def report(
     logger = None
 
     global detailer, verifier, watcher
-    detailer = Detail(detail)
+    detailer = Detail(detail, errors)
     verifier = Verify(verify)
     watcher = Watch(progress)
 
@@ -490,7 +514,7 @@ def report(
             logger.exception("An error occurred discovering the file tree: {}", exc)
         if verify:
             raise
-        click.echo(exc, err=True)
+        click.secho(exc, err=True, bg="red")
         rv = 2 if isinstance(exc, BadConfig) else 1
 
     click.get_current_context().exit(rv)
