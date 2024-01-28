@@ -159,33 +159,37 @@ class TestDatasetsAccess:
         assert args["download_name"] == "f1.json"
         assert mock_close
 
-    def test_send_fail(self, query_get_as, monkeypatch):
-        mock_close = False
+    @pytest.mark.parametrize("stream", (io.BytesIO(b"file_as_a_byte_stream"), None))
+    def test_send_fail(self, query_get_as, monkeypatch, stream):
+        """Test handling of stream when send_file fails.
+
+        (Note that while the mocking when "stream" is None doesn't really do
+        much, we gain coverage of both `if stream` paths.)
+        """
+        mock_closed = False
 
         def mock_close(*_args):
-            nonlocal mock_close
-            mock_close = True
-
-        exp_stream = io.BytesIO(b"file_as_a_byte_stream")
+            nonlocal mock_closed
+            mock_closed = True
 
         def mock_get_inventory(_s, _d: str, _t: str):
             return {
                 "name": "f1.json",
                 "type": CacheType.FILE,
-                "stream": Inventory(exp_stream),
+                "stream": Inventory(stream) if stream else None,
             }
 
         def mock_send_file(path_or_file, *args, **kwargs):
             raise Exception("I'm failing to succeed")
 
-        monkeypatch.setattr(exp_stream, "close", mock_close)
+        monkeypatch.setattr(Inventory, "close", mock_close)
         monkeypatch.setattr(CacheManager, "get_inventory", mock_get_inventory)
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_inventory.send_file", mock_send_file
         )
 
         query_get_as("fio_2", "f1.json", HTTPStatus.INTERNAL_SERVER_ERROR)
-        assert mock_close
+        assert mock_closed is bool(stream)
 
     def test_get_inventory(self, query_get_as, monkeypatch):
         exp_stream = io.BytesIO(b"file_as_a_byte_stream")
