@@ -56,6 +56,15 @@ class CacheExtractBadPath(CacheManagerError):
         self.path = str(path)
 
 
+class CacheExtractError(CacheManagerError):
+    """Unable to read a cached file"""
+
+    def __init__(self, dataset: str, target: str):
+        super().__init__(f"Unable to read {target!r} from {dataset}")
+        self.dataset = dataset
+        self.target = target
+
+
 class TarballNotFound(CacheManagerError):
     """The dataset was not found in the ARCHIVE tree."""
 
@@ -1507,6 +1516,16 @@ class CacheManager:
         """
         tarball = self.find_dataset(dataset_id)
         return tarball.get_inventory(target)
+
+    def get_inventory_bytes(self, dataset_id: str, target: str) -> str:
+        tarball = self.find_dataset(dataset_id)
+        info = tarball.get_inventory(target)
+        try:
+            return info["stream"].read().decode("utf-8")
+        except Exception as e:
+            raise CacheExtractError(tarball.name, target) from e
+        finally:
+            info["stream"].close()
 
     def delete(self, dataset_id: str):
         """Delete the dataset as well as unpacked artifacts.
