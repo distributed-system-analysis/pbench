@@ -344,10 +344,8 @@ def report_sql():
             document_size += len(d)
             i = int(d, base=16)
             document_int_size += (i.bit_length() + 7) / 8
-        unique_root_size = 0
-        unique_index_size = 0
-        unique_root_size += sum(len(r) for r in roots)
-        unique_index_size += sum(len(i) for i in indices)
+        unique_root_size = sum(len(r) for r in roots)
+        unique_index_size = sum(len(i) for i in indices)
 
     detailer.message(
         f"{record_count:,d} indexmap records found with {len(indices):,d} indices "
