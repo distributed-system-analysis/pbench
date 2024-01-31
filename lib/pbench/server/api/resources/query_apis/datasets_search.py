@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
-from flask import current_app, jsonify
+from flask import current_app, jsonify, Response
 
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
@@ -46,7 +46,7 @@ class DatasetsSearch(ElasticBase):
             ),
         )
 
-    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSONOBJECT:
         """
         Construct a pbench search query based on a pattern matching given "search_term" parameter
         within a specified date range and which are either owned by a specified username,
@@ -125,7 +125,7 @@ class DatasetsSearch(ElasticBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
+    def postprocess(self, es_json: JSONOBJECT, context: ApiContext) -> Response:
         """
         Returns a summary of the returned Elasticsearch query results, showing
         the list of dictionaries with user selected fields from request json as keys

@@ -1,6 +1,5 @@
 from collections import defaultdict
 import datetime
-import json
 import re
 from threading import Thread
 import time
@@ -323,13 +322,9 @@ def report_sql():
     indices = set()
     root_size = 0
     index_size = 0
-    document_count = 0
-    document_size = 0
-    json_size = 0
-    document_int_size = 0
 
-    query = select(IndexMap.root, IndexMap.index, IndexMap.documents)
-    for root, index, documents in Database.db_session.execute(
+    query = select(IndexMap.root, IndexMap.index)
+    for root, index in Database.db_session.execute(
         query, execution_options={"stream_results": True}
     ).yield_per(500):
         record_count += 1
@@ -338,12 +333,6 @@ def report_sql():
         indices.add(index)
         root_size += len(root)
         index_size += len(index)
-        json_size += len(json.dumps(documents))
-        for d in documents:
-            document_count += 1
-            document_size += len(d)
-            i = int(d, base=16)
-            document_int_size += (i.bit_length() + 7) / 8
         unique_root_size = sum(len(r) for r in roots)
         unique_index_size = sum(len(i) for i in indices)
 
@@ -358,11 +347,6 @@ def report_sql():
     detailer.message(
         f" deduped: {humanize.naturalsize(unique_index_size)} for index "
         f"names, {humanize.naturalsize(unique_root_size)} for root names"
-    )
-    detailer.message(
-        f" {humanize.naturalsize(document_size)} for {document_count:,d} document IDs, "
-        f"{humanize.naturalsize(json_size)} as JSON, "
-        f"{humanize.naturalsize(document_int_size)} as (Python) ints"
     )
 
 

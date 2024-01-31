@@ -6,7 +6,7 @@
     "properties": {
         "@timestamp": {
             "type": "date",
-            "format": "dateOptionalTime"
+            "format": "date_optional_time"
         },
         "@timestamp_original": {
             "type": "keyword",

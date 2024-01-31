@@ -3205,13 +3205,8 @@ class PbenchTarBall:
         # indices.
         #
         # {
-        #   "run-data": {
-        #     "<prefix>.run-data.<date1>": [<document IDs> ...],
-        #     "<prefix>.run-data.<date2>": [<document IDs> ...]
-        #   },
-        #   "run-toc": {
-        #     "<prefix>.run-toc.<date3>": [<document IDs> ...]
-        #   }
+        #   "run-data": [<prefix>.run-data.<date1>","<prefix>.run-data.<date2>"]
+        #   "run-toc": ["<prefix>.run-toc.<date3>"]
         # }
         self.index_map: IndexMapType = {}
 
@@ -3410,27 +3405,27 @@ class PbenchTarBall:
         # additional context to add.
         self._tbctx = f"{self.controller_dir}/{tarobj.name}({md5sum})"
 
-    def map_document(self, root_idx: str, index: str, id: str) -> None:
+    def map_document(self, root_idx: str, index: str) -> None:
         """
         Create an entry in the document indexing dictionary to record the index
-        name and document ID. This map will be stored with the Dataset to be
-        retrieved later when we want to locate the documents for UPDATE and
-        DELETE operations.
+        name. This map will be stored with the Dataset to identify the specific
+        fully qualified index names containing documents for the Dataset.
+
+        {
+            "root-a": ["index-a.1", "index-a.2"],
+            "root-b": ["index-b.1", "index-b.2"]
+        }
 
         Args:
             root_idx: The root index name
             index: Fully qualified index in which the document is stored
-            id: The Elasticsearch document ID
         """
         try:
-            root = self.index_map[root_idx]
-            try:
-                root[index].append(id)
-            except KeyError:
-                root[index] = [id]
+            indices = self.index_map[root_idx]
+            if index not in indices:
+                indices.append(index)
         except KeyError:
-            x = {index: [id]}
-            self.index_map[root_idx] = x
+            self.index_map[root_idx] = [index]
 
     def gen_files_by_partial_path(self, path):
         """Generator for all files in the tar ball which match the given path
@@ -3656,7 +3651,7 @@ class PbenchTarBall:
         # make a simple action for indexing
         pd = PbenchData(self)
         idx_name = pd.generate_index_name("run", source)
-        self.map_document("run-data", idx_name, self.run_metadata["id"])
+        self.map_document("run-data", idx_name)
         action = _dict_const(
             _op_type=_op_type,
             _index=idx_name,
@@ -3787,7 +3782,7 @@ class PbenchTarBall:
         for source in self.gen_toc():
             source["@timestamp"] = tstamp
             source_id = get_md5sum_of_dir(source, self.run_metadata["id"])
-            self.map_document("run-toc", idx_name, source_id)
+            self.map_document("run-toc", idx_name)
             action = _dict_const(
                 _id=source_id,
                 _op_type=_op_type,
@@ -3991,7 +3986,7 @@ class PbenchTarBall:
                 except BadDate:
                     pass
                 else:
-                    self.map_document(f"tool-data-{td.toolname}", idx_name, source_id)
+                    self.map_document(f"tool-data-{td.toolname}", idx_name)
                     source["@generated-by"] = self.idxctx.get_tracking_id()
                     source["authorization"] = self.authorization
                     action = _dict_const(
@@ -4033,13 +4028,14 @@ class PbenchTarBall:
                 # exception in its operational context.
                 pass
             else:
+                source["authorization"] = self.authorization
                 action = _dict_const(
                     _op_type=_op_type,
                     _index=idx_name,
                     _id=source_id,
                     _source=source,
                 )
-                self.map_document(idx, idx_name, source_id)
+                self.map_document(idx, idx_name)
                 if parent_id is None:
                     # Only the parent result data documents hold the tracking IDs.
                     source["@generated-by"] = self.idxctx.get_tracking_id()

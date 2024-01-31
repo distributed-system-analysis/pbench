@@ -8,7 +8,6 @@ from pbench.server.database.models.index_map import (
     IndexMapDuplicate,
     IndexMapMissingParameter,
     IndexMapSqlError,
-    IndexStream,
 )
 
 
@@ -17,25 +16,14 @@ class TestIndexMapDB:
         """Test index map creation"""
 
         map = {
-            "run-data": {"prefix.run-data.2023-07": ["id1", "id2"]},
-            "run-toc": {
-                "prefix.run-toc.2023-06": ["id3", "id4"],
-                "prefix.run-toc.2023-07": ["id5", "id6"],
-            },
+            "run-data": ["prefix.run-data.2023-07"],
+            "run-toc": ["prefix.run-toc.2023-06", "prefix.run-toc.2023-07"],
         }
         drb = Dataset.query(name="drb")
         assert IndexMap.exists(drb) is False
         IndexMap.create(drb, map)
         assert IndexMap.exists(drb) is True
-        assert list(IndexMap.indices(drb, "run-toc")) == list(map["run-toc"].keys())
-        assert sorted(IndexMap.stream(drb), key=lambda s: s.id) == [
-            IndexStream("prefix.run-data.2023-07", "id1"),
-            IndexStream("prefix.run-data.2023-07", "id2"),
-            IndexStream("prefix.run-toc.2023-06", "id3"),
-            IndexStream("prefix.run-toc.2023-06", "id4"),
-            IndexStream("prefix.run-toc.2023-07", "id5"),
-            IndexStream("prefix.run-toc.2023-07", "id6"),
-        ]
+        assert sorted(IndexMap.indices(drb, "run-toc")) == sorted(map["run-toc"])
 
     @pytest.mark.parametrize("m1,m2", ((0, 1), (1, 0)))
     def test_merge(self, db_session, attach_dataset, m1, m2):
@@ -46,49 +34,26 @@ class TestIndexMapDB:
 
         maps = [
             {
-                "run-data": {"prefix.run-data.2023-07": ["id1", "id2"]},
-                "run-toc": {
-                    "prefix.run-toc.2023-06": ["id3", "id4"],
-                    "prefix.run-toc.2023-07": ["id5", "id6"],
-                },
-                "funky-data": {"prefix.funky-data.1918-02": ["id1", "id2"]},
+                "run-data": ["prefix.run-data.2023-07"],
+                "run-toc": ["prefix.run-toc.2023-06", "prefix.run-toc.2023-07"],
+                "funky-data": ["prefix.funky-data.1918-02"],
             },
             {
-                "run-data": {"prefix.run-data.2023-06": ["id8", "id9"]},
-                "run-toc": {
-                    "prefix.run-toc.2023-06": ["id10", "id12", "id13", "id14"],
-                    "prefix.run-toc.2023-08": ["id20", "id21"],
-                },
-                "run-sample": {"prefix.run-sample.2023-08": ["id22", "id23"]},
+                "run-data": ["prefix.run-data.2023-06"],
+                "run-toc": ["prefix.run-toc.2023-06", "prefix.run-toc.2023-08"],
+                "run-sample": ["prefix.run-sample.2023-08"],
             },
         ]
         dataset = Dataset.query(name="drb")
         assert not IndexMap.exists(dataset)
-        assert list(IndexMap.stream(dataset)) == []
 
         IndexMap.create(dataset, maps[m1])
         IndexMap.merge(dataset, maps[m2])
-
-        assert sorted(IndexMap.stream(dataset), key=lambda i: (i.id, i.index)) == [
-            IndexStream("prefix.funky-data.1918-02", "id1"),
-            IndexStream("prefix.run-data.2023-07", "id1"),
-            IndexStream("prefix.run-toc.2023-06", "id10"),
-            IndexStream("prefix.run-toc.2023-06", "id12"),
-            IndexStream("prefix.run-toc.2023-06", "id13"),
-            IndexStream("prefix.run-toc.2023-06", "id14"),
-            IndexStream("prefix.funky-data.1918-02", "id2"),
-            IndexStream("prefix.run-data.2023-07", "id2"),
-            IndexStream("prefix.run-toc.2023-08", "id20"),
-            IndexStream("prefix.run-toc.2023-08", "id21"),
-            IndexStream("prefix.run-sample.2023-08", "id22"),
-            IndexStream("prefix.run-sample.2023-08", "id23"),
-            IndexStream("prefix.run-toc.2023-06", "id3"),
-            IndexStream("prefix.run-toc.2023-06", "id4"),
-            IndexStream("prefix.run-toc.2023-07", "id5"),
-            IndexStream("prefix.run-toc.2023-07", "id6"),
-            IndexStream("prefix.run-data.2023-06", "id8"),
-            IndexStream("prefix.run-data.2023-06", "id9"),
-        ]
+        indices = set()
+        for m in maps:
+            for i in m.values():
+                indices.update(i)
+        assert sorted(IndexMap.indices(dataset)) == sorted(indices)
 
     @pytest.mark.parametrize(
         "orig,merge", ((False, True), (True, False), (False, False))
@@ -104,11 +69,8 @@ class TestIndexMapDB:
         """
 
         map = {
-            "run-data": {
-                "prefix.run-data.2023-06": ["id8"],
-                "prefix.run-data.2023-07": ["id1", "id2"],
-            },
-            "run-sample": {"prefix.run-sample.2023-06": ["id3", "id4"]},
+            "run-data": ["prefix.run-data.2023-06", "prefix.run-data.2023-07"],
+            "run-sample": ["prefix.run-sample.2023-06"],
         }
         drb = Dataset.query(name="drb")
         assert not IndexMap.exists(drb)
@@ -122,15 +84,13 @@ class TestIndexMapDB:
             IndexMap.merge(drb, {})
 
         if orig or merge:
-            assert sorted(IndexMap.stream(drb), key=lambda i: (i.id, i.index)) == [
-                IndexStream("prefix.run-data.2023-07", "id1"),
-                IndexStream("prefix.run-data.2023-07", "id2"),
-                IndexStream("prefix.run-sample.2023-06", "id3"),
-                IndexStream("prefix.run-sample.2023-06", "id4"),
-                IndexStream("prefix.run-data.2023-06", "id8"),
+            assert sorted(IndexMap.indices(drb)) == [
+                "prefix.run-data.2023-06",
+                "prefix.run-data.2023-07",
+                "prefix.run-sample.2023-06",
             ]
         else:
-            assert list(IndexMap.stream(drb)) == []
+            assert list(IndexMap.indices(drb)) == []
 
     @pytest.mark.parametrize(
         "source,expected,message",
@@ -172,7 +132,7 @@ class TestIndexMapDB:
         monkeypatch.setattr(Database.db_session, "commit", fake_commit)
         drb = Dataset.query(name="drb")
         with pytest.raises(expected) as e:
-            IndexMap.create(drb, {"root": {"index": ["id"]}})
+            IndexMap.create(drb, {"root": ["index"]})
         assert str(e.value).startswith(
             message
         ), f"{str(e.value)!r} doesn't start with {message!r}"
@@ -184,7 +144,7 @@ class TestIndexMapDB:
         impact subsequent test cases.
         """
 
-        map = {"run-data": {"prefix.run-data.2023-07": ["id1", "id2"]}}
+        map = {"run-data": ["prefix.run-data.2023-07"]}
         d = Dataset(owner=create_user, name="test", resource_id="fakeid")
         d.add()
         ref = d.id
@@ -195,7 +155,7 @@ class TestIndexMapDB:
             .all()
         )
         assert len(before) == 1
-        assert str(before[0]) == "test [run-data:prefix.run-data.2023-07]: 2 IDs"
+        assert str(before[0]) == "test [run-data:prefix.run-data.2023-07]"
         Dataset.delete(d)
         after = (
             Database.db_session.query(IndexMap)
@@ -214,7 +174,7 @@ class TestIndexMapDB:
 
         drb = Dataset.query(name="drb")
         with pytest.raises(IndexMapSqlError) as e:
-            IndexMap.create(drb, {"root": {"idx": ["id"]}})
+            IndexMap.create(drb, {"root": ["idx"]})
         assert (
             str(e.value)
             == "Index SQL error on create (drb)|drb:all: 'Yeah, that didn't work'"
@@ -230,7 +190,7 @@ class TestIndexMapDB:
 
         drb = Dataset.query(name="drb")
         with pytest.raises(IndexMapSqlError) as e:
-            IndexMap.merge(drb, {"root": {"idx": ["id"]}})
+            IndexMap.merge(drb, {"root": ["idx"]})
         assert str(e.value) == "Index SQL error on merge (drb)|drb:all: 'That was easy'"
 
     def test_indices_fail(self, monkeypatch, db_session, attach_dataset):
@@ -261,19 +221,4 @@ class TestIndexMapDB:
             IndexMap.exists(drb)
         assert (
             str(e.value) == "Index SQL error on exists (drb)|drb:any: 'That was easy'"
-        )
-
-    def test_stream_fail(self, monkeypatch, db_session, attach_dataset):
-        """Test index stream failure"""
-
-        def fake_query(db_type):
-            raise SQLAlchemyError("That was easy")
-
-        drb = Dataset.query(name="drb")
-        monkeypatch.setattr(Database.db_session, "query", fake_query)
-
-        with pytest.raises(IndexMapSqlError) as e:
-            list(IndexMap.stream(drb))
-        assert (
-            str(e.value) == "Index SQL error on stream (drb)|drb:all: 'That was easy'"
         )

@@ -1030,7 +1030,7 @@ class ApiAttributes:
     """
 
     action: str
-    operation_name: OperationName
+    operation_name: Optional[OperationName]
     require_stable: bool
     require_map: bool
 

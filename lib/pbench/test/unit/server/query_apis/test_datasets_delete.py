@@ -1,340 +1,409 @@
 from http import HTTPStatus
-from logging import Logger
-from typing import Iterator
 
-import elasticsearch
 import pytest
 
-from pbench.server import JSON, PbenchServerConfig
-from pbench.server.cache_manager import CacheManager
-from pbench.server.database.models.datasets import (
-    Dataset,
-    DatasetNotFound,
-    Metadata,
-    Operation,
-    OperationName,
-    OperationState,
-)
-from pbench.server.database.models.index_map import IndexMap
-from pbench.test.unit.server.headertypes import HeaderTypes
+from pbench.server.api.resources import ApiMethod
+from pbench.server.api.resources.query_apis.datasets.datasets import Datasets
+from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.test.unit.server.query_apis.commons import Commons
 
 
-class TestDatasetsDelete:
+class TestDatasets(Commons):
     """
-    Unit testing for DatasetsDelete class.
+    Unit testing for resources/DatasetsDetail class.
 
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
-    constructor and `delete` service.
+    constructor and `post` service.
     """
 
-    tarball_deleted = None
+    @pytest.fixture(autouse=True)
+    def _setup(self, client):
+        super()._setup(
+            cls_obj=Datasets(client.config),
+            pbench_endpoint="/datasets/random_md5_string1",
+            elastic_endpoint="/_delete_from_query?ignore_unavailable=true",
+            index_from_metadata="run-data",
+            empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
+        )
 
-    def fake_elastic(self, monkeypatch, map: JSON, partial_fail: bool):
-        """
-        Pytest helper to install a mock for the Elasticsearch streaming_bulk
-        helper API for testing.
+    api_method = ApiMethod.GET
 
-        Args:
-            monkeypatch: The monkeypatch fixture from the test case
-            map: The generated document index map from the test case
-            partial_fail: A boolean indicating whether some bulk operations
-                should be marked as failures.
-
-        Yields:
-            Response documents from the mocked streaming_bulk helper
-        """
-        expected_results = []
-        expected_ids = []
-
-        for indices in map.values():
-            first = True
-            for index, docids in indices.items():
-                for docid in docids:
-                    delete = {
-                        "_index": index,
-                        "_type": "_doc",
-                        "_id": docid,
-                        "_version": 11,
-                        "result": "noop",
-                        "_shards": {"total": 2, "successful": 2, "failed": 0},
-                        "_seq_no": 10,
-                        "_primary_term": 3,
-                        "status": 200,
-                    }
-                    if first and partial_fail:
-                        status = False
-                        first = False
-                        delete["error"] = {"reason": "Just kidding", "type": "KIDDING"}
-                    else:
-                        status = True
-                    expected_results.append((status, {"delete": delete}))
-                    expected_ids.append(docid)
-
-        def fake_bulk(
-            elastic: elasticsearch.Elasticsearch,
-            stream: Iterator[dict],
-            raise_on_error: bool = True,
-            raise_on_exception: bool = True,
-        ):
-            """
-            Helper function to mock the Elasticsearch helper streaming_bulk API,
-            which will validate the input actions and generate expected responses.
-
-            Args:
-                elastic: An Elasticsearch object
-                stream: The input stream of bulk action dicts
-                raise_on_error: indicates whether errors should be raised
-                raise_on_exception: indicates whether exceptions should propagate
-                    or be trapped
-
-            Yields:
-                Response documents from the mocked streaming_bulk helper
-            """
-            # Consume and validate the command generator
-            for cmd in stream:
-                assert cmd["_op_type"] == "delete"
-                assert cmd["_id"] in expected_ids
-
-            # Generate a sequence of result documents more or less as we'd
-            # expect to see from Elasticsearch
-            for item in expected_results:
-                yield item
-
-        monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
-
-    def unelastic(self, monkeypatch):
-        """Cause a failure if the bulk action helper is called.
-
-        Args:
-            monkeypatch: The monkeypatch fixture from the test case
-
-        Raises:
-            an unexpected Exception if called
-        """
-
-        def fake_bulk(
-            elastic: elasticsearch.Elasticsearch,
-            stream: Iterator[dict],
-            raise_on_error: bool = True,
-            raise_on_exception: bool = True,
-        ):
-            """
-            Helper function to mock the Elasticsearch helper streaming_bulk API
-            to throw an exception.
-
-            Args:
-                elastic: An Elasticsearch object
-                stream: The input stream of bulk action dicts
-                raise_on_error: indicates whether errors should be raised
-                raise_on_exception: indicates whether exceptions should propagate
-                    or be trapped
-
-            Raises:
-                Exception
-            """
-            raise Exception("We aren't allowed to be here")
-
-        monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
-
-    def fake_cache_manager(self, monkeypatch):
-        def fake_constructor(self, options: PbenchServerConfig, logger: Logger):
-            pass
-
-        def fake_delete(self, dataset_id: str) -> None:
-            TestDatasetsDelete.tarball_deleted = dataset_id
-
-        TestDatasetsDelete.tarball_deleted = None
-        monkeypatch.setattr(CacheManager, "__init__", fake_constructor)
-        monkeypatch.setattr(CacheManager, "delete", fake_delete)
-
-    @pytest.mark.parametrize("owner", ("drb", "test"))
+    @pytest.mark.parametrize(
+        "user, expected_status",
+        [
+            ("drb", HTTPStatus.OK),
+            ("test_admin", HTTPStatus.OK),
+            ("test", HTTPStatus.FORBIDDEN),
+            (None, HTTPStatus.UNAUTHORIZED),
+        ],
+    )
     def test_query(
         self,
-        attach_dataset,
-        build_auth_header,
         client,
-        get_document_map,
-        monkeypatch,
-        owner,
         server_config,
+        query_api,
+        find_template,
+        user,
+        expected_status,
+        get_token_func,
     ):
         """
-        Check behavior of the delete API with various combinations of dataset
-        owner (managed by the "owner" parametrization here) and authenticated
-        user (managed by the build_auth_header fixture).
+        Check the construction of Elasticsearch query URI and filtering of the response body.
+        The test will run once with each parameter supplied from the local parameterization.
         """
-        self.fake_elastic(monkeypatch, get_document_map, False)
-        self.fake_cache_manager(monkeypatch)
 
-        is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
-        if not HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.UNAUTHORIZED
-        elif owner != "drb" and not is_admin:
-            expected_status = HTTPStatus.FORBIDDEN
-        else:
-            expected_status = HTTPStatus.OK
+        headers = None
 
-        ds = Dataset.query(name=owner)
+        if user:
+            token = get_token_func(user)
+            assert token
+            headers = {"authorization": f"bearer {token}"}
 
-        response = client.delete(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
-            headers=build_auth_header["header"],
+        response_payload = {
+            "took": 112,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": {"value": 1, "relation": "eq"},
+                "max_score": None,
+                "hits": [
+                    {
+                        "_index": "drb.v6.run-data.2020-04",
+                        "_type": "_doc",
+                        "_id": "12fb1e952fd826727810868c9327254f",
+                        "_score": None,
+                        "_source": {
+                            "@timestamp": "2020-04-29T12:49:13.560620",
+                            "@metadata": {
+                                "file-date": "2020-11-20T21:01:54.532281",
+                                "file-name": "/pbench/archive/fs-version-001/dhcp31-187.example.com/fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13.tar.xz",
+                                "file-size": 216319392,
+                                "md5": "12fb1e952fd826727810868c9327254f",
+                                "toc-prefix": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                                "pbench-agent-version": "0.68-1gf4c94b4d",
+                                "controller_dir": "dhcp31-187.example.com",
+                                "tar-ball-creation-timestamp": "2020-04-29T15:16:51.880540",
+                                "raw_size": 292124533,
+                            },
+                            "@generated-by": "3319a130c156f978fa6dc809012b5ba0",
+                            "authorization": {"user": "unknown", "access": "private"},
+                            "run": {
+                                "controller": "dhcp31-187.example.com",
+                                "name": "drb",
+                                "script": "fio",
+                                "config": "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus",
+                                "date": "2020-04-29T12:48:33",
+                                "iterations": "0__bs=4k_iodepth=1_iodepth_batch_complete_max=1, 1__bs=32k_iodepth=1_iodepth_batch_complete_max=1, 2__bs=256k_iodepth=1_iodepth_batch_complete_max=1, 3__bs=4k_iodepth=8_iodepth_batch_complete_max=8, 4__bs=32k_iodepth=8_iodepth_batch_complete_max=8, 5__bs=256k_iodepth=8_iodepth_batch_complete_max=8, 6__bs=4k_iodepth=16_iodepth_batch_complete_max=16, 7__bs=32k_iodepth=16_iodepth_batch_complete_max=16, 8__bs=256k_iodepth=16_iodepth_batch_complete_max=16",
+                                "toolsgroup": "default",
+                                "start": "2020-04-29T12:49:13.560620",
+                                "end": "2020-04-29T13:30:04.918704",
+                                "id": "random_md5_string1",
+                            },
+                            "host_tools_info": [
+                                {
+                                    "hostname": "dhcp31-187",
+                                    "tools": {
+                                        "iostat": "--interval=3",
+                                        "mpstat": "--interval=3",
+                                        "perf": "--record-opts='record -a --freq=100'",
+                                        "pidstat": "--interval=30",
+                                        "proc-interrupts": "--interval=3",
+                                        "proc-vmstat": "--interval=3",
+                                        "sar": "--interval=3",
+                                        "turbostat": "--interval=3",
+                                    },
+                                }
+                            ],
+                        },
+                        "sort": ["drb.v6.run-data.2020-04"],
+                    }
+                ],
+            },
+        }
+
+        index = self.build_index_from_metadata()
+
+        response = query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            payload=None,
+            expected_index=index,
+            expected_status=expected_status,
+            json=response_payload,
+            headers=headers,
+            request_method=self.api_method,
         )
         assert response.status_code == expected_status
+        if response.status_code == HTTPStatus.OK:
+            res_json = response.json
+
+            expected = {
+                "hostTools": [
+                    {
+                        "hostname": "dhcp31-187",
+                        "tools": {
+                            "iostat": "--interval=3",
+                            "mpstat": "--interval=3",
+                            "perf": "--record-opts='record -a --freq=100'",
+                            "pidstat": "--interval=30",
+                            "proc-interrupts": "--interval=3",
+                            "proc-vmstat": "--interval=3",
+                            "sar": "--interval=3",
+                            "turbostat": "--interval=3",
+                        },
+                    }
+                ],
+                "runMetadata": {
+                    "config": "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus",
+                    "controller": "dhcp31-187.example.com",
+                    "controller_dir": "dhcp31-187.example.com",
+                    "date": "2020-04-29T12:48:33",
+                    "end": "2020-04-29T13:30:04.918704",
+                    "file-date": "2020-11-20T21:01:54.532281",
+                    "file-name": "/pbench/archive/fs-version-001/dhcp31-187.example.com/fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13.tar.xz",
+                    "file-size": 216319392,
+                    "id": "random_md5_string1",
+                    "iterations": "0__bs=4k_iodepth=1_iodepth_batch_complete_max=1, 1__bs=32k_iodepth=1_iodepth_batch_complete_max=1, 2__bs=256k_iodepth=1_iodepth_batch_complete_max=1, 3__bs=4k_iodepth=8_iodepth_batch_complete_max=8, 4__bs=32k_iodepth=8_iodepth_batch_complete_max=8, 5__bs=256k_iodepth=8_iodepth_batch_complete_max=8, 6__bs=4k_iodepth=16_iodepth_batch_complete_max=16, 7__bs=32k_iodepth=16_iodepth_batch_complete_max=16, 8__bs=256k_iodepth=16_iodepth_batch_complete_max=16",
+                    "md5": "12fb1e952fd826727810868c9327254f",
+                    "name": "drb",
+                    "pbench-agent-version": "0.68-1gf4c94b4d",
+                    "raw_size": 292124533,
+                    "script": "fio",
+                    "start": "2020-04-29T12:49:13.560620",
+                    "tar-ball-creation-timestamp": "2020-04-29T15:16:51.880540",
+                    "toc-prefix": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                    "toolsgroup": "default",
+                },
+            }
+            assert expected == res_json
+
+    def test_metadata(
+        self,
+        client,
+        server_config,
+        query_api,
+        find_template,
+        provide_metadata,
+        pbench_drb_token,
+    ):
+        """This is nearly a repeat of the basic `test_query`; while that focuses
+        on validating the transformation of Elasticsearch data, this tries to
+        focus on the database dataset metadata... but necessarily has to borrow
+        much of the setup.
+        """
+
+        # In order to test that this API supports getting non-alphanumeric
+        # metalog metadata keys, we decorate the dataset with one. To keep it
+        # simple, just remove the existing Metadata row and create a new one.
+        drb = Dataset.query(name="drb")
+        Metadata.delete(Metadata.get(drb, Metadata.METALOG))
+        Metadata.create(
+            dataset=drb,
+            key=Metadata.METALOG,
+            value={
+                "iterations/fooBar=10-what_else@weird": {
+                    "iteration_name": "fooBar=10-what_else@weird"
+                },
+                "run": {"controller": "node1.example.com"},
+            },
+        )
+        query_params = {
+            "metadata": [
+                "global.seen",
+                "server.deletion",
+                "dataset.metalog.iterations/fooBar=10-what_else@weird.iteration_name",
+            ]
+        }
+
+        response_payload = {
+            "took": 112,
+            "timed_out": False,
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": {"value": 1, "relation": "eq"},
+                "max_score": None,
+                "hits": [
+                    {
+                        "_index": "drb.v6.run-data.2020-04",
+                        "_type": "_doc",
+                        "_id": "12fb1e952fd826727810868c9327254f",
+                        "_score": None,
+                        "_source": {
+                            "@timestamp": "2020-04-29T12:49:13.560620",
+                            "@metadata": {
+                                "file-date": "2020-11-20T21:01:54.532281",
+                                "file-name": "/pbench/archive/fs-version-001/dhcp31-187.example.com/fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13.tar.xz",
+                                "file-size": 216319392,
+                                "md5": "12fb1e952fd826727810868c9327254f",
+                                "toc-prefix": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                                "pbench-agent-version": "0.68-1gf4c94b4d",
+                                "controller_dir": "dhcp31-187.example.com",
+                                "tar-ball-creation-timestamp": "2020-04-29T15:16:51.880540",
+                                "raw_size": 292124533,
+                            },
+                            "@generated-by": "3319a130c156f978fa6dc809012b5ba0",
+                            "authorization": {"user": "unknown", "access": "private"},
+                            "run": {
+                                "controller": "node",
+                                "name": "drb",
+                                "script": "fio",
+                                "config": "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus",
+                                "date": "2020-04-29T12:48:33",
+                                "iterations": "0__bs=4k_iodepth=1_iodepth_batch_complete_max=1, 1__bs=32k_iodepth=1_iodepth_batch_complete_max=1, 2__bs=256k_iodepth=1_iodepth_batch_complete_max=1, 3__bs=4k_iodepth=8_iodepth_batch_complete_max=8, 4__bs=32k_iodepth=8_iodepth_batch_complete_max=8, 5__bs=256k_iodepth=8_iodepth_batch_complete_max=8, 6__bs=4k_iodepth=16_iodepth_batch_complete_max=16, 7__bs=32k_iodepth=16_iodepth_batch_complete_max=16, 8__bs=256k_iodepth=16_iodepth_batch_complete_max=16",
+                                "toolsgroup": "default",
+                                "start": "2020-04-29T12:49:13.560620",
+                                "end": "2020-04-29T13:30:04.918704",
+                                "id": "random_md5_string1",
+                            },
+                            "host_tools_info": [
+                                {
+                                    "hostname": "dhcp31-187",
+                                    "tools": {
+                                        "iostat": "--interval=3",
+                                        "mpstat": "--interval=3",
+                                        "perf": "--record-opts='record -a --freq=100'",
+                                        "pidstat": "--interval=30",
+                                        "proc-interrupts": "--interval=3",
+                                        "proc-vmstat": "--interval=3",
+                                        "sar": "--interval=3",
+                                        "turbostat": "--interval=3",
+                                    },
+                                }
+                            ],
+                        },
+                        "sort": ["drb.v6.run-data.2020-04"],
+                    }
+                ],
+            },
+        }
+
+        index = self.build_index_from_metadata()
+
+        response = query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            HTTPStatus.OK,
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
+            json=response_payload,
+            request_method=self.api_method,
+            query_params=query_params,
+        )
+        assert response.status_code == HTTPStatus.OK
+        res_json = response.json
+
+        # NOTE: we asked for "seen" and "deleted" metadata, but the "deleted"
+        # key wasn't created, so we verify that it's reported as None.
+        expected = {
+            "hostTools": [
+                {
+                    "hostname": "dhcp31-187",
+                    "tools": {
+                        "iostat": "--interval=3",
+                        "mpstat": "--interval=3",
+                        "perf": "--record-opts='record -a --freq=100'",
+                        "pidstat": "--interval=30",
+                        "proc-interrupts": "--interval=3",
+                        "proc-vmstat": "--interval=3",
+                        "sar": "--interval=3",
+                        "turbostat": "--interval=3",
+                    },
+                }
+            ],
+            "runMetadata": {
+                "config": "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus",
+                "controller": "node",
+                "controller_dir": "dhcp31-187.example.com",
+                "date": "2020-04-29T12:48:33",
+                "end": "2020-04-29T13:30:04.918704",
+                "file-date": "2020-11-20T21:01:54.532281",
+                "file-name": "/pbench/archive/fs-version-001/dhcp31-187.example.com/fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13.tar.xz",
+                "file-size": 216319392,
+                "id": "random_md5_string1",
+                "iterations": "0__bs=4k_iodepth=1_iodepth_batch_complete_max=1, 1__bs=32k_iodepth=1_iodepth_batch_complete_max=1, 2__bs=256k_iodepth=1_iodepth_batch_complete_max=1, 3__bs=4k_iodepth=8_iodepth_batch_complete_max=8, 4__bs=32k_iodepth=8_iodepth_batch_complete_max=8, 5__bs=256k_iodepth=8_iodepth_batch_complete_max=8, 6__bs=4k_iodepth=16_iodepth_batch_complete_max=16, 7__bs=32k_iodepth=16_iodepth_batch_complete_max=16, 8__bs=256k_iodepth=16_iodepth_batch_complete_max=16",
+                "md5": "12fb1e952fd826727810868c9327254f",
+                "name": "drb",
+                "pbench-agent-version": "0.68-1gf4c94b4d",
+                "raw_size": 292124533,
+                "script": "fio",
+                "start": "2020-04-29T12:49:13.560620",
+                "tar-ball-creation-timestamp": "2020-04-29T15:16:51.880540",
+                "toc-prefix": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                "toolsgroup": "default",
+            },
+            "serverMetadata": {
+                "global.seen": None,
+                "server.deletion": "2022-12-26",
+                "dataset.metalog.iterations/fooBar=10-what_else@weird.iteration_name": "fooBar=10-what_else@weird",
+            },
+        }
+        assert expected == res_json
+
+    def test_empty_query(
+        self,
+        client,
+        server_config,
+        query_api,
+        find_template,
+        build_auth_header,
+    ):
+        """
+        Check the handling of a query that doesn't return any data.
+        The test will run thrice with different values of the build_auth_header
+        fixture.
+        """
+        auth_json = {"user": "drb", "access": "private"}
+
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
+
+        # In this case, if we don't get a validation/permission error, expect
+        # to fail because of the unexpectedly empty Elasticsearch result.
         if expected_status == HTTPStatus.OK:
-            assert response.json == {"ok": 31, "failure": 0}
-            assert TestDatasetsDelete.tarball_deleted == ds.resource_id
+            expected_status = HTTPStatus.BAD_REQUEST
+        index = self.build_index_from_metadata()
 
-            # On success, the Dataset should be gone
-            with pytest.raises(DatasetNotFound):
-                Dataset.query(name=owner)
-        else:
-            # On failure, the Dataset should remain
-            assert TestDatasetsDelete.tarball_deleted is None
-            Dataset.query(name=owner)
+        response = query_api(
+            f"{self.pbench_endpoint}",
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            expected_status,
+            headers=build_auth_header["header"],
+            json=self.empty_es_response_payload,
+            request_method=self.api_method,
+        )
+        assert response.status_code == expected_status
+        if response.status_code == HTTPStatus.BAD_REQUEST:
+            assert response.json["message"].find("dataset has gone missing") != -1
 
-    def test_partial(
-        self,
-        client,
-        get_document_map,
-        monkeypatch,
-        server_config,
-        pbench_drb_token,
+    def test_nonunique_query(
+        self, client, server_config, query_api, find_template, pbench_drb_token
     ):
         """
-        Check the delete API when some document updates fail. We expect an
-        internal error with a report of success and failure counts.
+        Check the handling of a query that returns too much data.
         """
-        self.fake_elastic(monkeypatch, get_document_map, True)
-        self.fake_cache_manager(monkeypatch)
-        ds = Dataset.query(name="drb")
-        response = client.delete(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
+
+        response_payload = {
+            "hits": {
+                "total": {"value": 0, "relation": "eq"},
+                "max_score": None,
+                "hits": [{"a": True}, {"b": False}],
+            },
+        }
+
+        index = self.build_index_from_metadata()
+        response = query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            HTTPStatus.BAD_REQUEST,
+            json=response_payload,
             headers={"authorization": f"Bearer {pbench_drb_token}"},
+            request_method=self.api_method,
         )
-        assert response.status_code == HTTPStatus.OK
-        assert response.json == {"ok": 28, "failure": 3}
-
-        # Verify that the Dataset still exists
-        Dataset.query(name="drb")
-
-    def test_no_dataset(self, client, monkeypatch, pbench_drb_token, server_config):
-        """
-        Check the delete API if the dataset doesn't exist.
-        """
-        self.unelastic(monkeypatch)
-        response = client.delete(
-            f"{server_config.rest_uri}/datasets/badwolf",
-            headers={"authorization": f"Bearer {pbench_drb_token}"},
-        )
-
-        # Verify the report and status
-        assert response.status_code == HTTPStatus.NOT_FOUND
-        assert response.json["message"] == "Dataset 'badwolf' not found"
-
-    def test_no_index(
-        self, client, monkeypatch, attach_dataset, pbench_drb_token, server_config
-    ):
-        """
-        Check the delete API if the dataset has no index map. It should
-        succeed without tripping over Elasticsearch.
-        """
-        self.unelastic(monkeypatch)
-        self.fake_cache_manager(monkeypatch)
-        ds = Dataset.query(name="drb")
-        response = client.delete(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
-            headers={"authorization": f"Bearer {pbench_drb_token}"},
-        )
-
-        # Verify the report and status
-        assert response.status_code == HTTPStatus.OK
-        assert response.json == {"ok": 0, "failure": 0}
-        with pytest.raises(DatasetNotFound):
-            Dataset.query(name="drb")
-
-    def test_archive_only(
-        self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
-    ):
-        """
-        Check the delete API if the dataset has no index map but is
-        marked "server.archiveonly". It should succeed without attempting any
-        Elasticsearch operations.
-        """
-
-        self.unelastic(monkeypatch)
-        monkeypatch.setattr(Metadata, "getvalue", lambda d, k: True)
-
-        ds = Dataset.query(name="drb")
-        response = client.delete(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
-            headers={"authorization": f"Bearer {pbench_drb_token}"},
-        )
-
-        # Verify the report and status
-        assert response.status_code == HTTPStatus.OK
-        assert response.json == {"failure": 0, "ok": 0}
-
-    def test_index_error(
-        self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
-    ):
-        """
-        Check the delete API if the dataset has no index map and is
-        showing an indexing operational error which means it won't be indexed.
-        """
-
-        self.unelastic(monkeypatch)
-        monkeypatch.setattr(
-            Operation,
-            "by_operation",
-            lambda d, k: Operation(
-                name=OperationName.INDEX, state=OperationState.FAILED
-            ),
-        )
-
-        ds = Dataset.query(name="drb")
-        response = client.delete(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
-            headers={"authorization": f"Bearer {pbench_drb_token}"},
-        )
-
-        # Verify the report and status
-        assert response.status_code == HTTPStatus.OK
-        assert response.json == {"failure": 0, "ok": 0}
-
-    def test_exception(
-        self,
-        attach_dataset,
-        capinternal,
-        client,
-        monkeypatch,
-        pbench_drb_token,
-        server_config,
-    ):
-        """
-        Check the delete API response if the bulk helper throws an exception.
-
-        (It shouldn't do this as we've set raise_on_exception=False, but we
-        check the code path anyway.)
-        """
-
-        def fake_bulk(
-            elastic: elasticsearch.Elasticsearch,
-            stream: Iterator[dict],
-            raise_on_error: bool = True,
-            raise_on_exception: bool = True,
-        ):
-            raise elasticsearch.helpers.BulkIndexError("test")
-
-        monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
-        monkeypatch.setattr(IndexMap, "exists", lambda d: True)
-
-        response = client.delete(
-            f"{server_config.rest_uri}/datasets/random_md5_string1",
-            headers={"authorization": f"Bearer {pbench_drb_token}"},
-        )
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-
-        # Verify the failure
-        capinternal("Unexpected backend error", response)
+        assert response.json["message"].find("Too many hits for a unique query") != -1
