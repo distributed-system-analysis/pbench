@@ -211,29 +211,25 @@ class Datasets(IndexMapBase):
         return json
 
     def postprocess(self, es_json: JSONOBJECT, context: ApiContext) -> Response:
-        """
-        Returns a summary of the returned Elasticsearch query results, showing
-        the list of dictionaries with user selected fields from request json as keys
-        Note: id field is added by server by default whereas other fields are client-selected.
+        """Process the Elasticsearch response.
 
-        [
-            {
-                "id": "1c25e9f5b5dfc1ffb732931bf3899878",
-                "@timestamp": "2021-07-12T22:44:19.562354",
-                "run": {
-                    "controller": "dhcp31-171.example.com",
-                    "name": "pbench-user-benchmark_npalaska-dhcp31-171_2021.07.12T22.44.19",
-                },
-                "@metadata": {
-                    "controller_dir": "dhcp31-171.example.com"
-                }
-            },
-        ]
+        * For update and delete, this will be a document with a count of
+          successful updates and deletions, along with a list of failures
+          and some other data. We mostly want to determine whether it was
+          100% successful (before updating or deleting the dataset), but
+          we also summarize the results for the client.
+        * For get, we directly return the "hit list".
+
+        Args:
+            es_json: the Elasticsearch response document
+            context: the API context
+
+        Returns:
+            A Flask response object via jsonify()
         """
-        # If there are no matches for the user, query, and time range,
-        # return the empty list rather than failing.
         action = context["action"]
         dataset = context["dataset"]
+        current_app.logger.info("POSTPROCESS {}: {}", dataset.name, es_json)
         failures = 0
         if action == "get":
             try:
@@ -256,21 +252,14 @@ class Datasets(IndexMapBase):
                 s = hit["_source"]
                 s["id"] = hit["_id"]
                 results.append(s)
+
+            return jsonify(results)
         else:
             if es_json:
                 fields = ("deleted", "updated", "total", "version_conflicts")
                 results = {f: es_json[f] if f in es_json else None for f in fields}
                 failures = len(es_json["failures"]) if "failures" in es_json else 0
                 results["failures"] = failures
-                context["auditing"]["attributes"]["results"] = results
-
-                current_app.logger.info(
-                    "{} {} results {}, failures {}",
-                    dataset.name,
-                    action,
-                    results,
-                    es_json.get("failures"),
-                )
             else:
                 results = {
                     "deleted": 0,
@@ -279,6 +268,7 @@ class Datasets(IndexMapBase):
                     "version_conflicts": 0,
                     "failures": 0,
                 }
+            context["auditing"]["attributes"]["results"] = results
 
             if failures == 0:
                 if action == "update":

@@ -457,9 +457,25 @@ class ElasticBase(ApiBase):
         """Handle a Pbench server POST operation involving Elasticsearch
 
         The assembly and post-processing of the Elasticsearch query are
-        handled by the subclasses through the assemble() and postprocess()
-        methods; we rely on the ApiBase superclass to provide basic JSON
-        parameter validation and normalization.
+        handled by the assemble() and postprocess() methods; we rely on
+        the ApiBase superclass to provide basic JSON parameter validation
+        and normalization.
+
+        Args:
+            params: The API HTTP method parameters
+            req: The flask Request object containing payload and headers
+            context: The API context dictionary
+        """
+        context["request"] = req
+        return self._call(requests.post, params, context)
+
+    def _delete(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
+        """Handle a Pbench server DELETE operation involving Elasticsearch
+
+        The assembly and post-processing of the Elasticsearch query are
+        handled by the assemble() and postprocess() methods; we rely on
+        the ApiBase superclass to provide basic JSON parameter validation
+        and normalization.
 
         Args:
             params: The API HTTP method parameters
@@ -472,8 +488,10 @@ class ElasticBase(ApiBase):
     def _get(self, params: ApiParams, req: Request, context: ApiContext) -> Response:
         """Handle a GET operation involving a call to Elasticsearch
 
-        The post-processing of the Elasticsearch query is handled by the
-        subclasses through their postprocess() methods.
+        The assembly and post-processing of the Elasticsearch query are
+        handled by the assemble() and postprocess() methods; we rely on
+        the ApiBase superclass to provide basic JSON parameter validation
+        and normalization.
 
         Args:
             params: The API HTTP method parameters
