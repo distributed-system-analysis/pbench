@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
-from flask import current_app
+from flask import current_app, jsonify, Response
 
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     APIInternalError,
@@ -46,7 +46,7 @@ class SampleNamespace(IndexMapBase):
             ),
         )
 
-    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSONOBJECT:
         """
         Construct an Elasticsearch query which returns a list of values which
         appear in each of the keyword fields in the WHITELIST_AGGS_FIELDS
@@ -102,7 +102,7 @@ class SampleNamespace(IndexMapBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
+    def postprocess(self, es_json: JSONOBJECT, context: ApiContext) -> Response:
         """
         Returns a JSON object (keyword/value pairs) where each key is the fully
         qualified dot-separated name of a non-text (sub-)field and the
@@ -160,11 +160,13 @@ class SampleNamespace(IndexMapBase):
             }
         """
         try:
-            return {
-                key: [bucket["key"] for bucket in agg["buckets"]]
-                for key, agg in es_json["aggregations"].items()
-                if agg["buckets"]
-            }
+            return jsonify(
+                {
+                    key: [bucket["key"] for bucket in agg["buckets"]]
+                    for key, agg in es_json["aggregations"].items()
+                    if agg["buckets"]
+                }
+            )
         except KeyError as e:
             raise PostprocessError(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -204,7 +206,7 @@ class SampleValues(IndexMapBase):
             ),
         )
 
-    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSONOBJECT:
         """
         Construct an Elasticsearch query which returns a list of data values
         from a selected set of documents that belong to the given run id in
@@ -304,7 +306,7 @@ class SampleValues(IndexMapBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
+    def postprocess(self, es_json: JSONOBJECT, context: ApiContext) -> Response:
         """
         Returns a JSON object with keys as results and possibly a scroll_id if
         the next page of results is available.
@@ -354,7 +356,7 @@ class SampleValues(IndexMapBase):
             ):
                 ret_val["scroll_id"] = es_json["_scroll_id"]
 
-            return ret_val
+            return jsonify(ret_val)
         except KeyError as e:
             raise PostprocessError(
                 HTTPStatus.INTERNAL_SERVER_ERROR,

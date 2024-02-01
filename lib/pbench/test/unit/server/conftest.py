@@ -9,8 +9,7 @@ import re
 import shutil
 from stat import ST_MTIME
 import tarfile
-from typing import Dict, Iterator, Optional
-import uuid
+from typing import Dict, Optional
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
@@ -30,7 +29,7 @@ from pbench.server.database import init_db
 from pbench.server.database.database import Database
 from pbench.server.database.models.api_keys import APIKey
 from pbench.server.database.models.datasets import Dataset, Metadata
-from pbench.server.database.models.index_map import IndexMap, IndexStream
+from pbench.server.database.models.index_map import IndexMap
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
 from pbench.test import on_disk_config
@@ -520,28 +519,15 @@ def get_document_map(monkeypatch, attach_dataset):
         attach_dataset:  create a mock Dataset object
     """
     mapping = {
-        "run-data": {"unit-test.v6.run-data.2021-06": [uuid.uuid4().hex]},
-        "run-toc": {
-            "unit-test.v6.run-toc.2021-06": [uuid.uuid4().hex for _ in range(10)]
-        },
-        "result-data-sample": {
-            "unit-test.v5.result-data-sample.2021-06": [
-                uuid.uuid4().hex for _ in range(20)
-            ]
-        },
+        "run-data": ["unit-test.v6.run-data.2021-06"],
+        "run-toc": ["unit-test.v6.run-toc.2021-06"],
+        "result-data-sample": ["unit-test.v5.result-data-sample.2021-06"],
     }
 
     def exist_map(dataset: Dataset) -> bool:
         return True
 
-    def stream_map(dataset: Dataset) -> Iterator[IndexStream]:
-        for i in mapping.values():
-            for idx, ids in i.items():
-                for id in ids:
-                    yield IndexStream(idx, id)
-
     with monkeypatch.context() as m:
-        m.setattr(IndexMap, "stream", stream_map)
         m.setattr(IndexMap, "exists", exist_map)
         yield mapping
 

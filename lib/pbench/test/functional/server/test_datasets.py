@@ -953,7 +953,9 @@ class TestUpdate:
             meta = server_client.get_metadata(
                 dataset.resource_id, metadata="dataset.access"
             )
-            assert meta["dataset.access"] == expected
+            assert (
+                meta["dataset.access"] == expected
+            ), f"{dataset.name} access not changed to {expected}"
 
     @pytest.mark.dependency(
         name="transfer", depends=["list_owner", "list_owner_sort"], scope="session"
@@ -970,7 +972,9 @@ class TestUpdate:
             response.ok
         ), f"Dataset {Dataset.stem(NOMETADATA)} failed to update with {response.json()['message']}"
         meta = server_client.get_metadata(id, metadata="dataset.owner")
-        assert meta["dataset.owner"] == "tester"
+        assert (
+            meta["dataset.owner"] == "tester"
+        ), f"{Dataset.stem(NOMETADATA)} owner not changed to 'tester'"
 
 
 class TestDelete:

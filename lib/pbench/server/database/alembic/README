@@ -18,3 +18,9 @@ To upgrade to a specific revision
 
 To downgrade to a specific revision
 # alembic downgrade <revision_id_>
+
+Generally you should run alembic within a Pbench CI container tox environment, using
+the wrapper command which orchestrates the PostgreSQL container:
+# EXTRA_PODMAN_SWITCHES="--network host" WORKSPACE_TMP=${HOME} jenkins/run tox -e alembic-migration -- create
+
+Make sure you don't already have a local PostgreSQL container (e.g., from `runlocal`)
