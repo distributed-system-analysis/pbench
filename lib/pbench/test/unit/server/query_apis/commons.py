@@ -1,6 +1,6 @@
 from http import HTTPStatus
 import itertools
-from typing import AnyStr, Optional
+from typing import Optional
 
 from dateutil import parser as date_parser
 from dateutil import rrule
@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 import pytest
 import requests
 
-from pbench.server import JSON, JSONOBJECT
+from pbench.server import JSONOBJECT
 from pbench.server.api.resources import ApiMethod, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset
@@ -93,7 +93,7 @@ class Commons:
         index_keys = IndexMap.indices(drb, self.root_index)
         return "/" + ",".join(index_keys)
 
-    def date_range(self, start: AnyStr, end: AnyStr) -> list:
+    def date_range(self, start: str, end: str) -> list[str]:
         """Builds list of range of dates between start and end.
 
         It expects the date to look like YYYY-MM
@@ -108,7 +108,7 @@ class Commons:
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
-    def get_expected_status(self, payload: JSON, header: HeaderTypes) -> int:
+    def get_expected_status(self, payload: JSONOBJECT, header: HeaderTypes) -> int:
         """Decode the various test cases we use, which are a combination of the
         test case parametrization (for "user" parameter value) and the
         parametrization of the `build_auth_header` fixture (for the API
@@ -139,17 +139,19 @@ class Commons:
         return expected_status
 
     def make_request_call(
-        self, client, url, header: JSON, json: JSON = None, data=None
+        self,
+        client,
+        url,
+        header: JSONOBJECT,
+        json: Optional[JSONOBJECT] = None,
+        data: Optional[str] = None,
     ):
         if self.api_method == ApiMethod.GET:
             assert json is None
             assert data is None
-            func = client.get
-        elif self.api_method == ApiMethod.POST:
-            func = client.post
-        elif self.api_method == ApiMethod.DELETE:
-            func = client.delete
-        else:
+        try:
+            func = getattr(client, self.api_method.name.lower())
+        except Exception:
             assert False, f"API method {self.api_method} not supported"
 
         return func(url, headers=header, json=json, data=data)
