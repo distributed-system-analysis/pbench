@@ -51,13 +51,18 @@ def query_api(client, server_config, provide_metadata):
             # making the call. We never expect an Elasticsearch call when the
             # expected status is FORBIDDEN or UNAUTHORIZED; or when we give the
             # canonical "bad username" (badwolf) and are expecting NOT_FOUND.
-            if expected_status not in [
-                HTTPStatus.FORBIDDEN,
-                HTTPStatus.UNAUTHORIZED,
-            ] and (
-                expected_status != HTTPStatus.NOT_FOUND
-                or request_method != ApiMethod.POST
-                or payload.get("user") != "badwolf"
+            if (
+                expected_status
+                not in [
+                    HTTPStatus.FORBIDDEN,
+                    HTTPStatus.UNAUTHORIZED,
+                ]
+                and (
+                    expected_status != HTTPStatus.NOT_FOUND
+                    or request_method != ApiMethod.POST
+                    or payload.get("user") != "badwolf"
+                )
+                and expected_index is not None
             ):
                 rsp.add(es_method, es_url, **kwargs)
             response = client_method(

@@ -4,7 +4,7 @@ import pytest
 
 from pbench.server.api.resources import ApiMethod
 from pbench.server.api.resources.query_apis.datasets.datasets import Datasets
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.test.unit.server.query_apis.commons import Commons
 
 EMPTY_DELDATE_RESPONSE = {
@@ -45,12 +45,13 @@ class TestDatasets(Commons):
         )
 
     @pytest.mark.parametrize(
-        "user, expected_status",
+        "user,ao,expected_status",
         [
-            ("drb", HTTPStatus.OK),
-            ("test_admin", HTTPStatus.OK),
-            ("test", HTTPStatus.FORBIDDEN),
-            (None, HTTPStatus.UNAUTHORIZED),
+            ("drb", False, HTTPStatus.OK),
+            ("drb", True, HTTPStatus.OK),
+            ("test_admin", False, HTTPStatus.OK),
+            ("test", False, HTTPStatus.FORBIDDEN),
+            (None, False, HTTPStatus.UNAUTHORIZED),
         ],
     )
     def test_empty_delete(
@@ -60,6 +61,7 @@ class TestDatasets(Commons):
         query_api,
         find_template,
         user,
+        ao,
         expected_status,
         get_token_func,
     ):
@@ -72,7 +74,13 @@ class TestDatasets(Commons):
             assert token
             headers = {"authorization": f"bearer {token}"}
 
-        index = self.build_index_from_metadata()
+        if ao:
+            # Set archiveonly flag to disable index-map logic
+            drb = Dataset.query(name="drb")
+            Metadata.setvalue(drb, Metadata.SERVER_ARCHIVE, True)
+            index = None
+        else:
+            index = self.build_index_from_metadata()
 
         response = query_api(
             self.pbench_endpoint,
@@ -107,12 +115,13 @@ class TestDatasets(Commons):
             )
 
     @pytest.mark.parametrize(
-        "user, expected_status",
+        "user,ao,expected_status",
         [
-            ("drb", HTTPStatus.OK),
-            ("test_admin", HTTPStatus.OK),
-            ("test", HTTPStatus.FORBIDDEN),
-            (None, HTTPStatus.UNAUTHORIZED),
+            ("drb", False, HTTPStatus.OK),
+            ("drb", True, HTTPStatus.OK),
+            ("test_admin", False, HTTPStatus.OK),
+            ("test", False, HTTPStatus.FORBIDDEN),
+            (None, False, HTTPStatus.UNAUTHORIZED),
         ],
     )
     def test_empty_update_access(
@@ -122,10 +131,11 @@ class TestDatasets(Commons):
         query_api,
         find_template,
         user,
+        ao,
         expected_status,
         get_token_func,
     ):
-        """Check deletion with no Elasticsearch documents"""
+        """Check update with no Elasticsearch documents"""
 
         headers = None
 
@@ -134,7 +144,13 @@ class TestDatasets(Commons):
             assert token
             headers = {"authorization": f"bearer {token}"}
 
-        index = self.build_index_from_metadata()
+        if ao:
+            # Set archiveonly flag to disable index-map logic
+            drb = Dataset.query(name="drb")
+            Metadata.setvalue(drb, Metadata.SERVER_ARCHIVE, True)
+            index = None
+        else:
+            index = self.build_index_from_metadata()
 
         response = query_api(
             "/datasets/random_md5_string1?access=public",
@@ -168,13 +184,9 @@ class TestDatasets(Commons):
                 "is not authorized to UPDATE a resource owned by drb with private access"
             )
 
+    @pytest.mark.parametrize("ao", (True, False))
     def test_empty_get(
-        self,
-        client,
-        server_config,
-        query_api,
-        find_template,
-        build_auth_header,
+        self, client, server_config, query_api, find_template, build_auth_header, ao
     ):
         """Check a GET operation with no Elasticsearch documents"""
         auth_json = {"user": "drb", "access": "private"}
@@ -183,7 +195,15 @@ class TestDatasets(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        index = self.build_index_from_metadata()
+        if ao:
+            # Set archiveonly flag to disable index-map logic
+            drb = Dataset.query(name="drb")
+            Metadata.setvalue(drb, Metadata.SERVER_ARCHIVE, True)
+            index = None
+            if expected_status == HTTPStatus.OK:
+                expected_status = HTTPStatus.CONFLICT
+        else:
+            index = self.build_index_from_metadata()
 
         response = query_api(
             f"{self.pbench_endpoint}",
@@ -198,6 +218,8 @@ class TestDatasets(Commons):
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert [] == response.json
+        elif expected_status == HTTPStatus.CONFLICT:
+            assert {"message": "Dataset indexing was disabled"} == response.json
         else:
             assert {
                 "message": "Unauthenticated client is not authorized to READ a resource owned by drb with private access"
