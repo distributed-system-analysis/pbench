@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import AnyStr, List, NoReturn, Union
+from typing import AnyStr, List, NoReturn, Optional, Union
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -36,8 +36,7 @@ class MissingDatasetNameParameter(SchemaError):
 
 
 class IndexMapBase(ElasticBase):
-    """A base class for query apis that depends on Metadata for getting the
-    indices.
+    """A base class for query apis that depends on the index map.
 
     This class extends the ElasticBase class and implements a common
     'preprocess' method which finds a target dataset by name. The ElasticBase
@@ -82,19 +81,14 @@ class IndexMapBase(ElasticBase):
 
     def __init__(self, config: PbenchServerConfig, *schemas: ApiSchema):
         api_name = self.__class__.__name__
-        assert (
-            len(schemas) == 1
-        ), f"{api_name}: exactly one schema required: found {len(schemas)}"
-        dset = schemas[0].get_param_by_type(
-            ParamType.DATASET,
-            ApiParams(),
-        )
-        assert (
-            dset and dset.parameter.required
-        ), f"{api_name}: dataset parameter is not defined or not required"
-        assert (
-            schemas[0].authorization == ApiAuthorizationType.DATASET
-        ), f"{api_name}: schema authorization is not by dataset"
+        for s in schemas:
+            dset = s.get_param_by_type(ParamType.DATASET, ApiParams())
+            assert (
+                dset and dset.parameter.required
+            ), f"{api_name}: dataset parameter is not defined or not required"
+            assert (
+                s.authorization == ApiAuthorizationType.DATASET
+            ), f"{api_name}: schema authorization is not by dataset"
 
         super().__init__(config, *schemas)
         self._method = schemas[0].method
@@ -112,12 +106,22 @@ class IndexMapBase(ElasticBase):
         )
         context["dataset"] = dataset
 
-    def get_index(self, dataset: Dataset, root_index_name: str) -> str:
+    def get_index(
+        self,
+        dataset: Dataset,
+        root_index_name: Optional[str] = None,
+        ok_no_index: bool = False,
+    ) -> str:
         """Retrieve ES indices based on a given root_index_name.
+
+        Datasets marked "archiveonly" aren't indexed, and can't be referenced
+        in most APIs that rely on Elasticsearch. Instead, we'll raise a
+        CONFLICT error.
 
         Args:
             dataset: dataset object
             root_index_name: A root index name like "run-data"
+            ok_no_index: Don't fail on an archiveonly dataset
 
         Raises:
             APIAbort(CONFLICT) if indexing was disabled on the target dataset.
@@ -128,10 +132,11 @@ class IndexMapBase(ElasticBase):
             in an Elasticsearch query URI.
         """
 
-        # Datasets marked "archiveonly" aren't indexed, and can't be referenced
-        # in APIs that rely on Elasticsearch. Instead, we'll raise a CONFLICT
-        # error.
-        if Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE):
+        archive_only = Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE)
+        if archive_only and ok_no_index:
+            return ""
+
+        if archive_only:
             raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
 
         index_keys = list(IndexMap.indices(dataset, root_index_name))

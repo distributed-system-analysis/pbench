@@ -1,5 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
+from datetime import datetime
 from enum import auto, Enum
 import errno
 import fcntl
@@ -53,6 +54,15 @@ class CacheExtractBadPath(CacheManagerError):
         super().__init__(f"Unable to extract {path} from {tar_name.name}")
         self.name = tar_name.name
         self.path = str(path)
+
+
+class CacheExtractError(CacheManagerError):
+    """Unable to read a cached file"""
+
+    def __init__(self, dataset: str, target: str):
+        super().__init__(f"Unable to read {target!r} from {dataset}")
+        self.dataset = dataset
+        self.target = target
 
 
 class TarballNotFound(CacheManagerError):
@@ -1260,6 +1270,9 @@ class CacheManager:
         # Record the root ARCHIVE directory path
         self.archive_root: Path = self.options.ARCHIVE
 
+        # Record the root BACKUP directory path
+        self.backup_root: Path = self.options.BACKUP
+
         # Record the root CACHE directory path
         self.cache_root: Path = self.options.CACHE
 
@@ -1507,6 +1520,16 @@ class CacheManager:
         tarball = self.find_dataset(dataset_id)
         return tarball.get_inventory(target)
 
+    def get_inventory_bytes(self, dataset_id: str, target: str) -> str:
+        tarball = self.find_dataset(dataset_id)
+        info = tarball.get_inventory(target)
+        try:
+            return info["stream"].read().decode("utf-8")
+        except Exception as e:
+            raise CacheExtractError(tarball.name, target) from e
+        finally:
+            info["stream"].close()
+
     def delete(self, dataset_id: str):
         """Delete the dataset as well as unpacked artifacts.
 
@@ -1524,7 +1547,7 @@ class CacheManager:
 
         self._clean_empties(tarball.controller_name)
 
-    def reclaim_cache(self, goal_pct: float = 20.0, goal_bytes: int = 0) -> bool:
+    def reclaim_cache(self, goal_pct: float = 0.0, goal_bytes: int = 0) -> bool:
         """Reclaim unused caches to free disk space.
 
         The cache tree need not be fully discovered at this point; we can
@@ -1620,7 +1643,10 @@ class CacheManager:
                 target = None
             error = None
             try:
-                self.logger.info("RECLAIM: removing cache for {}", name)
+                ts = datetime.fromtimestamp(candidate.last_ref)
+                self.logger.info(
+                    "RECLAIM: removing cache for {} (referenced {})", name, ts
+                )
                 with LockManager(cache_d / "lock", exclusive=True, wait=False):
                     try:
                         if target:
