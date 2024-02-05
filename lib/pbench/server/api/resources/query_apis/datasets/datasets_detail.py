@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
-from flask import jsonify
+from flask import jsonify, Response
 
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -90,7 +90,7 @@ class DatasetsDetail(IndexMapBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
+    def postprocess(self, es_json: JSONOBJECT, context: ApiContext) -> Response:
         """
         Returns details from the run, @metadata, and host_tools_info subdocuments
         of the Elasticsearch run document. The Elasticsearch information can

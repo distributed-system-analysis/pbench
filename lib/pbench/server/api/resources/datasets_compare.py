@@ -20,7 +20,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.cache_manager import CacheManager
+from pbench.server.cache_manager import CacheManager, CacheManagerError
 from pbench.server.database.models.datasets import Dataset, Metadata
 
 
@@ -96,6 +96,7 @@ class DatasetsCompare(ApiBase):
 
         datasets = params.query.get("datasets")
         benchmark_choice = None
+        benchmark = None
         for dataset in datasets:
 
             # Check that the user is authorized to read each dataset
@@ -128,21 +129,28 @@ class DatasetsCompare(ApiBase):
         stream_file = {}
         for dataset in datasets:
             try:
-                info = cache_m.get_inventory(dataset.resource_id, "result.csv")
-                file = info["stream"].read().decode("utf-8")
-                info["stream"].close()
+                file = cache_m.get_inventory_bytes(dataset.resource_id, "result.csv")
+            except CacheManagerError as e:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    "unable to extract postprocessed data from {dataset.name}",
+                ) from e
             except Exception as e:
                 raise APIInternalError(
-                    f"{dataset.name} is missing 'result.csv' file"
+                    f"Unexpected error extracting postprocessed data from {dataset.name}"
                 ) from e
             stream_file[dataset.name] = file
 
-        quisby_response = QuisbyProcessing().compare_csv_to_json(
-            benchmark_type, InputType.STREAM, stream_file
-        )
+        try:
+            quisby_response = QuisbyProcessing().compare_csv_to_json(
+                benchmark_type, InputType.STREAM, stream_file
+            )
+        except Exception as e:
+            raise APIInternalError(f"Comparison failed with {str(e)!r}")
+
         if quisby_response["status"] != "success":
             raise APIInternalError(
-                f"Quisby processing failure. Exception: {quisby_response['exception']}"
+                f"Comparison processing failure. Exception: {quisby_response['exception']}"
             )
         quisby_response["benchmark"] = benchmark
         return jsonify(quisby_response)
