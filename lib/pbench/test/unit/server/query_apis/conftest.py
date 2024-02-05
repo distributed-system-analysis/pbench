@@ -5,7 +5,7 @@ import pytest
 import requests
 import responses
 
-from pbench.server import JSON
+from pbench.server import JSONOBJECT
 from pbench.server.api.resources import ApiMethod
 
 
@@ -24,8 +24,6 @@ def query_api(client, server_config, provide_metadata):
     parameters: these can be any of the parameters supported by the
     responses mock. Exceptions are specified by providing an Exception()
     instance as the 'body'.
-
-    :return: the response object for further checking
     """
 
     def query_api(
@@ -36,19 +34,17 @@ def query_api(client, server_config, provide_metadata):
         expected_status: str,
         headers: Optional[dict] = None,
         request_method=ApiMethod.POST,
-        query_params: JSON = None,
+        query_params: Optional[JSONOBJECT] = None,
         **kwargs,
     ) -> requests.Response:
         base_uri = server_config.get("Indexing", "uri")
         es_url = f"{base_uri}{expected_index}{es_uri}"
-        assert request_method in (ApiMethod.GET, ApiMethod.POST)
+        client_method = getattr(client, request_method.name.lower())
         if request_method == ApiMethod.GET:
             es_method = responses.GET
-            client_method = client.get
             assert not payload
         else:
             es_method = responses.POST
-            client_method = client.post
         with responses.RequestsMock() as rsp:
             # We need to set up mocks for the Server's call to Elasticsearch,
             # which will only be made if we don't expect Pbench to fail before
@@ -70,7 +66,7 @@ def query_api(client, server_config, provide_metadata):
                 json=payload,
                 query_string=query_params,
             )
-        assert response.status_code == expected_status
-        return response
+            assert response.status_code == expected_status
+            return response
 
     return query_api

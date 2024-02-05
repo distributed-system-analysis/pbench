@@ -120,14 +120,13 @@ class Datasets(IndexMapBase):
 
         dataset = context["dataset"]
         action = context["attributes"].action
-        get_action = action == "get"
         context["action"] = action
         audit_attributes = {}
         access = None
         owner = None
         elastic_options = {"ignore_unavailable": "true"}
 
-        if not get_action:
+        if action != "get":
             elastic_options["refresh"] = "true"
             operations = Operation.by_state(dataset, OperationState.WORKING)
             if context["attributes"].require_stable and operations:
@@ -167,12 +166,16 @@ class Datasets(IndexMapBase):
                 else:
                     owner = dataset.owner_id
 
-        # Get the Elasticsearch indices occupied by the dataset. If there are
-        # none, return with an empty query to disable the Elasticsearch call.
+        # Get the Elasticsearch indices occupied by the dataset.
+        #
+        # We postprocess UPDATE and DELETE even without any indexed documents
+        # in order to update the Dataset object, so tell get_index not to fail
+        # in that case, and return an empty query to disable the Elasticsearch
+        # call.
         #
         # It's important that all context fields required for postprocessing
         # of unindexed datasets have been set before this!
-        indices = self.get_index(dataset, ok_no_index=(not get_action))
+        indices = self.get_index(dataset, ok_no_index=(action != "get"))
         context["indices"] = indices
         if not indices:
             return {}
@@ -195,11 +198,12 @@ class Datasets(IndexMapBase):
         }
 
         if action == "update":
-            painless = "ctx._source.authorization=params.authorization"
-            script_params = {"authorization": {"access": access, "owner": owner}}
-            script = {"source": painless, "lang": "painless", "params": script_params}
             json["path"] = f"{indices}/_update_by_query"
-            json["kwargs"]["json"]["script"] = script
+            json["kwargs"]["json"]["script"] = {
+                "source": "ctx._source.authorization=params.authorization",
+                "lang": "painless",
+                "params": {"authorization": {"access": access, "owner": owner}},
+            }
         elif action == "get":
             json["path"] = f"{indices}/_search"
         elif action == "delete":
@@ -257,7 +261,7 @@ class Datasets(IndexMapBase):
         else:
             if es_json:
                 fields = ("deleted", "updated", "total", "version_conflicts")
-                results = {f: es_json[f] if f in es_json else None for f in fields}
+                results = {f: es_json.get(f, 0) for f in fields}
                 failures = len(es_json["failures"]) if "failures" in es_json else 0
                 results["failures"] = failures
             else:

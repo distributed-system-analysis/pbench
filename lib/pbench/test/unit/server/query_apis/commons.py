@@ -1,6 +1,6 @@
 from http import HTTPStatus
 import itertools
-from typing import AnyStr
+from typing import AnyStr, Optional
 
 from dateutil import parser as date_parser
 from dateutil import rrule
@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 import pytest
 import requests
 
-from pbench.server import JSON
+from pbench.server import JSON, JSONOBJECT
 from pbench.server.api.resources import ApiMethod, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset
@@ -38,22 +38,27 @@ class Commons:
 
     def _setup(
         self,
-        cls_obj: ElasticBase = None,
-        pbench_endpoint: AnyStr = None,
-        elastic_endpoint: AnyStr = None,
-        payload: JSON = None,
-        bad_date_payload: JSON = None,
-        error_payload: JSON = None,
-        empty_es_response_payload: JSON = None,
-        index_from_metadata: AnyStr = None,
+        cls_obj: ElasticBase,
+        pbench_endpoint: str,
+        elastic_endpoint: str,
+        payload: Optional[JSONOBJECT] = None,
+        bad_date_payload: Optional[JSONOBJECT] = None,
+        error_payload: Optional[JSONOBJECT] = None,
+        empty_es_response_payload: Optional[JSONOBJECT] = None,
+        index_from_metadata: Optional[str] = None,
+        api_method: Optional[ApiMethod] = None,
+        use_index_map: Optional[bool] = False,
     ):
-        assert len(cls_obj.schemas) == 1
-        if ApiMethod.GET in cls_obj.schemas:
-            self.api_method = ApiMethod.GET
-        elif ApiMethod.POST in cls_obj.schemas:
-            self.api_method = ApiMethod.POST
+        if api_method:
+            self.api_method = api_method
         else:
-            assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
+            assert len(cls_obj.schemas) == 1
+            if ApiMethod.GET in cls_obj.schemas:
+                self.api_method = ApiMethod.GET
+            elif ApiMethod.POST in cls_obj.schemas:
+                self.api_method = ApiMethod.POST
+            else:
+                assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
         self.cls_obj = cls_obj
         self.pbench_endpoint = pbench_endpoint
         self.elastic_endpoint = elastic_endpoint
@@ -62,6 +67,7 @@ class Commons:
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
         self.root_index = index_from_metadata
+        self.use_index_map = use_index_map or bool(index_from_metadata)
 
     def build_index(self, server_config, dates):
         """Build the index list for query.
@@ -135,13 +141,16 @@ class Commons:
     def make_request_call(
         self, client, url, header: JSON, json: JSON = None, data=None
     ):
-        assert self.api_method in (ApiMethod.GET, ApiMethod.POST)
         if self.api_method == ApiMethod.GET:
             assert json is None
             assert data is None
             func = client.get
-        else:
+        elif self.api_method == ApiMethod.POST:
             func = client.post
+        elif self.api_method == ApiMethod.DELETE:
+            func = client.delete
+        else:
+            assert False, f"API method {self.api_method} not supported"
 
         return func(url, headers=header, json=json, data=data)
 
@@ -434,7 +443,7 @@ class Commons:
         """Check that an exception in calling Elasticsearch is reported
         correctly.
         """
-        if self.root_index:
+        if self.use_index_map:
             index = self.build_index_from_metadata()
         else:
             index = self.build_index(
@@ -467,7 +476,7 @@ class Commons:
         response.raise_for_status() and Pbench handlers.
         """
 
-        if self.root_index:
+        if self.use_index_map:
             index = self.build_index_from_metadata()
         else:
             index = self.build_index(
