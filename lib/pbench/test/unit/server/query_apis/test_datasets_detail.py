@@ -377,6 +377,7 @@ class TestDatasetsDetail(Commons):
             headers=build_auth_header["header"],
             json=self.empty_es_response_payload,
             request_method=self.api_method,
+            install_mock=True,
         )
         assert response.status_code == expected_status
         if response.status_code == HTTPStatus.BAD_REQUEST:
@@ -407,5 +408,6 @@ class TestDatasetsDetail(Commons):
             json=response_payload,
             headers={"authorization": f"Bearer {pbench_drb_token}"},
             request_method=self.api_method,
+            install_mock=True,
         )
         assert response.json["message"].find("Too many hits for a unique query") != -1

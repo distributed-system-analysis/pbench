@@ -18,6 +18,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
+import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.audit import AuditReason, AuditStatus, AuditType
 from pbench.server.database.models.datasets import (
@@ -155,6 +156,14 @@ class Datasets(IndexMapBase):
                 if not access and not owner:
                     raise MissingParameters(["access", "owner"])
 
+                if owner and owner != dataset.owner_id:
+                    auth_user = Auth.token_auth.current_user()
+                    if not auth_user.is_admin():
+                        raise APIAbort(
+                            HTTPStatus.FORBIDDEN,
+                            "ADMIN role is required to change dataset ownership",
+                        )
+
                 if access:
                     audit_attributes["access"] = access
                     context["access"] = access
@@ -254,7 +263,7 @@ class Datasets(IndexMapBase):
             results = []
             for hit in es_json["hits"]["hits"]:
                 s = hit["_source"]
-                s["id"] = hit["_id"]
+                s["_id"] = hit["_id"]
                 results.append(s)
 
             return jsonify(results)

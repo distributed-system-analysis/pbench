@@ -35,8 +35,34 @@ def query_api(client, server_config, provide_metadata):
         headers: Optional[dict] = None,
         request_method=ApiMethod.POST,
         query_params: Optional[JSONOBJECT] = None,
+        install_mock: bool = False,
         **kwargs,
     ) -> requests.Response:
+        """Execute an Elasticsearch query with conditional mocking
+
+        BEWARE: the logic around installing the Elasticsearch mock is tricky.
+        The responses package will cause a test case to failure if an installed
+        mock isn't called, so we need to be careful in analyzing the parameters
+        to determine whether a call is expected. Note in particular that the
+        BAD_REQUEST error is normally diagnosed before an Elasticsearch call,
+        but can also be returned when expected data isn't found: the
+        install_mock parameter forces the mock to be installed on BAD_REQUEST
+        to allow covering these cases.
+
+        Args:
+            pbench_uri: The Pbench API path to call
+            es_uri: The Elasticsearch URI to mock
+            payload: The Pbench API JSON payload
+            expected_index: The expected Elasticsearch index string
+            expected_status: The expected API status
+            headers: Pbench API call headers (usually authentication)
+            request_method: The Pbench API call method
+            query_params: The Pbench API query parameters
+            install_mock: install the Elasticsearch mock on BAD_REQUEST
+
+        Returns:
+            The Pbench API response object
+        """
         base_uri = server_config.get("Indexing", "uri")
         es_url = f"{base_uri}{expected_index}{es_uri}"
         client_method = getattr(client, request_method.name.lower())
@@ -52,11 +78,8 @@ def query_api(client, server_config, provide_metadata):
             # expected status is FORBIDDEN or UNAUTHORIZED; or when we give the
             # canonical "bad username" (badwolf) and are expecting NOT_FOUND.
             if (
-                expected_status
-                not in [
-                    HTTPStatus.FORBIDDEN,
-                    HTTPStatus.UNAUTHORIZED,
-                ]
+                expected_status not in [HTTPStatus.FORBIDDEN, HTTPStatus.UNAUTHORIZED]
+                and (expected_status != HTTPStatus.BAD_REQUEST or install_mock)
                 and (
                     expected_status != HTTPStatus.NOT_FOUND
                     or request_method != ApiMethod.POST
@@ -71,7 +94,9 @@ def query_api(client, server_config, provide_metadata):
                 json=payload,
                 query_string=query_params,
             )
-            assert response.status_code == expected_status
+            assert (
+                response.status_code == expected_status
+            ), f"Unexpected status {response.status_code}: {response.text!r}"
             return response
 
     return query_api

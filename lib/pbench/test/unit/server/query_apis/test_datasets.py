@@ -1,3 +1,4 @@
+import copy
 from http import HTTPStatus
 
 import pytest
@@ -115,25 +116,32 @@ class TestDatasets(Commons):
             )
 
     @pytest.mark.parametrize(
-        "user,ao,expected_status",
+        "user,ao,owner,access,expected_status",
         [
-            ("drb", False, HTTPStatus.OK),
-            ("drb", True, HTTPStatus.OK),
-            ("test_admin", False, HTTPStatus.OK),
-            ("test", False, HTTPStatus.FORBIDDEN),
-            (None, False, HTTPStatus.UNAUTHORIZED),
+            ("drb", False, None, "public", HTTPStatus.OK),
+            ("drb", True, None, "public", HTTPStatus.OK),
+            ("test_admin", False, "test", None, HTTPStatus.OK),
+            ("test", False, None, "public", HTTPStatus.FORBIDDEN),
+            (None, False, None, "public", HTTPStatus.UNAUTHORIZED),
+            ("drb", False, "test", "public", HTTPStatus.FORBIDDEN),
+            ("drb", True, "test", None, HTTPStatus.FORBIDDEN),
+            ("test_admin", False, None, None, HTTPStatus.BAD_REQUEST),
+            ("test", False, "test", None, HTTPStatus.FORBIDDEN),
+            (None, False, "drb", None, HTTPStatus.UNAUTHORIZED),
         ],
     )
-    def test_empty_update_access(
+    def test_empty_update(
         self,
         client,
         server_config,
         query_api,
         find_template,
+        get_token_func,
         user,
         ao,
+        owner,
+        access,
         expected_status,
-        get_token_func,
     ):
         """Check update with no Elasticsearch documents"""
 
@@ -144,16 +152,31 @@ class TestDatasets(Commons):
             assert token
             headers = {"authorization": f"bearer {token}"}
 
+        drb = Dataset.query(name="drb")
         if ao:
             # Set archiveonly flag to disable index-map logic
-            drb = Dataset.query(name="drb")
             Metadata.setvalue(drb, Metadata.SERVER_ARCHIVE, True)
             index = None
         else:
             index = self.build_index_from_metadata()
 
+        expected_owner = drb.owner_id
+        expected_access = drb.access
+        if owner and access:
+            query = f"?owner={owner}&access={access}"
+            expected_owner = owner
+            expected_access = access
+        elif owner:
+            query = f"?owner={owner}"
+            expected_owner = owner
+        elif access:
+            query = f"?access={access}"
+            expected_access = access
+        else:
+            query = ""
+
         response = query_api(
-            "/datasets/random_md5_string1?access=public",
+            f"/datasets/random_md5_string1{query}",
             "/_update_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
@@ -162,7 +185,6 @@ class TestDatasets(Commons):
             json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
         )
-        assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
             res_json = response.json
             expected = {
@@ -176,17 +198,48 @@ class TestDatasets(Commons):
 
             # On success, the dataset should be updated
             drb = Dataset.query(name="drb")
-            assert "public" == drb.access
+            assert expected_access == drb.access
+            assert expected_owner == expected_owner
         else:
             # On failure, the dataset should still exist
             assert Dataset.query(name="drb")
-            assert response.json["message"].endswith(
-                "is not authorized to UPDATE a resource owned by drb with private access"
-            )
+            if expected_status == HTTPStatus.BAD_REQUEST:
+                assert (
+                    "Missing required parameters: access,owner"
+                    == response.json["message"]
+                )
+            elif owner and not user:
+                assert (
+                    f"Requestor is unable to verify username {owner!r}"
+                    == response.json["message"]
+                )
+            elif owner and user == "drb":
+                assert (
+                    "ADMIN role is required to change dataset ownership"
+                    == response.json["message"]
+                )
+            else:
+                assert response.json["message"].endswith(
+                    "is not authorized to UPDATE a resource owned by drb with private access"
+                )
 
-    @pytest.mark.parametrize("ao", (True, False))
-    def test_empty_get(
-        self, client, server_config, query_api, find_template, build_auth_header, ao
+    @pytest.mark.parametrize(
+        "ao,hits",
+        (
+            (True, None),
+            (False, None),
+            (False, [{"a": "b", "c": 1}, {"a": "d", "c": 10}]),
+        ),
+    )
+    def test_get(
+        self,
+        client,
+        server_config,
+        query_api,
+        find_template,
+        build_auth_header,
+        ao,
+        hits,
     ):
         """Check a GET operation with no Elasticsearch documents"""
         auth_json = {"user": "drb", "access": "private"}
@@ -205,19 +258,31 @@ class TestDatasets(Commons):
         else:
             index = self.build_index_from_metadata()
 
+        json = copy.deepcopy(self.empty_es_response_payload)
+        if hits and not ao:
+            json["hits"]["total"]["value"] = len(hits)
+            p_hits = hits.copy()
+            for i, h in enumerate(p_hits):
+                h["_id"] = i
+            json["hits"]["hits"] = [
+                {"_source": h, "_id": n} for n, h in enumerate(hits)
+            ]
+        else:
+            p_hits = []
+
         response = query_api(
-            f"{self.pbench_endpoint}",
+            self.pbench_endpoint,
             "/_search?ignore_unavailable=true",
             self.payload,
             index,
             expected_status,
             request_method=ApiMethod.GET,
             headers=build_auth_header["header"],
-            json=self.empty_es_response_payload,
+            json=json,
         )
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
-            assert [] == response.json
+            assert p_hits == response.json
         elif expected_status == HTTPStatus.CONFLICT:
             assert {"message": "Dataset indexing was disabled"} == response.json
         else:
