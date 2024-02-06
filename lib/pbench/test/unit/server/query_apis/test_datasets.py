@@ -280,7 +280,6 @@ class TestDatasets(Commons):
             headers=build_auth_header["header"],
             json=json,
         )
-        assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert p_hits == response.json
         elif expected_status == HTTPStatus.CONFLICT:
@@ -289,3 +288,39 @@ class TestDatasets(Commons):
             assert {
                 "message": "Unauthenticated client is not authorized to READ a resource owned by drb with private access"
             } == response.json
+
+    @pytest.mark.parametrize("value", (None, "not-integer"))
+    def test_bad_get(
+        self, client, server_config, query_api, find_template, get_token_func, value
+    ):
+        """Check update with no Elasticsearch documents"""
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+
+        json = {
+            "took": 1,
+            "timed_out": False,
+            "_shards": {"total": 1, "successful": 1, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": {"value": 0, "relation": "eq"},
+                "max_score": None,
+                "hits": [],
+            },
+        }
+        if value:
+            json["hits"]["total"]["value"] = value
+        else:
+            del json["hits"]["total"]["value"]
+        query_api(
+            self.pbench_endpoint,
+            "/_search?ignore_unavailable=true",
+            self.payload,
+            index,
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+            request_method=ApiMethod.GET,
+            headers=headers,
+            json=json,
+        )

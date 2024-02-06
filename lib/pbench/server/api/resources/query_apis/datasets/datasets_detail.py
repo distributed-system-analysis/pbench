@@ -6,6 +6,7 @@ from pbench.server import JSON, JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
+    APIInternalError,
     ApiMethod,
     ApiParams,
     ApiSchema,
@@ -13,14 +14,9 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
+from pbench.server.api.resources.query_apis import ApiContext
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
-from pbench.server.database.models.datasets import (
-    Dataset,
-    DatasetNotFound,
-    Metadata,
-    MetadataError,
-)
+from pbench.server.database.models.datasets import Metadata, MetadataError
 
 
 class DatasetsDetail(IndexMapBase):
@@ -122,18 +118,17 @@ class DatasetsDetail(IndexMapBase):
             }
         ]
         """
+
+        dataset = context["dataset"]
         hits = es_json["hits"]["hits"]
 
         # NOTE: we're expecting just one. We're matching by just the
-        # dataset name, which ought to be unique.
+        # dataset resource ID, which ought to be unique.
         if len(hits) == 0:
-            raise PostprocessError(
-                HTTPStatus.BAD_REQUEST, "The specified dataset has gone missing"
-            )
+            raise APIInternalError(f"Dataset {dataset.name} run document is missing")
         elif len(hits) > 1:
-            raise PostprocessError(
-                HTTPStatus.BAD_REQUEST, "Too many hits for a unique query"
-            )
+            raise APIInternalError(f"Dataset {dataset.name} has multiple run documents")
+
         src = hits[0]["_source"]
 
         # We're merging the "run" and "@metadata" sub-documents into
@@ -147,12 +142,7 @@ class DatasetsDetail(IndexMapBase):
         }
 
         try:
-            dataset = Dataset.query(resource_id=(src["run"]["id"]))
             m = self._get_dataset_metadata(dataset, context["metadata"])
-        except DatasetNotFound:
-            raise APIAbort(
-                HTTPStatus.BAD_REQUEST, f"Dataset {src['run']['id']} not found"
-            )
         except MetadataError as e:
             raise APIAbort(HTTPStatus.BAD_REQUEST, str(e))
 

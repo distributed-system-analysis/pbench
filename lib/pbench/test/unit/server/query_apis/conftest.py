@@ -35,7 +35,6 @@ def query_api(client, server_config, provide_metadata):
         headers: Optional[dict] = None,
         request_method=ApiMethod.POST,
         query_params: Optional[JSONOBJECT] = None,
-        install_mock: bool = False,
         **kwargs,
     ) -> requests.Response:
         """Execute an Elasticsearch query with conditional mocking
@@ -43,11 +42,8 @@ def query_api(client, server_config, provide_metadata):
         BEWARE: the logic around installing the Elasticsearch mock is tricky.
         The responses package will cause a test case to failure if an installed
         mock isn't called, so we need to be careful in analyzing the parameters
-        to determine whether a call is expected. Note in particular that the
-        BAD_REQUEST error is normally diagnosed before an Elasticsearch call,
-        but can also be returned when expected data isn't found: the
-        install_mock parameter forces the mock to be installed on BAD_REQUEST
-        to allow covering these cases.
+        to determine whether a call is expected. This is mostly based on the
+        expected status and index values plus a few special cases!
 
         Args:
             pbench_uri: The Pbench API path to call
@@ -58,7 +54,6 @@ def query_api(client, server_config, provide_metadata):
             headers: Pbench API call headers (usually authentication)
             request_method: The Pbench API call method
             query_params: The Pbench API query parameters
-            install_mock: install the Elasticsearch mock on BAD_REQUEST
 
         Returns:
             The Pbench API response object
@@ -78,8 +73,12 @@ def query_api(client, server_config, provide_metadata):
             # expected status is FORBIDDEN or UNAUTHORIZED; or when we give the
             # canonical "bad username" (badwolf) and are expecting NOT_FOUND.
             if (
-                expected_status not in [HTTPStatus.FORBIDDEN, HTTPStatus.UNAUTHORIZED]
-                and (expected_status != HTTPStatus.BAD_REQUEST or install_mock)
+                expected_status
+                not in [
+                    HTTPStatus.FORBIDDEN,
+                    HTTPStatus.UNAUTHORIZED,
+                    HTTPStatus.BAD_REQUEST,
+                ]
                 and (
                     expected_status != HTTPStatus.NOT_FOUND
                     or request_method != ApiMethod.POST

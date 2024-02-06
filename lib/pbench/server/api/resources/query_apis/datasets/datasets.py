@@ -16,7 +16,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
+from pbench.server.api.resources.query_apis import ApiContext
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import CacheManager
@@ -245,19 +245,18 @@ class Datasets(IndexMapBase):
         current_app.logger.info("POSTPROCESS {}: {}", dataset.name, es_json)
         failures = 0
         if action == "get":
+            count = None
             try:
                 count = es_json["hits"]["total"]["value"]
                 if int(count) == 0:
                     current_app.logger.info("No data returned by Elasticsearch")
                     return jsonify([])
             except KeyError as e:
-                raise PostprocessError(
-                    HTTPStatus.BAD_REQUEST,
+                raise APIInternalError(
                     f"Can't find Elasticsearch match data {e} in {es_json!r}",
                 )
             except ValueError as e:
-                raise PostprocessError(
-                    HTTPStatus.BAD_REQUEST,
+                raise APIInternalError(
                     f"Elasticsearch hit count {count!r} value: {e}",
                 )
             results = []
