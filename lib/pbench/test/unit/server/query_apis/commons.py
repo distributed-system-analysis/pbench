@@ -409,6 +409,7 @@ class Commons:
             status=HTTPStatus.OK,
             json=self.empty_es_response_payload,
             request_method=self.api_method,
+            expect_call=expected_status == HTTPStatus.OK,
         )
         assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
@@ -462,6 +463,7 @@ class Commons:
             body=exceptions["exception"],
             headers={"Authorization": "Bearer " + pbench_drb_token},
             request_method=self.api_method,
+            expect_call=True,
         )
 
     @pytest.mark.parametrize("errors", (400, 500, 409))
@@ -494,4 +496,5 @@ class Commons:
             status=errors,
             headers={"Authorization": "Bearer " + pbench_drb_token},
             request_method=self.api_method,
+            expect_call=True,
         )

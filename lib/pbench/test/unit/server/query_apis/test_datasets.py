@@ -3,9 +3,20 @@ from http import HTTPStatus
 
 import pytest
 
+from pbench.server import OperationCode
 from pbench.server.api.resources import ApiMethod
 from pbench.server.api.resources.query_apis.datasets.datasets import Datasets
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetNotFound,
+    Metadata,
+    Operation,
+    OperationName,
+    OperationState,
+)
+from pbench.server.database.models.users import User
+from pbench.server.sync import Sync
 from pbench.test.unit.server.query_apis.commons import Commons
 
 EMPTY_DELDATE_RESPONSE = {
@@ -58,9 +69,7 @@ class TestDatasets(Commons):
     def test_empty_delete(
         self,
         client,
-        server_config,
         query_api,
-        find_template,
         user,
         ao,
         expected_status,
@@ -71,9 +80,12 @@ class TestDatasets(Commons):
         headers = None
 
         if user:
+            user_id = User.query(username=user).id
             token = get_token_func(user)
             assert token
             headers = {"authorization": f"bearer {token}"}
+        else:
+            user_id = None
 
         if ao:
             # Set archiveonly flag to disable index-map logic
@@ -92,6 +104,7 @@ class TestDatasets(Commons):
             request_method=self.api_method,
             json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
+            expect_call=(expected_status == HTTPStatus.OK and not ao),
         )
         assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
@@ -104,6 +117,32 @@ class TestDatasets(Commons):
                 "version_conflicts": 0,
             }
             assert expected == res_json
+            audit = Audit.query()
+            assert len(audit) == 2
+            assert audit[0].id == 1
+            assert audit[0].root_id is None
+            assert audit[0].operation == OperationCode.DELETE
+            assert audit[0].status == AuditStatus.BEGIN
+            assert audit[0].name == "delete"
+            assert audit[0].object_type == AuditType.DATASET
+            assert audit[0].object_id == "random_md5_string1"
+            assert audit[0].object_name == "drb"
+            assert audit[0].user_id == user_id
+            assert audit[0].user_name == user
+            assert audit[0].reason is None
+            assert audit[0].attributes is None
+            assert audit[1].id == 2
+            assert audit[1].root_id == 1
+            assert audit[1].operation == OperationCode.DELETE
+            assert audit[1].status == AuditStatus.SUCCESS
+            assert audit[1].name == "delete"
+            assert audit[1].object_type == AuditType.DATASET
+            assert audit[1].object_id == "random_md5_string1"
+            assert audit[1].object_name == "drb"
+            assert audit[1].user_id == user_id
+            assert audit[1].user_name == user
+            assert audit[1].reason is None
+            assert audit[1].attributes == {"results": expected}
 
             # On success, the dataset should be gone
             with pytest.raises(DatasetNotFound):
@@ -130,12 +169,10 @@ class TestDatasets(Commons):
             (None, False, "drb", None, HTTPStatus.UNAUTHORIZED),
         ],
     )
-    def test_empty_update(
+    def test_update(
         self,
         client,
-        server_config,
         query_api,
-        find_template,
         get_token_func,
         user,
         ao,
@@ -148,9 +185,12 @@ class TestDatasets(Commons):
         headers = None
 
         if user:
+            user_id = User.query(username=user).id
             token = get_token_func(user)
             assert token
             headers = {"authorization": f"bearer {token}"}
+        else:
+            user_id = None
 
         drb = Dataset.query(name="drb")
         if ao:
@@ -161,17 +201,25 @@ class TestDatasets(Commons):
             index = self.build_index_from_metadata()
 
         expected_owner = drb.owner_id
+        original_owner = drb.owner_id
         expected_access = drb.access
+        original_access = drb.access
+        audit_attr = {}
         if owner and access:
             query = f"?owner={owner}&access={access}"
+            o_id = User.query(username=owner).id
             expected_owner = owner
             expected_access = access
+            audit_attr = {"owner": o_id, "access": access}
         elif owner:
             query = f"?owner={owner}"
+            o_id = User.query(username=owner).id
             expected_owner = owner
+            audit_attr = {"owner": o_id}
         elif access:
             query = f"?access={access}"
             expected_access = access
+            audit_attr = {"access": access}
         else:
             query = ""
 
@@ -184,8 +232,15 @@ class TestDatasets(Commons):
             request_method=ApiMethod.POST,
             json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
+            expect_call=(expected_status == HTTPStatus.OK and not ao),
         )
+
+        # Look up the post-update dataset
+        drb = Dataset.query(name="drb")
+
         if response.status_code == HTTPStatus.OK:
+            assert expected_access == drb.access
+            assert expected_owner == expected_owner
             res_json = response.json
             expected = {
                 "total": 0,
@@ -196,13 +251,36 @@ class TestDatasets(Commons):
             }
             assert expected == res_json
 
-            # On success, the dataset should be updated
-            drb = Dataset.query(name="drb")
-            assert expected_access == drb.access
-            assert expected_owner == expected_owner
+            audit_attr["results"] = expected
+            audit = Audit.query()
+            assert len(audit) == 2
+            assert audit[0].id == 1
+            assert audit[0].root_id is None
+            assert audit[0].operation == OperationCode.UPDATE
+            assert audit[0].status == AuditStatus.BEGIN
+            assert audit[0].name == "update"
+            assert audit[0].object_type == AuditType.DATASET
+            assert audit[0].object_id == "random_md5_string1"
+            assert audit[0].object_name == "drb"
+            assert audit[0].user_id == user_id
+            assert audit[0].user_name == user
+            assert audit[0].reason is None
+            assert audit[0].attributes is None
+            assert audit[1].id == 2
+            assert audit[1].root_id == 1
+            assert audit[1].operation == OperationCode.UPDATE
+            assert audit[1].status == AuditStatus.SUCCESS
+            assert audit[1].name == "update"
+            assert audit[1].object_type == AuditType.DATASET
+            assert audit[1].object_id == "random_md5_string1"
+            assert audit[1].object_name == "drb"
+            assert audit[1].user_id == user_id
+            assert audit[1].user_name == user
+            assert audit[1].reason is None
+            assert audit[1].attributes == audit_attr
         else:
-            # On failure, the dataset should still exist
-            assert Dataset.query(name="drb")
+            assert original_access == drb.access
+            assert original_owner == drb.owner_id
             if expected_status == HTTPStatus.BAD_REQUEST:
                 assert (
                     "Missing required parameters: access,owner"
@@ -234,9 +312,7 @@ class TestDatasets(Commons):
     def test_get(
         self,
         client,
-        server_config,
         query_api,
-        find_template,
         build_auth_header,
         ao,
         hits,
@@ -290,9 +366,7 @@ class TestDatasets(Commons):
             } == response.json
 
     @pytest.mark.parametrize("value", (None, "not-integer"))
-    def test_bad_get(
-        self, client, server_config, query_api, find_template, get_token_func, value
-    ):
+    def test_bad_get(self, client, query_api, get_token_func, value):
         """Check update with no Elasticsearch documents"""
 
         token = get_token_func("drb")
@@ -323,4 +397,90 @@ class TestDatasets(Commons):
             request_method=ApiMethod.GET,
             headers=headers,
             json=json,
+            expect_call=True,
+        )
+
+    def test_update_unstable(self, monkeypatch, client, query_api, get_token_func):
+        """Check update on a dataset with in-progress operations"""
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+
+        monkeypatch.setattr(
+            Operation,
+            "by_state",
+            lambda _d, _s: [
+                Operation(name=OperationName.INDEX, state=OperationState.WORKING)
+            ],
+        )
+
+        response = query_api(
+            "/datasets/random_md5_string1?access=public",
+            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.CONFLICT,
+            request_method=ApiMethod.POST,
+            json=EMPTY_DELDATE_RESPONSE,
+            headers=headers,
+        )
+
+        assert {"message": "Dataset is working on INDEX"} == response.json
+
+    def test_update_bad_first_sync(
+        self, monkeypatch, client, query_api, get_token_func
+    ):
+        """Check update when we're unable to update to WORKING state"""
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+
+        def fails(_self, _dataset, _state):
+            raise Exception("I'm broken")
+
+        monkeypatch.setattr(Sync, "update", fails)
+
+        query_api(
+            "/datasets/random_md5_string1?access=public",
+            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            request_method=ApiMethod.POST,
+            json=EMPTY_DELDATE_RESPONSE,
+            headers=headers,
+        )
+
+    def test_update_bad_final_sync(
+        self, monkeypatch, client, query_api, get_token_func
+    ):
+        """Check update when we're unable to finalize the oeprational state"""
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+
+        def fails(
+            _s, dataset: Dataset, state: OperationState, enabled=None, message=None
+        ):
+            if state is not OperationState.WORKING:
+                raise Exception("I'm broken")
+
+        monkeypatch.setattr(Sync, "update", fails)
+
+        query_api(
+            "/datasets/random_md5_string1?access=public",
+            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            request_method=ApiMethod.POST,
+            json=EMPTY_DELDATE_RESPONSE,
+            headers=headers,
+            expect_call=True,
         )

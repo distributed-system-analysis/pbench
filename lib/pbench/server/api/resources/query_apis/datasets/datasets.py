@@ -147,7 +147,9 @@ class Datasets(IndexMapBase):
                     OperationState.WORKING.name,
                     e,
                 )
-                raise APIAbort(HTTPStatus.CONFLICT, "Unable to set operational state")
+                raise APIInternalError(
+                    f"can't set {OperationState.WORKING.name} on {dataset.name}: {str(e)!r} "
+                )
             context["sync"] = sync
             context["auditing"]["attributes"] = audit_attributes
             if action == "update":
@@ -324,7 +326,9 @@ class Datasets(IndexMapBase):
                     auditing["attributes"] = {"message": str(e)}
                     auditing["status"] = AuditStatus.WARNING
                     auditing["reason"] = AuditReason.INTERNAL
-                    raise APIInternalError(f"Unexpected sync unlock error '{e}'") from e
+                    raise APIInternalError(
+                        f"Unexpected sync error {dataset.name} {str(e)!r}"
+                    ) from e
 
             # Return the summary document as the success response, or abort with an
             # internal error if we tried to operate on Elasticsearch documents but
@@ -335,9 +339,9 @@ class Datasets(IndexMapBase):
                 auditing["reason"] = AuditReason.INTERNAL
                 auditing["attributes"][
                     "message"
-                ] = f"Unable to {context['attributes'].action} some indexed documents"
+                ] = f"Unable to {action} some indexed documents"
                 raise APIInternalError(
-                    f"Failed to {context['attributes'].action} any of {results['total']} "
+                    f"Failed to {action} any of {results['total']} "
                     f"Elasticsearch documents: {es_json}"
                 )
             elif sync:

@@ -365,7 +365,10 @@ class TestDatasetsDetail(Commons):
         # In this case, if we don't get a validation/permission error, expect
         # to fail because of the unexpectedly empty Elasticsearch result.
         if expected_status == HTTPStatus.OK:
+            expect_call = True
             expected_status = HTTPStatus.INTERNAL_SERVER_ERROR
+        else:
+            expect_call = None
         index = self.build_index_from_metadata()
 
         response = query_api(
@@ -377,6 +380,7 @@ class TestDatasetsDetail(Commons):
             headers=build_auth_header["header"],
             json=self.empty_es_response_payload,
             request_method=self.api_method,
+            expect_call=expect_call,
         )
         assert response.status_code == expected_status
 
@@ -405,4 +409,5 @@ class TestDatasetsDetail(Commons):
             json=response_payload,
             headers={"authorization": f"Bearer {pbench_drb_token}"},
             request_method=self.api_method,
+            expect_call=True,
         )
