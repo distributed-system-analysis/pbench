@@ -301,6 +301,87 @@ class TestDatasets(Commons):
                     "is not authorized to UPDATE a resource owned by drb with private access"
                 )
 
+    def test_update_partial_failure(self, client, query_api, get_token_func):
+        """Check update with no Elasticsearch documents"""
+
+        headers = None
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+
+        es_json = {
+            "took": 42,
+            "timed_out": False,
+            "total": 2,
+            "updated": 1,
+            "deleted": 0,
+            "batches": 0,
+            "version_conflicts": 0,
+            "noops": 0,
+            "retries": {"bulk": 0, "search": 0},
+            "throttled_millis": 0,
+            "requests_per_second": 0.0,
+            "throttled_until_millis": 0,
+            "failures": ["bad"],
+        }
+        response = query_api(
+            "/datasets/random_md5_string1?access=public",
+            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.OK,
+            request_method=ApiMethod.POST,
+            json=es_json,
+            headers=headers,
+            expect_call=True,
+        )
+        expected = {
+            "total": 2,
+            "updated": 1,
+            "deleted": 0,
+            "failures": 1,
+            "version_conflicts": 0,
+        }
+        assert expected == response.json
+
+    def test_update_total_failure(self, client, query_api, get_token_func):
+        """Check update with no Elasticsearch documents"""
+
+        headers = None
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+
+        es_json = {
+            "took": 42,
+            "timed_out": False,
+            "total": 2,
+            "deleted": 0,
+            "batches": 0,
+            "version_conflicts": 0,
+            "noops": 0,
+            "retries": {"bulk": 0, "search": 0},
+            "throttled_millis": 0,
+            "requests_per_second": 0.0,
+            "throttled_until_millis": 0,
+            "failures": ["bad", "me too"],
+        }
+        query_api(
+            "/datasets/random_md5_string1?access=public",
+            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            request_method=ApiMethod.POST,
+            json=es_json,
+            headers=headers,
+            expect_call=True,
+        )
+
     @pytest.mark.parametrize(
         "ao,hits",
         (
@@ -458,7 +539,7 @@ class TestDatasets(Commons):
     def test_update_bad_final_sync(
         self, monkeypatch, client, query_api, get_token_func
     ):
-        """Check update when we're unable to finalize the oeprational state"""
+        """Check update when we're unable to finalize the operational state"""
 
         token = get_token_func("drb")
         assert token
@@ -480,6 +561,56 @@ class TestDatasets(Commons):
             expected_index=index,
             expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
             request_method=ApiMethod.POST,
+            json=EMPTY_DELDATE_RESPONSE,
+            headers=headers,
+            expect_call=True,
+        )
+
+    def test_update_bad_update(self, monkeypatch, client, query_api, get_token_func):
+        """Check update when we're unable to update the Dataset"""
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+
+        def fails(_s):
+            raise Exception("I'm broken")
+
+        monkeypatch.setattr(Dataset, "update", fails)
+
+        query_api(
+            "/datasets/random_md5_string1?access=public",
+            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            request_method=ApiMethod.POST,
+            json=EMPTY_DELDATE_RESPONSE,
+            headers=headers,
+            expect_call=True,
+        )
+
+    def test_update_bad_delete(self, monkeypatch, client, query_api, get_token_func):
+        """Check update when we're unable to delete the Dataset"""
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+
+        def fails(_s):
+            raise Exception("I'm broken")
+
+        monkeypatch.setattr(Dataset, "delete", fails)
+
+        query_api(
+            "/datasets/random_md5_string1",
+            "/_delete_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            request_method=ApiMethod.DELETE,
             json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
             expect_call=True,
