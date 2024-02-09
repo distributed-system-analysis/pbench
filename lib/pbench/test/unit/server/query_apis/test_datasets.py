@@ -15,6 +15,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.database.models.index_map import IndexMap
 from pbench.server.database.models.users import User
 from pbench.server.sync import Sync
 from pbench.test.unit.server.query_apis.commons import Commons
@@ -382,50 +383,44 @@ class TestDatasets(Commons):
             expect_call=True,
         )
 
-    @pytest.mark.parametrize(
-        "ao,hits",
-        (
-            (True, None),
-            (False, None),
-            (False, [{"a": "b", "c": 1}, {"a": "d", "c": 10}]),
-        ),
-    )
+    @pytest.mark.parametrize("ao", (True, False))
     def test_get(
-        self,
-        client,
-        query_api,
-        build_auth_header,
-        ao,
-        hits,
+        self, monkeypatch, more_datasets, client, query_api, build_auth_header, ao
     ):
-        """Check a GET operation with no Elasticsearch documents"""
+        """Check on the GET summary behavior
+
+        We should report a JSON document with an integer count for each index
+        name.
+
+        We test two different datasets, one with an index map and one without,
+        both with and without "archiveonly" set.
+        """
         auth_json = {"user": "drb", "access": "private"}
 
         expected_status = self.get_expected_status(
             auth_json, build_auth_header["header_param"]
         )
 
+        ds = Dataset.query(name="drb")
+        json = copy.deepcopy(self.empty_es_response_payload)
         if ao:
             # Set archiveonly flag to disable index-map logic
-            drb = Dataset.query(name="drb")
-            Metadata.setvalue(drb, Metadata.SERVER_ARCHIVE, True)
+            Metadata.setvalue(ds, Metadata.SERVER_ARCHIVE, True)
             index = None
             if expected_status == HTTPStatus.OK:
                 expected_status = HTTPStatus.CONFLICT
+            monkeypatch.setattr(IndexMap, "indices", lambda _d: [])
+            expected = {}
         else:
-            index = self.build_index_from_metadata()
-
-        json = copy.deepcopy(self.empty_es_response_payload)
-        if hits and not ao:
-            json["hits"]["total"]["value"] = len(hits)
-            p_hits = hits.copy()
-            for i, h in enumerate(p_hits):
-                h["_id"] = i
-            json["hits"]["hits"] = [
-                {"_source": h, "_id": n} for n, h in enumerate(hits)
-            ]
-        else:
-            p_hits = []
+            indices = list(IndexMap.indices(ds))
+            index = "/" + ",".join(indices)
+            hits = []
+            expected = {}
+            for i, n in enumerate(indices):
+                hits.append({"_index": n, "_id": i, "_source": {"data": f"{n}_{i}"}})
+                expected[n] = 1
+            json["hits"]["total"]["value"] = str(len(hits))
+            json["hits"]["hits"] = hits
 
         response = query_api(
             self.pbench_endpoint,
@@ -438,7 +433,7 @@ class TestDatasets(Commons):
             json=json,
         )
         if expected_status == HTTPStatus.OK:
-            assert p_hits == response.json
+            assert expected == response.json
         elif expected_status == HTTPStatus.CONFLICT:
             assert {"message": "Dataset indexing was disabled"} == response.json
         else:

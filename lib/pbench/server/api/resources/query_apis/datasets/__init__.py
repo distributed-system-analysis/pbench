@@ -142,7 +142,8 @@ class IndexMapBase(ElasticBase):
 
         if not index_keys:
             raise APIAbort(
-                HTTPStatus.NOT_FOUND, f"Dataset has no {root_index_name!r} data"
+                HTTPStatus.NOT_FOUND,
+                f"Dataset has no {root_index_name if root_index_name else 'indexed'!r} data",
             )
 
         indices = ",".join(index_keys)

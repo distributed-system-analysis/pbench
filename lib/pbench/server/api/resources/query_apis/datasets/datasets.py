@@ -1,3 +1,4 @@
+from collections import defaultdict
 from http import HTTPStatus
 
 from flask import current_app, jsonify, Response
@@ -248,8 +249,10 @@ class Datasets(IndexMapBase):
         failures = 0
         if action == "get":
             count = None
+            hits = []
             try:
                 count = es_json["hits"]["total"]["value"]
+                hits = es_json["hits"]["hits"]
                 if int(count) == 0:
                     current_app.logger.info("No data returned by Elasticsearch")
                     return jsonify([])
@@ -261,13 +264,10 @@ class Datasets(IndexMapBase):
                 raise APIInternalError(
                     f"Elasticsearch hit count {count!r} value: {e}",
                 )
-            results = []
-            for hit in es_json["hits"]["hits"]:
-                s = hit["_source"]
-                s["_id"] = hit["_id"]
-                results.append(s)
-
-            return jsonify(results)
+            results = defaultdict(int)
+            for hit in hits:
+                results[hit["_index"]] += 1
+            return jsonify({i: c for i, c in results.items()})
         else:
             if es_json:
                 fields = ("deleted", "updated", "total", "version_conflicts")
