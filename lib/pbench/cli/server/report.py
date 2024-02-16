@@ -486,7 +486,7 @@ def report(
 
     try:
         config = config_setup(context)
-        logger = get_pbench_logger("report-generator", config)
+        logger = get_pbench_logger("pbench-report-generator", config)
         if any((all, archive, backup, cache)):
             cache_m = CacheManager(config, logger)
             verifier.status("starting discovery")

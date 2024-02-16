@@ -80,7 +80,7 @@ def tree_manage(
     logger = None
     try:
         config = config_setup(context)
-        logger = get_pbench_logger("cachemanager", config)
+        logger = get_pbench_logger("pbench-tree-manager", config)
         cache_m = CacheManager(config, logger)
         cache_m.full_discovery()
         if display:

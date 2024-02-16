@@ -31,7 +31,7 @@ from pbench.server.cache_manager import (
     TarballUnpackError,
 )
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
-from pbench.server.database.models.datasets import Dataset, DatasetBadName
+from pbench.server.database.models.datasets import Dataset, DatasetBadName, Metadata
 from pbench.test.unit.server.conftest import make_tarball
 
 
@@ -581,6 +581,7 @@ class TestCacheManager:
     class MockTarball:
         def __init__(self, path: Path, resource_id: str, controller: Controller):
             self.name = Dataset.stem(path)
+            self.logger = controller.logger
             self.resource_id = "ABC"
             self.dataset = None
             self.tarball_path = path
@@ -1552,6 +1553,100 @@ class TestCacheManager:
         assert stream.lock is None
         assert my_calls == exp_calls
 
+    def test_get_contents(self, server_config, make_logger, tarball, db_session):
+        """Test the TOC analysis"""
+
+        source_tarball, source_md5, md5 = tarball
+        cm = CacheManager(server_config, make_logger)
+        cm.create(source_tarball)
+        root = f"https://fake/api/v1/datasets/{md5}"
+
+        # Unpack the tarball and show the canonical `tarball` fixture contents
+        assert cm.get_contents(md5, "", root) == {
+            "name": "",
+            "type": "DIRECTORY",
+            "uri": f"{root}/contents/",
+            "directories": [],
+            "files": [
+                {
+                    "name": "metadata.log",
+                    "size": 28,
+                    "type": "FILE",
+                    "uri": f"{root}/inventory/metadata.log",
+                }
+            ],
+        }
+
+        # Now that we have an unpacked directory, manually "enhance" it to test
+        # more paths.
+
+        base: Path = cm.find_dataset(md5).unpacked
+        subdir = base / "subdir"
+        subdir.mkdir()
+        ldir = base / "dir_link"
+        ldir.symlink_to(subdir)
+        lfile = base / "file_link"
+        lfile.symlink_to(Path(base / "metadata.log"))
+        badlink = base / "bad_link"
+        badlink.symlink_to("/etc/passwd")
+        fifo = base / "fifo"
+        os.mkfifo(fifo)
+        fifolink = base / "fifo_link"
+        fifolink.symlink_to(fifo)
+        assert cm.get_contents(md5, "", root) == {
+            "name": "",
+            "type": "DIRECTORY",
+            "directories": [
+                {
+                    "name": "dir_link",
+                    "type": "SYMLINK",
+                    "link": "subdir",
+                    "link_type": "DIRECTORY",
+                    "uri": f"{root}/contents/subdir",
+                },
+                {
+                    "name": "subdir",
+                    "type": "DIRECTORY",
+                    "uri": f"{root}/contents/subdir",
+                },
+            ],
+            "files": [
+                {
+                    "name": "bad_link",
+                    "type": "SYMLINK",
+                    "link": "/etc/passwd",
+                    "link_type": "BROKEN",
+                    "uri": f"{root}/inventory/bad_link",
+                },
+                {
+                    "name": "fifo",
+                    "type": "OTHER",
+                    "uri": f"{root}/inventory/fifo",
+                },
+                {
+                    "name": "fifo_link",
+                    "type": "SYMLINK",
+                    "link": "fifo",
+                    "link_type": "OTHER",
+                    "uri": f"{root}/inventory/fifo_link",
+                },
+                {
+                    "name": "file_link",
+                    "type": "SYMLINK",
+                    "link": "metadata.log",
+                    "link_type": "FILE",
+                    "uri": f"{root}/inventory/metadata.log",
+                },
+                {
+                    "name": "metadata.log",
+                    "type": "FILE",
+                    "uri": f"{root}/inventory/metadata.log",
+                    "size": 28,
+                },
+            ],
+            "uri": f"{root}/contents/",
+        }
+
     def test_find(
         self,
         selinux_enabled,
@@ -1565,6 +1660,12 @@ class TestCacheManager:
         Create a dataset, check the cache manager state, and test that we can find it
         through the various supported methods.
         """
+
+        def mock_query(**kwargs) -> Dataset:
+            id = kwargs.get("resource_id")
+            if id == md5:
+                return Dataset(name=dataset_name, resource_id=md5)
+            raise TarballNotFound(id)
 
         monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
         source_tarball, source_md5, md5 = tarball
@@ -1580,6 +1681,8 @@ class TestCacheManager:
         assert tarball
         assert tarball.name == dataset_name
         assert tarball.resource_id == md5
+        monkeypatch.setattr(Dataset, "query", mock_query)
+        monkeypatch.setattr(Metadata, "getvalue", lambda d, k: tarball.tarball_path)
 
         # Test __getitem__
         assert tarball == cm[md5]
@@ -1607,7 +1710,7 @@ class TestCacheManager:
         assert str(exc.value) == "The dataset tarball named 'foobar' is not found"
         assert exc.value.tarball == "foobar"
 
-        # Unpack the dataset, creating INCOMING and RESULTS links
+        # Unpack the dataset
         tarball.get_results(FakeLockRef(tarball.lock))
         assert tarball.cache == controller.cache / md5
         assert tarball.unpacked == controller.cache / md5 / tarball.name

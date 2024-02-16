@@ -10,11 +10,13 @@ from pbench.server.cache_manager import CacheExtractBadPath, CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.server.database.models.users import User
 
+real_getvalue = Metadata.getvalue
 
-def mock_get_value(dataset: Dataset, key: str, user: Optional[User] = None) -> str:
-    if dataset.name == "uperf_3" or dataset.name == "uperf_4":
-        return "hammerDB"
-    return "uperf"
+
+def mock_get_value(dataset: Dataset, key: str, user: Optional[User] = None) -> JSON:
+    if key == Metadata.SERVER_BENCHMARK:
+        return "hammerDB" if dataset.name in ("uperf_3", "uperf_4") else "uperf"
+    return real_getvalue(dataset, key, user)
 
 
 class TestCompareDatasets:
@@ -55,8 +57,11 @@ class TestCompareDatasets:
         return query_api
 
     def test_no_postprocessed_data(self, query_get_as, monkeypatch):
-        monkeypatch.setattr(Metadata, "getvalue", mock_get_value)
-
+        """Test with an unknown benchmark"""
+        fio_2 = Dataset.query(name="fio_2")
+        Metadata.setvalue(
+            fio_2, Metadata.SERVER_BENCHMARK, Metadata.SERVER_BENCHMARK_UNKNOWN
+        )
         query_get_as(["fio_2"], "drb", HTTPStatus.BAD_REQUEST)
 
     def test_with_incorrect_data(self, query_get_as, monkeypatch):

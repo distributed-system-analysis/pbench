@@ -5,11 +5,11 @@ from typing import Optional
 import pytest
 import requests
 
-from pbench.server.cache_manager import BadDirpath, CacheManager, CacheObject, CacheType
+from pbench.server.cache_manager import BadDirpath, CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
-class TestDatasetsAccess:
+class TestDatasetsContents:
     @pytest.fixture()
     def query_get_as(self, client, server_config, more_datasets, pbench_drb_token):
         """
@@ -65,218 +65,38 @@ class TestDatasetsAccess:
 
     @pytest.mark.parametrize("key", ("", ".", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
-        """Mock a directory cache node to check the returned data"""
+        """Mock a directory cache node to check that data is passed through"""
         name = "" if key == "." else key
-
-        def mock_find_entry(_s, _d: str, path: Optional[Path]):
-            file = path if path else Path(".")
-            return {
-                "children": {},
-                "details": CacheObject(
-                    name, file, None, None, None, CacheType.DIRECTORY
-                ),
-            }
-
-        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
-        response = query_get_as("fio_2", key, HTTPStatus.OK)
-        assert response.json == {
+        contents = {
             "directories": [],
             "files": [],
-            "name": name,
-            "type": "DIRECTORY",
             "uri": f"https://localhost/api/v1/datasets/random_md5_string4/contents/{name}",
         }
 
-    def test_not_a_file(self, query_get_as, monkeypatch):
-        """When 'find_entry' fails with an exception, we report the text"""
+        monkeypatch.setattr(CacheManager, "get_contents", lambda s, d, p, o: contents)
+        response = query_get_as("fio_2", key, HTTPStatus.OK)
+        assert response.json == contents
 
-        def mock_find_entry(_s, _d: str, path: Optional[Path]):
+    def test_not_a_file(self, query_get_as, monkeypatch):
+        """When 'get_contents' fails with an exception, we report the text"""
+
+        def mock_get_contents(_s, _d: str, _p: Optional[Path], _o: str):
             raise BadDirpath("Nobody home")
 
-        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
+        monkeypatch.setattr(CacheManager, "get_contents", mock_get_contents)
         response = query_get_as("fio_2", "subdir1/f1_sym", HTTPStatus.NOT_FOUND)
         assert response.json == {"message": "Nobody home"}
 
     def test_file_info(self, query_get_as, monkeypatch):
-        """Mock a file cache node to check the returned data"""
+        """Mock a file cache node to check check that data is passed through"""
         name = "f1.json"
-
-        def mock_find_entry(_s, _d: str, path: Optional[Path]):
-            return {
-                "details": CacheObject(path.name, path, None, None, 16, CacheType.FILE)
-            }
-
-        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
-        response = query_get_as("fio_2", name, HTTPStatus.OK)
-        assert response.status_code == HTTPStatus.OK
-        assert response.json == {
+        file_data = {
             "name": name,
             "size": 16,
             "type": "FILE",
             "uri": f"https://localhost/api/v1/datasets/random_md5_string4/inventory/{name}",
         }
-
-    def test_link_info(self, query_get_as, monkeypatch):
-        """Mock a symlink cache node to check the returned data"""
-        name = "test/slink"
-
-        def mock_find_entry(_s, _d: str, path: Optional[Path]):
-            return {
-                "details": CacheObject(
-                    path.name,
-                    path,
-                    Path("test1"),
-                    CacheType.DIRECTORY,
-                    None,
-                    CacheType.SYMLINK,
-                )
-            }
-
-        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
+        monkeypatch.setattr(CacheManager, "get_contents", lambda s, d, p, o: file_data)
         response = query_get_as("fio_2", name, HTTPStatus.OK)
-        assert response.json == {
-            "name": "slink",
-            "type": "SYMLINK",
-            "link": "test1",
-            "link_type": "DIRECTORY",
-            "uri": "https://localhost/api/v1/datasets/random_md5_string4/contents/test1",
-        }
-
-    def test_dir_info(self, query_get_as, monkeypatch):
-        """Confirm the returned data for a directory with various children"""
-
-        def mock_find_entry(_s, _d: str, path: Optional[Path]):
-            base = path if path else Path("")
-            return {
-                "children": {
-                    "default": {
-                        "details": CacheObject(
-                            "default",
-                            base / "default",
-                            None,
-                            None,
-                            None,
-                            CacheType.DIRECTORY,
-                        )
-                    },
-                    "file.txt": {
-                        "details": CacheObject(
-                            "file.txt",
-                            base / "file.txt",
-                            None,
-                            None,
-                            42,
-                            CacheType.FILE,
-                        )
-                    },
-                    "badlink": {
-                        "details": CacheObject(
-                            "badlink",
-                            base / "badlink",
-                            Path("../../../.."),
-                            CacheType.BROKEN,
-                            None,
-                            CacheType.SYMLINK,
-                        ),
-                    },
-                    "mountlink": {
-                        "details": CacheObject(
-                            "mountlink",
-                            base / "mountlink",
-                            Path("mount"),
-                            CacheType.OTHER,
-                            None,
-                            CacheType.SYMLINK,
-                        ),
-                    },
-                    "symfile": {
-                        "details": CacheObject(
-                            "symfile",
-                            base / "symfile",
-                            Path("metadata.log"),
-                            CacheType.FILE,
-                            None,
-                            CacheType.SYMLINK,
-                        )
-                    },
-                    "symdir": {
-                        "details": CacheObject(
-                            "symdir",
-                            base / "symdir",
-                            Path("realdir"),
-                            CacheType.DIRECTORY,
-                            None,
-                            CacheType.SYMLINK,
-                        )
-                    },
-                    "mount": {
-                        "details": CacheObject(
-                            "mount",
-                            base / "mount",
-                            None,
-                            None,
-                            20,
-                            CacheType.OTHER,
-                        )
-                    },
-                },
-                "details": CacheObject(
-                    base.name, base, None, None, None, CacheType.DIRECTORY
-                ),
-            }
-
-        monkeypatch.setattr(CacheManager, "find_entry", mock_find_entry)
-        response = query_get_as("fio_2", "sample1", HTTPStatus.OK)
-        assert response.json == {
-            "directories": [
-                {
-                    "name": "default",
-                    "type": "DIRECTORY",
-                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/contents/sample1/default",
-                }
-            ],
-            "files": [
-                {
-                    "name": "badlink",
-                    "type": "SYMLINK",
-                    "link": "../../../..",
-                    "link_type": "BROKEN",
-                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/badlink",
-                },
-                {
-                    "name": "file.txt",
-                    "size": 42,
-                    "type": "FILE",
-                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/file.txt",
-                },
-                {
-                    "name": "mount",
-                    "type": "OTHER",
-                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/mount",
-                },
-                {
-                    "name": "mountlink",
-                    "type": "SYMLINK",
-                    "link": "mount",
-                    "link_type": "OTHER",
-                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/sample1/mountlink",
-                },
-                {
-                    "name": "symdir",
-                    "type": "SYMLINK",
-                    "link": "realdir",
-                    "link_type": "DIRECTORY",
-                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/contents/realdir",
-                },
-                {
-                    "name": "symfile",
-                    "type": "SYMLINK",
-                    "link": "metadata.log",
-                    "link_type": "FILE",
-                    "uri": "https://localhost/api/v1/datasets/random_md5_string4/inventory/metadata.log",
-                },
-            ],
-            "name": "sample1",
-            "type": "DIRECTORY",
-            "uri": "https://localhost/api/v1/datasets/random_md5_string4/contents/sample1",
-        }
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == file_data
