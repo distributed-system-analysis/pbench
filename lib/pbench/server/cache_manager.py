@@ -815,12 +815,10 @@ class Tarball:
             artifact: Path = self.get_results(lock) / path
             try:
                 # NOTE: os.path.abspath() removes ".." but Path.absolute(),
-                # which means the latter allows a query with path "..", and
-                # we don't want to allow reaching outside of the tarball.
+                # doesn't, meaning the latter allows a query with path "..",
+                # and we don't want to allow reaching outside of the tarball.
                 arel = Path(os.path.abspath(artifact)).relative_to(self.unpacked)
-                self.logger.info("RELATIVE {} -> {}", artifact, arel)
-            except Exception as e:
-                self.logger.error("{} got {}", artifact, e)
+            except Exception:
                 raise CacheExtractError(self.name, path)
             if artifact.is_dir() and not artifact.is_symlink():
                 dir_list = []
@@ -832,8 +830,7 @@ class Tarball:
                         target = f.resolve()
                         try:
                             link = target.relative_to(self.unpacked)
-                        except Exception as e:
-                            self.logger.info("{} is unrelated: {}", target, e)
+                        except Exception:
                             link = f.readlink()
                             uri = f"{origin}/inventory/{relative}"
                             type = CacheType.BROKEN

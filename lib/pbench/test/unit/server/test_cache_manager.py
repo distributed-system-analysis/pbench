@@ -1657,6 +1657,13 @@ class TestCacheManager:
             "uri": f"{root}/contents/",
         }
 
+        assert cm.get_contents(md5, "subdir", root) == {
+            "name": "subdir",
+            "type": "DIRECTORY",
+            "directories": [],
+            "files": [],
+            "uri": f"{root}/contents/subdir",
+        }
         assert cm.get_contents(md5, "dir_link", root) == {
             "name": "dir_link",
             "type": "SYMLINK",
@@ -1685,6 +1692,11 @@ class TestCacheManager:
             "uri": f"{root}/inventory/fifo_link",
             "link": "fifo",
             "link_type": "OTHER",
+        }
+        assert cm.get_contents(md5, "fifo", root) == {
+            "name": "fifo",
+            "type": "OTHER",
+            "uri": f"{root}/inventory/fifo",
         }
 
     def test_find(

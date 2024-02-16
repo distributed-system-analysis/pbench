@@ -63,6 +63,23 @@ class TestDatasetsContents:
             "message": "User drb is not authorized to READ a resource owned by test with private access"
         }
 
+    def test_contents_error(self, monkeypatch, query_get_as):
+        """This fails with an internal error from get_contents"""
+
+        def mock_contents(_s, _d, _p, _o):
+            raise Exception("Nobody expected me")
+
+        monkeypatch.setattr(CacheManager, "get_contents", mock_contents)
+        query_get_as("drb", "metadata.log", HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    def test_jsonify_error(self, monkeypatch, query_get_as):
+        """This fails with an internal error from jsonifying bad data"""
+
+        monkeypatch.setattr(
+            CacheManager, "get_contents", lambda _s, _d, _p, _o: {1: 0, Path("."): "a"}
+        )
+        query_get_as("drb", "metadata.log", HTTPStatus.INTERNAL_SERVER_ERROR)
+
     @pytest.mark.parametrize("key", ("", ".", "subdir1"))
     def test_path_is_directory(self, query_get_as, monkeypatch, key):
         """Mock a directory cache node to check that data is passed through"""
