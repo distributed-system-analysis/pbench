@@ -6,6 +6,7 @@ import errno
 import fcntl
 from logging import Logger
 import math
+import os
 from pathlib import Path
 import shlex
 import shutil
@@ -809,9 +810,19 @@ class Tarball:
         Returns:
             A "json" dict describing the target.
         """
+
         with LockManager(self.lock) as lock:
             artifact: Path = self.get_results(lock) / path
-            if artifact.is_dir():
+            try:
+                # NOTE: os.path.abspath() removes ".." but Path.absolute(),
+                # which means the latter allows a query with path "..", and
+                # we don't want to allow reaching outside of the tarball.
+                arel = Path(os.path.abspath(artifact)).relative_to(self.unpacked)
+                self.logger.info("RELATIVE {} -> {}", artifact, arel)
+            except Exception as e:
+                self.logger.error("{} got {}", artifact, e)
+                raise CacheExtractError(self.name, path)
+            if artifact.is_dir() and not artifact.is_symlink():
                 dir_list = []
                 file_list = []
                 for f in artifact.iterdir():
@@ -867,7 +878,7 @@ class Tarball:
 
                 # Normalize because we want the "root" directory to be reported as
                 # "" rather than as Path's favored "."
-                loc = str(artifact.relative_to(self.unpacked))
+                loc = str(arel)
                 name = artifact.name
                 if loc == ".":
                     loc = ""
@@ -883,42 +894,37 @@ class Tarball:
                 }
             else:
                 access = "inventory"
-                link = artifact
                 type = CacheType.FILE
                 ltype = CacheType.OTHER
                 if artifact.is_symlink():
                     type = CacheType.SYMLINK
                     try:
                         target = artifact.resolve(strict=True)
-                        link = target
+                        trel = target.relative_to(self.unpacked)
                         if target.is_dir():
                             access = "contents"
                             ltype = CacheType.DIRECTORY
+                            arel = trel
                         elif target.is_file():
                             ltype = CacheType.FILE
+                            arel = trel
                         else:
                             ltype = CacheType.OTHER
                     except Exception:
-                        type = CacheType.BROKEN
-                        link = artifact.readlink()
+                        ltype = CacheType.BROKEN
+                        trel = artifact.readlink()
                 elif not artifact.is_file():
                     type = CacheType.OTHER
-                try:
-                    lnk = str(link.relative_to(self.unpacked))
-                except Exception:
-                    lnk = str(link)
-                    access = "inventory"
-                    type = CacheType.BROKEN
 
                 val = {
                     "name": artifact.name,
                     "type": type.name,
-                    "uri": f"{origin}/{access}/{lnk}",
+                    "uri": f"{origin}/{access}/{arel}",
                 }
                 if type is CacheType.SYMLINK:
-                    val["link"] = lnk
+                    val["link"] = str(trel)
                     val["link_type"] = ltype.name
-                elif ltype is CacheType.FILE:
+                if type is CacheType.FILE or ltype is CacheType.FILE:
                     val["size"] = artifact.stat().st_size
             return val
 
@@ -1505,7 +1511,7 @@ class CacheManager:
                 self._add_controller(file)
 
     def find_dataset(self, dataset_id: str) -> Tarball:
-        """Search the ARCHIVE tree for a matching dataset tarball.
+        """Return a descriptor of the identified tarball.
 
         This will build the Controller and Tarball object for that dataset if
         they do not already exist.
@@ -1527,8 +1533,8 @@ class CacheManager:
         if dataset_id in self.datasets:
             return self.datasets[dataset_id]
 
-        # The dataset isn't already known; so search for it in the ARCHIVE tree
-        # and (if found) discover the controller containing that dataset.
+        # The dataset isn't already known; so follow the tarball-path to build
+        # just the necessary controller and tarball objects.
         start = time.time()
         sql = start
         try:
@@ -1539,7 +1545,6 @@ class CacheManager:
             if controller_dir.name == dataset_id:
                 controller_dir = controller_dir.parent
         except Exception as e:
-            self.logger.error("No {} here: {}", dataset_id, e)
             raise TarballNotFound(dataset_id) from e
         found = time.time()
         controller = self.controllers.get(
@@ -1567,16 +1572,24 @@ class CacheManager:
     #   Alternate constructor to create a Tarball object and move an incoming
     #   tarball and md5 into the proper controller directory.
     #
-    # unpack
-    #   Unpack the ARCHIVE tarball file into a new directory under the
-    #   CACHE directory tree.
+    # find_entry
+    #   Locate a path within a tarball.
     #
-    # uncache
-    #   Remove the unpacked directory tree when no longer needed.
+    # get_contents
+    #   Return metadata about a path within a tarball.
+    #
+    # get_inventory
+    #   Return a managed byte stream for a file within a tarball.
+    #
+    # get_inventory_bytes
+    #   Return the contents a file within a tarball as a string.
     #
     # delete
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
     #   unpacked directory tree.
+    #
+    # reclaim_cache
+    #   Remove cached tarball trees to free disk space.
 
     def create(self, tarfile_path: Path) -> Tarball:
         """Bring a new tarball under cache manager management.

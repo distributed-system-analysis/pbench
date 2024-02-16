@@ -1577,6 +1577,16 @@ class TestCacheManager:
             ],
         }
 
+        assert cm.get_contents(md5, "metadata.log", root) == {
+            "name": "metadata.log",
+            "type": "FILE",
+            "uri": f"{root}/inventory/metadata.log",
+            "size": 28,
+        }
+
+        with pytest.raises(CacheExtractError):
+            cm.get_contents(md5, "../..", root)
+
         # Now that we have an unpacked directory, manually "enhance" it to test
         # more paths.
 
@@ -1645,6 +1655,36 @@ class TestCacheManager:
                 },
             ],
             "uri": f"{root}/contents/",
+        }
+
+        assert cm.get_contents(md5, "dir_link", root) == {
+            "name": "dir_link",
+            "type": "SYMLINK",
+            "uri": f"{root}/contents/subdir",
+            "link": "subdir",
+            "link_type": "DIRECTORY",
+        }
+        assert cm.get_contents(md5, "file_link", root) == {
+            "name": "file_link",
+            "type": "SYMLINK",
+            "uri": f"{root}/inventory/metadata.log",
+            "link": "metadata.log",
+            "link_type": "FILE",
+            "size": 28,
+        }
+        assert cm.get_contents(md5, "bad_link", root) == {
+            "name": "bad_link",
+            "type": "SYMLINK",
+            "uri": f"{root}/inventory/bad_link",
+            "link": "/etc/passwd",
+            "link_type": "BROKEN",
+        }
+        assert cm.get_contents(md5, "fifo_link", root) == {
+            "name": "fifo_link",
+            "type": "SYMLINK",
+            "uri": f"{root}/inventory/fifo_link",
+            "link": "fifo",
+            "link_type": "OTHER",
         }
 
     def test_find(
