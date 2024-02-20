@@ -32,6 +32,7 @@ from pbench.server.cache_manager import (
 )
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetBadName, Metadata
+from pbench.server.database.models.users import User
 from pbench.test.unit.server.conftest import make_tarball
 
 
@@ -1599,6 +1600,10 @@ class TestCacheManager:
         lfile.symlink_to(Path(base / "metadata.log"))
         badlink = base / "bad_link"
         badlink.symlink_to("/etc/passwd")
+        illegallink = base / "illegal_link"
+        illegallink.symlink_to(base / "..")
+        linklink = base / "link_link"
+        linklink.symlink_to(lfile)
         fifo = base / "fifo"
         os.mkfifo(fifo)
         fifolink = base / "fifo_link"
@@ -1642,6 +1647,20 @@ class TestCacheManager:
                 },
                 {
                     "name": "file_link",
+                    "type": "SYMLINK",
+                    "link": "metadata.log",
+                    "link_type": "FILE",
+                    "uri": f"{root}/inventory/metadata.log",
+                },
+                {
+                    "name": "illegal_link",
+                    "type": "SYMLINK",
+                    "link": str(base / ".."),
+                    "link_type": "BROKEN",
+                    "uri": f"{root}/inventory/illegal_link",
+                },
+                {
+                    "name": "link_link",
                     "type": "SYMLINK",
                     "link": "metadata.log",
                     "link_type": "FILE",
@@ -1961,6 +1980,44 @@ class TestCacheManager:
         assert not tar1.exists()
         assert not tar2.exists()
         assert not tar1.parent.exists()
+
+    def test_discover_datasets(
+        self,
+        db_session,
+        selinux_enabled,
+        create_drb_user,
+        server_config,
+        make_logger,
+        tarball,
+        monkeypatch,
+    ):
+        """Test compatibility with both new "isolated" and old tarballs
+
+        Make sure we can discover and manage (unpack and delete) both new
+        tarballs with an MD5 isolation directory and pre-existing tarballs
+        directly in the controller directory.
+        """
+
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
+        source_tarball, source_md5, md5 = tarball
+        name = Dataset.stem(source_tarball)
+        cm = CacheManager(server_config, make_logger)
+        cm.create(source_tarball)
+        assert cm[md5].name == name
+        path = str(cm[md5].tarball_path)
+
+        # Rediscover the cache, which should find the tarball
+        cm1 = CacheManager(server_config, make_logger).full_discovery()
+        assert cm1[md5].name == name
+
+        # Rediscover again, using dataset metadata. But the cache manager
+        # doesn't create the Dataset or Metadata, so we do it here)
+        drb = User.query(username="drb")
+        ds = Dataset(name=name, resource_id=md5, owner=drb, access="public")
+        ds.add()
+        Metadata.setvalue(ds, Metadata.TARBALL_PATH, path)
+        cm2 = CacheManager(server_config, make_logger).full_discovery(full=False)
+        assert cm2[md5].name == name
 
     def test_lockref(self, monkeypatch):
         """Test behavior of the LockRef class"""

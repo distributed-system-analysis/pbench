@@ -491,7 +491,7 @@ def report(
             cache_m = CacheManager(config, logger)
             verifier.status("starting discovery")
             watcher.update("discovering cache")
-            cache_m.full_discovery()
+            cache_m.full_discovery(full=False)
             watcher.update("processing reports")
             verifier.status("finished discovery")
             if all or archive:

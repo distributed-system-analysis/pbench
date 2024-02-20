@@ -15,9 +15,11 @@ import time
 from typing import Any, IO, Optional, Union
 
 import humanize
+from sqlalchemy import and_
 
 from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, OperationCode, PathLike, PbenchServerConfig
+from pbench.server.database.database import Database
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 from pbench.server.utils import get_tarball_md5
@@ -833,24 +835,24 @@ class Tarball:
                         except Exception:
                             link = f.readlink()
                             uri = f"{origin}/inventory/{relative}"
-                            type = CacheType.BROKEN
+                            link_type = CacheType.BROKEN
                         else:
                             if target.is_dir():
                                 uri = f"{origin}/contents/{link}"
-                                type = CacheType.DIRECTORY
+                                link_type = CacheType.DIRECTORY
                                 append_to = dir_list
                             elif target.is_file():
                                 uri = f"{origin}/inventory/{link}"
-                                type = CacheType.FILE
+                                link_type = CacheType.FILE
                             else:
                                 uri = f"{origin}/inventory/{relative}"
-                                type = CacheType.OTHER
+                                link_type = CacheType.OTHER
                         append_to.append(
                             {
                                 "name": f.name,
                                 "type": CacheType.SYMLINK.name,
                                 "link": str(link),
-                                "link_type": type.name,
+                                "link_type": link_type.name,
                                 "uri": uri,
                             }
                         )
@@ -859,7 +861,7 @@ class Tarball:
                             {
                                 "name": f.name,
                                 "type": CacheType.DIRECTORY.name,
-                                "uri": f"{origin}/contents/{f.relative_to(self.unpacked)}",
+                                "uri": f"{origin}/contents/{relative}",
                             }
                         )
                     else:
@@ -891,10 +893,10 @@ class Tarball:
                 }
             else:
                 access = "inventory"
-                type = CacheType.FILE
+                link_type = CacheType.FILE
                 ltype = CacheType.OTHER
                 if artifact.is_symlink():
-                    type = CacheType.SYMLINK
+                    link_type = CacheType.SYMLINK
                     try:
                         target = artifact.resolve(strict=True)
                         trel = target.relative_to(self.unpacked)
@@ -911,17 +913,17 @@ class Tarball:
                         ltype = CacheType.BROKEN
                         trel = artifact.readlink()
                 elif not artifact.is_file():
-                    type = CacheType.OTHER
+                    link_type = CacheType.OTHER
 
                 val = {
                     "name": artifact.name,
-                    "type": type.name,
+                    "type": link_type.name,
                     "uri": f"{origin}/{access}/{arel}",
                 }
-                if type is CacheType.SYMLINK:
+                if link_type is CacheType.SYMLINK:
                     val["link"] = str(trel)
                     val["link_type"] = ltype.name
-                if type is CacheType.FILE or ltype is CacheType.FILE:
+                if link_type is CacheType.FILE or ltype is CacheType.FILE:
                     val["size"] = artifact.stat().st_size
             return val
 
@@ -1255,12 +1257,15 @@ class Controller:
         if discover:
             self._discover_tarballs()
 
-    def _add_if_tarball(self, file: Path, md5: Optional[str] = None):
+    def _add_if_tarball(self, file: Path, md5: Optional[str] = None) -> bool:
         """Check for a tar file, and create an object
 
         Args:
             file: path of potential tarball
             md5: known MD5 hash, or None to compute here
+
+        Returns:
+            true if the tarball was added
         """
         if file.is_file() and Dataset.is_tarball(file):
             hash = md5 if md5 else get_tarball_md5(file)
@@ -1268,6 +1273,9 @@ class Controller:
             self.tarballs[tarball.name] = tarball
             self.datasets[tarball.resource_id] = tarball
             tarball.check_unpacked()
+            return True
+        else:
+            return False
 
     def _discover_tarballs(self):
         """Discover the known tarballs
@@ -1423,16 +1431,22 @@ class CacheManager:
         # resource_id.
         self.datasets: dict[str, Tarball] = {}
 
-    def full_discovery(self) -> "CacheManager":
+    def full_discovery(self, full: bool = True) -> "CacheManager":
         """Discover the ARCHIVE and CACHE trees
 
-        NOTE: both _discover_unpacked() and _discover_results() rely on the
-        results of _discover_archive(), which must run first.
+        Full discovery is only needed for reporting, and is not required
+        to find, create, or delete a specific dataset. (See find_dataset.)
 
-        Full discovery is not required in order to find, create, or delete a
-        specific dataset.
+        Args:
+            full: search the ARCHIVE tree rather than using Dataset table
+
+        Returns:
+            CacheManager instance for chaining
         """
-        self._discover_controllers()
+        if full:
+            self._discover_controllers()
+        else:
+            self._discover_datasets()
         return self
 
     def __contains__(self, dataset_id: str) -> bool:
@@ -1498,7 +1512,7 @@ class CacheManager:
         return controller
 
     def _discover_controllers(self):
-        """Build a representation of the ARCHIVE tree
+        """Discover the ARCHIVE tree exhaustively by searching it.
 
         Record all controllers (top level directories), and the tarballs that
         represent datasets within them.
@@ -1506,6 +1520,58 @@ class CacheManager:
         for file in self.archive_root.iterdir():
             if file.is_dir() and file.name != CacheManager.TEMPORARY:
                 self._add_controller(file)
+
+    def _discover_datasets(self):
+        """Discover the ARCHIVE tree from the SQL representation of datasets
+
+        Discover all controllers and tarballs with server.tarball-path
+        metadata. This will find only correct and "live" tarballs, and may
+        miss incorrectly labeled tarballs. (Unless we're trying to diagnose
+        ARCHIVE tree errors, this is probably what we want.)
+        """
+        rows = (
+            Database.db_session.query(
+                Dataset.name,
+                Dataset.resource_id,
+                Metadata.value["tarball-path"].as_string(),
+            )
+            .execution_options(stream_results=True)
+            .outerjoin(
+                Metadata,
+                and_(Dataset.id == Metadata.dataset_ref, Metadata.key == "server"),
+            )
+            .yield_per(500)
+            .all()
+        )
+
+        for name, resource_id, path in rows:
+            if not all((resource_id, path)):
+                # This runs asychronously with normal operation, and we might
+                # find a dataset before the "server.tarball-path" metadata is
+                # set. Issue a warning in case this becomes a concern, but
+                # otherwise ignore it and skip the dataset.
+                self.logger.warning(
+                    "query unexpectedly returned name {}, resource_id {}, path {}",
+                    name,
+                    resource_id,
+                    path,
+                )
+                continue
+            tarball = Path(path)
+            controller_dir = tarball.parent
+            if controller_dir.name == resource_id:
+                controller_dir = controller_dir.parent
+            controller = self.controllers.get(
+                controller_dir.name, self._add_controller(controller_dir, False)
+            )
+            if controller._add_if_tarball(tarball, resource_id):
+                self.tarballs.update(controller.tarballs)
+                self.datasets.update(controller.datasets)
+            else:
+                # This would be abnormal: log it and continue
+                self.logger.error(
+                    "Unable to add {}: MD5 {}, path {}", name, resource_id, path
+                )
 
     def find_dataset(self, dataset_id: str) -> Tarball:
         """Return a descriptor of the identified tarball.
@@ -1538,11 +1604,11 @@ class CacheManager:
             dataset = Dataset.query(resource_id=dataset_id)
             sql = time.time()
             tarball = Path(Metadata.getvalue(dataset, Metadata.TARBALL_PATH))
-            controller_dir = tarball.parent
-            if controller_dir.name == dataset_id:
-                controller_dir = controller_dir.parent
         except Exception as e:
             raise TarballNotFound(dataset_id) from e
+        controller_dir = tarball.parent
+        if controller_dir.name == dataset_id:
+            controller_dir = controller_dir.parent
         found = time.time()
         controller = self.controllers.get(
             controller_dir.name, self._add_controller(controller_dir, False)
