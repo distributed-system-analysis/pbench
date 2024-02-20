@@ -107,9 +107,7 @@ class TestDatasets(Commons):
             headers=headers,
             expect_call=(expected_status == HTTPStatus.OK and not ao),
         )
-        assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
-            res_json = response.json
             expected = {
                 "total": 0,
                 "updated": 0,
@@ -117,7 +115,7 @@ class TestDatasets(Commons):
                 "failures": 0,
                 "version_conflicts": 0,
             }
-            assert expected == res_json
+            assert expected == response.json
             audit = Audit.query()
             assert len(audit) == 2
             assert audit[0].id == 1
@@ -303,7 +301,7 @@ class TestDatasets(Commons):
                 )
 
     def test_update_partial_failure(self, client, query_api, get_token_func):
-        """Check update with no Elasticsearch documents"""
+        """Check update with partial Elasticsearch failure"""
 
         headers = None
 
@@ -348,7 +346,7 @@ class TestDatasets(Commons):
         assert expected == response.json
 
     def test_update_total_failure(self, client, query_api, get_token_func):
-        """Check update with no Elasticsearch documents"""
+        """Check update with all Elasticsearch operations failing"""
 
         headers = None
 
@@ -392,8 +390,8 @@ class TestDatasets(Commons):
         We should report a JSON document with an integer count for each index
         name.
 
-        We test two different datasets, one with an index map and one without,
-        both with and without "archiveonly" set.
+        We test with and without "archiveonly" set as well as with various
+        authentication scenarios through the build_auth_header fixture.
         """
         auth_json = {"user": "drb", "access": "private"}
 
@@ -441,9 +439,9 @@ class TestDatasets(Commons):
                 "message": "Unauthenticated client is not authorized to READ a resource owned by drb with private access"
             } == response.json
 
-    @pytest.mark.parametrize("value", (None, "not-integer"))
+    @pytest.mark.parametrize("value", (None, "not-integer", 0))
     def test_bad_get(self, client, query_api, get_token_func, value):
-        """Check update with no Elasticsearch documents"""
+        """Check a GET with bad Elasticsearch hit counts"""
 
         token = get_token_func("drb")
         assert token
@@ -460,10 +458,10 @@ class TestDatasets(Commons):
                 "hits": [],
             },
         }
-        if value:
-            json["hits"]["total"]["value"] = value
-        else:
+        if value is None:
             del json["hits"]["total"]["value"]
+        else:
+            json["hits"]["total"]["value"] = value
         query_api(
             self.pbench_endpoint,
             "/_search?ignore_unavailable=true",

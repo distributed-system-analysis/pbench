@@ -136,7 +136,6 @@ class TestDatasetsDetail(Commons):
             headers=headers,
             request_method=self.api_method,
         )
-        assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
             res_json = response.json
 
@@ -293,7 +292,6 @@ class TestDatasetsDetail(Commons):
             request_method=self.api_method,
             query_params=query_params,
         )
-        assert response.status_code == HTTPStatus.OK
         res_json = response.json
 
         # NOTE: we asked for "seen" and "deleted" metadata, but the "deleted"
@@ -371,7 +369,7 @@ class TestDatasetsDetail(Commons):
             expect_call = None
         index = self.build_index_from_metadata()
 
-        response = query_api(
+        query_api(
             f"{self.pbench_endpoint}",
             self.elastic_endpoint,
             self.payload,
@@ -382,7 +380,6 @@ class TestDatasetsDetail(Commons):
             request_method=self.api_method,
             expect_call=expect_call,
         )
-        assert response.status_code == expected_status
 
     def test_nonunique_query(
         self, client, server_config, query_api, find_template, pbench_drb_token

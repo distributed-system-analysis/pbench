@@ -9,30 +9,11 @@ from pbench.server.api.resources import (
     ApiParams,
     ApiSchema,
     ParamType,
-    SchemaError,
 )
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.index_map import IndexMap
 from pbench.server.database.models.templates import Template
-
-
-class MissingDatasetNameParameter(SchemaError):
-    """The subclass schema is missing the required "name" parameter required
-    to locate a Dataset.
-
-    NOTE: This is a development error, not a client error, and will be raised
-    when the API is initialized at server startup. Arguably, this could be an
-    assert since it prevents launching the server.
-    """
-
-    def __init__(self, subclass_name: str, message: str):
-        super().__init__()
-        self.subclass_name = subclass_name
-        self.message = message
-
-    def __str__(self) -> str:
-        return f"API {self.subclass_name} is {self.message}"
 
 
 class IndexMapBase(ElasticBase):

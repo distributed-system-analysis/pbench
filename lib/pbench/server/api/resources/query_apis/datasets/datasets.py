@@ -254,20 +254,21 @@ class Datasets(IndexMapBase):
                 count = es_json["hits"]["total"]["value"]
                 hits = es_json["hits"]["hits"]
                 if int(count) == 0:
-                    current_app.logger.info("No data returned by Elasticsearch")
-                    return jsonify([])
+                    raise APIInternalError(
+                        f"Elasticsearch returned no matches for {dataset.name}"
+                    )
             except KeyError as e:
                 raise APIInternalError(
-                    f"Can't find Elasticsearch match data {e} in {es_json!r}",
+                    f"Can't find Elasticsearch match data for {dataset.name} ({e}) in {es_json!r}",
                 )
             except ValueError as e:
                 raise APIInternalError(
-                    f"Elasticsearch hit count {count!r} value: {e}",
+                    f"Elasticsearch bad hit count {count!r} for {dataset.name}: {e}",
                 )
             results = defaultdict(int)
             for hit in hits:
                 results[hit["_index"]] += 1
-            return jsonify({i: c for i, c in results.items()})
+            return jsonify(results)
         else:
             if es_json:
                 fields = ("deleted", "updated", "total", "version_conflicts")
@@ -296,7 +297,7 @@ class Datasets(IndexMapBase):
                         dataset.update()
                     except Exception as e:
                         raise APIInternalError(
-                            f"unable to update dataset {dataset.name}: {str(e)!r}"
+                            f"Unable to update dataset {dataset.name}: {str(e)!r}"
                         ) from e
                 elif action == "delete":
                     try:
@@ -309,7 +310,7 @@ class Datasets(IndexMapBase):
                         del context["sync"]
                     except Exception as e:
                         raise APIInternalError(
-                            f"unable to delete dataset {dataset.name}: {str(e)!r}"
+                            f"Unable to delete dataset {dataset.name}: {str(e)!r}"
                         ) from e
 
             # The DELETE API removes the "sync" context on success to signal
