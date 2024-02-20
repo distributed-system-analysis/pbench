@@ -9,30 +9,11 @@ from pbench.server.api.resources import (
     ApiParams,
     ApiSchema,
     ParamType,
-    SchemaError,
 )
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.index_map import IndexMap
 from pbench.server.database.models.templates import Template
-
-
-class MissingDatasetNameParameter(SchemaError):
-    """The subclass schema is missing the required "name" parameter required
-    to locate a Dataset.
-
-    NOTE: This is a development error, not a client error, and will be raised
-    when the API is initialized at server startup. Arguably, this could be an
-    assert since it prevents launching the server.
-    """
-
-    def __init__(self, subclass_name: str, message: str):
-        super().__init__()
-        self.subclass_name = subclass_name
-        self.message = message
-
-    def __str__(self) -> str:
-        return f"API {self.subclass_name} is {self.message}"
 
 
 class IndexMapBase(ElasticBase):
@@ -133,17 +114,17 @@ class IndexMapBase(ElasticBase):
         """
 
         archive_only = Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE)
-        if archive_only and ok_no_index:
-            return ""
-
         if archive_only:
+            if ok_no_index:
+                return ""
             raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
 
         index_keys = list(IndexMap.indices(dataset, root_index_name))
 
         if not index_keys:
             raise APIAbort(
-                HTTPStatus.NOT_FOUND, f"Dataset has no {root_index_name!r} data"
+                HTTPStatus.NOT_FOUND,
+                f"Dataset has no {root_index_name if root_index_name else 'indexed'!r} data",
             )
 
         indices = ",".join(index_keys)

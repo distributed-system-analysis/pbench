@@ -136,7 +136,6 @@ class TestDatasetsDetail(Commons):
             headers=headers,
             request_method=self.api_method,
         )
-        assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
             res_json = response.json
 
@@ -293,7 +292,6 @@ class TestDatasetsDetail(Commons):
             request_method=self.api_method,
             query_params=query_params,
         )
-        assert response.status_code == HTTPStatus.OK
         res_json = response.json
 
         # NOTE: we asked for "seen" and "deleted" metadata, but the "deleted"
@@ -365,10 +363,13 @@ class TestDatasetsDetail(Commons):
         # In this case, if we don't get a validation/permission error, expect
         # to fail because of the unexpectedly empty Elasticsearch result.
         if expected_status == HTTPStatus.OK:
-            expected_status = HTTPStatus.BAD_REQUEST
+            expect_call = True
+            expected_status = HTTPStatus.INTERNAL_SERVER_ERROR
+        else:
+            expect_call = None
         index = self.build_index_from_metadata()
 
-        response = query_api(
+        query_api(
             f"{self.pbench_endpoint}",
             self.elastic_endpoint,
             self.payload,
@@ -377,10 +378,8 @@ class TestDatasetsDetail(Commons):
             headers=build_auth_header["header"],
             json=self.empty_es_response_payload,
             request_method=self.api_method,
+            expect_call=expect_call,
         )
-        assert response.status_code == expected_status
-        if response.status_code == HTTPStatus.BAD_REQUEST:
-            assert response.json["message"].find("dataset has gone missing") != -1
 
     def test_nonunique_query(
         self, client, server_config, query_api, find_template, pbench_drb_token
@@ -398,14 +397,14 @@ class TestDatasetsDetail(Commons):
         }
 
         index = self.build_index_from_metadata()
-        response = query_api(
+        query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
             self.payload,
             index,
-            HTTPStatus.BAD_REQUEST,
+            HTTPStatus.INTERNAL_SERVER_ERROR,
             json=response_payload,
             headers={"authorization": f"Bearer {pbench_drb_token}"},
             request_method=self.api_method,
+            expect_call=True,
         )
-        assert response.json["message"].find("Too many hits for a unique query") != -1

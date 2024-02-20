@@ -1,6 +1,6 @@
 from http import HTTPStatus
 import itertools
-from typing import AnyStr
+from typing import Optional
 
 from dateutil import parser as date_parser
 from dateutil import rrule
@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 import pytest
 import requests
 
-from pbench.server import JSON
+from pbench.server import JSONOBJECT
 from pbench.server.api.resources import ApiMethod, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset
@@ -38,22 +38,27 @@ class Commons:
 
     def _setup(
         self,
-        cls_obj: ElasticBase = None,
-        pbench_endpoint: AnyStr = None,
-        elastic_endpoint: AnyStr = None,
-        payload: JSON = None,
-        bad_date_payload: JSON = None,
-        error_payload: JSON = None,
-        empty_es_response_payload: JSON = None,
-        index_from_metadata: AnyStr = None,
+        cls_obj: ElasticBase,
+        pbench_endpoint: str,
+        elastic_endpoint: str,
+        payload: Optional[JSONOBJECT] = None,
+        bad_date_payload: Optional[JSONOBJECT] = None,
+        error_payload: Optional[JSONOBJECT] = None,
+        empty_es_response_payload: Optional[JSONOBJECT] = None,
+        index_from_metadata: Optional[str] = None,
+        api_method: Optional[ApiMethod] = None,
+        use_index_map: Optional[bool] = False,
     ):
-        assert len(cls_obj.schemas) == 1
-        if ApiMethod.GET in cls_obj.schemas:
-            self.api_method = ApiMethod.GET
-        elif ApiMethod.POST in cls_obj.schemas:
-            self.api_method = ApiMethod.POST
+        if api_method:
+            self.api_method = api_method
         else:
-            assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
+            assert len(cls_obj.schemas) == 1
+            if ApiMethod.GET in cls_obj.schemas:
+                self.api_method = ApiMethod.GET
+            elif ApiMethod.POST in cls_obj.schemas:
+                self.api_method = ApiMethod.POST
+            else:
+                assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
         self.cls_obj = cls_obj
         self.pbench_endpoint = pbench_endpoint
         self.elastic_endpoint = elastic_endpoint
@@ -62,6 +67,7 @@ class Commons:
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
         self.root_index = index_from_metadata
+        self.use_index_map = use_index_map or bool(index_from_metadata)
 
     def build_index(self, server_config, dates):
         """Build the index list for query.
@@ -87,7 +93,7 @@ class Commons:
         index_keys = IndexMap.indices(drb, self.root_index)
         return "/" + ",".join(index_keys)
 
-    def date_range(self, start: AnyStr, end: AnyStr) -> list:
+    def date_range(self, start: str, end: str) -> list[str]:
         """Builds list of range of dates between start and end.
 
         It expects the date to look like YYYY-MM
@@ -102,7 +108,7 @@ class Commons:
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
-    def get_expected_status(self, payload: JSON, header: HeaderTypes) -> int:
+    def get_expected_status(self, payload: JSONOBJECT, header: HeaderTypes) -> int:
         """Decode the various test cases we use, which are a combination of the
         test case parametrization (for "user" parameter value) and the
         parametrization of the `build_auth_header` fixture (for the API
@@ -133,15 +139,20 @@ class Commons:
         return expected_status
 
     def make_request_call(
-        self, client, url, header: JSON, json: JSON = None, data=None
+        self,
+        client,
+        url,
+        header: JSONOBJECT,
+        json: Optional[JSONOBJECT] = None,
+        data: Optional[str] = None,
     ):
-        assert self.api_method in (ApiMethod.GET, ApiMethod.POST)
         if self.api_method == ApiMethod.GET:
             assert json is None
             assert data is None
-            func = client.get
-        else:
-            func = client.post
+        try:
+            func = getattr(client, self.api_method.name.lower())
+        except Exception:
+            assert False, f"API method {self.api_method} not supported"
 
         return func(url, headers=header, json=json, data=data)
 
@@ -398,6 +409,7 @@ class Commons:
             status=HTTPStatus.OK,
             json=self.empty_es_response_payload,
             request_method=self.api_method,
+            expect_call=expected_status == HTTPStatus.OK,
         )
         assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
@@ -434,7 +446,7 @@ class Commons:
         """Check that an exception in calling Elasticsearch is reported
         correctly.
         """
-        if self.root_index:
+        if self.use_index_map:
             index = self.build_index_from_metadata()
         else:
             index = self.build_index(
@@ -451,6 +463,7 @@ class Commons:
             body=exceptions["exception"],
             headers={"Authorization": "Bearer " + pbench_drb_token},
             request_method=self.api_method,
+            expect_call=True,
         )
 
     @pytest.mark.parametrize("errors", (400, 500, 409))
@@ -467,7 +480,7 @@ class Commons:
         response.raise_for_status() and Pbench handlers.
         """
 
-        if self.root_index:
+        if self.use_index_map:
             index = self.build_index_from_metadata()
         else:
             index = self.build_index(
@@ -483,4 +496,5 @@ class Commons:
             status=errors,
             headers={"Authorization": "Bearer " + pbench_drb_token},
             request_method=self.api_method,
+            expect_call=True,
         )

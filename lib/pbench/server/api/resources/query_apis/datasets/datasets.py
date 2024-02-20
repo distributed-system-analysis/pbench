@@ -1,3 +1,4 @@
+from collections import defaultdict
 from http import HTTPStatus
 
 from flask import current_app, jsonify, Response
@@ -16,8 +17,9 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
+from pbench.server.api.resources.query_apis import ApiContext
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
+import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.audit import AuditReason, AuditStatus, AuditType
 from pbench.server.database.models.datasets import (
@@ -120,14 +122,13 @@ class Datasets(IndexMapBase):
 
         dataset = context["dataset"]
         action = context["attributes"].action
-        get_action = action == "get"
         context["action"] = action
         audit_attributes = {}
         access = None
         owner = None
         elastic_options = {"ignore_unavailable": "true"}
 
-        if not get_action:
+        if action != "get":
             elastic_options["refresh"] = "true"
             operations = Operation.by_state(dataset, OperationState.WORKING)
             if context["attributes"].require_stable and operations:
@@ -147,7 +148,9 @@ class Datasets(IndexMapBase):
                     OperationState.WORKING.name,
                     e,
                 )
-                raise APIAbort(HTTPStatus.CONFLICT, "Unable to set operational state")
+                raise APIInternalError(
+                    f"can't set {OperationState.WORKING.name} on {dataset.name}: {str(e)!r} "
+                )
             context["sync"] = sync
             context["auditing"]["attributes"] = audit_attributes
             if action == "update":
@@ -155,6 +158,14 @@ class Datasets(IndexMapBase):
                 owner = params.query.get("owner")
                 if not access and not owner:
                     raise MissingParameters(["access", "owner"])
+
+                if owner and owner != dataset.owner_id:
+                    auth_user = Auth.token_auth.current_user()
+                    if not auth_user.is_admin():
+                        raise APIAbort(
+                            HTTPStatus.FORBIDDEN,
+                            "ADMIN role is required to change dataset ownership",
+                        )
 
                 if access:
                     audit_attributes["access"] = access
@@ -167,12 +178,16 @@ class Datasets(IndexMapBase):
                 else:
                     owner = dataset.owner_id
 
-        # Get the Elasticsearch indices occupied by the dataset. If there are
-        # none, return with an empty query to disable the Elasticsearch call.
+        # Get the Elasticsearch indices occupied by the dataset.
+        #
+        # We postprocess UPDATE and DELETE even without any indexed documents
+        # in order to update the Dataset object, so tell get_index not to fail
+        # in that case, and return an empty query to disable the Elasticsearch
+        # call.
         #
         # It's important that all context fields required for postprocessing
         # of unindexed datasets have been set before this!
-        indices = self.get_index(dataset, ok_no_index=(not get_action))
+        indices = self.get_index(dataset, ok_no_index=(action != "get"))
         context["indices"] = indices
         if not indices:
             return {}
@@ -195,11 +210,12 @@ class Datasets(IndexMapBase):
         }
 
         if action == "update":
-            painless = "ctx._source.authorization=params.authorization"
-            script_params = {"authorization": {"access": access, "owner": owner}}
-            script = {"source": painless, "lang": "painless", "params": script_params}
             json["path"] = f"{indices}/_update_by_query"
-            json["kwargs"]["json"]["script"] = script
+            json["kwargs"]["json"]["script"] = {
+                "source": "ctx._source.authorization=params.authorization",
+                "lang": "painless",
+                "params": {"authorization": {"access": access, "owner": owner}},
+            }
         elif action == "get":
             json["path"] = f"{indices}/_search"
         elif action == "delete":
@@ -232,32 +248,31 @@ class Datasets(IndexMapBase):
         current_app.logger.info("POSTPROCESS {}: {}", dataset.name, es_json)
         failures = 0
         if action == "get":
+            count = None
+            hits = []
             try:
                 count = es_json["hits"]["total"]["value"]
+                hits = es_json["hits"]["hits"]
                 if int(count) == 0:
-                    current_app.logger.info("No data returned by Elasticsearch")
-                    return jsonify([])
+                    raise APIInternalError(
+                        f"Elasticsearch returned no matches for {dataset.name}"
+                    )
             except KeyError as e:
-                raise PostprocessError(
-                    HTTPStatus.BAD_REQUEST,
-                    f"Can't find Elasticsearch match data {e} in {es_json!r}",
+                raise APIInternalError(
+                    f"Can't find Elasticsearch match data for {dataset.name} ({e}) in {es_json!r}",
                 )
             except ValueError as e:
-                raise PostprocessError(
-                    HTTPStatus.BAD_REQUEST,
-                    f"Elasticsearch hit count {count!r} value: {e}",
+                raise APIInternalError(
+                    f"Elasticsearch bad hit count {count!r} for {dataset.name}: {e}",
                 )
-            results = []
-            for hit in es_json["hits"]["hits"]:
-                s = hit["_source"]
-                s["id"] = hit["_id"]
-                results.append(s)
-
+            results = defaultdict(int)
+            for hit in hits:
+                results[hit["_index"]] += 1
             return jsonify(results)
         else:
             if es_json:
                 fields = ("deleted", "updated", "total", "version_conflicts")
-                results = {f: es_json[f] if f in es_json else None for f in fields}
+                results = {f: es_json.get(f, 0) for f in fields}
                 failures = len(es_json["failures"]) if "failures" in es_json else 0
                 results["failures"] = failures
             else:
@@ -282,7 +297,7 @@ class Datasets(IndexMapBase):
                         dataset.update()
                     except Exception as e:
                         raise APIInternalError(
-                            f"unable to update dataset {dataset.name}: {str(e)!r}"
+                            f"Unable to update dataset {dataset.name}: {str(e)!r}"
                         ) from e
                 elif action == "delete":
                     try:
@@ -295,7 +310,7 @@ class Datasets(IndexMapBase):
                         del context["sync"]
                     except Exception as e:
                         raise APIInternalError(
-                            f"unable to delete dataset {dataset.name}: {str(e)!r}"
+                            f"Unable to delete dataset {dataset.name}: {str(e)!r}"
                         ) from e
 
             # The DELETE API removes the "sync" context on success to signal
@@ -312,7 +327,9 @@ class Datasets(IndexMapBase):
                     auditing["attributes"] = {"message": str(e)}
                     auditing["status"] = AuditStatus.WARNING
                     auditing["reason"] = AuditReason.INTERNAL
-                    raise APIInternalError(f"Unexpected sync unlock error '{e}'") from e
+                    raise APIInternalError(
+                        f"Unexpected sync error {dataset.name} {str(e)!r}"
+                    ) from e
 
             # Return the summary document as the success response, or abort with an
             # internal error if we tried to operate on Elasticsearch documents but
@@ -323,9 +340,9 @@ class Datasets(IndexMapBase):
                 auditing["reason"] = AuditReason.INTERNAL
                 auditing["attributes"][
                     "message"
-                ] = f"Unable to {context['attributes'].action} some indexed documents"
+                ] = f"Unable to {action} some indexed documents"
                 raise APIInternalError(
-                    f"Failed to {context['attributes'].action} any of {results['total']} "
+                    f"Failed to {action} any of {results['total']} "
                     f"Elasticsearch documents: {es_json}"
                 )
             elif sync:

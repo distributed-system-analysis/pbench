@@ -136,10 +136,8 @@ class TestDatasetSummary(Commons):
             index,
             expected_status,
             headers=build_auth_header["header"],
-            status=expected_status,
             json=response_payload,
         )
-        assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
             res_json = response.json
             assert isinstance(res_json, list)

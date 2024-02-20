@@ -295,6 +295,9 @@ def report_sql():
     """Report the SQL table storage statistics"""
 
     watcher.update("inspecting SQL tables")
+    table_count = 0
+    row_count = 0
+    row_size = 0
     click.echo("SQL storage report:")
     t_w = 20
     r_w = 10
@@ -302,6 +305,7 @@ def report_sql():
     click.echo(f"  {'Table':<{t_w}} {'Rows':<{r_w}} {'Storage':<{s_w}}")
     click.echo(f"  {'':-<{t_w}} {'':-<{r_w}} {'':-<{s_w}}")
     for t in inspect(Database.db_session.get_bind()).get_table_names():
+        table_count += 1
         (rows,) = next(
             Database.db_session.execute(statement=text(f"SELECT COUNT(*) FROM {t}"))
         )
@@ -312,6 +316,11 @@ def report_sql():
             )
         )
         click.echo(f"  {t:<{t_w}} {rows:>{r_w},d} {humanize.naturalsize(size):>{s_w}}")
+        row_count += rows
+        row_size += size
+    click.echo(
+        f"  Total of {row_count:,d} rows in {table_count:,d} tables, consuming {humanize.naturalsize(row_size)}"
+    )
 
     if not detailer:
         return
@@ -357,6 +366,7 @@ def report_states():
     index_pattern: re.Pattern = re.compile(r"^(\d+):(.*)$")
     index_errors = defaultdict(int)
     index_messages = defaultdict(str)
+    ops_anomalies = 0
     operations = defaultdict(lambda: defaultdict(int))
     rows = Database.db_session.execute(
         statement=text(
@@ -366,22 +376,26 @@ def report_states():
     )
     for dataset, operation, state, message in rows:
         watcher.update(f"inspecting {dataset}:{operation}")
-        operations[operation][state] += 1
-        if state == "FAILED":
-            detailer.error(f"{operation} {state} for {dataset}: {message!r}")
-            if operation == "INDEX":
-                match = index_pattern.match(message)
-                if match:
-                    try:
-                        code = int(match.group(1))
-                        message = match.group(2)
-                        index_errors[code] += 1
-                        if code not in index_messages:
-                            index_messages[code] = message
-                    except Exception as e:
-                        detailer.error(
-                            f"{dataset} unexpected 'INDEX' error {message}: {str(e)!r}"
-                        )
+        if operation is None:
+            ops_anomalies += 1
+            detailer.error(f"{dataset} doesn't have operational state")
+        else:
+            operations[operation][state] += 1
+            if state == "FAILED":
+                detailer.error(f"{operation} {state} for {dataset}: {message!r}")
+                if operation == "INDEX":
+                    match = index_pattern.match(message)
+                    if match:
+                        try:
+                            code = int(match.group(1))
+                            message = match.group(2)
+                            index_errors[code] += 1
+                            if code not in index_messages:
+                                index_messages[code] = message
+                        except Exception as e:
+                            detailer.error(
+                                f"{dataset} unexpected 'INDEX' error {message}: {str(e)!r}"
+                            )
     click.echo("Operational states:")
     for name, states in operations.items():
         click.echo(f"  {name} states:")
@@ -392,6 +406,8 @@ def report_states():
                     click.echo(
                         f"           CODE {code:2d}: {count:>6,d}  {index_messages[code]}"
                     )
+    if ops_anomalies:
+        click.echo(f"  {ops_anomalies} datasets are missing operational state")
 
 
 @click.command(name="pbench-report-generator")

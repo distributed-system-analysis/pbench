@@ -5,7 +5,7 @@ import pytest
 import requests
 import responses
 
-from pbench.server import JSON
+from pbench.server import JSONOBJECT
 from pbench.server.api.resources import ApiMethod
 
 
@@ -24,8 +24,6 @@ def query_api(client, server_config, provide_metadata):
     parameters: these can be any of the parameters supported by the
     responses mock. Exceptions are specified by providing an Exception()
     instance as the 'body'.
-
-    :return: the response object for further checking
     """
 
     def query_api(
@@ -36,33 +34,62 @@ def query_api(client, server_config, provide_metadata):
         expected_status: str,
         headers: Optional[dict] = None,
         request_method=ApiMethod.POST,
-        query_params: JSON = None,
+        query_params: Optional[JSONOBJECT] = None,
+        expect_call: Optional[bool] = None,
         **kwargs,
     ) -> requests.Response:
+        """Execute an Elasticsearch query with conditional mocking
+
+        BEWARE: the logic around installing the Elasticsearch mock is tricky.
+        The responses package will cause a test case to failure if an installed
+        mock isn't called, so we need to be careful in analyzing the parameters
+        to determine whether a call is expected. This is mostly based on the
+        expected status and index values plus a few special cases!
+
+        Args:
+            pbench_uri: The Pbench API path to call
+            es_uri: The Elasticsearch URI to mock
+            payload: The Pbench API JSON payload
+            expected_index: The expected Elasticsearch index string
+            expected_status: The expected API status
+            headers: Pbench API call headers (usually authentication)
+            request_method: The Pbench API call method
+            query_params: The Pbench API query parameters
+            expect_call: True to force ES mock, False to suppress
+            kwargs: Additional mock parameters
+                body: Used to cause an exception to be raised
+                status: Set the mock response status
+
+        Returns:
+            The Pbench API response object
+        """
         base_uri = server_config.get("Indexing", "uri")
         es_url = f"{base_uri}{expected_index}{es_uri}"
-        assert request_method in (ApiMethod.GET, ApiMethod.POST)
+        client_method = getattr(client, request_method.name.lower())
         if request_method == ApiMethod.GET:
             es_method = responses.GET
-            client_method = client.get
             assert not payload
         else:
             es_method = responses.POST
-            client_method = client.post
         with responses.RequestsMock() as rsp:
             # We need to set up mocks for the Server's call to Elasticsearch,
             # which will only be made if we don't expect Pbench to fail before
-            # making the call. We never expect an Elasticsearch call when the
-            # expected status is FORBIDDEN or UNAUTHORIZED; or when we give the
-            # canonical "bad username" (badwolf) and are expecting NOT_FOUND.
-            if expected_status not in [
-                HTTPStatus.FORBIDDEN,
-                HTTPStatus.UNAUTHORIZED,
-            ] and (
-                expected_status != HTTPStatus.NOT_FOUND
-                or request_method != ApiMethod.POST
-                or payload.get("user") != "badwolf"
-            ):
+            # making the call. The responses package will fail a test if the
+            # mock is installed but not called, so we have to get this right.
+            #
+            # Generally if the expected API status is OK, we assume we'll call
+            # Elasticsearch; similarly, if we're setting a return "body" or
+            # "status" on the mock, we assume we intend to make the call.
+            #
+            # In less straightforward cases, the expect_call parameter can be
+            # used to force or prevent the mock (with the default None value
+            # being neutral).
+            if (
+                expected_status == HTTPStatus.OK
+                or isinstance(kwargs.get("body"), Exception)
+                or isinstance(kwargs.get("status"), int)
+                or expect_call is True
+            ) and expect_call is not False:
                 rsp.add(es_method, es_url, **kwargs)
             response = client_method(
                 f"{server_config.rest_uri}{pbench_uri}",
@@ -70,7 +97,9 @@ def query_api(client, server_config, provide_metadata):
                 json=payload,
                 query_string=query_params,
             )
-        assert response.status_code == expected_status
-        return response
+            assert (
+                response.status_code == expected_status
+            ), f"Unexpected status {response.status_code}: {response.text!r}"
+            return response
 
     return query_api

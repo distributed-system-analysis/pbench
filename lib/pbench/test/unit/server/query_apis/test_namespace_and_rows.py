@@ -348,7 +348,6 @@ class TestSampleNamespace(Commons):
             index,
             expected_status,
             json=response_payload,
-            status=HTTPStatus.OK,
             headers=build_auth_header["header"],
             request_method=ApiMethod.GET,
         )
@@ -578,7 +577,6 @@ class TestSampleValues(Commons):
             index,
             expected_status,
             json=response_payload,
-            status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
         if expected_status == HTTPStatus.OK:
@@ -644,7 +642,6 @@ class TestSampleValues(Commons):
             index,
             expected_status,
             json=response_payload,
-            status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
         if expected_status == HTTPStatus.OK:
@@ -751,7 +748,6 @@ class TestSampleValues(Commons):
             "",
             expected_status,
             json=response_payload,
-            status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
 

@@ -453,11 +453,6 @@ def provide_metadata(attach_dataset):
     """
     Create "real" metadata in the backing database, which will be accessible
     via the un-mocked Metadata.getvalue() API.
-
-    TODO: We really want to move away from using a backing DB for unit tests;
-    see `get_document_map()` below for an alternative example. (But in many
-    contexts, using "half DB" and "half mock" will result in SQLAlchemy
-    confusion.)
     """
     drb = Dataset.query(name="drb")
     Metadata.setvalue(dataset=drb, key="global.contact", value="me@example.com")
@@ -467,11 +462,9 @@ def provide_metadata(attach_dataset):
     IndexMap.create(
         dataset=drb,
         map={
-            "run-data": {"unit-test.v6.run-data.2020-08": ["random_md5_string1"]},
-            "result-data-sample": {
-                "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"]
-            },
-            "run-toc": {"unit-test.v6.run-toc.2020-05": ["random_md5_string1"]},
+            "run-data": ["unit-test.v6.run-data.2020-08"],
+            "result-data-sample": ["unit-test.v5.result-data-sample.2020-08"],
+            "run-toc": ["unit-test.v6.run-toc.2020-05"],
         },
     )
     Metadata.create(
