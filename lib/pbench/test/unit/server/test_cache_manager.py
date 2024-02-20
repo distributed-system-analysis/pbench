@@ -2016,7 +2016,7 @@ class TestCacheManager:
         ds = Dataset(name=name, resource_id=md5, owner=drb, access="public")
         ds.add()
         Metadata.setvalue(ds, Metadata.TARBALL_PATH, path)
-        cm2 = CacheManager(server_config, make_logger).full_discovery(full=False)
+        cm2 = CacheManager(server_config, make_logger).full_discovery(search=False)
         assert cm2[md5].name == name
 
     def test_lockref(self, monkeypatch):

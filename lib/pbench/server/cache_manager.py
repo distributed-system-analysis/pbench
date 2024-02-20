@@ -827,8 +827,8 @@ class Tarball:
                 file_list = []
                 for f in artifact.iterdir():
                     relative = f.relative_to(self.unpacked)
-                    append_to = file_list
                     if f.is_symlink():
+                        append_to = file_list
                         target = f.resolve()
                         try:
                             link = target.relative_to(self.unpacked)
@@ -1267,15 +1267,16 @@ class Controller:
         Returns:
             true if the tarball was added
         """
-        if file.is_file() and Dataset.is_tarball(file):
-            hash = md5 if md5 else get_tarball_md5(file)
-            tarball = Tarball(file, hash, self)
-            self.tarballs[tarball.name] = tarball
-            self.datasets[tarball.resource_id] = tarball
-            tarball.check_unpacked()
-            return True
-        else:
+
+        if not (file.is_file() and Dataset.is_tarball(file)):
             return False
+
+        hash = md5 if md5 else get_tarball_md5(file)
+        tarball = Tarball(file, hash, self)
+        self.tarballs[tarball.name] = tarball
+        self.datasets[tarball.resource_id] = tarball
+        tarball.check_unpacked()
+        return True
 
     def _discover_tarballs(self):
         """Discover the known tarballs
@@ -1431,19 +1432,19 @@ class CacheManager:
         # resource_id.
         self.datasets: dict[str, Tarball] = {}
 
-    def full_discovery(self, full: bool = True) -> "CacheManager":
+    def full_discovery(self, search: bool = True) -> "CacheManager":
         """Discover the ARCHIVE and CACHE trees
 
         Full discovery is only needed for reporting, and is not required
         to find, create, or delete a specific dataset. (See find_dataset.)
 
         Args:
-            full: search the ARCHIVE tree rather than using Dataset table
+            search: search the ARCHIVE tree rather than using the Dataset table
 
         Returns:
             CacheManager instance for chaining
         """
-        if full:
+        if search:
             self._discover_controllers()
         else:
             self._discover_datasets()
@@ -1540,12 +1541,12 @@ class CacheManager:
                 Metadata,
                 and_(Dataset.id == Metadata.dataset_ref, Metadata.key == "server"),
             )
-            .yield_per(500)
+            .yield_per(1000)
             .all()
         )
 
         for name, resource_id, path in rows:
-            if not all((resource_id, path)):
+            if not path:
                 # This runs asychronously with normal operation, and we might
                 # find a dataset before the "server.tarball-path" metadata is
                 # set. Issue a warning in case this becomes a concern, but
