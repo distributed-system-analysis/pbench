@@ -23,6 +23,12 @@ from pbench.server.database.models.index_map import IndexMap
 # An arbitrary really big number
 GINORMOUS = 2**64
 
+# A similarly arbitrary big floating point number
+GINORMOUS_FP = 1000000.0
+
+# Number of bytes in a megabyte, coincidentally also a really big number
+MEGABYTE_FP = 1000000.0
+
 
 class Detail:
     """Encapsulate generation of additional diagnostics"""
@@ -217,6 +223,10 @@ def report_cache(tree: CacheManager):
     cached_size = 0
     lacks_size = 0
     bad_size = 0
+    lacks_metrics = 0
+    bad_metrics = 0
+    unpacked_count = 0
+    unpacked_times = 0
     oldest_cache = time.time() * 2.0  # moderately distant future
     oldest_cache_name = None
     newest_cache = 0.0  # wayback machine
@@ -225,11 +235,24 @@ def report_cache(tree: CacheManager):
     smallest_cache_name = None
     biggest_cache = 0
     biggest_cache_name = None
+    smallest_compression = GINORMOUS
+    smallest_compression_name = None
+    biggest_compression = 0.0
+    biggest_compression_name = None
+    fastest_unpack = GINORMOUS_FP
+    fastest_unpack_name = None
+    slowest_unpack = 0.0
+    slowest_unpack_name = None
+    stream_unpack_skipped = 0
+    fastest_stream_unpack = 0.0
+    fastest_stream_unpack_name = None
+    slowest_stream_unpack = GINORMOUS_FP
+    slowest_stream_unpack_name = None
     last_ref_errors = 0
 
     for tarball in tree.datasets.values():
         watcher.update(f"({cached_count}) cache {tarball.name}")
-        if tarball.unpacked:
+        if tarball.cache:
             try:
                 referenced = tarball.last_ref.stat().st_mtime
             except Exception as e:
@@ -242,36 +265,86 @@ def report_cache(tree: CacheManager):
                 if referenced > newest_cache:
                     newest_cache = referenced
                     newest_cache_name = tarball.name
-            cached_count += 1
-            size = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACKED)
-            if not size:
-                detailer.error(f"{tarball.name} has no unpacked size")
-                lacks_size += 1
-            elif not isinstance(size, int):
-                detailer.error(
-                    f"{tarball.name} has non-integer unpacked size "
-                    f"{size!r} ({type(size)})"
-                )
-                bad_size += 1
-            else:
-                if size < smallest_cache:
-                    smallest_cache = size
-                    smallest_cache_name = tarball.name
-                if size > biggest_cache:
-                    biggest_cache = size
-                    biggest_cache_name = tarball.name
-                cached_size += size
+            if tarball.unpacked:
+                cached_count += 1
+        size = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACKED)
+        if not size:
+            detailer.error(f"{tarball.name} has no unpacked size")
+            lacks_size += 1
+        elif not isinstance(size, int):
+            detailer.error(
+                f"{tarball.name} has non-integer unpacked size "
+                f"{size!r} ({type(size).__name__})"
+            )
+            bad_size += 1
+        else:
+            if size < smallest_cache:
+                smallest_cache = size
+                smallest_cache_name = tarball.name
+            if size > biggest_cache:
+                biggest_cache = size
+                biggest_cache_name = tarball.name
+            cached_size += size
+
+            # Check compression ratios
+            tar_size = tarball.tarball_path.stat().st_size
+            ratio = float(size - tar_size) / float(size)
+            if ratio < smallest_compression:
+                smallest_compression = ratio
+                smallest_compression_name = tarball.name
+            if ratio > biggest_compression:
+                biggest_compression = ratio
+                biggest_compression_name = tarball.name
+        metrics = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACK_PERF)
+        if not metrics:
+            detailer.message(f"{tarball.name} has no unpack metrics")
+            lacks_metrics += 1
+        elif not isinstance(metrics, dict) or {"min", "max", "count"} - set(
+            metrics.keys()
+        ):
+            detailer.error(
+                f"{tarball.name} has bad unpack metrics "
+                f"{metrics!r} ({type(metrics).__name__})"
+            )
+            bad_metrics += 1
+        else:
+            unpacked_count += 1
+            unpacked_times += metrics["count"]
+            if metrics["min"] < fastest_unpack:
+                fastest_unpack = metrics["min"]
+                fastest_unpack_name = tarball.name
+            if metrics["max"] > slowest_unpack:
+                slowest_unpack = metrics["max"]
+                slowest_unpack_name = tarball.name
+        if size and metrics:
+            stream_fast = size / metrics["min"] / MEGABYTE_FP
+            stream_slow = size / metrics["max"] / MEGABYTE_FP
+            if stream_fast > fastest_stream_unpack:
+                fastest_stream_unpack = stream_fast
+                fastest_stream_unpack_name = tarball.name
+            if stream_slow < slowest_stream_unpack:
+                slowest_stream_unpack = stream_slow
+                slowest_stream_unpack_name = tarball.name
+        else:
+            stream_unpack_skipped += 1
     oldest = datetime.datetime.fromtimestamp(oldest_cache, datetime.timezone.utc)
     newest = datetime.datetime.fromtimestamp(newest_cache, datetime.timezone.utc)
     click.echo("Cache report:")
     click.echo(
-        f"  {cached_count:,d} datasets consuming "
+        f"  {cached_count:,d} datasets currently unpacked, consuming "
         f"{humanize.naturalsize(cached_size)}"
     )
     click.echo(
-        f"  {lacks_size:,d} datasets have never been unpacked, "
-        f"{last_ref_errors:,d} are missing reference timestamps, "
-        f"{bad_size:,d} have bad size metadata"
+        f"  {unpacked_count:,d} datasets have been unpacked a total of "
+        f"{unpacked_times:,d} times"
+    )
+    click.echo(
+        "  The least recently used cache was referenced "
+        f"{humanize.naturaldate(oldest)}, {oldest_cache_name}"
+    )
+    click.echo(
+        "  The most recently used cache was referenced "
+        f"{humanize.naturaldate(newest)}, {newest_cache_name}"
     )
     click.echo(
         f"  The smallest cache is {humanize.naturalsize(smallest_cache)}, "
@@ -282,13 +355,44 @@ def report_cache(tree: CacheManager):
         f"{biggest_cache_name}"
     )
     click.echo(
-        "  The least recently used cache was referenced "
-        f"{humanize.naturaldate(oldest)}, {oldest_cache_name}"
+        f"  The worst compression ratio is {smallest_compression:.3%}, "
+        f"{smallest_compression_name}"
     )
     click.echo(
-        "  The most recently used cache was referenced "
-        f"{humanize.naturaldate(newest)}, {newest_cache_name}"
+        f"  The best compression ratio is {biggest_compression:.3%}, "
+        f"{biggest_compression_name}"
     )
+    click.echo(
+        f"  The fastest cache unpack is {fastest_unpack:.3f} seconds, "
+        f"{fastest_unpack_name}"
+    )
+    click.echo(
+        f"  The slowest cache unpack is {slowest_unpack:.3f} seconds, "
+        f"{slowest_unpack_name}"
+    )
+    click.echo(
+        f"  The fastest cache unpack streaming rate is {fastest_stream_unpack:.3f} Mb/second, "
+        f"{fastest_stream_unpack_name}"
+    )
+    click.echo(
+        f"  The slowest cache unpack streaming rate is {slowest_stream_unpack:.3f} Mb/second, "
+        f"{slowest_stream_unpack_name}"
+    )
+    if lacks_size or last_ref_errors or bad_size or verifier.verify:
+        click.echo(
+            f"  {lacks_size:,d} datasets have no unpacked size, "
+            f"{last_ref_errors:,d} are missing reference timestamps, "
+            f"{bad_size:,d} have bad size metadata"
+        )
+    if lacks_metrics or bad_metrics or verifier.verify:
+        click.echo(
+            f"  {lacks_metrics:,d} datasets are missing unpack metric data, "
+            f"{bad_metrics} have bad unpack metric data"
+        )
+    if stream_unpack_skipped or verifier.verify:
+        click.echo(
+            f"  Missing unpack performance data for {stream_unpack_skipped:,d} datasets"
+        )
 
 
 def report_sql():

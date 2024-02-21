@@ -1034,7 +1034,8 @@ class Tarball:
 
         Once we've unpacked it once, the size is tracked in the metadata key
         'server.unpacked'. If we haven't yet unpacked it, and the dataset's
-        metadata.log provides a 'raw_size", use that as an estimate
+        metadata.log provides "run.raw_size", use that as an estimate (the
+        accuracy depends on relative block size compared to the server).
 
         Returns:
             unpacked size of the tarball, or 0 if unknown
@@ -1133,27 +1134,46 @@ class Tarball:
                 uend - ustart,
             )
 
-        self.last_ref.touch(exist_ok=True)
+            # If we have a Dataset, and haven't already done this, compute the
+            # unpacked size and record it in metadata so we can use it later.
+            ssize = time.time()
+            if self.dataset:
+                if not Metadata.getvalue(self.dataset, Metadata.SERVER_UNPACKED):
+                    try:
+                        process = subprocess.run(
+                            ["du", "-s", "-B1", str(self.unpacked)],
+                            capture_output=True,
+                            text=True,
+                        )
+                        if process.returncode == 0:
+                            size = int(process.stdout.split("\t", maxsplit=1)[0])
+                            self.unpacked_size = size
+                            Metadata.setvalue(
+                                self.dataset, Metadata.SERVER_UNPACKED, size
+                            )
+                    except Exception as e:
+                        self.logger.warning("usage check failed: {}", e)
 
-        # If we have a Dataset, and haven't already done this, compute the
-        # unpacked size and record it in metadata so we can use it later.
-        ssize = time.time()
-        if self.dataset and not Metadata.getvalue(
-            self.dataset, Metadata.SERVER_UNPACKED
-        ):
-            try:
-                process = subprocess.run(
-                    ["du", "-s", "-B1", str(self.unpacked)],
-                    capture_output=True,
-                    text=True,
+                # Update the time-to-unpack statistic. If the metadata doesn't exist,
+                # or somehow isn't a dict (JSONOBJECT), create a new metric: otherwise
+                # update the existing metric.
+                unpack_time = uend - ustart
+                metric: JSONOBJECT = Metadata.getvalue(
+                    self.dataset, Metadata.SERVER_UNPACK_PERF
                 )
-                if process.returncode == 0:
-                    size = int(process.stdout.split("\t", maxsplit=1)[0])
-                    self.unpacked_size = size
-                    Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACKED, size)
-            except Exception as e:
-                self.logger.warning("usage check failed: {}", e)
-        self.logger.info("{}: size update {:.3f}", self.name, time.time() - ssize)
+                if not isinstance(metric, dict):
+                    metric = {"min": unpack_time, "max": unpack_time, "count": 1}
+                else:
+                    # We max out at about 12 hours here, which seems safely excessive!
+                    metric["min"] = min(metric.get("min", 1000000.0), uend - ustart)
+                    metric["max"] = max(metric.get("max", 0), uend - ustart)
+                    metric["count"] = metric.get("count", 0) + 1
+                Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACK_PERF, metric)
+                self.logger.info(
+                    "{}: size update {:.3f}", self.name, time.time() - ssize
+                )
+
+        self.last_ref.touch(exist_ok=True)
         return self.unpacked
 
     def cache_delete(self):
