@@ -57,9 +57,18 @@ def print_tree(tree: CacheManager):
     is_flag=False,
     help="Reclaim cached data to maintain specified free space",
 )
+@click.option(
+    "--search",
+    is_flag=True,
+    help="Do an exhaustive search of ARCHIVE tree rather than using SQL",
+)
 @common_options
 def tree_manage(
-    context: object, display: bool, reclaim_percent: float, reclaim_size: str
+    context: object,
+    display: bool,
+    reclaim_percent: float,
+    reclaim_size: str,
+    search: bool,
 ):
     """
     Discover, display, and manipulate the on-disk representation of controllers
@@ -76,14 +85,15 @@ def tree_manage(
         lifetime: Number of hours to retain unused cache before reclaim
         reclaim-percent: Reclaim cached data to free specified % on drive
         reclaim-size: Reclame cached data to free specified size on drive
+        search: Discover cache with a full disk search
     """
     logger = None
     try:
         config = config_setup(context)
         logger = get_pbench_logger("pbench-tree-manager", config)
         cache_m = CacheManager(config, logger)
-        cache_m.full_discovery()
         if display:
+            cache_m.full_discovery(search=search)
             print_tree(cache_m)
             rv = 0
         if reclaim_percent or reclaim_size:
