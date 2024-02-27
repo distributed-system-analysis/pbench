@@ -1,4 +1,5 @@
 import "./index.less";
+import "react-datepicker/dist/react-datepicker.css";
 
 import * as CONSTANTS from "assets/constants/overviewConstants";
 
@@ -13,7 +14,6 @@ import {
 } from "@patternfly/react-table";
 import {
   Button,
-  DatePicker,
   Dropdown,
   DropdownItem,
   DropdownToggle,
@@ -41,6 +41,7 @@ import {
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import DatePicker from "react-datepicker";
 import MetadataTreeView from "./MetadataTreeComponent";
 import { formatDateTime } from "utils/dateFunctions";
 import { setRelayModalState } from "actions/relayActions";
@@ -402,8 +403,8 @@ export const SavedRunsRow = (props) => {
 export const SelectDateComponent = (props) => (
   <div className="date-picker-container">
     <DatePicker
-      value={props.value}
-      onChange={() => props.onDateSelect(props.value)}
+      selected={props.value}
+      onChange={(date) => props.onDateSelect(date)}
     />
   </div>
 );
