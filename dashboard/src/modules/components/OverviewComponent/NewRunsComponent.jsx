@@ -200,7 +200,7 @@ const NewRunsComponent = () => {
                         saveRowData={saveRowData}
                         rowActions={rowActions}
                         item={item}
-                        onDateSelect={(_event, str) =>
+                        onDateSelect={(str) =>
                           updateTblValue(
                             str,
                             SERVER_DELETION_KEY,
