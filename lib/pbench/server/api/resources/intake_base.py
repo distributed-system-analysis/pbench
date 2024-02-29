@@ -396,7 +396,7 @@ class IntakeBase(ApiBase):
             except APIAbort:
                 raise  # Propagate an APIAbort exception to the outer block
             except Exception as e:
-                raise APIInternalError("Unable to create dataset") from e
+                raise APIInternalError(f"Unable to create dataset: {str(e)!r}") from e
 
             recovery.add(dataset.delete)
 
@@ -452,11 +452,11 @@ class IntakeBase(ApiBase):
                     )
                     raise APIAbort(HTTPStatus.INSUFFICIENT_STORAGE, "Out of space")
                 raise APIInternalError(
-                    f"Unexpected error encountered during file upload: {str(exc)!r} "
+                    f"Unexpected error encountered during file upload: {str(exc)!r}"
                 ) from exc
             except Exception as e:
                 raise APIInternalError(
-                    "Unexpected error encountered during file upload: {str(e)!r}"
+                    f"Unexpected error encountered during file upload: {str(e)!r}"
                 ) from e
 
             if bytes_received != stream.length:

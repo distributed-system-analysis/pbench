@@ -1,16 +1,16 @@
 from collections import defaultdict
 import datetime
 import re
-from threading import Thread
+import shutil
 import time
-from typing import Optional
+from typing import Optional, Union
 
 import click
 import humanize
 from sqlalchemy import inspect, select, text
 
 from pbench.cli import pass_cli_context
-from pbench.cli.server import config_setup
+from pbench.cli.server import config_setup, Detail, Verify, Watch
 from pbench.cli.server.options import common_options
 from pbench.client.types import Dataset
 from pbench.common.logger import get_pbench_logger
@@ -29,126 +29,33 @@ GINORMOUS_FP = 1000000.0
 # Number of bytes in a megabyte, coincidentally also a really big number
 MEGABYTE_FP = 1000000.0
 
-
-class Detail:
-    """Encapsulate generation of additional diagnostics"""
-
-    def __init__(self, detail: bool = False, errors: bool = False):
-        """Initialize the object.
-
-        Args:
-            detail: True if detailed messages should be generated
-            errors: True if individual file errors should be reported
-        """
-        self.detail = detail
-        self.errors = errors
-
-    def __bool__(self) -> bool:
-        """Report whether detailed messages are enabled
-
-        Returns:
-            True if details are enabled
-        """
-        return self.detail
-
-    def error(self, message: str):
-        """Write a message if details are enabled.
-
-        Args:
-            message: Detail string
-        """
-        if self.errors:
-            click.secho(f"|| {message}", fg="red")
-
-    def message(self, message: str):
-        """Write a message if details are enabled.
-
-        Args:
-            message: Detail string
-        """
-        if self.detail:
-            click.echo(f"|| {message}")
-
-
-class Verify:
-    """Encapsulate -v status messages."""
-
-    def __init__(self, verify: bool):
-        """Initialize the object.
-
-        Args:
-            verify: True to write status messages.
-        """
-        self.verify = verify
-
-    def __bool__(self) -> bool:
-        """Report whether verification is enabled.
-
-        Returns:
-            True if verification is enabled.
-        """
-        return self.verify
-
-    def status(self, message: str):
-        """Write a message if verification is enabled.
-
-        Args:
-            message: status string
-        """
-        if self.verify:
-            ts = datetime.datetime.now().astimezone()
-            click.secho(f"({ts:%H:%M:%S}) {message}", fg="green")
-
-
-class Watch:
-    """Encapsulate a periodic status update.
-
-    The active message can be updated at will; a background thread will
-    periodically print the most recent status.
-    """
-
-    def __init__(self, interval: float):
-        """Initialize the object.
-
-        Args:
-            interval: interval in seconds for status updates
-        """
-        self.start = time.time()
-        self.interval = interval
-        self.status = "starting"
-        if interval:
-            self.thread = Thread(target=self.watcher)
-            self.thread.setDaemon(True)
-            self.thread.start()
-
-    def update(self, status: str):
-        """Update status if appropriate.
-
-        Update the message to be printed at the next interval, if progress
-        reporting is enabled.
-
-        Args:
-            status: status string
-        """
-        self.status = status
-
-    def watcher(self):
-        """A worker thread to periodically write status messages."""
-
-        while True:
-            time.sleep(self.interval)
-            now = time.time()
-            delta = int(now - self.start)
-            hours, remainder = divmod(delta, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            click.secho(
-                f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {self.status}", fg="cyan"
-            )
-
-
 detailer: Optional[Detail] = None
 watcher: Optional[Watch] = None
 verifier: Optional[Verify] = None
+
+
+class Comparator:
+    def __init__(self, name: str, really_big: Union[int, float] = GINORMOUS):
+        self.name = name
+        self.min = really_big
+        self.min_name = None
+        self.max = 0
+        self.max_name = None
+
+    def add(
+        self,
+        value: Union[int, float],
+        name: str,
+        max: Optional[Union[int, float]] = None,
+    ):
+        minv = value
+        maxv = max if max else value
+        if minv < self.min:
+            self.min = minv
+            self.min_name = name
+        elif maxv > self.max:
+            self.max = maxv
+            self.max_name = name
 
 
 def report_archive(tree: CacheManager):
@@ -161,32 +68,29 @@ def report_archive(tree: CacheManager):
     watcher.update("inspecting archive")
     tarball_count = len(tree.datasets)
     tarball_size = 0
-    smallest_tarball = GINORMOUS
-    smallest_tarball_name = None
-    biggest_tarball = 0
-    biggest_tarball_name = None
+    tcomp = Comparator("tarball")
+    usage = shutil.disk_usage(tree.archive_root)
 
     for tarball in tree.datasets.values():
         watcher.update(f"({tarball_count}) archive {tarball.name}")
         size = tarball.tarball_path.stat().st_size
         tarball_size += size
-        if size < smallest_tarball:
-            smallest_tarball = size
-            smallest_tarball_name = tarball.name
-        if size > biggest_tarball:
-            biggest_tarball = size
-            biggest_tarball_name = tarball.name
+        tcomp.add(size, tarball.name)
     click.echo("Archive report:")
+    click.echo(
+        f"  ARCHIVE ({tree.archive_root}): {humanize.naturalsize(usage.total)}: {humanize.naturalsize(usage.used)} "
+        f"used, {humanize.naturalsize(usage.free)}"
+    )
     click.echo(
         f"  {tarball_count:,d} tarballs consuming {humanize.naturalsize(tarball_size)}"
     )
     click.echo(
-        f"  The smallest tarball is {humanize.naturalsize(smallest_tarball)}, "
-        f"{smallest_tarball_name}"
+        f"  The smallest tarball is {humanize.naturalsize(tcomp.min)}, "
+        f"{tcomp.min_name}"
     )
     click.echo(
-        f"  The biggest tarball is {humanize.naturalsize(biggest_tarball)}, "
-        f"{biggest_tarball_name}"
+        f"  The biggest tarball is {humanize.naturalsize(tcomp.max)}, "
+        f"{tcomp.max_name}"
     )
 
 
@@ -200,12 +104,17 @@ def report_backup(tree: CacheManager):
     watcher.update("inspecting backups")
     backup_count = 0
     backup_size = 0
+    usage = shutil.disk_usage(tree.backup_root)
     for tarball in tree.backup_root.glob("**/*.tar.xz"):
         watcher.update(f"({backup_count}) backup {Dataset.stem(tarball)}")
         backup_count += 1
         backup_size += tarball.stat().st_size
 
     click.echo("Backup report:")
+    click.echo(
+        f"  BACKUP ({tree.backup_root}): {humanize.naturalsize(usage.total)}: {humanize.naturalsize(usage.used)} "
+        f"used, {humanize.naturalsize(usage.free)}"
+    )
     click.echo(
         f"  {backup_count:,d} tarballs consuming {humanize.naturalsize(backup_size)}"
     )
@@ -227,28 +136,13 @@ def report_cache(tree: CacheManager):
     bad_metrics = 0
     unpacked_count = 0
     unpacked_times = 0
-    oldest_cache = time.time() * 2.0  # moderately distant future
-    oldest_cache_name = None
-    newest_cache = 0.0  # wayback machine
-    newest_cache_name = None
-    smallest_cache = GINORMOUS
-    smallest_cache_name = None
-    biggest_cache = 0
-    biggest_cache_name = None
-    smallest_compression = GINORMOUS
-    smallest_compression_name = None
-    biggest_compression = 0.0
-    biggest_compression_name = None
-    fastest_unpack = GINORMOUS_FP
-    fastest_unpack_name = None
-    slowest_unpack = 0.0
-    slowest_unpack_name = None
     stream_unpack_skipped = 0
-    fastest_stream_unpack = 0.0
-    fastest_stream_unpack_name = None
-    slowest_stream_unpack = GINORMOUS_FP
-    slowest_stream_unpack_name = None
     last_ref_errors = 0
+    agecomp = Comparator("age", really_big=time.time() * 2.0)
+    sizecomp = Comparator("size")
+    compcomp = Comparator("compression")
+    speedcomp = Comparator("speed", really_big=GINORMOUS_FP)
+    streamcomp = Comparator("streaming", really_big=GINORMOUS_FP)
 
     for tarball in tree.datasets.values():
         watcher.update(f"({cached_count}) cache {tarball.name}")
@@ -259,12 +153,7 @@ def report_cache(tree: CacheManager):
                 detailer.error(f"{tarball.name} last ref access: {str(e)!r}")
                 last_ref_errors += 1
             else:
-                if referenced < oldest_cache:
-                    oldest_cache = referenced
-                    oldest_cache_name = tarball.name
-                if referenced > newest_cache:
-                    newest_cache = referenced
-                    newest_cache_name = tarball.name
+                agecomp.add(referenced, tarball.name)
             if tarball.unpacked:
                 cached_count += 1
         size = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACKED)
@@ -278,23 +167,13 @@ def report_cache(tree: CacheManager):
             )
             bad_size += 1
         else:
-            if size < smallest_cache:
-                smallest_cache = size
-                smallest_cache_name = tarball.name
-            if size > biggest_cache:
-                biggest_cache = size
-                biggest_cache_name = tarball.name
+            sizecomp.add(size, tarball.name)
             cached_size += size
 
             # Check compression ratios
             tar_size = tarball.tarball_path.stat().st_size
             ratio = float(size - tar_size) / float(size)
-            if ratio < smallest_compression:
-                smallest_compression = ratio
-                smallest_compression_name = tarball.name
-            if ratio > biggest_compression:
-                biggest_compression = ratio
-                biggest_compression_name = tarball.name
+            compcomp.add(ratio, tarball.name)
         metrics = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACK_PERF)
         if not metrics:
             detailer.message(f"{tarball.name} has no unpack metrics")
@@ -310,25 +189,15 @@ def report_cache(tree: CacheManager):
         else:
             unpacked_count += 1
             unpacked_times += metrics["count"]
-            if metrics["min"] < fastest_unpack:
-                fastest_unpack = metrics["min"]
-                fastest_unpack_name = tarball.name
-            if metrics["max"] > slowest_unpack:
-                slowest_unpack = metrics["max"]
-                slowest_unpack_name = tarball.name
+            speedcomp.add(metrics["min"], tarball.name, metrics["max"])
         if size and metrics:
             stream_fast = size / metrics["min"] / MEGABYTE_FP
             stream_slow = size / metrics["max"] / MEGABYTE_FP
-            if stream_fast > fastest_stream_unpack:
-                fastest_stream_unpack = stream_fast
-                fastest_stream_unpack_name = tarball.name
-            if stream_slow < slowest_stream_unpack:
-                slowest_stream_unpack = stream_slow
-                slowest_stream_unpack_name = tarball.name
+            streamcomp.add(stream_slow, tarball.name, stream_fast)
         else:
             stream_unpack_skipped += 1
-    oldest = datetime.datetime.fromtimestamp(oldest_cache, datetime.timezone.utc)
-    newest = datetime.datetime.fromtimestamp(newest_cache, datetime.timezone.utc)
+    oldest = datetime.datetime.fromtimestamp(agecomp.min, datetime.timezone.utc)
+    newest = datetime.datetime.fromtimestamp(agecomp.max, datetime.timezone.utc)
     click.echo("Cache report:")
     click.echo(
         f"  {cached_count:,d} datasets currently unpacked, consuming "
@@ -340,43 +209,41 @@ def report_cache(tree: CacheManager):
     )
     click.echo(
         "  The least recently used cache was referenced "
-        f"{humanize.naturaldate(oldest)}, {oldest_cache_name}"
+        f"{humanize.naturaldate(oldest)}, {agecomp.min_name}"
     )
     click.echo(
         "  The most recently used cache was referenced "
-        f"{humanize.naturaldate(newest)}, {newest_cache_name}"
+        f"{humanize.naturaldate(newest)}, {agecomp.max_name}"
     )
     click.echo(
-        f"  The smallest cache is {humanize.naturalsize(smallest_cache)}, "
-        f"{smallest_cache_name}"
+        f"  The smallest cache is {humanize.naturalsize(sizecomp.min)}, "
+        f"{sizecomp.min_name}"
     )
     click.echo(
-        f"  The biggest cache is {humanize.naturalsize(biggest_cache)}, "
-        f"{biggest_cache_name}"
+        f"  The biggest cache is {humanize.naturalsize(sizecomp.max)}, "
+        f"{sizecomp.max_name}"
     )
     click.echo(
-        f"  The worst compression ratio is {smallest_compression:.3%}, "
-        f"{smallest_compression_name}"
+        f"  The worst compression ratio is {compcomp.min:.3%}, " f"{compcomp.min_name}"
     )
     click.echo(
-        f"  The best compression ratio is {biggest_compression:.3%}, "
-        f"{biggest_compression_name}"
+        f"  The best compression ratio is {compcomp.max:.3%}, " f"{compcomp.max_name}"
     )
     click.echo(
-        f"  The fastest cache unpack is {fastest_unpack:.3f} seconds, "
-        f"{fastest_unpack_name}"
+        f"  The fastest cache unpack is {speedcomp.min:.3f} seconds, "
+        f"{speedcomp.min_name}"
     )
     click.echo(
-        f"  The slowest cache unpack is {slowest_unpack:.3f} seconds, "
-        f"{slowest_unpack_name}"
+        f"  The slowest cache unpack is {speedcomp.max:.3f} seconds, "
+        f"{speedcomp.max_name}"
     )
     click.echo(
-        f"  The fastest cache unpack streaming rate is {fastest_stream_unpack:.3f} Mb/second, "
-        f"{fastest_stream_unpack_name}"
+        f"  The fastest cache unpack streaming rate is {streamcomp.max:.3f} Mb/second, "
+        f"{streamcomp.max_name}"
     )
     click.echo(
-        f"  The slowest cache unpack streaming rate is {slowest_stream_unpack:.3f} Mb/second, "
-        f"{slowest_stream_unpack_name}"
+        f"  The slowest cache unpack streaming rate is {streamcomp.min:.3f} Mb/second, "
+        f"{streamcomp.min_name}"
     )
     if lacks_size or last_ref_errors or bad_size or verifier.verify:
         click.echo(

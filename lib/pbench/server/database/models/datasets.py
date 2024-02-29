@@ -674,7 +674,7 @@ class Metadata(Database.Base):
     # UNPACKED records the size of the unpacked directory tree.
     SERVER_UNPACKED = "server.unpacked-size"
 
-    # UNPACK performance: {"best": <seconds>, "worst": <seconds>, "count": <n>}
+    # UNPACK performance: {"min": <seconds>, "max": <seconds>, "count": <n>}
     SERVER_UNPACK_PERF = "server.unpack-perf"
 
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this

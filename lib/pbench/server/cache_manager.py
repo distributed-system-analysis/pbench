@@ -1164,9 +1164,9 @@ class Tarball:
                 if not isinstance(metric, dict):
                     metric = {"min": unpack_time, "max": unpack_time, "count": 1}
                 else:
-                    # We max out at about 12 hours here, which seems safely excessive!
-                    metric["min"] = min(metric.get("min", 1000000.0), uend - ustart)
-                    metric["max"] = max(metric.get("max", 0), uend - ustart)
+                    # We max out at about 12 days here, which seems safely excessive!
+                    metric["min"] = min(metric.get("min", 1000000.0), unpack_time)
+                    metric["max"] = max(metric.get("max", 0), unpack_time)
                     metric["count"] = metric.get("count", 0) + 1
                 Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACK_PERF, metric)
                 self.logger.info(
@@ -1202,7 +1202,18 @@ class Tarball:
         We'll log errors in deletion, but "succeed" and clear the links to both
         files. There's nothing more we can do.
         """
-        self.cache_delete()
+
+        # NOTE: this is similar to cache_delete above, but doesn't re-raise and
+        # operates on the root cache directory rather than unpack.
+        self.cachemap = None
+        if self.cache:
+            try:
+                shutil.rmtree(self.cache)
+            except Exception as e:
+                self.logger.error("cache delete for {} failed with {}", self.name, e)
+
+        # Remove the isolator directory with the tarball and MD5 files; or if
+        # this is a pre-isolator tarball, unlink the MD5 and tarball.
         if self.isolator and self.isolator.exists():
             try:
                 shutil.rmtree(self.isolator)
@@ -1893,6 +1904,7 @@ class CacheManager:
         # our goals.
         candidates = sorted(candidates, key=lambda c: c.last_ref)
         has_cache = len(candidates)
+        goal_check = reached_goal()
         for candidate in candidates:
             name = candidate.cache.name
             cache_d = candidate.cache.parent
@@ -1923,7 +1935,8 @@ class CacheManager:
                         error = e
                     else:
                         reclaimed += 1
-                        if reached_goal().reached:
+                        goal_check = reached_goal()
+                        if goal_check.reached:
                             break
             except OSError as e:
                 if e.errno in (errno.EAGAIN, errno.EACCES):
@@ -1939,7 +1952,6 @@ class CacheManager:
                 error = e
             if error:
                 self.logger.error("RECLAIM: {} failed with '{}'", name, error)
-        goal_check = reached_goal()
         free_pct = goal_check.usage.free * 100.0 / goal_check.usage.total
         self.logger.info(
             "RECLAIM {} (goal {}%, {}): {} datasets, "
