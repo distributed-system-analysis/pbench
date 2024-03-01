@@ -22,13 +22,15 @@ def _pbench_server_config(f: Callable) -> Callable:
 
     def callback(ctx, param, value):
         clictx = ctx.ensure_object(CliContext)
-        clictx.config = value
+        clictx.config = (
+            value if value else "/opt/pbench-server/lib/config/pbench-server.cfg"
+        )
         return value
 
     return click.option(
         "-C",
         "--config",
-        required=True,
+        required=False,
         envvar="_PBENCH_SERVER_CONFIG",
         type=click.Path(exists=True, readable=True),
         callback=callback,

@@ -1573,7 +1573,6 @@ class CacheManager:
                 and_(Dataset.id == Metadata.dataset_ref, Metadata.key == "server"),
             )
             .yield_per(1000)
-            .all()
         )
 
         for name, resource_id, path in rows:

@@ -39,7 +39,7 @@ class Comparator:
         self.name = name
         self.min = really_big
         self.min_name = None
-        self.max = 0
+        self.max = -really_big
         self.max_name = None
 
     def add(
@@ -49,11 +49,11 @@ class Comparator:
         max: Optional[Union[int, float]] = None,
     ):
         minv = value
-        maxv = max if max else value
+        maxv = max if max is not None else value
         if minv < self.min:
             self.min = minv
             self.min_name = name
-        elif maxv > self.max:
+        if maxv > self.max:
             self.max = maxv
             self.max_name = name
 
@@ -258,7 +258,7 @@ def report_cache(tree: CacheManager):
         )
     if stream_unpack_skipped or verifier.verify:
         click.echo(
-            f"  Missing unpack performance data for {stream_unpack_skipped:,d} datasets"
+            f"  {stream_unpack_skipped:,d} datasets are missing unpack performance data"
         )
 
 

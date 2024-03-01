@@ -3,6 +3,7 @@ from typing import Optional
 
 import click
 import humanfriendly
+import humanize
 
 from pbench.cli import pass_cli_context
 from pbench.cli.server import config_setup, Detail, Verify, Watch
@@ -61,16 +62,15 @@ def print_tree(tree: CacheManager):
 )
 @click.option(
     "--reclaim-percent",
-    show_default=True,
     is_flag=False,
     flag_value=20.0,
     type=click.FLOAT,
-    help="Reclaim cached data to maintain a target % free space",
+    help="Reclaim cached data to maintain a target % free space [default 20]",
 )
 @click.option(
     "--reclaim-size",
     is_flag=False,
-    help="Reclaim cached data to maintain specified free space",
+    help="Reclaim cached data to maintain specified free space (e.g., '1Gb')",
 )
 @click.option(
     "--search",
@@ -111,11 +111,12 @@ def tree_manage(
     logger = None
 
     global detailer, verifier, watcher
-    detailer = Detail(detail, False)
+    detailer = Detail(detail, errors=False)
     verifier = Verify(verify)
     watcher = Watch(progress)
 
     try:
+        rv = 0
         config = config_setup(context)
         logger = get_pbench_logger("pbench-tree-manager", config)
         cache_m = CacheManager(config, logger)
@@ -126,12 +127,13 @@ def tree_manage(
             verifier.status("finished discovery")
             watcher.update("building report")
             print_tree(cache_m)
-            rv = 0
         if reclaim_percent or reclaim_size:
-            verifier.status("starting reclaim")
-            watcher.update("reclaiming")
+            target_pct = reclaim_percent if reclaim_percent else 0.0
             target_size = humanfriendly.parse_size(reclaim_size) if reclaim_size else 0
-            target_pct = reclaim_percent if reclaim_percent else 20.0
+            verifier.status(
+                f"starting to reclaim {target_pct}% or {humanize.naturalsize(target_size)}"
+            )
+            watcher.update("reclaiming")
             outcome = cache_m.reclaim_cache(goal_pct=target_pct, goal_bytes=target_size)
             verifier.status(
                 f"finished reclaiming: goal {''if outcome else 'not '}achieved"
