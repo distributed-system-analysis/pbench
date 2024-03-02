@@ -17,6 +17,7 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.database import Database
+from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import Metadata
 from pbench.server.database.models.index_map import IndexMap
 
@@ -262,6 +263,63 @@ def report_cache(tree: CacheManager):
         )
 
 
+def report_audit():
+    """Report audit log statistics."""
+
+    counter = 0
+    events = 0
+    unmatched_roots = set()
+    unmatched_terminal = set()
+    status = defaultdict(int)
+    operations = defaultdict(int)
+    objects = defaultdict(int)
+    users = defaultdict(int)
+    watcher.update("inspecting audit log")
+    audit_logs = (
+        Database.db_session.query(Audit)
+        .execution_options(stream_results=True)
+        .order_by(Audit.timestamp)
+        .yield_per(1000)
+    )
+    for audit in audit_logs:
+        counter += 1
+        watcher.update(f"[{counter}] inspecting {audit.id} -> {audit.timestamp}")
+        if audit.status is AuditStatus.BEGIN:
+            events += 1
+            unmatched_roots.add(audit.id)
+            operations[audit.name] += 1
+            n = audit.user_name if audit.user_name else "<system>"
+            users[n] += 1
+            t = audit.object_type if audit.object_type else "<none>"
+            objects[t] += 1
+        else:
+            status[audit.status] += 1
+            try:
+                unmatched_roots.remove(audit.root_id)
+            except KeyError:
+                detailer.error(f"audit {audit} has no matching `BEGIN`")
+                unmatched_terminal.add(audit.id)
+
+    click.echo("Audit logs:")
+    click.echo(f"  {counter:,d} audit log rows for {events:,d} events")
+    click.echo(
+        f"  {len(unmatched_roots)} unterminated root rows, "
+        f"{len(unmatched_terminal)} unmatched terminators"
+    )
+    click.echo("  Status summary:")
+    for name, count in status.items():
+        click.echo(f"    {name:>20s} {count:>10,d}")
+    click.echo("  Operation summary:")
+    for name, count in operations.items():
+        click.echo(f"    {name:>20s} {count:>10,d}")
+    click.echo("  Object type summary:")
+    for name, count in objects.items():
+        click.echo(f"    {name:>20s} {count:>10,d}")
+    click.echo("  Users summary:")
+    for name, count in users.items():
+        click.echo(f"    {name:>20s} {count:>10,d}")
+
+
 def report_sql():
     """Report the SQL table storage statistics"""
 
@@ -343,8 +401,9 @@ def report_states():
         statement=text(
             "SELECT d.name, o.name, o.state, o.message FROM datasets AS d LEFT OUTER JOIN "
             "dataset_operations AS o ON o.dataset_ref = d.id"
-        )
-    )
+        ),
+        execution_options={"stream_results": True},
+    ).yield_per(1000)
     for dataset, operation, state, message in rows:
         watcher.update(f"inspecting {dataset}:{operation}")
         if operation is None:
@@ -388,6 +447,9 @@ def report_states():
     "--archive", "-A", default=False, is_flag=True, help="Display archive statistics"
 )
 @click.option(
+    "--audit", "-L", default=False, is_flag=True, help="Display audit log statistics"
+)
+@click.option(
     "--backup", "-b", default=False, is_flag=True, help="Display backup statistics"
 )
 @click.option(
@@ -422,6 +484,7 @@ def report(
     context: object,
     all: bool,
     archive: bool,
+    audit: bool,
     backup: bool,
     cache: bool,
     detail: bool,
@@ -440,6 +503,7 @@ def report(
         context: click context
         all: report all statistics
         archive: report archive statistics
+        audit: report audit log statistics
         backup: report backup statistics
         cache: report cache statistics
         detail: provide additional per-file diagnostics
@@ -471,6 +535,8 @@ def report(
                 report_backup(cache_m)
             if all or cache:
                 report_cache(cache_m)
+        if all or audit:
+            report_audit()
         if all or sql:
             report_sql()
         if all or states:
