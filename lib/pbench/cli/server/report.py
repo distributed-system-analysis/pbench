@@ -37,6 +37,12 @@ verifier: Optional[Verify] = None
 
 class Comparator:
     def __init__(self, name: str, really_big: Union[int, float] = GINORMOUS):
+        """Initialize a comparator
+
+        Args:
+            name: A name for the comparator
+            really_big: An optional maximum value
+        """
         self.name = name
         self.min = really_big
         self.min_name = None
@@ -45,10 +51,17 @@ class Comparator:
 
     def add(
         self,
-        value: Union[int, float],
         name: str,
+        value: Union[int, float],
         max: Optional[Union[int, float]] = None,
     ):
+        """Add a data point to the comparator
+
+        Args:
+            name: The name of the associated dataset
+            value: The value of the datapoint
+            max: [Optional] A second "maximum" value if adding a min/max pair
+        """
         minv = value
         maxv = max if max is not None else value
         if minv < self.min:
@@ -76,7 +89,7 @@ def report_archive(tree: CacheManager):
         watcher.update(f"({tarball_count}) archive {tarball.name}")
         size = tarball.tarball_path.stat().st_size
         tarball_size += size
-        tcomp.add(size, tarball.name)
+        tcomp.add(tarball.name, size)
     click.echo("Archive report:")
     click.echo(
         f"  ARCHIVE ({tree.archive_root}): {humanize.naturalsize(usage.total)}: {humanize.naturalsize(usage.used)} "
@@ -154,7 +167,7 @@ def report_cache(tree: CacheManager):
                 detailer.error(f"{tarball.name} last ref access: {str(e)!r}")
                 last_ref_errors += 1
             else:
-                agecomp.add(referenced, tarball.name)
+                agecomp.add(tarball.name, referenced)
             if tarball.unpacked:
                 cached_count += 1
         size = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACKED)
@@ -168,13 +181,13 @@ def report_cache(tree: CacheManager):
             )
             bad_size += 1
         else:
-            sizecomp.add(size, tarball.name)
+            sizecomp.add(tarball.name, size)
             cached_size += size
 
             # Check compression ratios
             tar_size = tarball.tarball_path.stat().st_size
             ratio = float(size - tar_size) / float(size)
-            compcomp.add(ratio, tarball.name)
+            compcomp.add(tarball.name, ratio)
         metrics = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACK_PERF)
         if not metrics:
             detailer.message(f"{tarball.name} has no unpack metrics")
@@ -190,11 +203,11 @@ def report_cache(tree: CacheManager):
         else:
             unpacked_count += 1
             unpacked_times += metrics["count"]
-            speedcomp.add(metrics["min"], tarball.name, metrics["max"])
+            speedcomp.add(tarball.name, metrics["min"], metrics["max"])
         if size and metrics:
             stream_fast = size / metrics["min"] / MEGABYTE_FP
             stream_slow = size / metrics["max"] / MEGABYTE_FP
-            streamcomp.add(stream_slow, tarball.name, stream_fast)
+            streamcomp.add(tarball.name, stream_slow, stream_fast)
         else:
             stream_unpack_skipped += 1
     oldest = datetime.datetime.fromtimestamp(agecomp.min, datetime.timezone.utc)
@@ -284,16 +297,16 @@ def report_audit():
     for audit in audit_logs:
         counter += 1
         watcher.update(f"[{counter}] inspecting {audit.id} -> {audit.timestamp}")
+        status[audit.status.name] += 1
         if audit.status is AuditStatus.BEGIN:
             events += 1
             unmatched_roots.add(audit.id)
             operations[audit.name] += 1
             n = audit.user_name if audit.user_name else "<system>"
             users[n] += 1
-            t = audit.object_type if audit.object_type else "<none>"
+            t = audit.object_type.name if audit.object_type else "<none>"
             objects[t] += 1
         else:
-            status[audit.status] += 1
             try:
                 unmatched_roots.remove(audit.root_id)
             except KeyError:
