@@ -1034,7 +1034,8 @@ class Tarball:
 
         Once we've unpacked it once, the size is tracked in the metadata key
         'server.unpacked'. If we haven't yet unpacked it, and the dataset's
-        metadata.log provides a 'raw_size", use that as an estimate
+        metadata.log provides "run.raw_size", use that as an estimate (the
+        accuracy depends on relative block size compared to the server).
 
         Returns:
             unpacked size of the tarball, or 0 if unknown
@@ -1133,27 +1134,46 @@ class Tarball:
                 uend - ustart,
             )
 
-        self.last_ref.touch(exist_ok=True)
+            # If we have a Dataset, and haven't already done this, compute the
+            # unpacked size and record it in metadata so we can use it later.
+            ssize = time.time()
+            if self.dataset:
+                if not Metadata.getvalue(self.dataset, Metadata.SERVER_UNPACKED):
+                    try:
+                        process = subprocess.run(
+                            ["du", "-s", "-B1", str(self.unpacked)],
+                            capture_output=True,
+                            text=True,
+                        )
+                        if process.returncode == 0:
+                            size = int(process.stdout.split("\t", maxsplit=1)[0])
+                            self.unpacked_size = size
+                            Metadata.setvalue(
+                                self.dataset, Metadata.SERVER_UNPACKED, size
+                            )
+                    except Exception as e:
+                        self.logger.warning("usage check failed: {}", e)
 
-        # If we have a Dataset, and haven't already done this, compute the
-        # unpacked size and record it in metadata so we can use it later.
-        ssize = time.time()
-        if self.dataset and not Metadata.getvalue(
-            self.dataset, Metadata.SERVER_UNPACKED
-        ):
-            try:
-                process = subprocess.run(
-                    ["du", "-s", "-B1", str(self.unpacked)],
-                    capture_output=True,
-                    text=True,
+                # Update the time-to-unpack statistic. If the metadata doesn't exist,
+                # or somehow isn't a dict (JSONOBJECT), create a new metric: otherwise
+                # update the existing metric.
+                unpack_time = uend - ustart
+                metric: JSONOBJECT = Metadata.getvalue(
+                    self.dataset, Metadata.SERVER_UNPACK_PERF
                 )
-                if process.returncode == 0:
-                    size = int(process.stdout.split("\t", maxsplit=1)[0])
-                    self.unpacked_size = size
-                    Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACKED, size)
-            except Exception as e:
-                self.logger.warning("usage check failed: {}", e)
-        self.logger.info("{}: size update {:.3f}", self.name, time.time() - ssize)
+                if not isinstance(metric, dict):
+                    metric = {"min": unpack_time, "max": unpack_time, "count": 1}
+                else:
+                    # We max out at about 12 days here, which seems safely excessive!
+                    metric["min"] = min(metric.get("min", 1000000.0), unpack_time)
+                    metric["max"] = max(metric.get("max", 0), unpack_time)
+                    metric["count"] = metric.get("count", 0) + 1
+                Metadata.setvalue(self.dataset, Metadata.SERVER_UNPACK_PERF, metric)
+                self.logger.info(
+                    "{}: size update {:.3f}", self.name, time.time() - ssize
+                )
+
+        self.last_ref.touch(exist_ok=True)
         return self.unpacked
 
     def cache_delete(self):
@@ -1182,7 +1202,18 @@ class Tarball:
         We'll log errors in deletion, but "succeed" and clear the links to both
         files. There's nothing more we can do.
         """
-        self.cache_delete()
+
+        # NOTE: this is similar to cache_delete above, but doesn't re-raise and
+        # operates on the root cache directory rather than unpack.
+        self.cachemap = None
+        if self.cache:
+            try:
+                shutil.rmtree(self.cache)
+            except Exception as e:
+                self.logger.error("cache delete for {} failed with {}", self.name, e)
+
+        # Remove the isolator directory with the tarball and MD5 files; or if
+        # this is a pre-isolator tarball, unlink the MD5 and tarball.
         if self.isolator and self.isolator.exists():
             try:
                 shutil.rmtree(self.isolator)
@@ -1542,7 +1573,6 @@ class CacheManager:
                 and_(Dataset.id == Metadata.dataset_ref, Metadata.key == "server"),
             )
             .yield_per(1000)
-            .all()
         )
 
         for name, resource_id, path in rows:
@@ -1873,6 +1903,7 @@ class CacheManager:
         # our goals.
         candidates = sorted(candidates, key=lambda c: c.last_ref)
         has_cache = len(candidates)
+        goal_check = reached_goal()
         for candidate in candidates:
             name = candidate.cache.name
             cache_d = candidate.cache.parent
@@ -1903,7 +1934,8 @@ class CacheManager:
                         error = e
                     else:
                         reclaimed += 1
-                        if reached_goal().reached:
+                        goal_check = reached_goal()
+                        if goal_check.reached:
                             break
             except OSError as e:
                 if e.errno in (errno.EAGAIN, errno.EACCES):
@@ -1919,7 +1951,6 @@ class CacheManager:
                 error = e
             if error:
                 self.logger.error("RECLAIM: {} failed with '{}'", name, error)
-        goal_check = reached_goal()
         free_pct = goal_check.usage.free * 100.0 / goal_check.usage.total
         self.logger.info(
             "RECLAIM {} (goal {}%, {}): {} datasets, "

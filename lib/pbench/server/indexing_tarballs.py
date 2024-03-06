@@ -4,9 +4,12 @@ from argparse import Namespace
 from collections import deque
 import os
 from pathlib import Path
+import shutil
 import signal
 import tempfile
 from typing import Callable, List, NamedTuple, Optional, Tuple
+
+import humanize
 
 from pbench.common.exceptions import (
     BadDate,
@@ -314,26 +317,27 @@ class Index:
             idxctx.logger.info("Load templates {!r}", res)
             return res.value
 
-        idxctx.logger.debug("Preparing to index {:d} tar balls", len(tb_deque))
-
         with tempfile.TemporaryDirectory(
             prefix=f"{self.name}.", dir=idxctx.config.TMP
         ) as tmpdir:
-            idxctx.logger.debug("start processing list of tar balls")
+            usage = shutil.disk_usage(tmpdir)
+            idxctx.logger.info(
+                "start processing {:d} tar balls using TMP {} ({} free)",
+                len(tb_deque),
+                tmpdir,
+                humanize.naturalsize(usage.free),
+            )
             tb_list = Path(tmpdir, f"{self.name}.{idxctx.TS}.list")
+            indexed = Path(tmpdir, f"{self.name}.{idxctx.TS}.indexed")
+            erred = Path(tmpdir, f"{self.name}.{idxctx.TS}.erred")
+            skipped = Path(tmpdir, f"{self.name}.{idxctx.TS}.skipped")
+            ie_filepath = Path(tmpdir, f"{self.name}.{idxctx.TS}.indexing-errors.json")
             try:
                 with tb_list.open(mode="w") as lfp:
                     # Write out all the tar balls we are processing so external
                     # viewers can follow along from home.
                     for size, dataset, tb in tarballs:
                         print(f"{size:20d} {dataset.name} {tb}", file=lfp)
-
-                indexed = Path(tmpdir, f"{self.name}.{idxctx.TS}.indexed")
-                erred = Path(tmpdir, f"{self.name}.{idxctx.TS}.erred")
-                skipped = Path(tmpdir, f"{self.name}.{idxctx.TS}.skipped")
-                ie_filepath = Path(
-                    tmpdir, f"{self.name}.{idxctx.TS}.indexing-errors.json"
-                )
 
                 # We use a list object here so that when we close over this
                 # variable in the handler, the list object will be closed over,

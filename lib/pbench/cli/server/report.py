@@ -1,148 +1,79 @@
 from collections import defaultdict
 import datetime
+from operator import and_
+from pathlib import Path
 import re
-from threading import Thread
+import shutil
 import time
-from typing import Optional
+from typing import Optional, Union
 
 import click
 import humanize
 from sqlalchemy import inspect, select, text
 
 from pbench.cli import pass_cli_context
-from pbench.cli.server import config_setup
+from pbench.cli.server import config_setup, Detail, Verify, Watch
 from pbench.cli.server.options import common_options
-from pbench.client.types import Dataset
 from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Metadata
+from pbench.server.database.models.audit import Audit, AuditStatus
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.index_map import IndexMap
 
 # An arbitrary really big number
 GINORMOUS = 2**64
 
+# A similarly arbitrary big floating point number
+GINORMOUS_FP = 1000000.0
 
-class Detail:
-    """Encapsulate generation of additional diagnostics"""
+# Number of bytes in a megabyte, coincidentally also a really big number
+MEGABYTE_FP = 1000000.0
 
-    def __init__(self, detail: bool = False, errors: bool = False):
-        """Initialize the object.
-
-        Args:
-            detail: True if detailed messages should be generated
-            errors: True if individual file errors should be reported
-        """
-        self.detail = detail
-        self.errors = errors
-
-    def __bool__(self) -> bool:
-        """Report whether detailed messages are enabled
-
-        Returns:
-            True if details are enabled
-        """
-        return self.detail
-
-    def error(self, message: str):
-        """Write a message if details are enabled.
-
-        Args:
-            message: Detail string
-        """
-        if self.errors:
-            click.secho(f"|| {message}", fg="red")
-
-    def message(self, message: str):
-        """Write a message if details are enabled.
-
-        Args:
-            message: Detail string
-        """
-        if self.detail:
-            click.echo(f"|| {message}")
-
-
-class Verify:
-    """Encapsulate -v status messages."""
-
-    def __init__(self, verify: bool):
-        """Initialize the object.
-
-        Args:
-            verify: True to write status messages.
-        """
-        self.verify = verify
-
-    def __bool__(self) -> bool:
-        """Report whether verification is enabled.
-
-        Returns:
-            True if verification is enabled.
-        """
-        return self.verify
-
-    def status(self, message: str):
-        """Write a message if verification is enabled.
-
-        Args:
-            message: status string
-        """
-        if self.verify:
-            ts = datetime.datetime.now().astimezone()
-            click.secho(f"({ts:%H:%M:%S}) {message}", fg="green")
-
-
-class Watch:
-    """Encapsulate a periodic status update.
-
-    The active message can be updated at will; a background thread will
-    periodically print the most recent status.
-    """
-
-    def __init__(self, interval: float):
-        """Initialize the object.
-
-        Args:
-            interval: interval in seconds for status updates
-        """
-        self.start = time.time()
-        self.interval = interval
-        self.status = "starting"
-        if interval:
-            self.thread = Thread(target=self.watcher)
-            self.thread.setDaemon(True)
-            self.thread.start()
-
-    def update(self, status: str):
-        """Update status if appropriate.
-
-        Update the message to be printed at the next interval, if progress
-        reporting is enabled.
-
-        Args:
-            status: status string
-        """
-        self.status = status
-
-    def watcher(self):
-        """A worker thread to periodically write status messages."""
-
-        while True:
-            time.sleep(self.interval)
-            now = time.time()
-            delta = int(now - self.start)
-            hours, remainder = divmod(delta, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            click.secho(
-                f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {self.status}", fg="cyan"
-            )
-
+# SQL "chunk size"
+SQL_CHUNK = 2000
 
 detailer: Optional[Detail] = None
 watcher: Optional[Watch] = None
 verifier: Optional[Verify] = None
+
+
+class Comparator:
+    def __init__(self, name: str, really_big: Union[int, float] = GINORMOUS):
+        """Initialize a comparator
+
+        Args:
+            name: A name for the comparator
+            really_big: An optional maximum value
+        """
+        self.name = name
+        self.min = really_big
+        self.min_name = None
+        self.max = -really_big
+        self.max_name = None
+
+    def add(
+        self,
+        name: str,
+        value: Union[int, float],
+        max: Optional[Union[int, float]] = None,
+    ):
+        """Add a data point to the comparator
+
+        Args:
+            name: The name of the associated dataset
+            value: The value of the datapoint
+            max: [Optional] A second "maximum" value if adding a min/max pair
+        """
+        minv = value
+        maxv = max if max is not None else value
+        if minv < self.min:
+            self.min = minv
+            self.min_name = name
+        if maxv > self.max:
+            self.max = maxv
+            self.max_name = name
 
 
 def report_archive(tree: CacheManager):
@@ -155,32 +86,29 @@ def report_archive(tree: CacheManager):
     watcher.update("inspecting archive")
     tarball_count = len(tree.datasets)
     tarball_size = 0
-    smallest_tarball = GINORMOUS
-    smallest_tarball_name = None
-    biggest_tarball = 0
-    biggest_tarball_name = None
+    tcomp = Comparator("tarball")
+    usage = shutil.disk_usage(tree.archive_root)
 
     for tarball in tree.datasets.values():
         watcher.update(f"({tarball_count}) archive {tarball.name}")
         size = tarball.tarball_path.stat().st_size
         tarball_size += size
-        if size < smallest_tarball:
-            smallest_tarball = size
-            smallest_tarball_name = tarball.name
-        if size > biggest_tarball:
-            biggest_tarball = size
-            biggest_tarball_name = tarball.name
+        tcomp.add(tarball.name, size)
     click.echo("Archive report:")
+    click.echo(
+        f"  ARCHIVE ({tree.archive_root}): {humanize.naturalsize(usage.total)}: {humanize.naturalsize(usage.used)} "
+        f"used, {humanize.naturalsize(usage.free)} free"
+    )
     click.echo(
         f"  {tarball_count:,d} tarballs consuming {humanize.naturalsize(tarball_size)}"
     )
     click.echo(
-        f"  The smallest tarball is {humanize.naturalsize(smallest_tarball)}, "
-        f"{smallest_tarball_name}"
+        f"  The smallest tarball is {humanize.naturalsize(tcomp.min)}, "
+        f"{tcomp.min_name}"
     )
     click.echo(
-        f"  The biggest tarball is {humanize.naturalsize(biggest_tarball)}, "
-        f"{biggest_tarball_name}"
+        f"  The biggest tarball is {humanize.naturalsize(tcomp.max)}, "
+        f"{tcomp.max_name}"
     )
 
 
@@ -194,12 +122,17 @@ def report_backup(tree: CacheManager):
     watcher.update("inspecting backups")
     backup_count = 0
     backup_size = 0
+    usage = shutil.disk_usage(tree.backup_root)
     for tarball in tree.backup_root.glob("**/*.tar.xz"):
         watcher.update(f"({backup_count}) backup {Dataset.stem(tarball)}")
         backup_count += 1
         backup_size += tarball.stat().st_size
 
     click.echo("Backup report:")
+    click.echo(
+        f"  BACKUP ({tree.backup_root}): {humanize.naturalsize(usage.total)}: {humanize.naturalsize(usage.used)} "
+        f"used, {humanize.naturalsize(usage.free)} free"
+    )
     click.echo(
         f"  {backup_count:,d} tarballs consuming {humanize.naturalsize(backup_size)}"
     )
@@ -216,79 +149,220 @@ def report_cache(tree: CacheManager):
     cached_count = 0
     cached_size = 0
     lacks_size = 0
+    lacks_tarpath = 0
     bad_size = 0
-    oldest_cache = time.time() * 2.0  # moderately distant future
-    oldest_cache_name = None
-    newest_cache = 0.0  # wayback machine
-    newest_cache_name = None
-    smallest_cache = GINORMOUS
-    smallest_cache_name = None
-    biggest_cache = 0
-    biggest_cache_name = None
+    found_metrics = False
+    lacks_metrics = 0
+    bad_metrics = 0
+    unpacked_count = 0
+    unpacked_times = 0
+    stream_unpack_skipped = 0
     last_ref_errors = 0
+    agecomp = Comparator("age", really_big=time.time() * 2.0)
+    sizecomp = Comparator("size")
+    compcomp = Comparator("compression")
+    speedcomp = Comparator("speed", really_big=GINORMOUS_FP)
+    streamcomp = Comparator("streaming", really_big=GINORMOUS_FP)
 
-    for tarball in tree.datasets.values():
-        watcher.update(f"({cached_count}) cache {tarball.name}")
-        if tarball.unpacked:
+    rows = (
+        Database.db_session.query(
+            Dataset.name,
+            Dataset.resource_id,
+            Metadata.value["tarball-path"].as_string(),
+            Metadata.value["unpacked-size"],
+            Metadata.value["unpack-perf"],
+        )
+        .execution_options(stream_results=True)
+        .outerjoin(
+            Metadata,
+            and_(Dataset.id == Metadata.dataset_ref, Metadata.key == "server"),
+        )
+        .yield_per(SQL_CHUNK)
+    )
+
+    for dsname, rid, tar, size, metrics in rows:
+        watcher.update(f"({cached_count}) cache {dsname}")
+        if tar:
+            tarball = Path(tar)
+            tarname = Dataset.stem(tarball)
+        else:
+            detailer.error(f"{dsname} doesn't have a 'server.tarball-path' metadata")
+            lacks_tarpath += 1
+            tarball = None
+            tarname = dsname
+        cache = Path(tree.cache_root / rid)
+        if (cache / tarname).exists():
+            cached_count += 1
             try:
-                referenced = tarball.last_ref.stat().st_mtime
+                referenced = (cache / "last_ref").stat().st_mtime
             except Exception as e:
-                detailer.error(f"{tarball.name} last ref access: {str(e)!r}")
+                detailer.error(f"{dsname} last ref access: {str(e)!r}")
                 last_ref_errors += 1
             else:
-                if referenced < oldest_cache:
-                    oldest_cache = referenced
-                    oldest_cache_name = tarball.name
-                if referenced > newest_cache:
-                    newest_cache = referenced
-                    newest_cache_name = tarball.name
-            cached_count += 1
-            size = Metadata.getvalue(tarball.dataset, Metadata.SERVER_UNPACKED)
-            if not size:
-                detailer.error(f"{tarball.name} has no unpacked size")
-                lacks_size += 1
-            elif not isinstance(size, int):
-                detailer.error(
-                    f"{tarball.name} has non-integer unpacked size "
-                    f"{size!r} ({type(size)})"
-                )
-                bad_size += 1
+                agecomp.add(dsname, referenced)
+        if not size:
+            detailer.error(f"{dsname} has no unpacked size")
+            lacks_size += 1
+        elif not isinstance(size, int):
+            detailer.error(
+                f"{dsname} has non-integer unpacked size "
+                f"{size!r} ({type(size).__name__})"
+            )
+            bad_size += 1
+        else:
+            sizecomp.add(dsname, size)
+            cached_size += size
+
+            # Check compression ratios
+            if tarball:
+                tar_size = tarball.stat().st_size
+                ratio = float(size - tar_size) / float(size)
+                compcomp.add(dsname, ratio)
+        if not metrics:
+            # NOTE: message not error since nobody has this yet (noise)
+            detailer.message(f"{dsname} has no unpack metrics")
+            lacks_metrics += 1
+        elif not isinstance(metrics, dict) or {"min", "max", "count"} - set(
+            metrics.keys()
+        ):
+            detailer.error(
+                f"{dsname} has bad unpack metrics "
+                f"{metrics!r} ({type(metrics).__name__})"
+            )
+            bad_metrics += 1
+        else:
+            found_metrics = True
+            unpacked_count += 1
+            unpacked_times += metrics["count"]
+            speedcomp.add(dsname, metrics["min"], metrics["max"])
+            if size:
+                stream_fast = size / metrics["min"] / MEGABYTE_FP
+                stream_slow = size / metrics["max"] / MEGABYTE_FP
+                streamcomp.add(dsname, stream_slow, stream_fast)
             else:
-                if size < smallest_cache:
-                    smallest_cache = size
-                    smallest_cache_name = tarball.name
-                if size > biggest_cache:
-                    biggest_cache = size
-                    biggest_cache_name = tarball.name
-                cached_size += size
-    oldest = datetime.datetime.fromtimestamp(oldest_cache, datetime.timezone.utc)
-    newest = datetime.datetime.fromtimestamp(newest_cache, datetime.timezone.utc)
+                stream_unpack_skipped += 1
+    oldest = datetime.datetime.fromtimestamp(agecomp.min, datetime.timezone.utc)
+    newest = datetime.datetime.fromtimestamp(agecomp.max, datetime.timezone.utc)
     click.echo("Cache report:")
     click.echo(
-        f"  {cached_count:,d} datasets consuming "
+        f"  {cached_count:,d} datasets currently unpacked, consuming "
         f"{humanize.naturalsize(cached_size)}"
     )
     click.echo(
-        f"  {lacks_size:,d} datasets have never been unpacked, "
-        f"{last_ref_errors:,d} are missing reference timestamps, "
-        f"{bad_size:,d} have bad size metadata"
-    )
-    click.echo(
-        f"  The smallest cache is {humanize.naturalsize(smallest_cache)}, "
-        f"{smallest_cache_name}"
-    )
-    click.echo(
-        f"  The biggest cache is {humanize.naturalsize(biggest_cache)}, "
-        f"{biggest_cache_name}"
+        f"  {unpacked_count:,d} datasets have been unpacked a total of "
+        f"{unpacked_times:,d} times"
     )
     click.echo(
         "  The least recently used cache was referenced "
-        f"{humanize.naturaldate(oldest)}, {oldest_cache_name}"
+        f"{humanize.naturaldate(oldest)}, {agecomp.min_name}"
     )
     click.echo(
         "  The most recently used cache was referenced "
-        f"{humanize.naturaldate(newest)}, {newest_cache_name}"
+        f"{humanize.naturaldate(newest)}, {agecomp.max_name}"
     )
+    click.echo(
+        f"  The smallest cache is {humanize.naturalsize(sizecomp.min)}, "
+        f"{sizecomp.min_name}"
+    )
+    click.echo(
+        f"  The biggest cache is {humanize.naturalsize(sizecomp.max)}, "
+        f"{sizecomp.max_name}"
+    )
+    click.echo(
+        f"  The worst compression ratio is {compcomp.min:.3%}, " f"{compcomp.min_name}"
+    )
+    click.echo(
+        f"  The best compression ratio is {compcomp.max:.3%}, " f"{compcomp.max_name}"
+    )
+    if found_metrics:
+        click.echo(
+            f"  The fastest cache unpack is {speedcomp.min:.3f} seconds, "
+            f"{speedcomp.min_name}"
+        )
+        click.echo(
+            f"  The slowest cache unpack is {speedcomp.max:.3f} seconds, "
+            f"{speedcomp.max_name}"
+        )
+        click.echo(
+            f"  The fastest cache unpack streaming rate is {streamcomp.max:.3f} Mb/second, "
+            f"{streamcomp.max_name}"
+        )
+        click.echo(
+            f"  The slowest cache unpack streaming rate is {streamcomp.min:.3f} Mb/second, "
+            f"{streamcomp.min_name}"
+        )
+    if lacks_size or last_ref_errors or bad_size or verifier.verify:
+        click.echo(
+            f"  {lacks_size:,d} datasets have no unpacked size, "
+            f"{last_ref_errors:,d} are missing reference timestamps, "
+            f"{bad_size:,d} have bad size metadata"
+        )
+    if lacks_metrics or bad_metrics or verifier.verify:
+        click.echo(
+            f"  {lacks_metrics:,d} datasets are missing unpack metric data, "
+            f"{bad_metrics} have bad unpack metric data"
+        )
+    if lacks_tarpath:
+        click.echo(
+            f"  {lacks_tarpath} datasets are missing server.tarball-path metadata"
+        )
+
+
+def report_audit():
+    """Report audit log statistics."""
+
+    counter = 0
+    events = 0
+    unmatched_roots = set()
+    unmatched_terminal = set()
+    status = defaultdict(int)
+    operations = defaultdict(int)
+    objects = defaultdict(int)
+    users = defaultdict(int)
+    watcher.update("inspecting audit log")
+    audit_logs = (
+        Database.db_session.query(Audit)
+        .execution_options(stream_results=True)
+        .order_by(Audit.timestamp)
+        .yield_per(SQL_CHUNK)
+    )
+    for audit in audit_logs:
+        counter += 1
+        watcher.update(f"[{counter}] inspecting {audit.id} -> {audit.timestamp}")
+        status[audit.status.name] += 1
+        if audit.status is AuditStatus.BEGIN:
+            events += 1
+            unmatched_roots.add(audit.id)
+            operations[audit.name] += 1
+            n = audit.user_name if audit.user_name else "<system>"
+            users[n] += 1
+            t = audit.object_type.name if audit.object_type else "<none>"
+            objects[t] += 1
+        else:
+            try:
+                unmatched_roots.remove(audit.root_id)
+            except KeyError:
+                detailer.error(f"audit {audit} has no matching `BEGIN`")
+                unmatched_terminal.add(audit.id)
+
+    click.echo("Audit logs:")
+    click.echo(f"  {counter:,d} audit log rows for {events:,d} events")
+    click.echo(
+        f"  {len(unmatched_roots)} unterminated root rows, "
+        f"{len(unmatched_terminal)} unmatched terminators"
+    )
+    click.echo("  Status summary:")
+    for name, count in status.items():
+        click.echo(f"    {name:>20s} {count:>10,d}")
+    click.echo("  Operation summary:")
+    for name, count in operations.items():
+        click.echo(f"    {name:>20s} {count:>10,d}")
+    click.echo("  Object type summary:")
+    for name, count in objects.items():
+        click.echo(f"    {name:>20s} {count:>10,d}")
+    click.echo("  Users summary:")
+    for name, count in users.items():
+        click.echo(f"    {name:>20s} {count:>10,d}")
 
 
 def report_sql():
@@ -335,7 +409,7 @@ def report_sql():
     query = select(IndexMap.root, IndexMap.index)
     for root, index in Database.db_session.execute(
         query, execution_options={"stream_results": True}
-    ).yield_per(500):
+    ).yield_per(SQL_CHUNK):
         record_count += 1
         watcher.update(f"({record_count}: {root} -> {index}")
         roots.add(root)
@@ -372,8 +446,9 @@ def report_states():
         statement=text(
             "SELECT d.name, o.name, o.state, o.message FROM datasets AS d LEFT OUTER JOIN "
             "dataset_operations AS o ON o.dataset_ref = d.id"
-        )
-    )
+        ),
+        execution_options={"stream_results": True},
+    ).yield_per(SQL_CHUNK)
     for dataset, operation, state, message in rows:
         watcher.update(f"inspecting {dataset}:{operation}")
         if operation is None:
@@ -417,6 +492,9 @@ def report_states():
     "--archive", "-A", default=False, is_flag=True, help="Display archive statistics"
 )
 @click.option(
+    "--audit", "-L", default=False, is_flag=True, help="Display audit log statistics"
+)
+@click.option(
     "--backup", "-b", default=False, is_flag=True, help="Display backup statistics"
 )
 @click.option(
@@ -451,6 +529,7 @@ def report(
     context: object,
     all: bool,
     archive: bool,
+    audit: bool,
     backup: bool,
     cache: bool,
     detail: bool,
@@ -469,6 +548,7 @@ def report(
         context: click context
         all: report all statistics
         archive: report archive statistics
+        audit: report audit log statistics
         backup: report backup statistics
         cache: report cache statistics
         detail: provide additional per-file diagnostics
@@ -487,10 +567,10 @@ def report(
     try:
         config = config_setup(context)
         logger = get_pbench_logger("pbench-report-generator", config)
-        if any((all, archive, backup, cache)):
-            cache_m = CacheManager(config, logger)
+        cache_m = CacheManager(config, logger)
+        if any((all, archive, backup)):
             verifier.status("starting discovery")
-            watcher.update("discovering cache")
+            watcher.update("discovering archive tree")
             cache_m.full_discovery(search=False)
             watcher.update("processing reports")
             verifier.status("finished discovery")
@@ -498,8 +578,10 @@ def report(
                 report_archive(cache_m)
             if all or backup:
                 report_backup(cache_m)
-            if all or cache:
-                report_cache(cache_m)
+        if all or cache:
+            report_cache(cache_m)
+        if all or audit:
+            report_audit()
         if all or sql:
             report_sql()
         if all or states:
