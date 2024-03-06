@@ -235,12 +235,12 @@ def report_cache(tree: CacheManager):
             unpacked_count += 1
             unpacked_times += metrics["count"]
             speedcomp.add(dsname, metrics["min"], metrics["max"])
-        if size and metrics:
-            stream_fast = size / metrics["min"] / MEGABYTE_FP
-            stream_slow = size / metrics["max"] / MEGABYTE_FP
-            streamcomp.add(dsname, stream_slow, stream_fast)
-        else:
-            stream_unpack_skipped += 1
+            if size:
+                stream_fast = size / metrics["min"] / MEGABYTE_FP
+                stream_slow = size / metrics["max"] / MEGABYTE_FP
+                streamcomp.add(dsname, stream_slow, stream_fast)
+            else:
+                stream_unpack_skipped += 1
     oldest = datetime.datetime.fromtimestamp(agecomp.min, datetime.timezone.utc)
     newest = datetime.datetime.fromtimestamp(agecomp.max, datetime.timezone.utc)
     click.echo("Cache report:")
