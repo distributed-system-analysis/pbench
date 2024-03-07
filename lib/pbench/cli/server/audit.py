@@ -157,7 +157,7 @@ def auditor(kwargs) -> Iterator[str]:
 def audit(context: object, **kwargs):
     """Query and format the audit DB table
 
-    The Audit table records a sequence of event representing all changes made
+    The Audit table records a sequence of events representing all changes made
     to the data controlled by the Pbench Server. This tool supports queries to
     display audit events based on various search criteria including timestamp,
     user, object identification, and others.
