@@ -20,6 +20,7 @@ INSTALL = install
 INSTALLOPTS = --directory
 
 click-scripts = \
+	pbench-audit \
 	pbench-report-generator \
 	pbench-tree-manage \
 	pbench-user-create \
