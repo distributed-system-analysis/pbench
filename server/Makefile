@@ -22,6 +22,7 @@ INSTALLOPTS = --directory
 click-scripts = \
 	pbench-audit \
 	pbench-reindex \
+	pbench-repair \
 	pbench-report-generator \
 	pbench-tree-manage \
 	pbench-user-create \

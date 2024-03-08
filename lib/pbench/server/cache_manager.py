@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import auto, Enum
 import errno
 import fcntl
+import logging
 from logging import Logger
 import math
 import os
@@ -26,6 +27,7 @@ from pbench.server.utils import get_tarball_md5
 
 RECLAIM_BYTES_PAD = 1024  # Pad unpack reclaim requests by this much
 MB_BYTES = 1024 * 1024  # Bytes in Mb
+MAX_ERROR = 1024 * 5  # Maximum length of subprocess stderr to capture
 
 
 class CacheManagerError(Exception):
@@ -1024,9 +1026,31 @@ class Tarball:
             raise exception(ctx, str(exc)) from exc
         else:
             if process.returncode != 0:
+
+                # tar failures can include a message for each file in the
+                # archive, and can be quite large. Break stderr into lines, and
+                # gather those lines only up to our configured size limit.
+                size = 0
+                message = []
+                log = logging.getLogger("sub")
+                log.info(process.stderr)
+                lines = process.stderr.split("\n")
+                for line in lines:
+                    # Skip empty lines
+                    if not line:
+                        continue
+                    size += len(line)
+                    log.info(f"LINE {line!r} ({size} <= MAX {MAX_ERROR})")
+                    if size > MAX_ERROR:
+                        break
+                    message.append(line)
+
+                # If even the first line was too big, truncate it
+                msg = "\n".join(message) if message else lines[0][:MAX_ERROR]
+                log.info(f"MSG {msg!r}")
                 raise exception(
                     ctx,
-                    f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
+                    f"{cmd[0]} exited with status {process.returncode}: {msg!r}",
                 )
 
     def get_unpacked_size(self) -> int:
