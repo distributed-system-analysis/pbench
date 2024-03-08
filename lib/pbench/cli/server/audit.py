@@ -42,7 +42,7 @@ class DateParser(ParamType):
     def convert(
         self, value: Any, param: Optional[Parameter], ctx: Optional[Context]
     ) -> Any:
-        if isinstance(value, datetime):
+        if isinstance(value, datetime.datetime):
             return value
 
         try:
