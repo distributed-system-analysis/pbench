@@ -44,7 +44,9 @@ class EndpointConfig(ApiBase):
         proxying was set up for the original endpoints query: e.g., the
         Javascript `window.origin` from which the Pbench dashboard was loaded.
         """
-        super().__init__(config, ApiSchema(ApiMethod.GET, OperationCode.READ))
+        super().__init__(
+            config, ApiSchema(ApiMethod.GET, OperationCode.READ), always_enabled=True
+        )
         self.server_config = config
 
     def _get(self, args: ApiParams, req: Request, context: ApiContext) -> Response:

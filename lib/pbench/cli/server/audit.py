@@ -1,8 +1,10 @@
 from collections import defaultdict
 import datetime
-from typing import Iterator, Optional
+from typing import Any, Iterator, Optional
 
 import click
+from click import Context, Parameter, ParamType
+from dateutil import parser
 
 from pbench.cli import pass_cli_context
 from pbench.cli.server import config_setup, Verify
@@ -26,6 +28,30 @@ COLUMNS = (
 )
 
 verifier: Optional[Verify] = None
+
+
+class DateParser(ParamType):
+    """The DateParser type converts date strings into `datetime` objects.
+
+    This is a variant of click's built-in DateTime parser, but uses the
+    more flexible dateutil.parser
+    """
+
+    name = "dateparser"
+
+    def convert(
+        self, value: Any, param: Optional[Parameter], ctx: Optional[Context]
+    ) -> Any:
+        if isinstance(value, datetime):
+            return value
+
+        try:
+            return parser.parse(value)
+        except Exception as e:
+            self.fail(f"{value!r} cannot be converted to a datetime: {str(e)!r}")
+
+    def __repr__(self) -> str:
+        return type(self).__name__
 
 
 def auditor(kwargs) -> Iterator[str]:
@@ -110,6 +136,7 @@ def auditor(kwargs) -> Iterator[str]:
 
 @click.command(name="pbench-audit")
 @pass_cli_context
+@click.option("--id", type=int, help="Select by audit event ID")
 @click.option(
     "--ids",
     default=False,
@@ -130,6 +157,7 @@ def auditor(kwargs) -> Iterator[str]:
 @click.option("--object-id", type=str, help="Select by object ID")
 @click.option("--object-name", type=str, help="Select by object name")
 @click.option("--page", default=False, is_flag=True, help="Paginate the output")
+@click.option("--root-id", type=int, help="Select by audit event root ID")
 @click.option("--user-id", type=str, help="Select by user ID")
 @click.option("--user-name", type=str, help="Select by username")
 @click.option(
@@ -142,12 +170,12 @@ def auditor(kwargs) -> Iterator[str]:
 )
 @click.option(
     "--since",
-    type=click.DateTime(),
+    type=DateParser(),
     help="Select entries on or after specified date/time",
 )
 @click.option(
     "--until",
-    type=click.DateTime(),
+    type=DateParser(),
     help="Select entries on or before specified date/time",
 )
 @click.option(
