@@ -47,10 +47,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
-from pbench.server.database.models.server_settings import (
-    OPTION_SERVER_INDEXING,
-    ServerSetting,
-)
+from pbench.server.database.models.server_settings import get_retention_days
 from pbench.server.sync import Sync
 from pbench.server.utils import UtcTimeHelper
 
@@ -556,17 +553,11 @@ class IntakeBase(ApiBase):
                     f"Unable to create metalog for Tarball {dataset.name!r}: {exc}"
                 ) from exc
 
-            try:
-                retention_days = self.config.default_retention_period
-            except Exception as e:
-                raise APIInternalError(
-                    f"Unable to get integer retention days: {e!s}"
-                ) from e
-
             # Calculate a default deletion time for the dataset, based on the
             # time it was uploaded rather than the time it was originally
             # created which might much earlier.
             try:
+                retention_days = get_retention_days(self.config)
                 retention = datetime.timedelta(days=retention_days)
                 deletion = dataset.uploaded + retention
                 notes.append(f"Expected expiration date is {deletion:%Y-%m-%d}.")
@@ -583,9 +574,7 @@ class IntakeBase(ApiBase):
                         Metadata.SERVER_BENCHMARK: benchmark,
                     }
                 )
-                f = self._set_dataset_metadata(dataset, meta)
-                if f:
-                    attributes["failures"] = f
+                self._set_dataset_metadata(dataset, meta, throw=True)
             except Exception as e:
                 raise APIInternalError(f"Unable to set metadata: {e!s}") from e
 

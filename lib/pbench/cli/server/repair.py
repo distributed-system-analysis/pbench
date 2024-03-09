@@ -1,5 +1,6 @@
 from collections import defaultdict
 import copy
+import datetime
 from operator import and_
 from pathlib import Path
 from typing import Any, Optional
@@ -17,6 +18,8 @@ from pbench.server import BadConfig, cache_manager
 from pbench.server.database.database import Database
 from pbench.server.database.models.audit import Audit
 from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.server_settings import get_retention_days
+from pbench.server.utils import UtcTimeHelper
 
 detailer: Optional[Detail] = None
 watcher: Optional[Watch] = None
@@ -135,12 +138,15 @@ def repair_metadata(kwargs):
             Metadata.dataset_ref,
             Metadata.value["tarball-path"].label("path"),
             Metadata.value["benchmark"].label("benchmark"),
+            Metadata.value["deletion"].label("expiration"),
         )
         .where(Metadata.key == "server")
         .subquery()
     )
     query = (
-        Database.db_session.query(Dataset, meta.c.path, meta.c.benchmark, mlog)
+        Database.db_session.query(
+            Dataset, meta.c.path, meta.c.benchmark, meta.c.expiration, mlog
+        )
         .outerjoin(meta, Dataset.id == meta.c.dataset_ref)
         .outerjoin(
             mlog, and_(Dataset.id == mlog.dataset_ref, mlog.key == Metadata.METALOG)
@@ -149,6 +155,7 @@ def repair_metadata(kwargs):
             or_(
                 meta.c.path.is_(None),
                 meta.c.benchmark.is_(None),
+                meta.c.expiration.is_(None),
                 column("metalog").is_(None),
             )
         )
@@ -156,9 +163,11 @@ def repair_metadata(kwargs):
     )
 
     path_repairs = 0
+    expiration_repairs = 0
     benchmark_repairs = 0
     metalog_repairs = 0
     path_repairs_failed = 0
+    expiration_repairs_failed = 0
     metalog_repairs_failed = 0
     rows = query.yield_per(2000)
 
@@ -167,7 +176,7 @@ def repair_metadata(kwargs):
     # set. (Another alternative would be to list-ify the query: it's unclear
     # which would scale better.)
     defer = []
-    for dataset, path, benchmark, metadata in rows:
+    for dataset, path, benchmark, expiration, metadata in rows:
         fix = {"dataset": dataset, "metadata": defaultdict()}
         if not path:
             path_repairs += 1
@@ -200,6 +209,24 @@ def repair_metadata(kwargs):
             fix["metalog"] = metalog
         else:
             metalog = metadata.value
+
+        if not expiration:
+            expiration_repairs += 1
+            try:
+                retention_days = get_retention_days(kwargs.get("_config"))
+                retention = datetime.timedelta(days=retention_days)
+                deletion = UtcTimeHelper(dataset.uploaded + retention).to_iso_string()
+                fix["metadata"][Metadata.SERVER_DELETION] = deletion
+                detailer.message(
+                    f"{dataset.name} {Metadata.SERVER_DELETION} "
+                    f"set ({retention_days} days) to {deletion}"
+                )
+            except Exception as e:
+                detailer.error(
+                    f"unable to calculate {dataset.name} expiration: {str(e)!r}"
+                )
+                expiration_repairs_failed += 1
+
         if not benchmark:
             benchmark_repairs += 1
             script = metalog.get("pbench", {}).get(
@@ -225,6 +252,10 @@ def repair_metadata(kwargs):
     click.echo(
         f"{path_repairs} {Metadata.TARBALL_PATH} repairs, "
         f"{path_repairs_failed} failures"
+    )
+    click.echo(
+        f"{expiration_repairs} {Metadata.SERVER_DELETION} repairs, "
+        f"{expiration_repairs_failed} failures"
     )
     click.echo(
         f"{metalog_repairs} dataset.metalog repairs, "
