@@ -4,7 +4,6 @@ from datetime import datetime
 from enum import auto, Enum
 import errno
 import fcntl
-import logging
 from logging import Logger
 import math
 import os
@@ -1032,22 +1031,18 @@ class Tarball:
                 # gather those lines only up to our configured size limit.
                 size = 0
                 message = []
-                log = logging.getLogger("sub")
-                log.info(process.stderr)
                 lines = process.stderr.split("\n")
                 for line in lines:
                     # Skip empty lines
                     if not line:
                         continue
                     size += len(line)
-                    log.info(f"LINE {line!r} ({size} <= MAX {MAX_ERROR})")
                     if size > MAX_ERROR:
                         break
                     message.append(line)
 
                 # If even the first line was too big, truncate it
                 msg = "\n".join(message) if message else lines[0][:MAX_ERROR]
-                log.info(f"MSG {msg!r}")
                 raise exception(
                     ctx,
                     f"{cmd[0]} exited with status {process.returncode}: {msg!r}",

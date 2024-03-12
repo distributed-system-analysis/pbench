@@ -1,13 +1,11 @@
 from collections import defaultdict
 import datetime
-from typing import Any, Iterator, Optional
+from typing import Iterator, Optional
 
 import click
-from click import Context, Parameter, ParamType
-from dateutil import parser
 
 from pbench.cli import pass_cli_context
-from pbench.cli.server import config_setup, Verify
+from pbench.cli.server import config_setup, DateParser, Verify
 from pbench.cli.server.options import common_options
 from pbench.server import BadConfig, OperationCode
 from pbench.server.database.database import Database
@@ -28,30 +26,6 @@ COLUMNS = (
 )
 
 verifier: Optional[Verify] = None
-
-
-class DateParser(ParamType):
-    """The DateParser type converts date strings into `datetime` objects.
-
-    This is a variant of click's built-in DateTime parser, but uses the
-    more flexible dateutil.parser
-    """
-
-    name = "dateparser"
-
-    def convert(
-        self, value: Any, param: Optional[Parameter], ctx: Optional[Context]
-    ) -> Any:
-        if isinstance(value, datetime.datetime):
-            return value
-
-        try:
-            return parser.parse(value)
-        except Exception as e:
-            self.fail(f"{value!r} cannot be converted to a datetime: {str(e)!r}")
-
-    def __repr__(self) -> str:
-        return type(self).__name__
 
 
 def auditor(kwargs) -> Iterator[str]:

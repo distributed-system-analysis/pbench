@@ -149,14 +149,12 @@ def get_retention_days(config: PbenchServerConfig) -> int:
         integer days to expiration
     """
     try:
-        retention_days = int(ServerSetting.get(OPTION_DATASET_LIFETIME))
-        return retention_days
+        return int(ServerSetting.get(OPTION_DATASET_LIFETIME))
     except Exception:
         try:
-            retention_days = config.default_retention_period
+            return config.default_retention_period
         except Exception:
-            retention_days = config.MAXIMUM_RETENTION_DAYS
-        return retention_days
+            return config.MAXIMUM_RETENTION_DAYS
 
 
 def validate_server_state(key: str, value: JSONVALUE) -> JSONVALUE:

@@ -59,11 +59,10 @@ def repair_audit(kwargs):
             attributes_errors += 1
             continue
         didit = False
-        for f in a:
-            value = a[f]
+        for key, value in a.items():
             if type(value) is str and len(value) > LIMIT:
-                a[f] = value[:LIMIT]
-                detailer.message(f"{name} [{f}] truncated ({len(value)}) to {LIMIT}")
+                a[key] = value[:LIMIT]
+                detailer.message(f"{name} [{key}] truncated ({len(value)}) to {LIMIT}")
                 didit = True
         if didit:
             audit.attributes = a
@@ -96,6 +95,15 @@ def find_tarball(resource_id: str, kwargs) -> Optional[Path]:
         tarball path if found, or None
     """
 
+    def get_md5(file: Path) -> Optional[str]:
+        """Locate and read a tarball's associated MD5 hash"""
+        md5 = file.with_suffix(".xz.md5")
+        if md5.is_file():
+            return md5.read_text().split(" ", maxsplit=1)[0]
+        else:
+            detailer.error(f"Missing MD5 {md5}")
+            return None
+
     # We use the cache manager as a standard way to get the ARCHIVE root
     tree = cache_manager.CacheManager(kwargs["_config"], kwargs["_logger"])
     for controller in tree.archive_root.iterdir():
@@ -105,12 +113,33 @@ def find_tarball(resource_id: str, kwargs) -> Optional[Path]:
             if isolator.is_dir():
                 tars = list(isolator.glob("*.tar.xz"))
                 if len(tars) == 1:
+                    tar = tars[0]
+                    if get_md5(tar) != resource_id:
+                        detailer.error(
+                            f"Isolated tarball {tar} MD5 doesn't match isolator {resource_id}"
+                        )
+                        return None
+                    verifier.status(f"Found {tars[0]} for ID {resource_id}", 2)
                     return tars[0]
+                else:
+                    detailer.error(
+                        f"Isolator directory {isolator} contains multiple tarballs: {[str(t) for t in tars]}"
+                    )
+                    for tar in tars:
+                        if get_md5(tar) == resource_id:
+                            verifier.status(
+                                f"Found {[str(t) for t in tars]} for ID {resource_id}",
+                                2,
+                            )
+                            return tar
+                    detailer.error(
+                        f"Isolator directory {isolator} doesn't contain a tarball for {resource_id}"
+                    )
+                    return None
             else:
-                for md5 in controller.glob("**/*.tar.xz.md5"):
-                    id = md5.read_text().split(" ", maxsplit=1)[0]
-                    if id == resource_id:
-                        tar = md5.with_suffix("")
+                for tar in controller.glob("**/*.tar.xz"):
+                    if get_md5(tar) == resource_id:
+                        verifier.status(f"Found {str(tar)} for ID {resource_id}", 2)
                         return tar
     return None
 
@@ -284,7 +313,7 @@ def repair_metadata(kwargs):
     "--progress", "-p", type=float, default=0.0, help="Show periodic progress messages"
 )
 @click.option(
-    "--verify", "-v", default=False, is_flag=True, help="Display intermediate messages"
+    "--verify", "-v", default=False, count=True, help="Display intermediate messages"
 )
 @common_options
 def repair(context: object, **kwargs):
