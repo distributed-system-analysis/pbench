@@ -2,6 +2,7 @@ import datetime
 from threading import Thread
 import time
 from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import click
 from click import Context, Parameter, ParamType
@@ -9,6 +10,27 @@ from dateutil import parser
 
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
+
+
+class DateParser(ParamType):
+    """The DateParser type converts date strings into `datetime` objects.
+
+    This is a variant of click's built-in DateTime parser, but uses the
+    more flexible dateutil.parser
+    """
+
+    name = "dateparser"
+
+    def convert(
+        self, value: Any, param: Optional[Parameter], ctx: Optional[Context]
+    ) -> Any:
+        if isinstance(value, datetime.datetime):
+            return value
+
+        try:
+            return parser.parse(value)
+        except Exception as e:
+            self.fail(f"{value!r} cannot be converted to a datetime: {str(e)!r}")
 
 
 class Detail:
@@ -63,13 +85,16 @@ class Detail:
 class Verify:
     """Encapsulate -v status messages."""
 
-    def __init__(self, verify: bool):
+    def __init__(self, verify: Union[bool, int]):
         """Initialize the object.
 
         Args:
             verify: True to write status messages.
         """
-        self.verify = verify
+        if isinstance(verify, int):
+            self.verify = verify
+        else:
+            self.verify = 1 if verify else 0
 
     def __bool__(self) -> bool:
         """Report whether verification is enabled.
@@ -77,15 +102,15 @@ class Verify:
         Returns:
             True if verification is enabled.
         """
-        return self.verify
+        return bool(self.verify)
 
-    def status(self, message: str):
+    def status(self, message: str, level: int = 1):
         """Write a message if verification is enabled.
 
         Args:
             message: status string
         """
-        if self.verify:
+        if self.verify >= level:
             ts = datetime.datetime.now().astimezone()
             click.secho(f"({ts:%H:%M:%S}) {message}", fg="green", err=True)
 
