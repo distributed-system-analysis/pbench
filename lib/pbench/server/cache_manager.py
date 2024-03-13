@@ -1029,20 +1029,32 @@ class Tarball:
                 # tar failures can include a message for each file in the
                 # archive, and can be quite large. Break stderr into lines, and
                 # gather those lines only up to our configured size limit.
+                #
+                # The exception we raise and ultimately log will start by
+                # identifying the tarball, followed by the command and the
+                # return code. The appended stderr may provide additional
+                # useful context, but in general beyond the first line it'll
+                # be fairly meaningless.
                 size = 0
                 message = []
                 lines = process.stderr.split("\n")
+                prefix = ""
                 for line in lines:
                     # Skip empty lines
                     if not line:
                         continue
                     size += len(line)
                     if size > MAX_ERROR:
+                        prefix = "[TRUNC]"
                         break
                     message.append(line)
 
-                # If even the first line was too big, truncate it
-                msg = "\n".join(message) if message else lines[0][:MAX_ERROR]
+                # Prefix with [TRUNC] if we're not including the entire message
+                # and truncate the first line if it was too long by itself.
+                if message:
+                    msg = prefix + ("\n".join(message))
+                else:
+                    msg = "[TRUNC]" + lines[0][:MAX_ERROR]
                 raise exception(
                     ctx,
                     f"{cmd[0]} exited with status {process.returncode}: {msg!r}",

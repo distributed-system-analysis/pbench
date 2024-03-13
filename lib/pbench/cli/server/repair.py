@@ -61,7 +61,7 @@ def repair_audit(kwargs):
         didit = False
         for key, value in a.items():
             if type(value) is str and len(value) > LIMIT:
-                a[key] = value[:LIMIT]
+                a[key] = f"[TRUNC({len(value)})]" + value[:LIMIT]
                 detailer.message(f"{name} [{key}] truncated ({len(value)}) to {LIMIT}")
                 didit = True
         if didit:
@@ -112,34 +112,22 @@ def find_tarball(resource_id: str, kwargs) -> Optional[Path]:
             isolator = controller / resource_id
             if isolator.is_dir():
                 tars = list(isolator.glob("*.tar.xz"))
-                if len(tars) == 1:
-                    tar = tars[0]
-                    if get_md5(tar) != resource_id:
-                        detailer.error(
-                            f"Isolated tarball {tar} MD5 doesn't match isolator {resource_id}"
-                        )
-                        return None
-                    verifier.status(f"Found {tars[0]} for ID {resource_id}", 2)
-                    return tars[0]
-                else:
+                if len(tars) > 1:
                     detailer.error(
                         f"Isolator directory {isolator} contains multiple tarballs: {[str(t) for t in tars]}"
                     )
-                    for tar in tars:
-                        if get_md5(tar) == resource_id:
-                            verifier.status(
-                                f"Found {[str(t) for t in tars]} for ID {resource_id}",
-                                2,
-                            )
-                            return tar
-                    detailer.error(
-                        f"Isolator directory {isolator} doesn't contain a tarball for {resource_id}"
-                    )
-                    return None
+                for tar in tars:
+                    if get_md5(tar) == resource_id:
+                        verifier.status(f"Found {tar} for ID {resource_id}", 2)
+                        return tar
+                detailer.error(
+                    f"Isolator directory {isolator} doesn't contain a tarball for {resource_id}"
+                )
+                return None
             else:
                 for tar in controller.glob("**/*.tar.xz"):
                     if get_md5(tar) == resource_id:
-                        verifier.status(f"Found {str(tar)} for ID {resource_id}", 2)
+                        verifier.status(f"Found {tar} for ID {resource_id}", 2)
                         return tar
     return None
 
