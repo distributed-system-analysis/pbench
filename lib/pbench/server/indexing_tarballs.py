@@ -632,8 +632,10 @@ class Index:
                 # Re-raise a SIGTERM to avoid it being lumped in with general
                 # exception handling below.
                 raise
-            except Exception:
-                idxctx.logger.exception(error_code["GENERIC_ERROR"].message)
+            except Exception as e:
+                idxctx.logger.exception(
+                    "{}: {!r}", error_code["GENERIC_ERROR"].message, str(e)
+                )
                 res = error_code["GENERIC_ERROR"]
             else:
                 # No exceptions while processing tar balls, success.
