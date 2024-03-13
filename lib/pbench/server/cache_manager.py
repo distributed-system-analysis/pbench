@@ -26,6 +26,7 @@ from pbench.server.utils import get_tarball_md5
 
 RECLAIM_BYTES_PAD = 1024  # Pad unpack reclaim requests by this much
 MB_BYTES = 1024 * 1024  # Bytes in Mb
+MAX_ERROR = 1024 * 5  # Maximum length of subprocess stderr to capture
 
 
 class CacheManagerError(Exception):
@@ -1024,9 +1025,39 @@ class Tarball:
             raise exception(ctx, str(exc)) from exc
         else:
             if process.returncode != 0:
+
+                # tar failures can include a message for each file in the
+                # archive, and can be quite large. Break stderr into lines, and
+                # gather those lines only up to our configured size limit.
+                #
+                # The exception we raise and ultimately log will start by
+                # identifying the tarball, followed by the command and the
+                # return code. The appended stderr may provide additional
+                # useful context, but in general beyond the first line it'll
+                # be fairly meaningless.
+                size = 0
+                message = []
+                lines = process.stderr.split("\n")
+                prefix = ""
+                for line in lines:
+                    # Skip empty lines
+                    if not line:
+                        continue
+                    size += len(line)
+                    if size > MAX_ERROR:
+                        prefix = "[TRUNC]"
+                        break
+                    message.append(line)
+
+                # Prefix with [TRUNC] if we're not including the entire message
+                # and truncate the first line if it was too long by itself.
+                if message:
+                    msg = prefix + ("\n".join(message))
+                else:
+                    msg = "[TRUNC]" + lines[0][:MAX_ERROR]
                 raise exception(
                     ctx,
-                    f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
+                    f"{cmd[0]} exited with status {process.returncode}: {msg!r}",
                 )
 
     def get_unpacked_size(self) -> int:

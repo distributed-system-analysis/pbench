@@ -14,7 +14,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.sqltypes import JSON
 
-from pbench.server import JSONOBJECT, JSONVALUE
+from pbench.server import JSONOBJECT, JSONVALUE, PbenchServerConfig
 from pbench.server.database.database import Database
 from pbench.server.database.models import decode_sql_error
 
@@ -133,6 +133,28 @@ STATE_STATUS_KEYWORDS = [
     STATE_STATUS_KEYWORD_ENABLED,
     STATE_STATUS_KEYWORD_READONLY,
 ]
+
+
+def get_retention_days(config: PbenchServerConfig) -> int:
+    """Get dataset lifetime
+
+    This recognizes the server settings API as well as the static default if
+    for some reason we can't read the SQL database or the value we read can't
+    be converted to an integer.
+
+    Args:
+        config: the Pbench Server configuration
+
+    Returns:
+        integer days to expiration
+    """
+    try:
+        return int(ServerSetting.get(OPTION_DATASET_LIFETIME))
+    except Exception:
+        try:
+            return config.default_retention_period
+        except Exception:
+            return config.MAXIMUM_RETENTION_DAYS
 
 
 def validate_server_state(key: str, value: JSONVALUE) -> JSONVALUE:

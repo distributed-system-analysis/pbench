@@ -5,7 +5,7 @@ from typing import Iterator, Optional
 import click
 
 from pbench.cli import pass_cli_context
-from pbench.cli.server import config_setup, Verify
+from pbench.cli.server import config_setup, DateParser, Verify
 from pbench.cli.server.options import common_options
 from pbench.server import BadConfig, OperationCode
 from pbench.server.database.database import Database
@@ -110,6 +110,7 @@ def auditor(kwargs) -> Iterator[str]:
 
 @click.command(name="pbench-audit")
 @pass_cli_context
+@click.option("--id", type=int, help="Select by audit event ID")
 @click.option(
     "--ids",
     default=False,
@@ -130,6 +131,7 @@ def auditor(kwargs) -> Iterator[str]:
 @click.option("--object-id", type=str, help="Select by object ID")
 @click.option("--object-name", type=str, help="Select by object name")
 @click.option("--page", default=False, is_flag=True, help="Paginate the output")
+@click.option("--root-id", type=int, help="Select by audit event root ID")
 @click.option("--user-id", type=str, help="Select by user ID")
 @click.option("--user-name", type=str, help="Select by username")
 @click.option(
@@ -142,12 +144,12 @@ def auditor(kwargs) -> Iterator[str]:
 )
 @click.option(
     "--since",
-    type=click.DateTime(),
+    type=DateParser(),
     help="Select entries on or after specified date/time",
 )
 @click.option(
     "--until",
-    type=click.DateTime(),
+    type=DateParser(),
     help="Select entries on or before specified date/time",
 )
 @click.option(
