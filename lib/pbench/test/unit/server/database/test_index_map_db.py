@@ -25,6 +25,33 @@ class TestIndexMapDB:
         assert IndexMap.exists(drb) is True
         assert sorted(IndexMap.indices(drb, "run-toc")) == sorted(map["run-toc"])
 
+    def test_delete(self, db_session, attach_dataset):
+        """Test index map deletion"""
+
+        map = {
+            "run-data": ["prefix.run-data.2023-07"],
+            "run-misc": ["prefix.run-misc.2024-03"],
+            "run-toc": ["prefix.run-toc.2023-06", "prefix.run-toc.2023-07"],
+        }
+        drb = Dataset.query(name="drb")
+        assert IndexMap.exists(drb) is False
+        IndexMap.create(drb, map)
+        assert IndexMap.exists(drb) is True
+        assert [
+            "prefix.run-data.2023-07",
+            "prefix.run-misc.2024-03",
+            "prefix.run-toc.2023-06",
+            "prefix.run-toc.2023-07",
+        ] == sorted(IndexMap.indices(drb))
+        IndexMap.delete(drb, "run-misc")
+        assert [
+            "prefix.run-data.2023-07",
+            "prefix.run-toc.2023-06",
+            "prefix.run-toc.2023-07",
+        ] == sorted(IndexMap.indices(drb))
+        IndexMap.delete(drb)
+        assert IndexMap.exists(drb) is False
+
     @pytest.mark.parametrize("m1,m2", ((0, 1), (1, 0)))
     def test_merge(self, db_session, attach_dataset, m1, m2):
         """Test index map merge
@@ -137,7 +164,7 @@ class TestIndexMapDB:
             message
         ), f"{str(e.value)!r} doesn't start with {message!r}"
 
-    def test_delete(self, db_session, create_user):
+    def test_delete_dataset(self, db_session, create_user):
         """Test index map deletion with dataset
 
         We create a "scratch" dataset so that deleting it doesn't

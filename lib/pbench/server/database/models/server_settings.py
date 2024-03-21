@@ -162,9 +162,17 @@ def validate_server_banner(key: str, value: JSONVALUE) -> JSONVALUE:
     return value
 
 
+def validate_server_indexing(key: str, value: bool) -> bool:
+    if not isinstance(value, bool):
+        raise ServerSettingBadValue(key, value)
+    return value
+
+
 OPTION_DATASET_LIFETIME = "dataset-lifetime"
 OPTION_SERVER_BANNER = "server-banner"
 OPTION_SERVER_STATE = "server-state"
+OPTION_SERVER_INDEXING = "server-indexing"
+
 
 SERVER_SETTINGS_OPTIONS = {
     OPTION_DATASET_LIFETIME: {
@@ -178,6 +186,10 @@ SERVER_SETTINGS_OPTIONS = {
     OPTION_SERVER_STATE: {
         "validator": validate_server_state,
         "default": lambda: {STATE_STATUS_KEY: STATE_STATUS_KEYWORD_ENABLED},
+    },
+    OPTION_SERVER_INDEXING: {
+        "validator": validate_server_indexing,
+        "default": lambda: True,
     },
 }
 

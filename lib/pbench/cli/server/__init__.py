@@ -1,8 +1,11 @@
 import datetime
 from threading import Thread
 import time
+from typing import Any, Optional
 
 import click
+from click import Context, Parameter, ParamType
+from dateutil import parser
 
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
@@ -122,6 +125,27 @@ class Watch:
             click.secho(
                 f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {self.status}", fg="cyan"
             )
+
+
+class DateParser(ParamType):
+    """The DateParser type converts date strings into `datetime` objects.
+
+    This is a variant of click's built-in DateTime parser, but uses the
+    more flexible dateutil.parser
+    """
+
+    name = "dateparser"
+
+    def convert(
+        self, value: Any, param: Optional[Parameter], ctx: Optional[Context]
+    ) -> Any:
+        if isinstance(value, datetime.datetime):
+            return value
+
+        try:
+            return parser.parse(value)
+        except Exception as e:
+            self.fail(f"{value!r} cannot be converted to a datetime: {str(e)!r}")
 
 
 def config_setup(context: object) -> PbenchServerConfig:
