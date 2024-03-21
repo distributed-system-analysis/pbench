@@ -63,7 +63,7 @@ class TestServerSettings:
     def test_get_bad_keys(self, query_get):
         response = query_get("xyzzy", HTTPStatus.BAD_REQUEST)
         assert response.json == {
-            "message": "Unrecognized keyword ['xyzzy'] for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized keyword ['xyzzy'] for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-indexing', 'server-state']"
         }
 
     def test_get1(self, query_get):
@@ -80,6 +80,7 @@ class TestServerSettings:
         response = query_get(key)
         assert response.json == {
             "dataset-lifetime": "3650",
+            "server-indexing": True,
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }
@@ -109,7 +110,7 @@ class TestServerSettings:
     def test_put_bad_key(self, query_put):
         response = query_put(key="fookey", expected_status=HTTPStatus.BAD_REQUEST)
         assert response.json == {
-            "message": "Unrecognized keyword ['fookey'] for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized keyword ['fookey'] for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-indexing', 'server-state']"
         }
 
     def test_put_bad_keys(self, query_put):
@@ -119,7 +120,7 @@ class TestServerSettings:
             expected_status=HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized server settings ['fookey'] specified: valid settings are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized server settings ['fookey'] specified: valid settings are ['dataset-lifetime', 'server-banner', 'server-indexing', 'server-state']"
         }
 
     @pytest.mark.parametrize(
@@ -127,6 +128,7 @@ class TestServerSettings:
         [
             ("dataset-lifetime", "14 years"),
             ("server-banner", {"banner": None}),
+            ("server-indexing", "bad"),
             ("server-state", "running"),
             ("server-state", {"status": "disabled"}),
         ],
@@ -229,6 +231,7 @@ class TestServerSettings:
         response = query_get(None)
         assert response.json == {
             "dataset-lifetime": "2",
+            "server-indexing": True,
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }

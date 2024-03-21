@@ -47,6 +47,10 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.database.models.server_settings import (
+    OPTION_SERVER_INDEXING,
+    ServerSetting,
+)
 from pbench.server.sync import Sync
 from pbench.server.utils import UtcTimeHelper
 
@@ -591,7 +595,10 @@ class IntakeBase(ApiBase):
             # Finally, update the operational state and Audit success.
             try:
                 # Determine whether we should enable the INDEX operation.
-                should_index = not metadata.get(Metadata.SERVER_ARCHIVE, False)
+                should_index = bool(ServerSetting.get(OPTION_SERVER_INDEXING).value)
+                should_index = should_index and not metadata.get(
+                    Metadata.SERVER_ARCHIVE, False
+                )
                 enable_next = [OperationName.INDEX] if should_index else None
                 if not should_index:
                     notes.append("Indexing is disabled by 'archive only' setting.")
