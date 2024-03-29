@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Optional
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 import click
@@ -29,10 +29,15 @@ watcher: Optional[Watch] = None
 verifier: Optional[Verify] = None
 
 
+# Options that select datasets
 SELECTORS = set(("since", "until", "id", "name"))
 
 
-def datasets(kwargs) -> Query[Dataset]:
+# Options that do something to datasets
+OPERATORS = set(("reindex", "delete", "list"))
+
+
+def datasets(options: dict[str, Any]) -> Query[Dataset]:
     """Return a filtered query to select datasets
 
     NOTE: filters are all AND-ed, so there's no way to select by id OR name.
@@ -40,6 +45,9 @@ def datasets(kwargs) -> Query[Dataset]:
     with a "mode switch" and callback handling to push the selector option
     values into "or" or "and" lists. While I could see that being "cool" I
     don't see enough value to bother with it now.
+
+    Args:
+        options: command options and values
 
     Returns:
         a Filtered SQLAlchemy Query
@@ -50,16 +58,16 @@ def datasets(kwargs) -> Query[Dataset]:
         .yield_per(2000)
     )
     filters = []
-    ids = kwargs.get("id")
-    if ids and isinstance(ids, (list, tuple)):
+    ids = options.get("id")
+    if ids:
         verifier.status(f"Filter resource IDs match {ids}")
         filters.append(Dataset.resource_id.in_(ids))
-    names = kwargs.get("name")
-    if names and isinstance(names, (list, tuple)):
+    names = options.get("name")
+    if names:
         verifier.status(f"Filter names match {names}")
         filters.append(Dataset.name.in_(names))
-    since = kwargs.get("since")
-    until = kwargs.get("until")
+    since = options.get("since")
+    until = options.get("until")
     if since:
         verifier.status(f"Filter since {since}")
         filters.append(Dataset.uploaded >= since)
@@ -69,38 +77,45 @@ def datasets(kwargs) -> Query[Dataset]:
     return query.filter(*filters)
 
 
-def summarize_index(dataset: Dataset, kwargs):
+def opensearch(
+    operation: str, dataset: Dataset, options: dict[str, Any], params: dict[str, str]
+) -> Optional[requests.Response]:
+    es_url, ca_bundle = options.get("_es")
+    indices = ",".join(IndexMap.indices(dataset))
+    if not indices and (detailer.detail or not options.get("reindex")):
+        click.echo(f"{dataset.name} is not indexed")
+        return None
+    url = indices + "/" + operation
+    json = {
+        "query": {
+            "dis_max": {
+                "queries": [
+                    {"term": {"run.id": dataset.resource_id}},
+                    {"term": {"run_data_parent": dataset.resource_id}},
+                ]
+            }
+        }
+    }
+    url = urljoin(es_url, url)
+    response = requests.post(url, json=json, params=params, verify=ca_bundle)
+    return response
+
+
+def summarize_index(dataset: Dataset, options: dict[str, Any]):
     """A simple Opensearch query to report index statistics
 
     Args:
         dataset: a Dataset object
-        kwargs: options
+        options: command options and values
     """
-    es_url, ca_bundle = kwargs.get("_es")
     try:
-        indices = list(IndexMap.indices(dataset))
-        if not indices:
-            click.echo(f"{dataset.name} is not indexed")
-            return
-        url = ",".join(indices) + "/_search"
-        json = {
-            "query": {
-                "dis_max": {
-                    "queries": [
-                        {"term": {"run.id": dataset.resource_id}},
-                        {"term": {"run_data_parent": dataset.resource_id}},
-                    ]
-                }
-            }
-        }
-        url = urljoin(es_url, url)
-        response = requests.post(
-            url,
-            json=json,
-            params={"ignore_unavailable": "true", "_source": "false"},
-            verify=ca_bundle,
+        response = opensearch(
+            "_search",
+            dataset,
+            options,
+            {"ignore_unavailable": "true", "_source": "false"},
         )
-        if response.ok:
+        if response and response.ok:
             json = response.json()
             indices = defaultdict(int)
             hits = json["hits"]["hits"]
@@ -112,12 +127,11 @@ def summarize_index(dataset: Dataset, kwargs):
             if detailer.detail:
                 for index, count in indices.items():
                     click.echo(f"  {count:<10,d} {index}")
-        else:
+        elif response:
             if response.headers["content-type"] == "application/json":
                 message = response.json()
             else:
                 message = response.text
-            click.echo(f"{dataset.name} failure: {message!r}")
             detailer.error(
                 f"{dataset.name} error querying index: ({response.status_code}) {message}"
             )
@@ -128,41 +142,26 @@ def summarize_index(dataset: Dataset, kwargs):
         click.echo(f"{dataset.name} exception: {str(e)!r}")
 
 
-def delete_index(dataset: Dataset, sync: Sync, kwargs):
+def delete_index(dataset: Dataset, sync: Sync, options: dict[str, Any]):
     """A simple Opensearch query to delete dataset indexed data
 
     Args:
         dataset: a Dataset
         sync: a Sync object to set the index as "working"
-        kwargs: options
+        options: command options and values
     """
     sync.update(
         dataset, OperationState.WORKING, message="pbench-reindex is deleting index"
     )
-    es_url, ca_bundle = kwargs.get("_es")
+    es_url, ca_bundle = options.get("_es")
+    message = "Index deleted by pbench-reindex"
     try:
-        indices = list(IndexMap.indices(dataset))
-        if not indices:
-            detailer.message(f"{dataset.name} is not indexed")
-            return
-        url = ",".join(indices) + "/_delete_by_query"
-        json = {
-            "query": {
-                "dis_max": {
-                    "queries": [
-                        {"term": {"run.id": dataset.resource_id}},
-                        {"term": {"run_data_parent": dataset.resource_id}},
-                    ]
-                }
-            }
-        }
-        url = urljoin(es_url, url)
-        response = requests.post(
-            url, json=json, params={"ignore_unavailable": "true"}, verify=ca_bundle
+        response = opensearch(
+            "_delete_by_query", dataset, options, {"ignore_unavailable": "true"}
         )
-        if response.ok:
+        if response and response.ok:
             detailer.message(f"{dataset.name} indices successfully deleted")
-        else:
+        elif response:
             if response.headers["content-type"] == "application/json":
                 message = response.json()
             else:
@@ -172,44 +171,46 @@ def delete_index(dataset: Dataset, sync: Sync, kwargs):
             )
     except Exception as e:
         detailer.error(f"{dataset.name} error deleting index: {str(e)!r}")
+        message = "[WARNING] Index partially deleted by pbench-reindex"
     finally:
-        sync.update(
-            dataset, OperationState.OK, message="Index deleted by pbench-reindex"
-        )
+        sync.update(dataset, OperationState.OK, message=message)
 
 
-def worker(kwargs):
+def worker(options: dict[str, Any]):
     """Handle the important work that slacker parser passes off.
 
     Args:
-        kwargs: the command options.
+        options: command options and values
     """
 
-    sync = Sync(kwargs.get("_logger"), OperationName.INDEX)
+    sync = Sync(options.get("_logger"), OperationName.INDEX)
 
     to_delete = []
     to_sync = []
-    for dataset in datasets(kwargs):
-        watcher.update(f"Checking {dataset.name}")
-        if kwargs.get("list"):
-            summarize_index(dataset, kwargs)
-        if kwargs.get("delete") or kwargs.get("reindex"):
-            # Delete the indices and remove IndexMaps: for re-index, we want
-            # to be sure there's no existing index.
-            delete_index(dataset, sync, kwargs)
-            to_delete.append(dataset)
-        if kwargs.get("reindex"):
-            to_sync.append(dataset)
-
-    # Defer index-map deletion outside of the SQL generator loop to avoid
-    # breaking the SQLAlchemy cursor -- and we don't want to enable indexing
-    # until after we've removed the old index map.
-    for dataset in to_delete:
-        IndexMap.delete(dataset)
-    for dataset in to_sync:
-        sync.update(
-            dataset, OperationState.READY, message="Indexing enabled by pbench-reindex"
-        )
+    try:
+        for dataset in datasets(options):
+            watcher.update(f"Checking {dataset.name}")
+            if options.get("list"):
+                summarize_index(dataset, options)
+            if options.get("delete") or options.get("reindex"):
+                # Delete the indices and remove IndexMaps: for re-index, we want
+                # to be sure there's no existing index.
+                delete_index(dataset, sync, options)
+                to_delete.append(dataset)
+            if options.get("reindex"):
+                to_sync.append(dataset)
+    finally:
+        # Defer index-map deletion outside of the SQL generator loop to avoid
+        # breaking the SQLAlchemy cursor -- and we don't want to enable indexing
+        # until after we've removed the old index map.
+        for dataset in to_delete:
+            IndexMap.delete(dataset)
+        for dataset in to_sync:
+            sync.update(
+                dataset,
+                OperationState.READY,
+                message="Indexing enabled by pbench-reindex",
+            )
 
 
 @click.command(name="pbench-reindex")
@@ -223,7 +224,6 @@ def worker(kwargs):
     is_flag=True,
     help="Provide extra diagnostic information",
 )
-@click.option("--name", type=str, multiple=True, help="Select dataset by name")
 @click.option(
     "--errors",
     default=False,
@@ -239,6 +239,7 @@ def worker(kwargs):
 @click.option(
     "--list", default=False, is_flag=True, help="Show dataset indexing status"
 )
+@click.option("--name", type=str, multiple=True, help="Select dataset by name")
 @click.option(
     "--progress", type=float, default=0.0, help="Show periodic progress messages"
 )
@@ -289,16 +290,16 @@ def reindex(context: object, **kwargs):
         # Check whether to enable or disable automatic indexing on upload.
         indexing = kwargs.get("indexing")
         if indexing:
-            state = True if indexing == "enable" else False
+            state = indexing == "enable"
             detailer.message(f"{indexing} upload indexing")
             ServerSetting.set(key=OPTION_SERVER_INDEXING, value=state)
 
         # Operate on individual datasets if selected
-        if SELECTORS & set(k for k in kwargs if kwargs[k]):
+        if (SELECTORS | OPERATORS) & set(k for k, v in kwargs.items() if v):
             verifier.status("updating selected datasets")
             worker(kwargs)
         else:
-            verifier.status("no dataset selectors")
+            click.echo("nothing to do", err=True)
         rv = 0
     except Exception as exc:
         if verifier.verify:
