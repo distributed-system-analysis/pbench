@@ -163,6 +163,7 @@ class TestServerSetting:
         """
         assert ServerSetting.get_all() == {
             "dataset-lifetime": "3650",
+            "server-indexing": True,
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }
@@ -174,14 +175,21 @@ class TestServerSetting:
         c1 = ServerSetting.create(key="dataset-lifetime", value="2")
         c2 = ServerSetting.create(key="server-state", value={"status": "enabled"})
         c3 = ServerSetting.create(key="server-banner", value={"message": "Mine"})
+        c4 = ServerSetting.create(key="server-indexing", value=False)
         assert ServerSetting.get_all() == {
             "dataset-lifetime": "2",
+            "server-indexing": False,
             "server-state": {"status": "enabled"},
             "server-banner": {"message": "Mine"},
         }
         self.session.check_session(
             queries=1,
-            committed=[FakeRow.clone(c1), FakeRow.clone(c2), FakeRow.clone(c3)],
+            committed=[
+                FakeRow.clone(c1),
+                FakeRow.clone(c2),
+                FakeRow.clone(c3),
+                FakeRow.clone(c4),
+            ],
             filters=[],
         )
 
@@ -285,6 +293,13 @@ class TestServerSetting:
         with pytest.raises(ServerSettingBadValue) as exc:
             ServerSetting.create(key="server-state", value=value)
         assert exc.value.value == value
+
+    @pytest.mark.parametrize("bad", (0, 1, "yes", []))
+    def test_bad_indexing(self, bad):
+        """Verify rejection of non-boolean values"""
+        with pytest.raises(ServerSettingBadValue) as exc:
+            ServerSetting.create(key="server-indexing", value=bad)
+        assert exc.value.value == bad
 
     @pytest.mark.parametrize("value", [1, True, "yes", ["a", "b"], {"banner": "xyzzy"}])
     def test_bad_banner(self, value):

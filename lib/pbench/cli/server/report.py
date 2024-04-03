@@ -456,7 +456,7 @@ def report_states():
             detailer.error(f"{dataset} doesn't have operational state")
         else:
             operations[operation][state] += 1
-            if state == "FAILED":
+            if state in ("FAILED", "WARNING"):
                 detailer.error(f"{operation} {state} for {dataset}: {message!r}")
                 if operation == "INDEX":
                     match = index_pattern.match(message)
