@@ -487,6 +487,7 @@ class OperationState(enum.Enum):
     WORKING = enum.auto()
     OK = enum.auto()
     FAILED = enum.auto()
+    WARNING = enum.auto()
 
 
 class Operation(Database.Base):

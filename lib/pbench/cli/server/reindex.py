@@ -82,8 +82,9 @@ def opensearch(
 ) -> Optional[requests.Response]:
     es_url, ca_bundle = options.get("_es")
     indices = ",".join(IndexMap.indices(dataset))
-    if not indices and (detailer.detail or not options.get("reindex")):
-        click.echo(f"{dataset.name} is not indexed")
+    if not indices:
+        if not options.get("reindex"):
+            detailer.warning(f"{dataset.name} is not indexed")
         return None
     url = indices + "/" + operation
     json = {
@@ -115,7 +116,9 @@ def summarize_index(dataset: Dataset, options: dict[str, Any]):
             options,
             {"ignore_unavailable": "true", "_source": "false"},
         )
-        if response and response.ok:
+        if response is None:
+            return
+        if response.ok:
             json = response.json()
             indices = defaultdict(int)
             hits = json["hits"]["hits"]
@@ -127,7 +130,7 @@ def summarize_index(dataset: Dataset, options: dict[str, Any]):
             if detailer.detail:
                 for index, count in indices.items():
                     click.echo(f"  {count:<10,d} {index}")
-        elif response:
+        else:
             if response.headers["content-type"] == "application/json":
                 message = response.json()
             else:
@@ -154,14 +157,18 @@ def delete_index(dataset: Dataset, sync: Sync, options: dict[str, Any]):
         dataset, OperationState.WORKING, message="pbench-reindex is deleting index"
     )
     es_url, ca_bundle = options.get("_es")
+    state = OperationState.OK
     message = "Index deleted by pbench-reindex"
     try:
         response = opensearch(
             "_delete_by_query", dataset, options, {"ignore_unavailable": "true"}
         )
-        if response and response.ok:
+        if response is None:
+            message = "Not indexed"
+            return
+        if response.ok:
             detailer.message(f"{dataset.name} indices successfully deleted")
-        elif response:
+        else:
             if response.headers["content-type"] == "application/json":
                 message = response.json()
             else:
@@ -171,9 +178,10 @@ def delete_index(dataset: Dataset, sync: Sync, options: dict[str, Any]):
             )
     except Exception as e:
         detailer.error(f"{dataset.name} error deleting index: {str(e)!r}")
-        message = "[WARNING] Index partially deleted by pbench-reindex"
+        state = OperationState.WARNING
+        message = f"Index partially deleted by pbench-reindex: {str(e)!r}"
     finally:
-        sync.update(dataset, OperationState.OK, message=message)
+        sync.update(dataset, state, message=message)
 
 
 def worker(options: dict[str, Any]):

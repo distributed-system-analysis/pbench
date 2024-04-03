@@ -33,13 +33,13 @@ class Detail:
         return self.detail
 
     def error(self, message: str):
-        """Write a message if details are enabled.
+        """Write an error message if error details are enabled.
 
         Args:
             message: Detail string
         """
         if self.errors:
-            click.secho(f"|| {message}", fg="red")
+            click.secho(f"|E| {message}", fg="red", err=True)
 
     def message(self, message: str):
         """Write a message if details are enabled.
@@ -48,7 +48,16 @@ class Detail:
             message: Detail string
         """
         if self.detail:
-            click.echo(f"|| {message}")
+            click.echo(f"|I| {message}")
+
+    def warning(self, message: str):
+        """Write a warning message if error details are enabled.
+
+        Args:
+            message: Detail string
+        """
+        if self.errors:
+            click.secho(f"|W| {message}", fg="blue", err=True)
 
 
 class Verify:
@@ -78,7 +87,7 @@ class Verify:
         """
         if self.verify:
             ts = datetime.datetime.now().astimezone()
-            click.secho(f"({ts:%H:%M:%S}) {message}", fg="green")
+            click.secho(f"({ts:%H:%M:%S}) {message}", fg="green", err=True)
 
 
 class Watch:
@@ -123,7 +132,9 @@ class Watch:
             hours, remainder = divmod(delta, 3600)
             minutes, seconds = divmod(remainder, 60)
             click.secho(
-                f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {self.status}", fg="cyan"
+                f"[{hours:02d}:{minutes:02d}:{seconds:02d}] {self.status}",
+                fg="cyan",
+                err=True,
             )
 
 
