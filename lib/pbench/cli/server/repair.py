@@ -61,7 +61,8 @@ def repair_audit(kwargs):
         didit = False
         for key, value in a.items():
             if type(value) is str and len(value) > LIMIT:
-                a[key] = f"[TRUNC({len(value)})]" + value[:LIMIT]
+                p = f"[TRUNC({len(value)})]"
+                a[key] = (p + value)[:LIMIT]
                 detailer.message(f"{name} [{key}] truncated ({len(value)}) to {LIMIT}")
                 didit = True
         if didit:
@@ -72,8 +73,10 @@ def repair_audit(kwargs):
             Database.db_session.commit()
         except Exception as e:
             commit_error = str(e)
-    click.echo(f"{count} audit records had attributes too long")
-    click.echo(f"{updated} records were fixed")
+    click.echo(f"{count} audit records triggered field truncation")
+    click.echo(
+        f"{updated} records were truncated, {count-updated} had no eligible fields"
+    )
     if attributes_errors:
         click.echo(f"{attributes_errors} had format errors in attributes")
     if commit_error:

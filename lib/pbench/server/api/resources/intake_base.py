@@ -47,7 +47,11 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
-from pbench.server.database.models.server_settings import get_retention_days
+from pbench.server.database.models.server_settings import (
+    get_retention_days,
+    OPTION_SERVER_INDEXING,
+    ServerSetting,
+)
 from pbench.server.sync import Sync
 from pbench.server.utils import UtcTimeHelper
 

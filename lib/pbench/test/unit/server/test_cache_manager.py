@@ -405,9 +405,15 @@ class TestCacheManager:
     @pytest.mark.parametrize(
         "errmsg,expected",
         (
-            ("Error unpacking tarball\n", "Error unpacking tarball"),
-            ("This is a message we'll find too long", "[TRUNC]This is a message we'll f"),
-            ("One line\nTwo line\nThree line\nFour line\n", "[TRUNC]One line\nTwo line"),
+            ("Error unpacking", "Error unpacking"),
+            (
+                "This is a message we'll find too long",
+                "[TRUNC]This is a message ",
+            ),
+            (
+                "One line\nTwo line\nThree line\nFour line\n",
+                "[TRUNC]One line\nTwo line\n",
+            ),
         ),
     )
     def test_tarball_subprocess_failure(self, monkeypatch, errmsg, expected):
