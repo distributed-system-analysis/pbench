@@ -848,8 +848,9 @@ class TestUpload:
     ):
         """Test handling of post-intake error setting metadata
 
-        Cause Metadata.setvalue to fail. This should be reported in "failures"
-        without failing the upload.
+        Cause Metadata.setvalue to fail. This is an abnormal error (generally
+        a PostgreSQL server problem) and should result in a server internal
+        error.
         """
         datafile, _, md5 = tarball
 
@@ -867,12 +868,16 @@ class TestUpload:
                 headers=self.gen_headers(pbench_drb_token, md5),
             )
 
-        assert response.status_code == HTTPStatus.CREATED
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
         audit = Audit.query()
         assert len(audit) == 2
-        fails = audit[1].attributes["failures"]
-        assert isinstance(fails, dict)
-        assert fails["server.benchmark"].startswith("Metadata SQL error 'fake': ")
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(resource_id=md5)
+        assert (
+            audit[1]
+            .attributes["message"]
+            .startswith("Internal Pbench Server Error: log reference ")
+        )
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_archive(

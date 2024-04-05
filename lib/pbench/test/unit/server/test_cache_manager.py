@@ -402,15 +402,31 @@ class TestCacheManager:
             msg = f"An error occurred while unpacking {my_dir}: Command '{my_command}' timed out after 43 seconds"
             assert str(exc.value) == msg
 
-    def test_tarball_subprocess_run_with_returncode(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "errmsg,expected",
+        (
+            ("Error unpacking", "Error unpacking"),
+            ("This message has 25 bytes", "This message has 25 bytes"),
+            (
+                "This is a message we'll find too long",
+                "[TRUNC]This is a message ",
+            ),
+            (
+                "One line\nTwo line\nThree line\nFour line\n",
+                "[TRUNC]One line\nTwo line\n",
+            ),
+        ),
+    )
+    def test_tarball_subprocess_failure(self, monkeypatch, errmsg, expected):
         """Test to check the subprocess_run functionality of the Tarball when
         returncode value is not zero"""
         my_command = "mycommand"
+        monkeypatch.setattr("pbench.server.cache_manager.MAX_ERROR", 25)
 
         def mock_run(args, **_kwargs):
             assert args[0] == my_command
             return subprocess.CompletedProcess(
-                args, returncode=1, stdout=None, stderr="Some error unpacking tarball\n"
+                args, returncode=1, stdout=None, stderr=errmsg
             )
 
         with monkeypatch.context() as m:
@@ -422,7 +438,7 @@ class TestCacheManager:
                 Tarball.subprocess_run(command, my_dir, TarballUnpackError, my_dir)
 
             msg = f"An error occurred while unpacking {my_dir.name}: {my_command} "
-            msg += "exited with status 1:  'Some error unpacking tarball'"
+            msg += f"exited with status 1: {expected!r}"
             assert str(exc.value) == msg
 
     def test_tarball_subprocess_run_success(self, monkeypatch):

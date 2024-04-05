@@ -26,6 +26,8 @@ from pbench.server.utils import get_tarball_md5
 
 RECLAIM_BYTES_PAD = 1024  # Pad unpack reclaim requests by this much
 MB_BYTES = 1024 * 1024  # Bytes in Mb
+MAX_ERROR = 1024 * 5  # Maximum length of subprocess stderr to capture
+TRUNC_PREFIX = "[TRUNC]"  # Indicate that subprocess stderr was truncated
 
 
 class CacheManagerError(Exception):
@@ -95,24 +97,35 @@ class MetadataError(CacheManagerError):
         self.error = str(error)
 
 
-class TarballUnpackError(CacheManagerError):
+class UnpackBaseError(CacheManagerError):
+    """Base class for unpacking errors"""
+
+    def __init__(self, context: Path, error: str, stderr: Optional[str] = None):
+        m = f"{error}: {stderr!r}" if stderr else error
+        super().__init__(m)
+        self.stderr = stderr
+
+
+class TarballUnpackError(UnpackBaseError):
     """An error occurred trying to unpack a tarball."""
 
-    def __init__(self, tarball: Path, error: str):
-        super().__init__(f"An error occurred while unpacking {tarball}: {error}")
-        self.tarball = tarball
-        self.error = error
-
-
-class TarballModeChangeError(CacheManagerError):
-    """An error occurred trying to fix unpacked tarball permissions."""
-
-    def __init__(self, tarball: Path, error: str):
+    def __init__(self, tarball: Path, error: str, stderr: Optional[str] = None):
         super().__init__(
-            f"An error occurred while changing file permissions of {tarball}: {error}"
+            tarball, f"An error occurred while unpacking {tarball}: {error}", stderr
         )
         self.tarball = tarball
-        self.error = error
+
+
+class TarballModeChangeError(UnpackBaseError):
+    """An error occurred trying to fix unpacked tarball permissions."""
+
+    def __init__(self, directory: Path, error: str, stderr: Optional[str] = None):
+        super().__init__(
+            directory,
+            f"An error occurred while changing file permissions of {directory}: {error}",
+            stderr,
+        )
+        self.directory = directory
 
 
 class CacheType(Enum):
@@ -993,7 +1006,7 @@ class Tarball:
     def subprocess_run(
         command: str,
         working_dir: PathLike,
-        exception: type[CacheManagerError],
+        exception: type[UnpackBaseError],
         ctx: Path,
     ):
         """Runs a command as a subprocess.
@@ -1024,9 +1037,13 @@ class Tarball:
             raise exception(ctx, str(exc)) from exc
         else:
             if process.returncode != 0:
+                msg = process.stderr
+                if len(msg) > MAX_ERROR:
+                    msg = (TRUNC_PREFIX + msg)[:MAX_ERROR]
                 raise exception(
                     ctx,
-                    f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
+                    f"{cmd[0]} exited with status {process.returncode}",
+                    stderr=msg,
                 )
 
     def get_unpacked_size(self) -> int:

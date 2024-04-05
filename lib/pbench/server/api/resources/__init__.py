@@ -1811,18 +1811,19 @@ class ApiBase(Resource):
 
     @staticmethod
     def _set_dataset_metadata(
-        dataset: Dataset, metadata: dict[str, JSONVALUE]
+        dataset: Dataset, metadata: dict[str, JSONVALUE], throw: bool = False
     ) -> dict[str, str]:
         """Set metadata on a specific Dataset
 
         This supports strict Metadata key/value items associated with the
         Dataset as well as selected columns from the Dataset model.
 
-        Errors are collected and returned.
+        Errors are collected and returned if 'throw' is False (default)
 
         Args:
             dataset: Dataset object
             metadata: dict of key/value pairs
+            throw: propagate exceptions instead of returning failures
 
         Returns:
             A dict associating an error string with each failing metadata key.
@@ -1837,6 +1838,8 @@ class ApiBase(Resource):
             try:
                 Metadata.setvalue(key=k, value=v, dataset=dataset, user=user)
             except MetadataError as e:
+                if throw:
+                    raise
                 fail[k] = str(e)
         return fail
 
