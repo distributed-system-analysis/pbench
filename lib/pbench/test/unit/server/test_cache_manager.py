@@ -406,6 +406,7 @@ class TestCacheManager:
         "errmsg,expected",
         (
             ("Error unpacking", "Error unpacking"),
+            ("This message has 25 bytes", "This message has 25 bytes"),
             (
                 "This is a message we'll find too long",
                 "[TRUNC]This is a message ",

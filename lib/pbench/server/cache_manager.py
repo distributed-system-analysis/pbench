@@ -1038,7 +1038,7 @@ class Tarball:
         else:
             if process.returncode != 0:
                 msg = process.stderr
-                if len(msg) > MAX_ERROR - len(TRUNC_PREFIX):
+                if len(msg) > MAX_ERROR:
                     msg = (TRUNC_PREFIX + msg)[:MAX_ERROR]
                 raise exception(
                     ctx,
