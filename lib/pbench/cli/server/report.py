@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 import shutil
 import time
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import click
 import humanize
@@ -308,6 +308,78 @@ def report_cache(tree: CacheManager):
         )
 
 
+def columnize(items: dict[str, Any], width: int = 80):
+    line = ""
+    for item, count in sorted(items.items()):
+        if len(line) >= width:
+            click.echo(line)
+            line = ""
+        line += f"    {item:4d}: {count:>8,d}"
+    if line:
+        click.echo(line)
+
+
+def report_uploads(options: dict[str, Any]):
+    """Report upload statistics"""
+
+    watcher.update("analyzing upload patterns")
+
+    rows = (
+        Database.db_session.query(Dataset.uploaded)
+        .execution_options(stream_results=True)
+        .yield_per(SQL_CHUNK)
+    )
+
+    by_year = defaultdict(int)
+    by_month = defaultdict(int)
+    by_day = defaultdict(int)
+    by_hour = defaultdict(int)
+
+    day = datetime.datetime.now(datetime.timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    month = day.replace(day=1)
+    year = month.replace(month=1)
+    week = day - datetime.timedelta(days=7)
+
+    this_year = 0
+    this_month = 0
+    this_week = 0
+    this_day = 0
+
+    for row in rows:
+        uploaded = row[0]
+        by_year[uploaded.year] += 1
+        by_month[uploaded.month] += 1
+        by_day[uploaded.day] += 1
+        by_hour[uploaded.hour] += 1
+
+        if uploaded >= year:
+            this_year += 1
+            if uploaded >= month:
+                this_month += 1
+                if uploaded >= week:
+                    this_week += 1
+                    if uploaded >= day:
+                        this_day += 1
+
+    click.echo("Upload report:")
+    click.echo(f"  {this_year:,d} uploads this year ({year:%Y})")
+    click.echo(f"  {this_month:,d} uploads this month ({month:%B, %Y})")
+    click.echo(f"  {this_week:,d} uploads this week ({week:%B %d} to {day:%B %d})")
+    click.echo(f"  {this_day:,d} uploads today ({day:%Y-%m-%d})")
+
+    width = options.get("width")
+    click.echo(" by year:")
+    columnize(by_year, width)
+    click.echo(" by month:")
+    columnize(by_month, width)
+    click.echo(" by day:")
+    columnize(by_day, width)
+    click.echo(" by hour:")
+    columnize(by_hour, width)
+
+
 def report_audit():
     """Report audit log statistics."""
 
@@ -521,24 +593,13 @@ def report_states():
 @click.option(
     "--states", "-S", default=False, is_flag=True, help="Display operational states"
 )
+@click.option("--uploads", default=False, is_flag=True, help="Show upload statistics")
 @click.option(
     "--verify", "-v", default=False, is_flag=True, help="Display intermediate messages"
 )
+@click.option("--width", type=int, default=80, help="Set output width")
 @common_options
-def report(
-    context: object,
-    all: bool,
-    archive: bool,
-    audit: bool,
-    backup: bool,
-    cache: bool,
-    detail: bool,
-    errors: bool,
-    progress: float,
-    sql: bool,
-    states: bool,
-    verify: bool,
-):
+def report(context: object, **kwargs):
     """
     Report statistics and problems in the SQL and on-disk representation of
     Pbench datasets.
@@ -546,45 +607,38 @@ def report(
 
     Args:
         context: click context
-        all: report all statistics
-        archive: report archive statistics
-        audit: report audit log statistics
-        backup: report backup statistics
-        cache: report cache statistics
-        detail: provide additional per-file diagnostics
-        errors: show individual file errors
-        sql: report SQL statistics
-        states: report operational states
-        verify: Report internal status
+        kwargs: click options
     """
     logger = None
 
     global detailer, verifier, watcher
-    detailer = Detail(detail, errors)
-    verifier = Verify(verify)
-    watcher = Watch(progress)
+    detailer = Detail(kwargs.get("detail"), kwargs.get("errors"))
+    verifier = Verify(kwargs.get("verify"))
+    watcher = Watch(kwargs.get("progress"))
 
     try:
         config = config_setup(context)
         logger = get_pbench_logger("pbench-report-generator", config)
         cache_m = CacheManager(config, logger)
-        if any((all, archive, backup)):
+        if any((kwargs.get("all"), kwargs.get("archive"), kwargs.get("backup"))):
             verifier.status("starting discovery")
             watcher.update("discovering archive tree")
             cache_m.full_discovery(search=False)
             watcher.update("processing reports")
             verifier.status("finished discovery")
-            if all or archive:
+            if kwargs.get("all") or kwargs.get("archive"):
                 report_archive(cache_m)
-            if all or backup:
+            if kwargs.get("all") or kwargs.get("backup"):
                 report_backup(cache_m)
-        if all or cache:
+        if kwargs.get("all") or kwargs.get("cache"):
             report_cache(cache_m)
-        if all or audit:
+        if kwargs.get("uploads"):
+            report_uploads(kwargs)
+        if kwargs.get("all") or kwargs.get("audit"):
             report_audit()
-        if all or sql:
+        if kwargs.get("all") or kwargs.get("sql"):
             report_sql()
-        if all or states:
+        if kwargs.get("all") or kwargs.get("states"):
             report_states()
         watcher.update("done")
 
@@ -592,7 +646,7 @@ def report(
     except Exception as exc:
         if logger:
             logger.exception("An error occurred discovering the file tree: {}", exc)
-        if verify:
+        if kwargs.get("verify"):
             raise
         click.secho(exc, err=True, bg="red")
         rv = 2 if isinstance(exc, BadConfig) else 1
