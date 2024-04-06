@@ -34,6 +34,26 @@ MEGABYTE_FP = 1000000.0
 # SQL "chunk size"
 SQL_CHUNK = 2000
 
+# Translate datetime.datetime.month (1 - 12) into a name.
+MONTHS = (
+    "00",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+)
+
+# Translate datetime.datetime.weekday() (0 - 6) into a name
+DAYS_OF_WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
 detailer: Optional[Detail] = None
 watcher: Optional[Watch] = None
 verifier: Optional[Verify] = None
@@ -308,13 +328,35 @@ def report_cache(tree: CacheManager):
         )
 
 
-def columnize(items: dict[str, Any], width: int = 80):
+def columnize(
+    items: dict[int, int],
+    width: int = 80,
+    ifmt: str = "4d",
+    cfmt: str = ">8,d",
+    lookup: Optional[list[str]] = None,
+):
+    """Combine multiple outputs across a line to minimize vertical space
+
+    Args:
+        items: dictionary of items to report as "key: value"
+        width: width of line to fill (default 80)
+        ifmt: format string for key
+        cfmt: format string for value
+        lookup: list of string values to represent key
+    """
     line = ""
     for item, count in sorted(items.items()):
-        if len(line) >= width:
+        try:
+            k = lookup[item] if lookup else item
+        except Exception as e:
+            click.echo(f"{item} from {lookup}: {str(e)!r}", err=True)
+            k = str(item)
+        add = f"    {k:{ifmt}}: {count:{cfmt}}"
+        if len(line) + len(add) >= width:
             click.echo(line)
-            line = ""
-        line += f"    {item:4d}: {count:>8,d}"
+            line = add
+        else:
+            line += add
     if line:
         click.echo(line)
 
@@ -333,6 +375,7 @@ def report_uploads(options: dict[str, Any]):
     by_year = defaultdict(int)
     by_month = defaultdict(int)
     by_day = defaultdict(int)
+    by_weekday = defaultdict(int)
     by_hour = defaultdict(int)
 
     day = datetime.datetime.now(datetime.timezone.utc).replace(
@@ -348,10 +391,11 @@ def report_uploads(options: dict[str, Any]):
     this_day = 0
 
     for row in rows:
-        uploaded = row[0]
+        uploaded: datetime.datetime = row[0]
         by_year[uploaded.year] += 1
         by_month[uploaded.month] += 1
         by_day[uploaded.day] += 1
+        by_weekday[uploaded.weekday()] += 1
         by_hour[uploaded.hour] += 1
 
         if uploaded >= year:
@@ -365,19 +409,26 @@ def report_uploads(options: dict[str, Any]):
 
     click.echo("Upload report:")
     click.echo(f"  {this_year:,d} uploads this year ({year:%Y})")
-    click.echo(f"  {this_month:,d} uploads this month ({month:%B, %Y})")
+    click.echo(f"  {this_month:,d} uploads this month ({month:%B %Y})")
     click.echo(f"  {this_week:,d} uploads this week ({week:%B %d} to {day:%B %d})")
-    click.echo(f"  {this_day:,d} uploads today ({day:%Y-%m-%d})")
+    click.echo(f"  {this_day:,d} uploads today ({day:%d %B %Y})")
 
     width = options.get("width")
-    click.echo(" by year:")
+    click.echo(" Total uploads by year:")
     columnize(by_year, width)
-    click.echo(" by month:")
-    columnize(by_month, width)
-    click.echo(" by day:")
-    columnize(by_day, width)
-    click.echo(" by hour:")
-    columnize(by_hour, width)
+    click.echo(" Total uploads by month of year:")
+    columnize(by_month, width, ifmt="s", lookup=MONTHS)
+    click.echo(" Total uploads by day of month:")
+    columnize(by_day, width, ifmt="02d")
+    click.echo(" Total uploads by day of week:")
+    columnize(
+        by_weekday,
+        width,
+        ifmt="s",
+        lookup=DAYS_OF_WEEK,
+    )
+    click.echo(" Total uploads by hour of day:")
+    columnize(by_hour, width, ifmt="02d")
 
 
 def report_audit():

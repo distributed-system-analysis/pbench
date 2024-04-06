@@ -211,6 +211,10 @@ def worker(options: dict[str, Any]):
         # Defer index-map deletion outside of the SQL generator loop to avoid
         # breaking the SQLAlchemy cursor -- and we don't want to enable indexing
         # until after we've removed the old index map.
+        if to_delete:
+            click.echo(f"Deleting indexed data for {len(to_delete):,d} datasets")
+        if to_sync:
+            click.echo(f"Enabling indexing for {len(to_sync):,d} datasets")
         for dataset in to_delete:
             IndexMap.delete(dataset)
         for dataset in to_sync:
@@ -241,8 +245,9 @@ def worker(options: dict[str, Any]):
 @click.option("--id", type=str, multiple=True, help="Select dataset by resource ID")
 @click.option(
     "--indexing",
-    type=click.Choice(["enable", "disable"], case_sensitive=False),
-    help="Enable or disable the Pbench Server indexer for future uploads",
+    type=click.Choice(["enable", "disable", "show"], case_sensitive=False),
+    help="Enable or disable the Pbench Server indexer for future uploads, "
+    "or show the current state",
 )
 @click.option(
     "--list", default=False, is_flag=True, help="Show dataset indexing status"
@@ -295,18 +300,27 @@ def reindex(context: object, **kwargs):
         kwargs["_es"] = (es_url, ca_bundle)
         kwargs["_logger"] = logger
 
-        # Check whether to enable or disable automatic indexing on upload.
+        # Check whether to enable, disable, or display automatic indexing
+        # on upload.
         indexing = kwargs.get("indexing")
         if indexing:
-            state = indexing == "enable"
-            detailer.message(f"{indexing} upload indexing")
-            ServerSetting.set(key=OPTION_SERVER_INDEXING, value=state)
+            if indexing == "show":
+                setting = ServerSetting.get(
+                    key=OPTION_SERVER_INDEXING, use_default=True
+                )
+                state = setting.value
+            else:
+                state = indexing == "enable"
+                detailer.message(f"{indexing} upload indexing")
+                ServerSetting.set(key=OPTION_SERVER_INDEXING, value=state)
+            abled = "enabled" if state else "disabled"
+            click.echo(f"Indexing of new datasets is {abled}")
 
         # Operate on individual datasets if selected
         if (SELECTORS | OPERATORS) & set(k for k, v in kwargs.items() if v):
             verifier.status("updating selected datasets")
             worker(kwargs)
-        else:
+        elif not indexing:
             click.echo("nothing to do", err=True)
         rv = 0
     except Exception as exc:
