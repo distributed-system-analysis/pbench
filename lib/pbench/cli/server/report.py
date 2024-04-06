@@ -421,12 +421,7 @@ def report_uploads(options: dict[str, Any]):
     click.echo(" Total uploads by day of month:")
     columnize(by_day, width, ifmt="02d")
     click.echo(" Total uploads by day of week:")
-    columnize(
-        by_weekday,
-        width,
-        ifmt="s",
-        lookup=DAYS_OF_WEEK,
-    )
+    columnize(by_weekday, width, ifmt="s", lookup=DAYS_OF_WEEK)
     click.echo(" Total uploads by hour of day:")
     columnize(by_hour, width, ifmt="02d")
 
