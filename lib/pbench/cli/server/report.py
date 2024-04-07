@@ -5,11 +5,11 @@ from pathlib import Path
 import re
 import shutil
 import time
-from typing import Any, Optional, Union
+from typing import Any, Iterator, Optional, Union
 
 import click
 import humanize
-from sqlalchemy import inspect, select, text
+from sqlalchemy import cast, inspect, Row, select, text
 
 from pbench.cli import pass_cli_context
 from pbench.cli.server import config_setup, Detail, Verify, Watch
@@ -18,6 +18,7 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.database import Database
+from pbench.server.database.models import TZDateTime
 from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.index_map import IndexMap
@@ -361,17 +362,7 @@ def columnize(
         click.echo(line)
 
 
-def report_uploads(options: dict[str, Any]):
-    """Report upload statistics"""
-
-    watcher.update("analyzing upload patterns")
-
-    rows = (
-        Database.db_session.query(Dataset.uploaded)
-        .execution_options(stream_results=True)
-        .yield_per(SQL_CHUNK)
-    )
-
+def summarize_dates(rows: Iterator[Row], width: int = 80):
     by_year = defaultdict(int)
     by_month = defaultdict(int)
     by_day = defaultdict(int)
@@ -391,39 +382,71 @@ def report_uploads(options: dict[str, Any]):
     this_day = 0
 
     for row in rows:
-        uploaded: datetime.datetime = row[0]
-        by_year[uploaded.year] += 1
-        by_month[uploaded.month] += 1
-        by_day[uploaded.day] += 1
-        by_weekday[uploaded.weekday()] += 1
-        by_hour[uploaded.hour] += 1
+        date: datetime.datetime = row[0]
+        if not isinstance(date, datetime.datetime):
+            detailer.message(f"Got non-datetime row {row}")
+            continue
+        by_year[date.year] += 1
+        by_month[date.month] += 1
+        by_day[date.day] += 1
+        by_weekday[date.weekday()] += 1
+        by_hour[date.hour] += 1
 
-        if uploaded >= year:
+        if date >= year:
             this_year += 1
-            if uploaded >= month:
+            if date >= month:
                 this_month += 1
-                if uploaded >= week:
+                if date >= week:
                     this_week += 1
-                    if uploaded >= day:
+                    if date >= day:
                         this_day += 1
 
-    click.echo("Upload report:")
-    click.echo(f"  {this_year:,d} uploads this year ({year:%Y})")
-    click.echo(f"  {this_month:,d} uploads this month ({month:%B %Y})")
-    click.echo(f"  {this_week:,d} uploads this week ({week:%B %d} to {day:%B %d})")
-    click.echo(f"  {this_day:,d} uploads today ({day:%d %B %Y})")
+    click.echo(f"  {this_year:,d} this year ({year:%Y})")
+    click.echo(f"  {this_month:,d} this month ({month:%B %Y})")
+    click.echo(f"  {this_week:,d} this week ({week:%B %d} to {day:%B %d})")
+    click.echo(f"  {this_day:,d} today ({day:%d %B %Y})")
 
-    width = options.get("width")
-    click.echo(" Total uploads by year:")
+    click.echo(" Total by year:")
     columnize(by_year, width)
-    click.echo(" Total uploads by month of year:")
+    click.echo(" Total by month of year:")
     columnize(by_month, width, ifmt="s", lookup=MONTHS)
-    click.echo(" Total uploads by day of month:")
+    click.echo(" Total by day of month:")
     columnize(by_day, width, ifmt="02d")
-    click.echo(" Total uploads by day of week:")
+    click.echo(" Total by day of week:")
     columnize(by_weekday, width, ifmt="s", lookup=DAYS_OF_WEEK)
-    click.echo(" Total uploads by hour of day:")
+    click.echo(" Total by hour of day:")
     columnize(by_hour, width, ifmt="02d")
+
+
+def report_creation(options: dict[str, Any]):
+    """Report dataset statistics by creation date"""
+
+    watcher.update("analyzing upload patterns")
+
+    rows = (
+        Database.db_session.query(
+            cast(Metadata.value["pbench", "date"].as_string(), TZDateTime)
+        )
+        .filter(Metadata.key == "metalog")
+        .execution_options(stream_results=True)
+        .yield_per(SQL_CHUNK)
+    )
+    click.echo("Dataset statistics by creation date:")
+    summarize_dates(rows, options.get("width"))
+
+
+def report_uploads(options: dict[str, Any]):
+    """Report dataset statistics by upload date"""
+
+    watcher.update("analyzing upload patterns")
+
+    rows = (
+        Database.db_session.query(Dataset.uploaded)
+        .execution_options(stream_results=True)
+        .yield_per(SQL_CHUNK)
+    )
+    click.echo("Dataset statistics by upload date:")
+    summarize_dates(rows, options.get("width"))
 
 
 def report_audit():
@@ -639,7 +662,11 @@ def report_states():
 @click.option(
     "--states", "-S", default=False, is_flag=True, help="Display operational states"
 )
-@click.option("--uploads", default=False, is_flag=True, help="Show upload statistics")
+@click.option(
+    "--statistics",
+    type=click.Choice(["creation", "upload"], case_sensitive=False),
+    help="Show upload statistics",
+)
 @click.option(
     "--verify", "-v", default=False, is_flag=True, help="Display intermediate messages"
 )
@@ -661,6 +688,7 @@ def report(context: object, **kwargs):
     detailer = Detail(kwargs.get("detail"), kwargs.get("errors"))
     verifier = Verify(kwargs.get("verify"))
     watcher = Watch(kwargs.get("progress"))
+    rv = 0
 
     try:
         config = config_setup(context)
@@ -678,8 +706,14 @@ def report(context: object, **kwargs):
                 report_backup(cache_m)
         if kwargs.get("all") or kwargs.get("cache"):
             report_cache(cache_m)
-        if kwargs.get("uploads"):
+        stats = kwargs.get("statistics")
+        if stats == "creation":
+            report_creation(kwargs)
+        elif stats == "upload":
             report_uploads(kwargs)
+        else:
+            click.echo(f"Unexpected statistics option {stats}", err=True)
+            rv = 1
         if kwargs.get("all") or kwargs.get("audit"):
             report_audit()
         if kwargs.get("all") or kwargs.get("sql"):
@@ -687,8 +721,6 @@ def report(context: object, **kwargs):
         if kwargs.get("all") or kwargs.get("states"):
             report_states()
         watcher.update("done")
-
-        rv = 0
     except Exception as exc:
         if logger:
             logger.exception("An error occurred discovering the file tree: {}", exc)
