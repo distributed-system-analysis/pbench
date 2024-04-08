@@ -707,13 +707,14 @@ def report(context: object, **kwargs):
         if kwargs.get("all") or kwargs.get("cache"):
             report_cache(cache_m)
         stats = kwargs.get("statistics")
-        if stats == "creation":
-            report_creation(kwargs)
-        elif stats == "upload":
-            report_uploads(kwargs)
-        else:
-            click.echo(f"Unexpected statistics option {stats}", err=True)
-            rv = 1
+        if stats:
+            if stats == "creation":
+                report_creation(kwargs)
+            elif stats == "upload":
+                report_uploads(kwargs)
+            else:
+                click.echo(f"Unexpected statistics option {stats}", err=True)
+                rv = 1
         if kwargs.get("all") or kwargs.get("audit"):
             report_audit()
         if kwargs.get("all") or kwargs.get("sql"):
