@@ -5,11 +5,11 @@ from pathlib import Path
 import re
 import shutil
 import time
-from typing import Optional, Union
+from typing import Any, Iterator, Optional, Union
 
 import click
 import humanize
-from sqlalchemy import inspect, select, text
+from sqlalchemy import cast, inspect, Row, select, text
 
 from pbench.cli import pass_cli_context
 from pbench.cli.server import config_setup, Detail, Verify, Watch
@@ -18,6 +18,7 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.database import Database
+from pbench.server.database.models import TZDateTime
 from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.index_map import IndexMap
@@ -33,6 +34,26 @@ MEGABYTE_FP = 1000000.0
 
 # SQL "chunk size"
 SQL_CHUNK = 2000
+
+# Translate datetime.datetime.month (1 - 12) into a name.
+MONTHS = (
+    "00",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+)
+
+# Translate datetime.datetime.weekday() (0 - 6) into a name
+DAYS_OF_WEEK = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 detailer: Optional[Detail] = None
 watcher: Optional[Watch] = None
@@ -308,6 +329,126 @@ def report_cache(tree: CacheManager):
         )
 
 
+def columnize(
+    items: dict[int, int],
+    width: int = 80,
+    ifmt: str = "4d",
+    cfmt: str = ">8,d",
+    lookup: Optional[list[str]] = None,
+):
+    """Combine multiple outputs across a line to minimize vertical space
+
+    Args:
+        items: dictionary of items to report as "key: value"
+        width: width of line to fill (default 80)
+        ifmt: format string for key
+        cfmt: format string for value
+        lookup: list of string values to represent key
+    """
+    line = ""
+    for item, count in sorted(items.items()):
+        try:
+            k = lookup[item] if lookup else item
+        except Exception as e:
+            click.echo(f"{item} from {lookup}: {str(e)!r}", err=True)
+            k = str(item)
+        add = f"    {k:{ifmt}}: {count:{cfmt}}"
+        if len(line) + len(add) >= width:
+            click.echo(line)
+            line = add
+        else:
+            line += add
+    if line:
+        click.echo(line)
+
+
+def summarize_dates(rows: Iterator[Row], width: int = 80):
+    by_year = defaultdict(int)
+    by_month = defaultdict(int)
+    by_day = defaultdict(int)
+    by_weekday = defaultdict(int)
+    by_hour = defaultdict(int)
+
+    day = datetime.datetime.now(datetime.timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    month = day.replace(day=1)
+    year = month.replace(month=1)
+    week = day - datetime.timedelta(days=7)
+
+    this_year = 0
+    this_month = 0
+    this_week = 0
+    this_day = 0
+
+    for row in rows:
+        date: datetime.datetime = row[0]
+        if not isinstance(date, datetime.datetime):
+            detailer.message(f"Got non-datetime row {row}")
+            continue
+        by_year[date.year] += 1
+        by_month[date.month] += 1
+        by_day[date.day] += 1
+        by_weekday[date.weekday()] += 1
+        by_hour[date.hour] += 1
+
+        if date >= year:
+            this_year += 1
+            if date >= month:
+                this_month += 1
+                if date >= week:
+                    this_week += 1
+                    if date >= day:
+                        this_day += 1
+
+    click.echo(f"  {this_year:,d} this year ({year:%Y})")
+    click.echo(f"  {this_month:,d} this month ({month:%B %Y})")
+    click.echo(f"  {this_week:,d} this week ({week:%B %d} to {day:%B %d})")
+    click.echo(f"  {this_day:,d} today ({day:%d %B %Y})")
+
+    click.echo(" Total by year:")
+    columnize(by_year, width)
+    click.echo(" Total by month of year:")
+    columnize(by_month, width, ifmt="s", lookup=MONTHS)
+    click.echo(" Total by day of month:")
+    columnize(by_day, width, ifmt="02d")
+    click.echo(" Total by day of week:")
+    columnize(by_weekday, width, ifmt="s", lookup=DAYS_OF_WEEK)
+    click.echo(" Total by hour of day:")
+    columnize(by_hour, width, ifmt="02d")
+
+
+def report_creation(options: dict[str, Any]):
+    """Report dataset statistics by creation date"""
+
+    watcher.update("analyzing upload patterns")
+
+    rows = (
+        Database.db_session.query(
+            cast(Metadata.value["pbench", "date"].as_string(), TZDateTime)
+        )
+        .filter(Metadata.key == "metalog")
+        .execution_options(stream_results=True)
+        .yield_per(SQL_CHUNK)
+    )
+    click.echo("Dataset statistics by creation date:")
+    summarize_dates(rows, options.get("width"))
+
+
+def report_uploads(options: dict[str, Any]):
+    """Report dataset statistics by upload date"""
+
+    watcher.update("analyzing upload patterns")
+
+    rows = (
+        Database.db_session.query(Dataset.uploaded)
+        .execution_options(stream_results=True)
+        .yield_per(SQL_CHUNK)
+    )
+    click.echo("Dataset statistics by upload date:")
+    summarize_dates(rows, options.get("width"))
+
+
 def report_audit():
     """Report audit log statistics."""
 
@@ -522,23 +663,16 @@ def report_states():
     "--states", "-S", default=False, is_flag=True, help="Display operational states"
 )
 @click.option(
+    "--statistics",
+    type=click.Choice(["creation", "upload"], case_sensitive=False),
+    help="Show upload statistics",
+)
+@click.option(
     "--verify", "-v", default=False, is_flag=True, help="Display intermediate messages"
 )
+@click.option("--width", type=int, default=80, help="Set output width")
 @common_options
-def report(
-    context: object,
-    all: bool,
-    archive: bool,
-    audit: bool,
-    backup: bool,
-    cache: bool,
-    detail: bool,
-    errors: bool,
-    progress: float,
-    sql: bool,
-    states: bool,
-    verify: bool,
-):
+def report(context: object, **kwargs):
     """
     Report statistics and problems in the SQL and on-disk representation of
     Pbench datasets.
@@ -546,53 +680,52 @@ def report(
 
     Args:
         context: click context
-        all: report all statistics
-        archive: report archive statistics
-        audit: report audit log statistics
-        backup: report backup statistics
-        cache: report cache statistics
-        detail: provide additional per-file diagnostics
-        errors: show individual file errors
-        sql: report SQL statistics
-        states: report operational states
-        verify: Report internal status
+        kwargs: click options
     """
     logger = None
 
     global detailer, verifier, watcher
-    detailer = Detail(detail, errors)
-    verifier = Verify(verify)
-    watcher = Watch(progress)
+    detailer = Detail(kwargs.get("detail"), kwargs.get("errors"))
+    verifier = Verify(kwargs.get("verify"))
+    watcher = Watch(kwargs.get("progress"))
+    rv = 0
 
     try:
         config = config_setup(context)
         logger = get_pbench_logger("pbench-report-generator", config)
         cache_m = CacheManager(config, logger)
-        if any((all, archive, backup)):
+        if any((kwargs.get("all"), kwargs.get("archive"), kwargs.get("backup"))):
             verifier.status("starting discovery")
             watcher.update("discovering archive tree")
             cache_m.full_discovery(search=False)
             watcher.update("processing reports")
             verifier.status("finished discovery")
-            if all or archive:
+            if kwargs.get("all") or kwargs.get("archive"):
                 report_archive(cache_m)
-            if all or backup:
+            if kwargs.get("all") or kwargs.get("backup"):
                 report_backup(cache_m)
-        if all or cache:
+        if kwargs.get("all") or kwargs.get("cache"):
             report_cache(cache_m)
-        if all or audit:
+        stats = kwargs.get("statistics")
+        if stats:
+            if stats == "creation":
+                report_creation(kwargs)
+            elif stats == "upload":
+                report_uploads(kwargs)
+            else:
+                click.echo(f"Unexpected statistics option {stats}", err=True)
+                rv = 1
+        if kwargs.get("all") or kwargs.get("audit"):
             report_audit()
-        if all or sql:
+        if kwargs.get("all") or kwargs.get("sql"):
             report_sql()
-        if all or states:
+        if kwargs.get("all") or kwargs.get("states"):
             report_states()
         watcher.update("done")
-
-        rv = 0
     except Exception as exc:
         if logger:
             logger.exception("An error occurred discovering the file tree: {}", exc)
-        if verify:
+        if kwargs.get("verify"):
             raise
         click.secho(exc, err=True, bg="red")
         rv = 2 if isinstance(exc, BadConfig) else 1
