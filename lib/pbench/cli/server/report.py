@@ -176,10 +176,11 @@ def report_cache(tree: CacheManager):
     lacks_metrics = 0
     bad_metrics = 0
     unpacked_count = 0
-    unpacked_times = 0
+    unpacked_multiple = 0
     stream_unpack_skipped = 0
     last_ref_errors = 0
     agecomp = Comparator("age", really_big=time.time() * 2.0)
+    unpackcomp = Comparator("unpack")
     sizecomp = Comparator("size")
     compcomp = Comparator("compression")
     speedcomp = Comparator("speed", really_big=GINORMOUS_FP)
@@ -254,7 +255,9 @@ def report_cache(tree: CacheManager):
         else:
             found_metrics = True
             unpacked_count += 1
-            unpacked_times += metrics["count"]
+            if metrics["count"] > 1:
+                unpacked_multiple += 1
+            unpackcomp.add(dsname, metrics["count"])
             speedcomp.add(dsname, metrics["min"], metrics["max"])
             if size:
                 stream_fast = size / metrics["min"] / MEGABYTE_FP
@@ -270,9 +273,14 @@ def report_cache(tree: CacheManager):
         f"{humanize.naturalsize(cached_size)}"
     )
     click.echo(
-        f"  {unpacked_count:,d} datasets have been unpacked a total of "
-        f"{unpacked_times:,d} times"
+        f"  {unpacked_count:,d} datasets have unpack metrics and "
+        f"{unpacked_multiple} have been unpacked more than once."
     )
+    if unpackcomp.max > 1 or verifier.verify:
+        click.echo(
+            f"  The most unpacked dataset has been unpacked {unpackcomp.max} times, "
+            f"{unpackcomp.max_name}"
+        )
     click.echo(
         "  The least recently used cache was referenced "
         f"{humanize.naturaldate(oldest)}, {agecomp.min_name}"
@@ -318,12 +326,9 @@ def report_cache(tree: CacheManager):
             f"{last_ref_errors:,d} are missing reference timestamps, "
             f"{bad_size:,d} have bad size metadata"
         )
-    if lacks_metrics or bad_metrics or verifier.verify:
-        click.echo(
-            f"  {lacks_metrics:,d} datasets are missing unpack metric data, "
-            f"{bad_metrics} have bad unpack metric data"
-        )
-    if lacks_tarpath:
+    if bad_metrics or verifier.verify:
+        click.echo(f"  {bad_metrics:,d} have bad unpack metric data")
+    if lacks_tarpath or verifier.verify:
         click.echo(
             f"  {lacks_tarpath} datasets are missing server.tarball-path metadata"
         )

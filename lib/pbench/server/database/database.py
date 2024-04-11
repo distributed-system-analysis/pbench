@@ -11,6 +11,10 @@ from sqlalchemy_utils import create_database, database_exists
 from pbench.server import PbenchServerConfig
 
 
+class DatabaseInitError(Exception):
+    pass
+
+
 class Database:
     # Create declarative base model that our model can inherit from
     Base = declarative_base()
@@ -64,33 +68,38 @@ class Database:
         # metadata will not have any tables and create_all functionality will do
         # nothing.
 
-        engine = create_engine(db_uri)
-        db_url = urlparse(db_uri)
-        if db_url.scheme == "sqlite":
-            Database.Base.metadata.create_all(bind=engine)
-        else:
-            alembic_cfg = Config()
-            alembic_cfg.set_main_option(
-                "script_location", str(Path(__file__).parent / "alembic")
+        try:
+            engine = create_engine(db_uri)
+            db_url = urlparse(db_uri)
+            if db_url.scheme == "sqlite":
+                Database.Base.metadata.create_all(bind=engine)
+            else:
+                alembic_cfg = Config()
+                alembic_cfg.set_main_option(
+                    "script_location", str(Path(__file__).parent / "alembic")
+                )
+                alembic_cfg.set_main_option("prepend_sys_path", ".")
+                with engine.begin() as connection:
+                    alembic_cfg.attributes["connection"] = connection
+                    command.upgrade(alembic_cfg, "head")
+            Database.db_session = scoped_session(
+                sessionmaker(bind=engine, autocommit=False, autoflush=False)
             )
-            alembic_cfg.set_main_option("prepend_sys_path", ".")
-            with engine.begin() as connection:
-                alembic_cfg.attributes["connection"] = connection
-                command.upgrade(alembic_cfg, "head")
-        Database.db_session = scoped_session(
-            sessionmaker(bind=engine, autocommit=False, autoflush=False)
-        )
-        Database.Base.query = Database.db_session.query_property()
+            Database.Base.query = Database.db_session.query_property()
 
-        # Although most of the Pbench Server currently works with the default
-        # SQLAlchemy transaction management, some parts rely on true atomic
-        # transactions and need a better isolation level.
-        # NOTE: In PostgreSQL we might use a slightly looser integrity level
-        # like "REPEATABLE READ", however as this isn't supported in sqlite3
-        # we're using the strictest "SERIALIZABLE" level.
-        Database.maker = sessionmaker(
-            bind=engine.execution_options(isolation_level="SERIALIZABLE")
-        )
+            # Although most of the Pbench Server currently works with the default
+            # SQLAlchemy transaction management, some parts rely on true atomic
+            # transactions and need a better isolation level.
+            # NOTE: In PostgreSQL we might use a slightly looser integrity level
+            # like "REPEATABLE READ", however as this isn't supported in sqlite3
+            # we're using the strictest "SERIALIZABLE" level.
+            Database.maker = sessionmaker(
+                bind=engine.execution_options(isolation_level="SERIALIZABLE")
+            )
+        except Exception as e:
+            if logger:
+                logger.error("Unable to initialize database {}: {!r}", db_uri, str(e))
+            raise DatabaseInitError(str(e))
 
     @staticmethod
     def dump_query(query: Query, logger: Logger, level: int = DEBUG):
