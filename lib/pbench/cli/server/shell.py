@@ -222,6 +222,7 @@ def main() -> int:
 
     try:
         return run_gunicorn(server_config, logger)
-    except Exception:
-        logger.exception("Unhandled exception running gunicorn")
+    except Exception as exc:
+        logger.exception("Unhandled exception running gunicorn: {!r}", str(exc))
+        print(exc, file=sys.stderr)
         return 1
