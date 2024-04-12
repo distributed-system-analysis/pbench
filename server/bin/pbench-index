@@ -204,4 +204,10 @@ if __name__ == "__main__":
         # exit status to 1.  All finally handlers would have been executed, no
         # need to report a SIGTERM again.
         status = 1
+    except Exception as e:
+        # Don't let an unhandled exception generate a potentially massive
+        # traceback that's unlikely to have much real value (and which will be
+        # echoed to syslogd by conmon, one line at a time).
+        print(f"Indexing failed with exception {str(e)!r}", file=sys.stderr)
+        status = 1
     sys.exit(status)

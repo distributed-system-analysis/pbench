@@ -3,7 +3,6 @@ doctests = True
 filename =
         *.py
         *server/bin/pbench-index
-        *server/bin/pbench-reindex
 exclude = .venv,.git,.tox,dist,doc,*lib/python*,*egg,build,*web-server/*,
         *agent/bench-scripts/test-bin/fio-histo-log-pctiles.py,
         *agent/bench-scripts/tests/pbench-trafficgen/test-39.trafficgen/*,

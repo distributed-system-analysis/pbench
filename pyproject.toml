@@ -44,7 +44,6 @@ include = '''
 | ^/agent/util-scripts/validate-ipaddress$
 | ^/agent/util-scripts/pbench-tool-meister-start$
 | ^/server/bin/pbench-index$
-| ^/server/bin/pbench-reindex$
 | ^/utils/fetch-curr-commit-id$
 '''
 extend-exclude = '''
