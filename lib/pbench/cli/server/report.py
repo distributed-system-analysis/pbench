@@ -215,6 +215,8 @@ def report_cache(tree: CacheManager):
         cache = Path(tree.cache_root / rid)
         if (cache / tarname).exists():
             cached_count += 1
+            if isinstance(size, int):
+                cached_size += size
             try:
                 referenced = (cache / "last_ref").stat().st_mtime
             except Exception as e:
@@ -233,7 +235,6 @@ def report_cache(tree: CacheManager):
             bad_size += 1
         else:
             sizecomp.add(dsname, size)
-            cached_size += size
 
             # Check compression ratios
             if tarball:
