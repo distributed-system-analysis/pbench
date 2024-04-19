@@ -12,6 +12,7 @@ provide module methods to mimic the behaviors we need.
 
 [1] https://github.com/pycontribs/selinux
 """
+
 try:
     import selinux
 except ImportError:

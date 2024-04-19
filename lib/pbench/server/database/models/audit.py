@@ -292,7 +292,6 @@ class Audit(Database.Base):
         dataset: Optional[Dataset] = None,
         **kwargs,
     ) -> "list[Audit]":
-
         """Return a list of Audit objects matching the query parameters.
 
         The definition allows an exact search based on any column of the table

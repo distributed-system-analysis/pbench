@@ -1,6 +1,7 @@
 """
 pbench-clear-results
 """
+
 import shutil
 import sys
 

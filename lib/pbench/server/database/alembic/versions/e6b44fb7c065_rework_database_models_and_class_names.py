@@ -4,6 +4,7 @@ Revision ID: e6b44fb7c065
 Revises: fa12f45a2a5a
 Create Date: 2023-01-23 20:44:32.238138
 """
+
 from alembic import op
 
 # revision identifiers, used by Alembic.

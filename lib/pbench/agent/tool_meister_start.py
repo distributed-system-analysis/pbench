@@ -1105,9 +1105,11 @@ def start(_prog: str, cli_params: Namespace) -> int:
             tm = dict(
                 benchmark_run_dir=str(benchmark_run_dir),
                 channel_prefix=cli_tm_channel_prefix,
-                tds_hostname=params["origin_host"]
-                if "origin_host" in params
-                else tool_data_sink.host,
+                tds_hostname=(
+                    params["origin_host"]
+                    if "origin_host" in params
+                    else tool_data_sink.host
+                ),
                 tds_port=tool_data_sink.port,
                 controller=full_hostname,
                 tool_group=tool_group.name,

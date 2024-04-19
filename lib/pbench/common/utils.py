@@ -1,6 +1,7 @@
 """
 Utility functions common to both agent and server.
 """
+
 from collections import deque
 from functools import partial
 import hashlib

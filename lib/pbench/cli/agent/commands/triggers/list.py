@@ -5,6 +5,7 @@ This script will list all tool triggers from all tool groups, or list tool
 triggers from a specific group.
 
 """
+
 import sys
 
 import click

@@ -7,6 +7,7 @@ API calls over the life-time of a server deployment.
 The list of available settings are defined by the OPTION_* variables of this
 module.
 """
+
 import re
 from typing import Optional
 

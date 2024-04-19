@@ -1,4 +1,5 @@
 """Test wait_for_uri() module method"""
+
 from contextlib import contextmanager
 import socket
 from typing import Tuple

@@ -1,4 +1,5 @@
 """Test the Gunicorn driver module, `shell`, to ensure it is usable."""
+
 from configparser import NoOptionError, NoSectionError
 import logging
 import os
