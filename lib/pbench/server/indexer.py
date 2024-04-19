@@ -3336,9 +3336,9 @@ class PbenchTarBall:
         except configparser.NoOptionError:
             pass
         else:
-            self.at_metadata[
-                "tar-ball-creation-timestamp"
-            ] = PbenchTarBall.convert_to_dt(tb_ts_str)[1]
+            self.at_metadata["tar-ball-creation-timestamp"] = (
+                PbenchTarBall.convert_to_dt(tb_ts_str)[1]
+            )
         try:
             raw_size = self.mdconf.get("run", "raw_size")
         except configparser.NoOptionError:

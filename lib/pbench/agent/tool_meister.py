@@ -1779,9 +1779,7 @@ class ToolMeister:
         self._send_client_status(
             "success"
             if failures == 0
-            else f"{failures} failures sending sysinfo data"
-            if not msg
-            else msg
+            else f"{failures} failures sending sysinfo data" if not msg else msg
         )
 
         return failures

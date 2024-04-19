@@ -32,7 +32,7 @@ class PbenchConfig:
                 try:
                     self.logger_host = self._conf.get("logging", "logger_host")
                     self.logger_port = self._conf.get("logging", "logger_port")
-                except (NoOptionError) as exc:
+                except NoOptionError as exc:
                     raise BadConfig(str(exc))
 
         try:

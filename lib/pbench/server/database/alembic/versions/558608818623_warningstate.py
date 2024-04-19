@@ -7,6 +7,7 @@ Revises: ffcc6daffedb
 Create Date: 2024-04-03 12:07:47.018612
 
 """
+
 from alembic import op
 
 # revision identifiers, used by Alembic.

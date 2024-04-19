@@ -1,5 +1,6 @@
 """Tests for the Tool Meister "stop" module.
 """
+
 from pbench.agent.tool_meister_stop import RedisServer
 
 

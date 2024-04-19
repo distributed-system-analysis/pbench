@@ -1,5 +1,6 @@
 """Test PbenchConfig class and objects
 """
+
 from configparser import ConfigParser, NoOptionError, NoSectionError
 from typing import Any, Dict, List
 

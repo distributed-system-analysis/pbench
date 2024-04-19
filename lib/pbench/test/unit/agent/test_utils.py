@@ -1,5 +1,6 @@
 """Tests for the utils module.
 """
+
 import os
 import signal
 import time

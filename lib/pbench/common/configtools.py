@@ -1,4 +1,5 @@
 """ Configtools """
+
 from __future__ import print_function
 
 # python3
@@ -34,9 +35,11 @@ def file_list(root):
     rootdir = os.path.dirname(root)
     flist = [root]
     dirlist = [
-        os.path.abspath("%s/%s" % (rootdir, x))
-        if not os.path.isabs(x)
-        else os.path.abspath(x)
+        (
+            os.path.abspath("%s/%s" % (rootdir, x))
+            if not os.path.isabs(x)
+            else os.path.abspath(x)
+        )
         for x in dirlist
     ]
     # insert the directory of the root file at the beginning
@@ -221,7 +224,7 @@ def main(conf, args, opts, files):
                     print("[%s]" % sec)
                     items = conf.items(sec)
                     items.sort()
-                    for (n, v) in items:
+                    for n, v in items:
                         print("%s = %s" % (n, v))
                     print()
             return 0

@@ -477,17 +477,21 @@ class TestRelay:
         responses.add(
             responses.DELETE,
             "https://relay.example.com/uri1",
-            status=status1[0]
-            if isinstance(status1[0], int)
-            else HTTPStatus.ALREADY_REPORTED,
+            status=(
+                status1[0]
+                if isinstance(status1[0], int)
+                else HTTPStatus.ALREADY_REPORTED
+            ),
             body=status1[0] if isinstance(status1[0], Exception) else None,
         )
         responses.add(
             responses.DELETE,
             "https://relay.example.com/uri2",
-            status=status2[0]
-            if isinstance(status2[0], int)
-            else HTTPStatus.ALREADY_REPORTED,
+            status=(
+                status2[0]
+                if isinstance(status2[0], int)
+                else HTTPStatus.ALREADY_REPORTED
+            ),
             body=status2[0] if isinstance(status2[0], Exception) else None,
         )
         response = client.post(

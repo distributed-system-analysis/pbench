@@ -10,6 +10,7 @@ how to bring an empty database up to the state of the database as of commit
 6a764f154.  That commit was the latest working version of the Pbench Server
 deployed in Red Hat's staging environment.
 """
+
 from alembic import op
 import sqlalchemy as sa
 

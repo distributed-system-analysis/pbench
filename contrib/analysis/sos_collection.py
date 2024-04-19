@@ -333,10 +333,10 @@ class SosCollection:
                     else:
                         self.seen_sos_valid[sosreport] = extracted_sos_data
                 else:
-                    combined_data["sosreports"][sosreport][
-                        "extracted_sos"
-                    ] = self.seen_sos_invalid[sosreport]
+                    combined_data["sosreports"][sosreport]["extracted_sos"] = (
+                        self.seen_sos_invalid[sosreport]
+                    )
             else:
-                combined_data["sosreports"][sosreport][
-                    "extracted_sos"
-                ] = self.seen_sos_valid[sosreport]
+                combined_data["sosreports"][sosreport]["extracted_sos"] = (
+                    self.seen_sos_valid[sosreport]
+                )

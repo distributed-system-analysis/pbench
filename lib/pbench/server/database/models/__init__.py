@@ -61,7 +61,6 @@ def decode_sql_error(
     fallback: Optional[Callable[[Exception], Exception]] = None,
     **kwargs
 ) -> Exception:
-
     """Analyze an exception for a SQL constraint violation
 
     Analyzes SQLAlchemy IntegrityException instances for NOT NULL and UNIQUE
