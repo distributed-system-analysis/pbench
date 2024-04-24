@@ -25,7 +25,7 @@ from pbench.agent.constants import cli_tm_allowed_actions, tm_allowed_actions
 from pbench.agent.tool_group import ToolGroup
 from pbench.agent.utils import RedisServerCommon
 
-SIGNAL_RESPONSE_TIMEOUT = 100
+SIGNAL_RESPONSE_TIMEOUT = 300
 
 
 class Client:
