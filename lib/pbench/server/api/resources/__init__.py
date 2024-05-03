@@ -29,9 +29,11 @@ from pbench.server.database.models.datasets import (
     MetadataBadKey,
     MetadataError,
     OperationName,
+    OperationState,
 )
 from pbench.server.database.models.server_settings import ServerSetting
 from pbench.server.database.models.users import User
+from pbench.server.sync import Sync
 
 
 class APIAbort(Exception):
@@ -1419,6 +1421,51 @@ class UriBase:
     host_value: str
 
 
+@dataclass
+class AuditContext:
+    """Manage API audit context"""
+
+    audit: Optional[Audit] = None
+    finalize: bool = True
+    status: AuditStatus = AuditStatus.SUCCESS
+    reason: Optional[AuditReason] = None
+    attributes: Optional[JSONOBJECT] = None
+
+    def add_attribute(self, key: str, value: Any):
+        """Add a single audit attribute
+
+        Args:
+            key: key name
+            value: key value
+        """
+        if self.attributes is None:
+            self.attributes = {key: value}
+        else:
+            self.attributes[key] = value
+
+    def add_attributes(self, attr: JSONOBJECT):
+        """Add multiple audit attributes as a JSON dict
+
+        Args:
+            attr: a JSON dict
+        """
+        if self.attributes is None:
+            self.attributes = attr
+        else:
+            self.attributes.update(attr)
+
+    def set_error(self, error: str, reason: Optional[AuditReason] = None):
+        """Set an audit error
+
+        Args:
+            error: error string
+            reason: audit failure reason
+        """
+        self.add_attribute("error", error)
+        self.status = AuditStatus.FAILURE
+        self.reason = reason
+
+
 class ApiBase(Resource):
     """A base class for Pbench queries that provides common parameter handling
     behavior for specialized subclasses.
@@ -2031,43 +2078,29 @@ class ApiBase(Resource):
         # wants to emit a special audit sequence it can disable "finalize"
         # in the context. It can also pass "attributes" by setting that
         # field.
-        auditing = {
-            "audit": audit,
-            "finalize": bool(audit),
-            "status": AuditStatus.SUCCESS,
-            "reason": None,
-            "attributes": None,
-        }
-
+        auditing = AuditContext(audit=audit)
         context = {
             "auditing": auditing,
             "attributes": schema.attributes,
             "raw_params": raw_params,
+            "sync": None,
         }
 
         response = None
+        sync_message = None
         try:
             response = execute(params, request, context)
         except APIInternalError as e:
             current_app.logger.exception("{} {}", api_name, e.details)
+            auditing.set_error(str(e), AuditReason.INTERNAL)
+            sync_message = str(e)
             abort(e.http_status, message=str(e))
         except APIAbort as e:
             current_app.logger.warning(
                 "{} client error {}: '{}'", api_name, e.http_status, e
             )
-            if auditing["finalize"]:
-                attr = auditing.get("attributes", {"message": str(e)})
-                try:
-                    Audit.create(
-                        root=auditing["audit"],
-                        status=AuditStatus.FAILURE,
-                        reason=auditing["reason"],
-                        attributes=attr,
-                    )
-                except Exception:
-                    current_app.logger.error(
-                        "Unexpected exception on audit: {}", auditing
-                    )
+            auditing.set_error(str(e))
+            sync_message = str(e)
             abort(e.http_status, message=str(e), **e.kwargs)
         except Exception as e:
             x = APIInternalError("Unexpected exception")
@@ -2075,23 +2108,24 @@ class ApiBase(Resource):
             current_app.logger.exception(
                 "Exception {} API error: {}: {!r}", api_name, x, auditing
             )
-            if auditing["finalize"]:
-                attr = auditing.get("attributes", {})
-                attr["message"] = str(e)
-                Audit.create(
-                    root=auditing["audit"],
-                    status=AuditStatus.FAILURE,
-                    reason=AuditReason.INTERNAL,
-                    attributes=attr,
-                )
+            auditing.set_error(str(e), AuditReason.INTERNAL)
+            sync_message = str(e)
             abort(x.http_status, message=x.message)
-        if auditing["finalize"]:
-            Audit.create(
-                root=auditing["audit"],
-                status=auditing["status"],
-                reason=auditing["reason"],
-                attributes=auditing["attributes"],
-            )
+        finally:
+            # If the operation created a Sync object, it will have been updated
+            # and removed unless the operation failed. This means we're here
+            # because of an exception, and one of the handlers has set an
+            # appropriate message to record in the operations table.
+            sync: Optional[Sync] = context.get("sync")
+            if sync:
+                sync.update(dataset, OperationState.FAILED, message=sync_message)
+            if auditing.audit and auditing.finalize:
+                Audit.create(
+                    root=auditing.audit,
+                    status=auditing.status,
+                    reason=auditing.reason,
+                    attributes=auditing.attributes,
+                )
         return response
 
     def _get(self, args: ApiParams, req: Request, context: ApiContext) -> Response:

@@ -58,13 +58,16 @@ class TestDatasets(Commons):
         )
 
     @pytest.mark.parametrize(
-        "user,ao,expected_status",
+        "user,ao,idx,expected_status",
         [
-            ("drb", False, HTTPStatus.OK),
-            ("drb", True, HTTPStatus.OK),
-            ("test_admin", False, HTTPStatus.OK),
-            ("test", False, HTTPStatus.FORBIDDEN),
-            (None, False, HTTPStatus.UNAUTHORIZED),
+            ("drb", False, True, HTTPStatus.OK),
+            ("drb", False, False, HTTPStatus.NOT_FOUND),
+            ("drb", True, True, HTTPStatus.OK),
+            ("drb", True, False, HTTPStatus.OK),
+            ("test_admin", False, True, HTTPStatus.OK),
+            ("test_admin", False, False, HTTPStatus.NOT_FOUND),
+            ("test", False, False, HTTPStatus.FORBIDDEN),
+            (None, False, False, HTTPStatus.UNAUTHORIZED),
         ],
     )
     def test_empty_delete(
@@ -73,6 +76,7 @@ class TestDatasets(Commons):
         query_api,
         user,
         ao,
+        idx,
         expected_status,
         get_token_func,
     ):
@@ -88,13 +92,18 @@ class TestDatasets(Commons):
         else:
             user_id = None
 
+        drb = Dataset.query(name="drb")
+        index = None
         if ao:
             # Set archiveonly flag to disable index-map logic
-            drb = Dataset.query(name="drb")
             Metadata.setvalue(drb, Metadata.SERVER_ARCHIVE, True)
-            index = None
-        else:
+
+        # If we want an index, build the expected path; otherwise make sure
+        # the dataset doesn't have one.
+        if idx:
             index = self.build_index_from_metadata()
+        else:
+            IndexMap.delete(drb)
 
         response = query_api(
             self.pbench_endpoint,
@@ -148,10 +157,17 @@ class TestDatasets(Commons):
                 Dataset.query(name="drb")
         else:
             # On failure, the dataset should still exist
-            assert Dataset.query(name="drb")
-            assert response.json["message"].endswith(
-                "is not authorized to DELETE a resource owned by drb with private access"
-            )
+            drb = Dataset.query(name="drb")
+            ops = Metadata.getvalue(drb, "dataset.operations")
+            if expected_status == HTTPStatus.NOT_FOUND:
+                assert "FAILED" == ops["DELETE"]["state"]
+            else:
+                assert response.json["message"].endswith(
+                    "is not authorized to DELETE a resource owned by drb with private access"
+                )
+
+                # permission errors should be caught before auditing
+                assert len(Audit.query()) == 0
 
     @pytest.mark.parametrize(
         "user,ao,owner,access,expected_status",

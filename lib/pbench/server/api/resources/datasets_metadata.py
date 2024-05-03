@@ -131,7 +131,7 @@ class DatasetsMetadata(ApiBase):
         dataset = params.uri["dataset"]
         metadata = params.body["metadata"]
 
-        context["auditing"]["attributes"] = {"updated": metadata}
+        context["auditing"].add_attribute("updated", metadata)
 
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".

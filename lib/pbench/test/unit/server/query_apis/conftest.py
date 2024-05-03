@@ -64,7 +64,8 @@ def query_api(client, server_config, provide_metadata):
             The Pbench API response object
         """
         base_uri = server_config.get("Indexing", "uri")
-        es_url = f"{base_uri}{expected_index}{es_uri}"
+        idx = expected_index if expected_index is not None else "/"
+        es_url = f"{base_uri}{idx}{es_uri}"
         client_method = getattr(client, request_method.name.lower())
         if request_method == ApiMethod.GET:
             es_method = responses.GET

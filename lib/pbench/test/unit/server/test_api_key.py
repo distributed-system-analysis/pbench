@@ -67,7 +67,9 @@ class TestPostAPIKey:
         assert audit[1].user_id is None
         assert audit[1].user_name is None
         assert audit[1].reason is None
-        assert audit[1].attributes is None
+        assert audit[1].attributes == {
+            "error": "User provided access_token is invalid or expired"
+        }
 
     def test_successful_api_key_generation_with_name(
         self, query_post_as, pbench_drb_token
@@ -319,7 +321,7 @@ class TestAPIKeyDelete:
         assert audit[1].status == AuditStatus.FAILURE
         assert audit[1].name == "apikey"
         assert audit[1].object_type == AuditType.API_KEY
-        assert audit[1].attributes is None
+        assert audit[1].attributes == {"error": "Requested key not found"}
 
     def test_delete_api_key_fail(
         self, query_delete_as, get_token_func, pbench_drb_api_key, create_user

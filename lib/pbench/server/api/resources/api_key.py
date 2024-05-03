@@ -129,8 +129,9 @@ class APIKeyManage(ApiBase):
             status = HTTPStatus.OK
         except Exception as e:
             raise APIInternalError(str(e)) from e
-        context["auditing"]["attributes"] = key.as_json()
-        response = jsonify(key.as_json())
+        result = key.as_json()
+        context["auditing"].add_attributes(result)
+        response = jsonify(result)
         response.status_code = status
         return response
 
@@ -162,7 +163,7 @@ class APIKeyManage(ApiBase):
             raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
         key = keys[0]
         try:
-            context["auditing"]["attributes"] = key.as_json()
+            context["auditing"].add_attributes(key.as_json())
             key.delete()
             return "deleted", HTTPStatus.OK
         except Exception as e:
