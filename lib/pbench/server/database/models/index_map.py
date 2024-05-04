@@ -1,4 +1,4 @@
-from typing import Iterator, NewType, Optional
+from typing import NewType, Optional
 
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.exc import SQLAlchemyError
@@ -186,7 +186,7 @@ class IndexMap(Database.Base):
         cls.commit(dataset, "merge")
 
     @staticmethod
-    def indices(dataset: Dataset, root: Optional[str] = None) -> Iterator[str]:
+    def indices(dataset: Dataset, root: Optional[str] = None) -> list[str]:
         """Return the indices matching the specified root index name.
 
         Args:
@@ -207,7 +207,7 @@ class IndexMap(Database.Base):
         except SQLAlchemyError as e:
             raise IndexMapSqlError(e, operation="indices", dataset=dataset, name=root)
 
-        return (i.index for i in map)
+        return [str(i.index) for i in map]
 
     @staticmethod
     def exists(dataset: Dataset) -> bool:

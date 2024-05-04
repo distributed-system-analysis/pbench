@@ -33,7 +33,7 @@ def query_api(client, server_config, provide_metadata):
         expected_index: str,
         expected_status: str,
         headers: Optional[dict] = None,
-        request_method=ApiMethod.POST,
+        request_method: ApiMethod = ApiMethod.POST,
         query_params: Optional[JSONOBJECT] = None,
         expect_call: Optional[bool] = None,
         **kwargs,

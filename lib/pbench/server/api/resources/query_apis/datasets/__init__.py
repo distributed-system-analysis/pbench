@@ -11,7 +11,7 @@ from pbench.server.api.resources import (
     ParamType,
 )
 from pbench.server.api.resources.query_apis import ElasticBase
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.index_map import IndexMap
 from pbench.server.database.models.templates import Template
 
@@ -95,40 +95,36 @@ class IndexMapBase(ElasticBase):
     ) -> str:
         """Retrieve ES indices based on a given root_index_name.
 
-        Datasets marked "archiveonly" aren't indexed, and can't be referenced
-        in most APIs that rely on Elasticsearch. Instead, we'll raise a
-        CONFLICT error.
+        Datasets without an index can't be referenced in most APIs that rely on
+        Elasticsearch. Instead, we'll raise a CONFLICT error. However, the
+        /api/v1/datasets API will specify ok_no_index as they need to operate
+        on the dataset regardless of whether indexing is enabled.
+
+        All indices are returned if root_index_name is omitted.
 
         Args:
             dataset: dataset object
             root_index_name: A root index name like "run-data"
-            ok_no_index: Don't fail on an archiveonly dataset
+            ok_no_index: Don't fail if dataset has no indices
 
         Raises:
-            APIAbort(CONFLICT) if indexing was disabled on the target dataset.
-            APIAbort(NOT_FOUND) if the dataset has no matching index data
+            APIAbort(NOT_FOUND) if index is required and the dataset has none
 
         Returns:
             A string that joins all selected indices with ",", suitable for use
             in an Elasticsearch query URI.
         """
 
-        archive_only = Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE)
-        if archive_only:
-            if ok_no_index:
-                return ""
-            raise APIAbort(HTTPStatus.CONFLICT, "Dataset indexing was disabled")
+        index_keys = IndexMap.indices(dataset, root_index_name)
+        if index_keys:
+            return ",".join(index_keys)
+        if ok_no_index:
+            return ""
 
-        index_keys = list(IndexMap.indices(dataset, root_index_name))
-
-        if not index_keys:
-            raise APIAbort(
-                HTTPStatus.NOT_FOUND,
-                f"Dataset has no {root_index_name if root_index_name else 'indexed'!r} data",
-            )
-
-        indices = ",".join(index_keys)
-        return indices
+        raise APIAbort(
+            HTTPStatus.NOT_FOUND,
+            f"Dataset has no {root_index_name if root_index_name else 'indexed'!r} data",
+        )
 
     def get_aggregatable_fields(
         self, mappings: JSON, prefix: AnyStr = "", result: Union[List, None] = None

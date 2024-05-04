@@ -187,7 +187,7 @@ class Datasets(IndexMapBase):
         #
         # It's important that all context fields required for postprocessing
         # of unindexed datasets have been set before this!
-        indices = self.get_index(dataset, ok_no_index=(action != "get"))
+        indices = self.get_index(dataset, ok_no_index=True)
         context["indices"] = indices
         if not indices:
             return {}
@@ -234,7 +234,7 @@ class Datasets(IndexMapBase):
           and some other data. We mostly want to determine whether it was
           100% successful (before updating or deleting the dataset), but
           we also summarize the results for the client.
-        * For get, we directly return the "hit list".
+        * For get, we return a count of documents for each index name.
 
         Args:
             es_json: the Elasticsearch response document
@@ -249,22 +249,17 @@ class Datasets(IndexMapBase):
         current_app.logger.info("POSTPROCESS {}: {}", dataset.name, es_json)
         failures = 0
         if action == "get":
-            count = None
             hits = []
-            try:
-                count = es_json["hits"]["total"]["value"]
-                hits = es_json["hits"]["hits"]
-                if int(count) == 0:
+            if es_json:
+                try:
+                    hits = es_json["hits"]["hits"]
+                except KeyError as e:
                     raise APIInternalError(
-                        f"Elasticsearch returned no matches for {dataset.name}"
+                        f"Can't find search service match data for {dataset.name} ({e}) in {es_json!r}",
                     )
-            except KeyError as e:
+            if not isinstance(hits, list):
                 raise APIInternalError(
-                    f"Can't find Elasticsearch match data for {dataset.name} ({e}) in {es_json!r}",
-                )
-            except ValueError as e:
-                raise APIInternalError(
-                    f"Elasticsearch bad hit count {count!r} for {dataset.name}: {e}",
+                    f"search service did not return hits list ({type(hits).__name__})"
                 )
             results = defaultdict(int)
             for hit in hits:
