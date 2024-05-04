@@ -366,6 +366,31 @@ class TestDatasets(Commons):
         }
         assert expected == response.json
 
+    @pytest.mark.parametrize("op", (ApiMethod.POST, ApiMethod.DELETE))
+    def test_update_es_failure(self, client, query_api, get_token_func, op):
+        """Check that update operation status is finalized on failure"""
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+        drb = Dataset.query(name="drb")
+        path = "update" if op is ApiMethod.POST else "delete"
+        query_api(
+            pbench_uri=f"/datasets/{drb.resource_id}?access=public",
+            es_uri=f"/_{path}_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            headers=headers,
+            request_method=op,
+            expect_call=True,
+            body=Exception("I'm a crumbly search instance"),
+        )
+        ops = Metadata.getvalue(drb, "dataset.operations")
+        record = ops[path.upper()]
+        assert "FAILED" == record["state"], f"Unexpected operational state {ops}"
+
     def test_update_total_failure(self, client, query_api, get_token_func):
         """Check update with all Elasticsearch operations failing"""
 
