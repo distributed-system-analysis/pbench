@@ -48,7 +48,7 @@ echo "Keycloak redirect URI list is <${keycloak_redirect_uris}>."
 
 ADMIN_TOKEN=""
 while true; do
-  ADMIN_TOKEN=$(curl -s -f -X POST \
+  ADMIN_TOKEN=$(curl -sS -f -X POST \
     "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "username=${ADMIN_USERNAME}" \
