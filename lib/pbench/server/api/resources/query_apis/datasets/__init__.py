@@ -96,7 +96,7 @@ class IndexMapBase(ElasticBase):
         """Retrieve ES indices based on a given root_index_name.
 
         Datasets without an index can't be referenced in most APIs that rely on
-        Elasticsearch. Instead, we'll raise a CONFLICT error. However, the
+        Elasticsearch. Instead, we'll raise a NOT_FOUND error. However, the
         /api/v1/datasets API will specify ok_no_index as they need to operate
         on the dataset regardless of whether indexing is enabled.
 

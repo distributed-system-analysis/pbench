@@ -462,7 +462,7 @@ class TestIndexing:
     def test_details(self, server_client: PbenchServerClient, login_user):
         """Check access to indexed data
 
-        Perform a GET /datasets/details/{id} to be confirm whether indexed run
+        Perform a GET /datasets/details/{id} to confirm whether indexed run
         data is available.
         """
         print(" ... checking dataset RUN index ...")
@@ -477,7 +477,7 @@ class TestIndexing:
             indexed = bool(indices.json())
             print(
                 f"\t... checking run details for {d.name} "
-                f"({'' if indexed else 'not '} indexed)"
+                f"({'' if indexed else 'not '}indexed)"
             )
             response = server_client.get(
                 API.DATASETS_DETAIL, {"dataset": d.resource_id}, raise_error=False
@@ -490,7 +490,7 @@ class TestIndexing:
                 assert (
                     d.metadata["dataset.metalog.pbench"]["script"]
                     == detail["runMetadata"]["script"]
-                ), f"Unexpected details {detail}"
+                )
             else:
                 assert (
                     response.status_code == HTTPStatus.NOT_FOUND

@@ -70,7 +70,7 @@ echo
 echo "Keycloak connection successful on : ${KEYCLOAK_HOST_PORT}"
 echo
 
-status_code=$(curl -f -s -o /dev/null -w "%{http_code}" -X POST \
+status_code=$(curl -f -sS -o /dev/null -w "%{http_code}" -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -88,7 +88,7 @@ fi
 # a token from Keycloak using a <client_id>.
 # Having <client_id> in the aud claim of the token is essential for the token
 # to be validated.
-curl -si -f -X POST \
+curl -sSi -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -117,7 +117,7 @@ curl -si -f -X POST \
       ]
     }'
 
-CLIENT_CONF=$(curl -si -f -X POST \
+CLIENT_CONF=$(curl -sSi -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -138,7 +138,7 @@ else
   echo "Created ${CLIENT} client"
 fi
 
-status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+status_code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -151,7 +151,7 @@ else
   echo "Created an 'ADMIN' role under ${CLIENT} client of the ${REALM} realm"
 fi
 
-ROLE_ID=$(curl -s -f "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
+ROLE_ID=$(curl -sS -f "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" | jq -r '.[0].id')
 
 if [[ -z "${ROLE_ID}" ]]; then
@@ -159,7 +159,7 @@ if [[ -z "${ROLE_ID}" ]]; then
   exit 1
 fi
 
-USER=$(curl -si -f -X POST \
+USER=$(curl -sSi -f -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -174,7 +174,7 @@ else
   echo "Created an 'admin' user inside ${REALM} realm"
 fi
 
-status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+status_code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
   "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -188,7 +188,7 @@ else
 fi
 
 # Verify that the user id has an 'ADMIN' role assigned to it
-USER_ROLES=$(curl -s "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
+USER_ROLES=$(curl -sS "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" | jq -r '.[].name')
 
