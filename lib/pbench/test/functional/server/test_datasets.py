@@ -462,16 +462,23 @@ class TestIndexing:
     def test_details(self, server_client: PbenchServerClient, login_user):
         """Check access to indexed data
 
-        Perform a GET /datasets/details/{id} to be sure that basic run data
-        has been indexed and is available.
+        Perform a GET /datasets/details/{id} to confirm whether indexed run
+        data is available.
         """
         print(" ... checking dataset RUN index ...")
         datasets = server_client.get_list(
-            metadata=["dataset.metalog.pbench,server.archiveonly"], owner="tester"
+            metadata=["dataset.metalog.pbench"], owner="tester"
         )
         for d in datasets:
-            print(f"\t... checking run index for {d.name}")
-            indexed = not d.metadata["server.archiveonly"]
+
+            # Query the dataset's indices: if the returned object is empty,
+            # there are none.
+            indices = server_client.get(API.DATASETS, {"dataset": d.resource_id})
+            indexed = bool(indices.json())
+            print(
+                f"\t... checking run details for {d.name} "
+                f"({'' if indexed else 'not '}indexed)"
+            )
             response = server_client.get(
                 API.DATASETS_DETAIL, {"dataset": d.resource_id}, raise_error=False
             )
@@ -486,9 +493,9 @@ class TestIndexing:
                 )
             else:
                 assert (
-                    response.status_code == HTTPStatus.CONFLICT
+                    response.status_code == HTTPStatus.NOT_FOUND
                 ), f"Unexpected {response.json()['message']}"
-                print(f"\t\t... {d.name} is archiveonly")
+                assert response.json()["message"] == "Dataset has no 'run-data' data"
 
 
 class TestList:

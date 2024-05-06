@@ -12,6 +12,7 @@ from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
     ApiSchema,
+    AuditContext,
     MissingParameters,
     Parameter,
     ParamType,
@@ -121,9 +122,9 @@ class Datasets(IndexMapBase):
         """
 
         dataset = context["dataset"]
+        auditing: AuditContext = context["auditing"]
         action = context["attributes"].action
         context["action"] = action
-        audit_attributes = {}
         access = None
         owner = None
         elastic_options = {"ignore_unavailable": "true"}
@@ -152,7 +153,6 @@ class Datasets(IndexMapBase):
                     f"can't set {OperationState.WORKING.name} on {dataset.name}: {str(e)!r} "
                 )
             context["sync"] = sync
-            context["auditing"]["attributes"] = audit_attributes
             if action == "update":
                 access = params.query.get("access")
                 owner = params.query.get("owner")
@@ -168,12 +168,12 @@ class Datasets(IndexMapBase):
                         )
 
                 if access:
-                    audit_attributes["access"] = access
+                    auditing.add_attribute("access", access)
                     context["access"] = access
                 else:
                     access = dataset.access
                 if owner:
-                    audit_attributes["owner"] = owner
+                    auditing.add_attribute("owner", owner)
                     context["owner"] = owner
                 else:
                     owner = dataset.owner_id
@@ -187,7 +187,7 @@ class Datasets(IndexMapBase):
         #
         # It's important that all context fields required for postprocessing
         # of unindexed datasets have been set before this!
-        indices = self.get_index(dataset, ok_no_index=(action != "get"))
+        indices = self.get_index(dataset, ok_no_index=True)
         context["indices"] = indices
         if not indices:
             return {}
@@ -234,7 +234,7 @@ class Datasets(IndexMapBase):
           and some other data. We mostly want to determine whether it was
           100% successful (before updating or deleting the dataset), but
           we also summarize the results for the client.
-        * For get, we directly return the "hit list".
+        * For get, we return a count of documents for each index name.
 
         Args:
             es_json: the Elasticsearch response document
@@ -245,25 +245,21 @@ class Datasets(IndexMapBase):
         """
         action = context["action"]
         dataset = context["dataset"]
+        auditing: AuditContext = context["auditing"]
         current_app.logger.info("POSTPROCESS {}: {}", dataset.name, es_json)
         failures = 0
         if action == "get":
-            count = None
             hits = []
-            try:
-                count = es_json["hits"]["total"]["value"]
-                hits = es_json["hits"]["hits"]
-                if int(count) == 0:
+            if es_json:
+                try:
+                    hits = es_json["hits"]["hits"]
+                except KeyError as e:
                     raise APIInternalError(
-                        f"Elasticsearch returned no matches for {dataset.name}"
+                        f"Can't find search service match data for {dataset.name} ({e}) in {es_json!r}",
                     )
-            except KeyError as e:
+            if not isinstance(hits, list):
                 raise APIInternalError(
-                    f"Can't find Elasticsearch match data for {dataset.name} ({e}) in {es_json!r}",
-                )
-            except ValueError as e:
-                raise APIInternalError(
-                    f"Elasticsearch bad hit count {count!r} for {dataset.name}: {e}",
+                    f"search service did not return hits list ({type(hits).__name__})"
                 )
             results = defaultdict(int)
             for hit in hits:
@@ -283,7 +279,7 @@ class Datasets(IndexMapBase):
                     "version_conflicts": 0,
                     "failures": 0,
                 }
-            context["auditing"]["attributes"]["results"] = results
+            auditing.add_attribute("results", results)
 
             if failures == 0:
                 if action == "update":
@@ -318,15 +314,19 @@ class Datasets(IndexMapBase):
             # it's still set then our `sync` local is valid and we want to get
             # it out of "WORKING" state.
             sync = context.get("sync")
-            auditing = context["auditing"]
             if sync:
-                state = OperationState.OK if not failures else OperationState.FAILED
+                if failures:
+                    state = OperationState.FAILED
+                    message = f"Unable to {action} some indexed documents"
+                else:
+                    state = OperationState.OK
+                    message = None
                 try:
-                    sync.update(dataset=dataset, state=state)
+                    sync.update(dataset=dataset, state=state, message=message)
+                    del context["sync"]
                 except Exception as e:
-                    auditing["attributes"] = {"message": str(e)}
-                    auditing["status"] = AuditStatus.WARNING
-                    auditing["reason"] = AuditReason.INTERNAL
+                    auditing.set_error(str(e), reason=AuditReason.INTERNAL)
+                    auditing.status = AuditStatus.WARNING
                     raise APIInternalError(
                         f"Unexpected sync error {dataset.name} {str(e)!r}"
                     ) from e
@@ -336,19 +336,15 @@ class Datasets(IndexMapBase):
             # experienced total failure. Either way, the operation can be retried
             # if some documents failed to update.
             if results["failures"] and results["failures"] == results["total"]:
-                auditing["status"] = AuditStatus.WARNING
-                auditing["reason"] = AuditReason.INTERNAL
-                auditing["attributes"][
-                    "message"
-                ] = f"Unable to {action} some indexed documents"
+                auditing.status = AuditStatus.WARNING
+                auditing.reason = AuditReason.INTERNAL
+                auditing.add_attribute(
+                    "message", f"Unable to {action} some indexed documents"
+                )
                 raise APIInternalError(
                     f"Failed to {action} any of {results['total']} "
                     f"Elasticsearch documents: {es_json}"
                 )
-            elif sync:
-                sync.error(
-                    dataset=dataset,
-                    message=f"Unable to {action} some indexed documents",
-                )
+
         # construct response object
         return jsonify(results)

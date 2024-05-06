@@ -58,13 +58,16 @@ class TestDatasets(Commons):
         )
 
     @pytest.mark.parametrize(
-        "user,ao,expected_status",
+        "user,ao,idx,expected_status",
         [
-            ("drb", False, HTTPStatus.OK),
-            ("drb", True, HTTPStatus.OK),
-            ("test_admin", False, HTTPStatus.OK),
-            ("test", False, HTTPStatus.FORBIDDEN),
-            (None, False, HTTPStatus.UNAUTHORIZED),
+            ("drb", False, True, HTTPStatus.OK),
+            ("drb", False, False, HTTPStatus.OK),
+            ("drb", True, True, HTTPStatus.OK),
+            ("drb", True, False, HTTPStatus.OK),
+            ("test_admin", False, True, HTTPStatus.OK),
+            ("test_admin", False, False, HTTPStatus.OK),
+            ("test", False, False, HTTPStatus.FORBIDDEN),
+            (None, False, False, HTTPStatus.UNAUTHORIZED),
         ],
     )
     def test_empty_delete(
@@ -73,6 +76,7 @@ class TestDatasets(Commons):
         query_api,
         user,
         ao,
+        idx,
         expected_status,
         get_token_func,
     ):
@@ -88,24 +92,30 @@ class TestDatasets(Commons):
         else:
             user_id = None
 
+        drb = Dataset.query(name="drb")
+        index = None
         if ao:
             # Set archiveonly flag to disable index-map logic
-            drb = Dataset.query(name="drb")
             Metadata.setvalue(drb, Metadata.SERVER_ARCHIVE, True)
-            index = None
-        else:
-            index = self.build_index_from_metadata()
 
+        # If we want an index, build the expected path; otherwise make sure
+        # the dataset doesn't have one.
+        if idx:
+            index = self.build_index_from_metadata()
+        else:
+            IndexMap.delete(drb)
+
+        expect_a_call = expected_status == HTTPStatus.OK and idx
         response = query_api(
-            self.pbench_endpoint,
-            self.elastic_endpoint,
+            pbench_uri=self.pbench_endpoint,
+            es_uri=self.elastic_endpoint,
             payload=None,
             expected_index=index,
             expected_status=expected_status,
-            request_method=self.api_method,
-            json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
-            expect_call=(expected_status == HTTPStatus.OK and not ao),
+            request_method=self.api_method,
+            expect_call=expect_a_call,
+            json=EMPTY_DELDATE_RESPONSE,
         )
         if response.status_code == HTTPStatus.OK:
             expected = {
@@ -148,24 +158,28 @@ class TestDatasets(Commons):
                 Dataset.query(name="drb")
         else:
             # On failure, the dataset should still exist
-            assert Dataset.query(name="drb")
+            Dataset.query(name="drb")
             assert response.json["message"].endswith(
                 "is not authorized to DELETE a resource owned by drb with private access"
             )
 
+            # permission errors should be caught before auditing
+            assert len(Audit.query()) == 0
+
     @pytest.mark.parametrize(
-        "user,ao,owner,access,expected_status",
+        "user,ao,idx,owner,access,expected_status",
         [
-            ("drb", False, None, "public", HTTPStatus.OK),
-            ("drb", True, None, "public", HTTPStatus.OK),
-            ("test_admin", False, "test", None, HTTPStatus.OK),
-            ("test", False, None, "public", HTTPStatus.FORBIDDEN),
-            (None, False, None, "public", HTTPStatus.UNAUTHORIZED),
-            ("drb", False, "test", "public", HTTPStatus.FORBIDDEN),
-            ("drb", True, "test", None, HTTPStatus.FORBIDDEN),
-            ("test_admin", False, None, None, HTTPStatus.BAD_REQUEST),
-            ("test", False, "test", None, HTTPStatus.FORBIDDEN),
-            (None, False, "drb", None, HTTPStatus.UNAUTHORIZED),
+            ("drb", False, True, None, "public", HTTPStatus.OK),
+            ("drb", False, False, None, "public", HTTPStatus.OK),
+            ("drb", True, True, None, "public", HTTPStatus.OK),
+            ("test_admin", False, True, "test", None, HTTPStatus.OK),
+            ("test", False, True, None, "public", HTTPStatus.FORBIDDEN),
+            (None, False, True, None, "public", HTTPStatus.UNAUTHORIZED),
+            ("drb", False, True, "test", "public", HTTPStatus.FORBIDDEN),
+            ("drb", True, True, "test", None, HTTPStatus.FORBIDDEN),
+            ("test_admin", False, True, None, None, HTTPStatus.BAD_REQUEST),
+            ("test", False, True, "test", None, HTTPStatus.FORBIDDEN),
+            (None, False, True, "drb", None, HTTPStatus.UNAUTHORIZED),
         ],
     )
     def test_update(
@@ -175,6 +189,7 @@ class TestDatasets(Commons):
         get_token_func,
         user,
         ao,
+        idx,
         owner,
         access,
         expected_status,
@@ -192,12 +207,17 @@ class TestDatasets(Commons):
             user_id = None
 
         drb = Dataset.query(name="drb")
+        index = None
         if ao:
             # Set archiveonly flag to disable index-map logic
             Metadata.setvalue(drb, Metadata.SERVER_ARCHIVE, True)
-            index = None
-        else:
+
+        # If we want an index, build the expected path; otherwise make sure
+        # the dataset doesn't have one.
+        if idx:
             index = self.build_index_from_metadata()
+        else:
+            IndexMap.delete(drb)
 
         expected_owner = drb.owner_id
         original_owner = drb.owner_id
@@ -222,16 +242,17 @@ class TestDatasets(Commons):
         else:
             query = ""
 
+        expect_a_call = expected_status == HTTPStatus.OK and idx
         response = query_api(
-            f"/datasets/random_md5_string1{query}",
-            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            pbench_uri=f"/datasets/random_md5_string1{query}",
+            es_uri="/_update_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
             expected_status=expected_status,
-            request_method=ApiMethod.POST,
-            json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
-            expect_call=(expected_status == HTTPStatus.OK and not ao),
+            request_method=ApiMethod.POST,
+            expect_call=expect_a_call,
+            json=EMPTY_DELDATE_RESPONSE,
         )
 
         # Look up the post-update dataset
@@ -326,15 +347,15 @@ class TestDatasets(Commons):
             "failures": ["bad"],
         }
         response = query_api(
-            "/datasets/random_md5_string1?access=public",
-            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            pbench_uri="/datasets/random_md5_string1?access=public",
+            es_uri="/_update_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
             expected_status=HTTPStatus.OK,
-            request_method=ApiMethod.POST,
-            json=es_json,
             headers=headers,
+            request_method=ApiMethod.POST,
             expect_call=True,
+            json=es_json,
         )
         expected = {
             "total": 2,
@@ -344,6 +365,31 @@ class TestDatasets(Commons):
             "version_conflicts": 0,
         }
         assert expected == response.json
+
+    @pytest.mark.parametrize("op", (ApiMethod.POST, ApiMethod.DELETE))
+    def test_update_es_failure(self, client, query_api, get_token_func, op):
+        """Check that update operation status is finalized on failure"""
+
+        token = get_token_func("drb")
+        assert token
+        headers = {"authorization": f"bearer {token}"}
+        index = self.build_index_from_metadata()
+        drb = Dataset.query(name="drb")
+        path = "update" if op is ApiMethod.POST else "delete"
+        query_api(
+            pbench_uri=f"/datasets/{drb.resource_id}?access=public",
+            es_uri=f"/_{path}_by_query?ignore_unavailable=true&refresh=true",
+            payload=None,
+            expected_index=index,
+            expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            headers=headers,
+            request_method=op,
+            expect_call=True,
+            body=Exception("I'm a crumbly search instance"),
+        )
+        ops = Metadata.getvalue(drb, "dataset.operations")
+        record = ops[path.upper()]
+        assert "FAILED" == record["state"], f"Unexpected operational state {ops}"
 
     def test_update_total_failure(self, client, query_api, get_token_func):
         """Check update with all Elasticsearch operations failing"""
@@ -370,20 +416,22 @@ class TestDatasets(Commons):
             "failures": ["bad", "me too"],
         }
         query_api(
-            "/datasets/random_md5_string1?access=public",
-            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            pbench_uri="/datasets/random_md5_string1?access=public",
+            es_uri="/_update_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
             expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-            request_method=ApiMethod.POST,
-            json=es_json,
             headers=headers,
+            request_method=ApiMethod.POST,
             expect_call=True,
+            json=es_json,
         )
 
-    @pytest.mark.parametrize("ao", (True, False))
+    @pytest.mark.parametrize(
+        "ao,idx", ((True, True), (True, False), (False, True), (False, False))
+    )
     def test_get(
-        self, monkeypatch, more_datasets, client, query_api, build_auth_header, ao
+        self, monkeypatch, more_datasets, client, query_api, build_auth_header, ao, idx
     ):
         """Check on the GET summary behavior
 
@@ -401,46 +449,45 @@ class TestDatasets(Commons):
 
         ds = Dataset.query(name="drb")
         json = copy.deepcopy(self.empty_es_response_payload)
+        index = None
         if ao:
             # Set archiveonly flag to disable index-map logic
             Metadata.setvalue(ds, Metadata.SERVER_ARCHIVE, True)
-            index = None
-            if expected_status == HTTPStatus.OK:
-                expected_status = HTTPStatus.CONFLICT
-            monkeypatch.setattr(IndexMap, "indices", lambda _d: [])
-            expected = {}
-        else:
-            indices = list(IndexMap.indices(ds))
+
+        expected = {}
+        if idx:
+            indices = IndexMap.indices(ds)
             index = "/" + ",".join(indices)
             hits = []
-            expected = {}
             for i, n in enumerate(indices):
                 hits.append({"_index": n, "_id": i, "_source": {"data": f"{n}_{i}"}})
                 expected[n] = 1
-            json["hits"]["total"]["value"] = str(len(hits))
+            json["hits"]["total"]["value"] = len(hits)
             json["hits"]["hits"] = hits
+        else:
+            IndexMap.delete(ds)
 
+        expect_a_call = expected_status == HTTPStatus.OK and idx
         response = query_api(
-            self.pbench_endpoint,
-            "/_search?ignore_unavailable=true",
-            self.payload,
-            index,
-            expected_status,
-            request_method=ApiMethod.GET,
+            pbench_uri=self.pbench_endpoint,
+            es_uri="/_search?ignore_unavailable=true",
+            payload=self.payload,
+            expected_index=index,
+            expected_status=expected_status,
             headers=build_auth_header["header"],
+            request_method=ApiMethod.GET,
+            expect_call=expect_a_call,
             json=json,
         )
         if expected_status == HTTPStatus.OK:
             assert expected == response.json
-        elif expected_status == HTTPStatus.CONFLICT:
-            assert {"message": "Dataset indexing was disabled"} == response.json
         else:
             assert {
                 "message": "Unauthenticated client is not authorized to READ a resource owned by drb with private access"
             } == response.json
 
-    @pytest.mark.parametrize("value", (None, "not-integer", 0))
-    def test_bad_get(self, client, query_api, get_token_func, value):
+    @pytest.mark.parametrize("hits", (None, 0, "string", {}))
+    def test_bad_get(self, client, query_api, get_token_func, hits):
         """Check a GET with bad Elasticsearch hit counts"""
 
         token = get_token_func("drb")
@@ -458,20 +505,20 @@ class TestDatasets(Commons):
                 "hits": [],
             },
         }
-        if value is None:
-            del json["hits"]["total"]["value"]
+        if hits is None:
+            del json["hits"]["hits"]
         else:
-            json["hits"]["total"]["value"] = value
+            json["hits"]["hits"] = hits
         query_api(
-            self.pbench_endpoint,
-            "/_search?ignore_unavailable=true",
-            self.payload,
-            index,
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-            request_method=ApiMethod.GET,
+            pbench_uri=self.pbench_endpoint,
+            es_uri="/_search?ignore_unavailable=true",
+            payload=self.payload,
+            expected_index=index,
+            expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
             headers=headers,
-            json=json,
+            request_method=ApiMethod.GET,
             expect_call=True,
+            json=json,
         )
 
     def test_update_unstable(self, monkeypatch, client, query_api, get_token_func):
@@ -491,14 +538,14 @@ class TestDatasets(Commons):
         )
 
         response = query_api(
-            "/datasets/random_md5_string1?access=public",
-            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            pbench_uri="/datasets/random_md5_string1?access=public",
+            es_uri="/_update_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
             expected_status=HTTPStatus.CONFLICT,
+            headers=headers,
             request_method=ApiMethod.POST,
             json=EMPTY_DELDATE_RESPONSE,
-            headers=headers,
         )
 
         assert {"message": "Dataset is working on INDEX"} == response.json
@@ -519,14 +566,14 @@ class TestDatasets(Commons):
         monkeypatch.setattr(Sync, "update", fails)
 
         query_api(
-            "/datasets/random_md5_string1?access=public",
-            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            pbench_uri="/datasets/random_md5_string1?access=public",
+            es_uri="/_update_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
             expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            headers=headers,
             request_method=ApiMethod.POST,
             json=EMPTY_DELDATE_RESPONSE,
-            headers=headers,
         )
 
     def test_update_bad_final_sync(
@@ -548,15 +595,15 @@ class TestDatasets(Commons):
         monkeypatch.setattr(Sync, "update", fails)
 
         query_api(
-            "/datasets/random_md5_string1?access=public",
-            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            pbench_uri="/datasets/random_md5_string1?access=public",
+            es_uri="/_update_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
             expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-            request_method=ApiMethod.POST,
-            json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
+            request_method=ApiMethod.POST,
             expect_call=True,
+            json=EMPTY_DELDATE_RESPONSE,
         )
 
     def test_update_bad_update(self, monkeypatch, client, query_api, get_token_func):
@@ -573,15 +620,15 @@ class TestDatasets(Commons):
         monkeypatch.setattr(Dataset, "update", fails)
 
         query_api(
-            "/datasets/random_md5_string1?access=public",
-            "/_update_by_query?ignore_unavailable=true&refresh=true",
+            pbench_uri="/datasets/random_md5_string1?access=public",
+            es_uri="/_update_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
             expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-            request_method=ApiMethod.POST,
-            json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
+            request_method=ApiMethod.POST,
             expect_call=True,
+            json=EMPTY_DELDATE_RESPONSE,
         )
 
     def test_update_bad_delete(self, monkeypatch, client, query_api, get_token_func):
@@ -598,13 +645,13 @@ class TestDatasets(Commons):
         monkeypatch.setattr(Dataset, "delete", fails)
 
         query_api(
-            "/datasets/random_md5_string1",
-            "/_delete_by_query?ignore_unavailable=true&refresh=true",
+            pbench_uri="/datasets/random_md5_string1",
+            es_uri="/_delete_by_query?ignore_unavailable=true&refresh=true",
             payload=None,
             expected_index=index,
             expected_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-            request_method=ApiMethod.DELETE,
-            json=EMPTY_DELDATE_RESPONSE,
             headers=headers,
+            request_method=ApiMethod.DELETE,
             expect_call=True,
+            json=EMPTY_DELDATE_RESPONSE,
         )

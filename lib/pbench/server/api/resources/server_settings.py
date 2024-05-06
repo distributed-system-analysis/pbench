@@ -153,7 +153,7 @@ class ServerSettings(ApiBase):
                     f"No value found for server settings key {key!r}",
                 )
 
-        context["auditing"]["attributes"] = {"updated": {key: value}}
+        context["auditing"].add_attribute("updated", {key: value})
 
         try:
             ServerSetting.set(key=key, value=value)
@@ -186,7 +186,7 @@ class ServerSettings(ApiBase):
                 f"Unrecognized server settings {sorted(badkeys)!r} specified: valid settings are {sorted(ServerSetting.KEYS)!r}",
             )
 
-        context["auditing"]["attributes"] = {"updated": params.body}
+        context["auditing"].add_attribute("updated", params.body)
 
         failures = []
         response = {}
