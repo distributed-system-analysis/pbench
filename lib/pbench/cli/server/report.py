@@ -406,6 +406,9 @@ def summarize_dates(base_query: Query, options: dict[str, Any]):
     year = month.replace(month=1)
     week = day - datetime.timedelta(days=7)
 
+    first: Optional[datetime.datetime] = None
+    last: Optional[datetime.datetime] = None
+
     this_year = 0
     this_month = 0
     this_week = 0
@@ -419,6 +422,10 @@ def summarize_dates(base_query: Query, options: dict[str, Any]):
     # PostgreSQL doesn't allow filtering on renamed columns.)
     subquery = base_query.subquery()
     query = Database.db_session.query(subquery.c.date)
+    if since and until:
+        if since > until:
+            raise Exception("The --until value must be later than the --since value")
+
     if since:
         verifier.status(f"Filter since {since}")
         filters.append(subquery.c.date >= since)
@@ -426,10 +433,14 @@ def summarize_dates(base_query: Query, options: dict[str, Any]):
         verifier.status(f"Filter until {until}")
         filters.append(subquery.c.date <= until)
     if filters:
-        query = query.filter(*filters)
+        query = query.filter(*filters).order_by(subquery.c.date)
     rows = query.execution_options(stream_results=True).yield_per(SQL_CHUNK)
 
     for row in rows:
+        if not first:
+            first = row[0]
+        last = row[0]
+        in_range += 1
         date: datetime.datetime = row[0]
         if not isinstance(date, datetime.datetime):
             detailer.message(f"Got non-datetime row {row}")
@@ -449,17 +460,21 @@ def summarize_dates(base_query: Query, options: dict[str, Any]):
                     if date >= day:
                         this_day += 1
 
-        if date >= start and date < end:
-            in_range += 1
+    if not first:
+        click.echo(
+            f" No datasets found between {start:%Y-%m-%d %H:%M} and {end:%Y-%m-%d %H:%M}"
+        )
+        return
 
-    click.echo(f"  {in_range:,d} from {start:%Y-%m-%d %H:%M} to {end:%Y-%m-%d %H:%M}")
-    if start <= year:
+    click.echo(f" {in_range:,d} from {first:%Y-%m-%d %H:%M} to {last:%Y-%m-%d %H:%M}")
+
+    if start < year:
         click.echo(f"    {this_year:,d} in year {year:%Y}")
-    if start <= month:
+    if start < month:
         click.echo(f"    {this_month:,d} in month {month:%B %Y}")
-    if start <= week:
+    if start < week:
         click.echo(f"    {this_week:,d} in week {week:%B %d} to {day:%B %d}")
-    if start <= day:
+    if start < day:
         click.echo(f"    {this_day:,d} on {day:%d %B %Y}")
 
     click.echo(" Total by year:")
@@ -717,7 +732,7 @@ def report_states():
 @click.option(
     "--statistics",
     type=click.Choice(["creation", "upload"], case_sensitive=False),
-    help="Show upload statistics",
+    help="Show dataset statistics by creation or upload timestamp",
 )
 @click.option(
     "--until",
@@ -784,7 +799,7 @@ def report(context: object, **kwargs):
             logger.exception("An error occurred discovering the file tree: {}", exc)
         if kwargs.get("verify"):
             raise
-        click.secho(exc, err=True, bg="red")
+        click.secho(exc, err=True, fg="red")
         rv = 2 if isinstance(exc, BadConfig) else 1
 
     click.get_current_context().exit(rv)
