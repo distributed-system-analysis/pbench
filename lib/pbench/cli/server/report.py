@@ -369,17 +369,30 @@ def columnize(
         click.echo(line)
 
 
-def summarize_dates(query: Query, options: dict[str, Any]):
+def summarize_dates(base_query: Query, options: dict[str, Any]):
+    """Collect and report statistics
+
+    The caller supplies a base query providing a "date" column, effectively
+    "SELECT dataset.upload AS date" so that we can filter on the date and
+    process each match.
+
+    Args:
+        base_query: a SQLAlchemy Query producing a "date" column
+        options: The Click option dictionary
+    """
     width: int = options.get("width")
+    since = options.get("since")
+    until = options.get("until")
+
     by_year = defaultdict(int)
     by_month = defaultdict(int)
     by_day = defaultdict(int)
     by_weekday = defaultdict(int)
     by_hour = defaultdict(int)
-    since = options.get("since")
-    until = options.get("until")
 
-    start = since if since else datetime.datetime.fromtimestamp(0.0)
+    start = (
+        since if since else datetime.datetime.fromtimestamp(0.0, datetime.timezone.utc)
+    )
     end = until if until else datetime.datetime.now(datetime.timezone.utc)
 
     # It's convenient to use `--until YYYY-MM-01` to see a month (though
@@ -400,7 +413,11 @@ def summarize_dates(query: Query, options: dict[str, Any]):
     in_range = 0
 
     filters = []
-    subquery = query.subquery()
+
+    # Create a subquery from our basic select parameters so that we can use
+    # the label (SQL "AS date") in our WHERE filter clauses. (In a direct query
+    # PostgreSQL doesn't allow filtering on renamed columns.)
+    subquery = base_query.subquery()
     query = Database.db_session.query(subquery.c.date)
     if since:
         verifier.status(f"Filter since {since}")
@@ -435,13 +452,15 @@ def summarize_dates(query: Query, options: dict[str, Any]):
         if date >= start and date < end:
             in_range += 1
 
-    click.echo(
-        f"  {in_range:,d} since {start:%Y-%m-%d %H:%M} until {end:%Y-%m-%d %H:%M}"
-    )
-    click.echo(f"    {this_year:,d} in year {year:%Y}")
-    click.echo(f"    {this_month:,d} in month {month:%B %Y}")
-    click.echo(f"    {this_week:,d} in week {week:%B %d} to {day:%B %d}")
-    click.echo(f"    {this_day:,d} on {day:%d %B %Y}")
+    click.echo(f"  {in_range:,d} from {start:%Y-%m-%d %H:%M} to {end:%Y-%m-%d %H:%M}")
+    if start <= year:
+        click.echo(f"    {this_year:,d} in year {year:%Y}")
+    if start <= month:
+        click.echo(f"    {this_month:,d} in month {month:%B %Y}")
+    if start <= week:
+        click.echo(f"    {this_week:,d} in week {week:%B %d} to {day:%B %d}")
+    if start <= day:
+        click.echo(f"    {this_day:,d} on {day:%d %B %Y}")
 
     click.echo(" Total by year:")
     columnize(by_year, width)
