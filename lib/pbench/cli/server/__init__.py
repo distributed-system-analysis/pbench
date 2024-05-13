@@ -23,13 +23,16 @@ class DateParser(ParamType):
     def convert(
         self, value: Any, param: Optional[Parameter], ctx: Optional[Context]
     ) -> Any:
-        if isinstance(value, datetime.datetime):
-            return value
-
-        try:
-            return parser.parse(value)
-        except Exception as e:
-            self.fail(f"{value!r} cannot be converted to a datetime: {str(e)!r}")
+        if isinstance(value, str):
+            try:
+                value = parser.parse(value)
+            except Exception as e:
+                self.fail(f"{value!r} cannot be converted to a datetime: {str(e)!r}")
+        if not isinstance(value, datetime.datetime):
+            self.fail(f"{value!r} ({type(value).__name__}) is unsupported.")
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=datetime.timezone.utc)
+        return value
 
 
 class Detail:

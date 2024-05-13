@@ -5,14 +5,15 @@ from pathlib import Path
 import re
 import shutil
 import time
-from typing import Any, Iterator, Optional, Union
+from typing import Any, Optional, Union
 
 import click
 import humanize
-from sqlalchemy import cast, inspect, Row, select, text
+from sqlalchemy import cast, inspect, select, text
+from sqlalchemy.orm import Query
 
 from pbench.cli import pass_cli_context
-from pbench.cli.server import config_setup, Detail, Verify, Watch
+from pbench.cli.server import config_setup, DateParser, Detail, Verify, Watch
 from pbench.cli.server.options import common_options
 from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
@@ -368,30 +369,82 @@ def columnize(
         click.echo(line)
 
 
-def summarize_dates(rows: Iterator[Row], width: int = 80):
+def summarize_dates(base_query: Query, options: dict[str, Any]):
+    """Collect and report statistics
+
+    The caller supplies a base query providing a "date" column, effectively
+    "SELECT dataset.upload AS date" so that we can filter on the date and
+    process each match.
+
+    Args:
+        base_query: a SQLAlchemy Query producing a "date" column
+        options: The Click option dictionary
+    """
+    width: int = options.get("width")
+    since = options.get("since")
+    until = options.get("until")
+
+    if since and until and since > until:
+        raise Exception("The --until value must be later than the --since value")
+
     by_year = defaultdict(int)
     by_month = defaultdict(int)
     by_day = defaultdict(int)
     by_weekday = defaultdict(int)
     by_hour = defaultdict(int)
 
-    day = datetime.datetime.now(datetime.timezone.utc).replace(
-        hour=0, minute=0, second=0, microsecond=0
+    start = (
+        since if since else datetime.datetime.fromtimestamp(0.0, datetime.timezone.utc)
     )
+    end = until if until else datetime.datetime.now(datetime.timezone.utc)
+
+    # It's convenient to use `--until YYYY-MM-01` to see a month (though
+    # technically that would include a YYYY-MM-01:00:00.00 timestamp), but
+    # bucketizing the day or week based on that anomaly isn't very useful, so
+    # back up the "day" one millisecond to move it into the last day of the
+    # previous month.
+    day = end - datetime.timedelta(milliseconds=1)
+    day = day.replace(hour=0, minute=0, second=0, microsecond=0)
     month = day.replace(day=1)
     year = month.replace(month=1)
     week = day - datetime.timedelta(days=7)
+
+    first: Optional[datetime.datetime] = None
+    last: Optional[datetime.datetime] = None
 
     this_year = 0
     this_month = 0
     this_week = 0
     this_day = 0
+    in_range = 0
+
+    filters = []
+
+    # Create a subquery from our basic select parameters so that we can use
+    # the label (SQL "AS date") in our WHERE filter clauses. (In a direct query
+    # PostgreSQL doesn't allow filtering on renamed columns.)
+    subquery = base_query.subquery()
+    query = Database.db_session.query(subquery.c.date).order_by(subquery.c.date)
+
+    if since:
+        verifier.status(f"Filter since {since}")
+        filters.append(subquery.c.date >= since)
+    if until:
+        verifier.status(f"Filter until {until}")
+        filters.append(subquery.c.date <= until)
+    if filters:
+        query = query.filter(*filters)
+    rows = query.execution_options(stream_results=True).yield_per(SQL_CHUNK)
 
     for row in rows:
         date: datetime.datetime = row[0]
         if not isinstance(date, datetime.datetime):
             detailer.message(f"Got non-datetime row {row}")
             continue
+        if not first:
+            first = date
+        last = date
+        in_range += 1
         by_year[date.year] += 1
         by_month[date.month] += 1
         by_day[date.day] += 1
@@ -407,10 +460,22 @@ def summarize_dates(rows: Iterator[Row], width: int = 80):
                     if date >= day:
                         this_day += 1
 
-    click.echo(f"  {this_year:,d} this year ({year:%Y})")
-    click.echo(f"  {this_month:,d} this month ({month:%B %Y})")
-    click.echo(f"  {this_week:,d} this week ({week:%B %d} to {day:%B %d})")
-    click.echo(f"  {this_day:,d} today ({day:%d %B %Y})")
+    if not first:
+        click.echo(
+            f" No datasets found between {start:%Y-%m-%d %H:%M} and {end:%Y-%m-%d %H:%M}"
+        )
+        return
+
+    click.echo(f" {in_range:,d} from {first:%Y-%m-%d %H:%M} to {last:%Y-%m-%d %H:%M}")
+
+    if start < year:
+        click.echo(f"    {this_year:,d} in year {year:%Y}")
+    if start < month:
+        click.echo(f"    {this_month:,d} in month {month:%B %Y}")
+    if start < week:
+        click.echo(f"    {this_week:,d} in week {week:%B %d} to {day:%B %d}")
+    if start < day:
+        click.echo(f"    {this_day:,d} on {day:%d %B %Y}")
 
     click.echo(" Total by year:")
     columnize(by_year, width)
@@ -429,16 +494,11 @@ def report_creation(options: dict[str, Any]):
 
     watcher.update("analyzing upload patterns")
 
-    rows = (
-        Database.db_session.query(
-            cast(Metadata.value["pbench", "date"].as_string(), TZDateTime)
-        )
-        .filter(Metadata.key == "metalog")
-        .execution_options(stream_results=True)
-        .yield_per(SQL_CHUNK)
-    )
+    rows = Database.db_session.query(
+        cast(Metadata.value["pbench", "date"].as_string(), TZDateTime).label("date")
+    ).filter(Metadata.key == "metalog")
     click.echo("Dataset statistics by creation date:")
-    summarize_dates(rows, options.get("width"))
+    summarize_dates(rows, options)
 
 
 def report_uploads(options: dict[str, Any]):
@@ -446,13 +506,9 @@ def report_uploads(options: dict[str, Any]):
 
     watcher.update("analyzing upload patterns")
 
-    rows = (
-        Database.db_session.query(Dataset.uploaded)
-        .execution_options(stream_results=True)
-        .yield_per(SQL_CHUNK)
-    )
+    rows = Database.db_session.query(Dataset.uploaded.label("date"))
     click.echo("Dataset statistics by upload date:")
-    summarize_dates(rows, options.get("width"))
+    summarize_dates(rows, options)
 
 
 def report_audit():
@@ -664,6 +720,11 @@ def report_states():
 @click.option(
     "--progress", "-p", type=float, default=0.0, help="Show periodic progress messages"
 )
+@click.option(
+    "--since",
+    type=DateParser(),
+    help="Confine statistics to datasets uploaded/created since date/time",
+)
 @click.option("--sql", "-s", default=False, is_flag=True, help="Display SQL statistics")
 @click.option(
     "--states", "-S", default=False, is_flag=True, help="Display operational states"
@@ -671,7 +732,12 @@ def report_states():
 @click.option(
     "--statistics",
     type=click.Choice(["creation", "upload"], case_sensitive=False),
-    help="Show upload statistics",
+    help="Show dataset statistics by creation or upload timestamp",
+)
+@click.option(
+    "--until",
+    type=DateParser(),
+    help="Confine statistics to datasets uploaded/created until date/time",
 )
 @click.option(
     "--verify", "-v", default=False, is_flag=True, help="Display intermediate messages"
@@ -733,7 +799,7 @@ def report(context: object, **kwargs):
             logger.exception("An error occurred discovering the file tree: {}", exc)
         if kwargs.get("verify"):
             raise
-        click.secho(exc, err=True, bg="red")
+        click.secho(exc, err=True, fg="red")
         rv = 2 if isinstance(exc, BadConfig) else 1
 
     click.get_current_context().exit(rv)
