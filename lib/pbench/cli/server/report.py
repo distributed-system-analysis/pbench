@@ -779,8 +779,8 @@ def report(context: object, **kwargs):
         if kwargs.get("all") or kwargs.get("cache"):
             report_cache(cache_m)
         stats = kwargs.get("statistics")
-        if stats:
-            if stats == "creation":
+        if stats or kwargs.get("all"):
+            if stats == "creation" or stats is None:
                 report_creation(kwargs)
             elif stats == "upload":
                 report_uploads(kwargs)
