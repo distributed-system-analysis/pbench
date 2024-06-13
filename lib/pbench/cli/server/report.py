@@ -416,7 +416,8 @@ def summarize_dates(base_query: Query, options: dict[str, Any]):
     this_month = 0
     this_week = 0
     this_day = 0
-    in_range = 0
+    count = 0
+    dateless = 0
 
     filters = []
 
@@ -437,14 +438,14 @@ def summarize_dates(base_query: Query, options: dict[str, Any]):
     rows = query.execution_options(stream_results=True).yield_per(SQL_CHUNK)
 
     for row in rows:
+        count += 1
         date: datetime.datetime = row[0]
         if not isinstance(date, datetime.datetime):
-            detailer.message(f"Got non-datetime row {row}")
+            dateless += 1
             continue
         if not first:
             first = date
         last = date
-        in_range += 1
         by_year[date.year] += 1
         by_month[date.month] += 1
         by_day[date.day] += 1
@@ -466,7 +467,9 @@ def summarize_dates(base_query: Query, options: dict[str, Any]):
         )
         return
 
-    click.echo(f" {in_range:,d} from {first:%Y-%m-%d %H:%M} to {last:%Y-%m-%d %H:%M}")
+    click.echo(f" {count:,d} from {first:%Y-%m-%d %H:%M} to {last:%Y-%m-%d %H:%M}")
+    if dateless:
+        click.echo(f"  (count includes {dateless:,d} datasets without a date)")
 
     if start < year:
         click.echo(f"    {this_year:,d} in year {year:%Y}")
