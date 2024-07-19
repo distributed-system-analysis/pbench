@@ -1,4 +1,5 @@
 from collections import defaultdict
+from dataclasses import dataclass
 import datetime
 from operator import and_
 from pathlib import Path
@@ -514,6 +515,108 @@ def report_uploads(options: dict[str, Any]):
     summarize_dates(rows, options)
 
 
+def report_agent(options: dict[str, Any]):
+    """Report dataset statistics by agent version"""
+
+    v_pattern = re.compile(r"v?(?P<major>\d+\.\d+)(?:\.\d+)?(?:-\w+)")
+
+    @dataclass
+    class Daterange:
+        first: Optional[datetime.datetime] = None
+        last: Optional[datetime.datetime] = None
+
+        def add(self, date: datetime.datetime):
+            if self.first is None or date < self.first:
+                self.first = date
+            if self.last is None or date > self.last:
+                self.last = date
+
+    def print_versions(target: dict[str, Daterange], counts: dict[str, int]):
+        click.echo(f"  {'Count':^10s} {'Version':^22s} {'First':^12s} {'Last':^12s}")
+        click.echo(f"  {'':-<10} {'':-<22} {'':-<12} {'':-<12}")
+        for version, dates in sorted(target.items(), key=lambda k: k[1].last):
+            count = counts[version]
+            first = humanize.naturaldate(dates.first)
+            last = humanize.naturaldate(dates.last)
+            click.echo(f"  {count:>10,d} {version!r:^22s} {first:>12s} {last:>12s}")
+
+    watcher.update("analyzing version patterns")
+    since = options.get("since")
+    until = options.get("until")
+
+    if since and until and since > until:
+        raise Exception("The --until value must be later than the --since value")
+
+    rows = Database.db_session.query(
+        cast(Metadata.value["pbench", "date"].as_string(), TZDateTime).label("date"),
+        Metadata.value["pbench", "rpm-version"].as_string().label("version"),
+    ).filter(Metadata.key == "metalog")
+
+    count = 0
+    dateless = 0
+    versionless = 0
+
+    versions = defaultdict(int)
+    majorversions = defaultdict(int)
+    nonversions = defaultdict(int)
+    range = defaultdict(Daterange)
+    majorrange = defaultdict(Daterange)
+    nonversionrange = defaultdict(Daterange)
+
+    filters = []
+
+    # Create a subquery from our basic select parameters so that we can use
+    # the label (SQL "AS date") in our WHERE filter clauses. (In a direct query
+    # PostgreSQL doesn't allow filtering on renamed columns.)
+    subquery = rows.subquery()
+    query = Database.db_session.query(subquery.c.date, subquery.c.version).order_by(
+        subquery.c.date
+    )
+
+    if since:
+        verifier.status(f"Filter since {since}")
+        filters.append(subquery.c.date >= since)
+    if until:
+        verifier.status(f"Filter until {until}")
+        filters.append(subquery.c.date <= until)
+    if filters:
+        query = query.filter(*filters)
+    rows = query.execution_options(stream_results=True).yield_per(SQL_CHUNK)
+
+    for row in rows:
+        count += 1
+        date: datetime.datetime = row[0]
+        version = row[1]
+        if not isinstance(version, str):
+            versionless += 1
+            continue
+        if not isinstance(date, datetime.datetime):
+            dateless += 1
+            date = datetime.datetime.fromtimestamp(0.0)
+        m = v_pattern.match(version)
+        if m:
+            maj = m.group("major")
+            versions[version] += 1
+            majorversions[maj] += 1
+            range[version].add(date)
+            majorrange[maj].add(date)
+        else:
+            nonversions[version] += 1
+            nonversionrange[version].add(date)
+
+    click.echo("Dataset statistics by Pbench Agent version:")
+    print_versions(majorrange, majorversions)
+    if options.get("detail"):
+        click.echo("Dataset statistics by full Pbench Agent version:")
+        print_versions(range, versions)
+        click.echo("Datasets with nonsensical version metadata:")
+        print_versions(nonversionrange, nonversions)
+    if dateless:
+        click.echo(f"{dateless:,d} datasets lack a date")
+    if versionless:
+        click.echo(f"{versionless:,d} datasets lack a Pbench Agent version")
+
+
 def report_audit():
     """Report audit log statistics."""
 
@@ -693,6 +796,12 @@ def report_states():
 
 @click.command(name="pbench-report-generator")
 @pass_cli_context
+@click.option(
+    "--agent",
+    default=False,
+    is_flag=True,
+    help="Display Pbench Agent version statistics",
+)
 @click.option("--all", "-a", default=False, is_flag=True, help="Display full report")
 @click.option(
     "--archive", "-A", default=False, is_flag=True, help="Display archive statistics"
@@ -790,6 +899,8 @@ def report(context: object, **kwargs):
             else:
                 click.echo(f"Unexpected statistics option {stats}", err=True)
                 rv = 1
+        if kwargs.get("all") or kwargs.get("agent"):
+            report_agent(kwargs)
         if kwargs.get("all") or kwargs.get("audit"):
             report_audit()
         if kwargs.get("all") or kwargs.get("sql"):
