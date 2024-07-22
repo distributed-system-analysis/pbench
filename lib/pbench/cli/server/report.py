@@ -385,9 +385,6 @@ def summarize_dates(base_query: Query, options: dict[str, Any]):
     since = options.get("since")
     until = options.get("until")
 
-    if since and until and since > until:
-        raise Exception("The --until value must be later than the --since value")
-
     by_year = defaultdict(int)
     by_month = defaultdict(int)
     by_day = defaultdict(int)
@@ -518,7 +515,7 @@ def report_uploads(options: dict[str, Any]):
 def report_agent(options: dict[str, Any]):
     """Report dataset statistics by agent version"""
 
-    v_pattern = re.compile(r"v?(?P<major>\d+\.\d+)(?:\.\d+)?(?:-\w+)")
+    v_pattern = re.compile(r"(?P<major>\d+\.\d+)(?:\.\d+)?(?:-\w+)")
 
     @dataclass
     class Daterange:
@@ -531,26 +528,40 @@ def report_agent(options: dict[str, Any]):
             if self.last is None or date > self.last:
                 self.last = date
 
-    def print_versions(target: dict[str, Daterange], counts: dict[str, int]):
-        click.echo(f"  {'Count':^10s} {'Version':^22s} {'First':^12s} {'Last':^12s}")
-        click.echo(f"  {'':-<10} {'':-<22} {'':-<12} {'':-<12}")
+    def print_versions(
+        target: dict[str, Daterange], counts: dict[str, int], quote: bool = False
+    ):
+        cw = 10
+        vw = 23
+        dw = 11
+        click.echo(
+            f"  {'Count':^{cw}s} {'Version':^{vw}s} {'First':^{dw}s} {'Last':^{dw}s}"
+        )
+        click.echo(f"  {'':-<{cw}} {'':-<{vw}} {'':-<{dw}} {'':-<{dw}}")
         for version, dates in sorted(target.items(), key=lambda k: k[1].last):
             count = counts[version]
             first = humanize.naturaldate(dates.first)
             last = humanize.naturaldate(dates.last)
-            click.echo(f"  {count:>10,d} {version!r:^22s} {first:>12s} {last:>12s}")
+            v = "'" + version + "'" if quote else version
+            click.echo(f"  {count:>{cw},d} {v:^{vw}s} {first:>{dw}s} {last:>{dw}s}")
 
     watcher.update("analyzing version patterns")
     since = options.get("since")
     until = options.get("until")
 
-    if since and until and since > until:
-        raise Exception("The --until value must be later than the --since value")
-
-    rows = Database.db_session.query(
-        cast(Metadata.value["pbench", "date"].as_string(), TZDateTime).label("date"),
-        Metadata.value["pbench", "rpm-version"].as_string().label("version"),
-    ).filter(Metadata.key == "metalog")
+    # Create a subquery from our basic select parameters so that we can use
+    # the label (SQL "AS date") in our WHERE filter clauses. (In a direct query
+    # PostgreSQL doesn't allow filtering on renamed columns.)
+    subquery = (
+        Database.db_session.query(
+            cast(Metadata.value["pbench", "date"].as_string(), TZDateTime).label(
+                "date"
+            ),
+            Metadata.value["pbench", "rpm-version"].as_string().label("version"),
+        )
+        .filter(Metadata.key == "metalog")
+        .subquery()
+    )
 
     count = 0
     dateless = 0
@@ -565,10 +576,6 @@ def report_agent(options: dict[str, Any]):
 
     filters = []
 
-    # Create a subquery from our basic select parameters so that we can use
-    # the label (SQL "AS date") in our WHERE filter clauses. (In a direct query
-    # PostgreSQL doesn't allow filtering on renamed columns.)
-    subquery = rows.subquery()
     query = Database.db_session.query(subquery.c.date, subquery.c.version).order_by(
         subquery.c.date
     )
@@ -593,7 +600,7 @@ def report_agent(options: dict[str, Any]):
         if not isinstance(date, datetime.datetime):
             dateless += 1
             date = datetime.datetime.fromtimestamp(0.0)
-        m = v_pattern.match(version)
+        m = v_pattern.search(version)
         if m:
             maj = m.group("major")
             versions[version] += 1
@@ -610,7 +617,7 @@ def report_agent(options: dict[str, Any]):
         click.echo("Dataset statistics by full Pbench Agent version:")
         print_versions(range, versions)
         click.echo("Datasets with nonsensical version metadata:")
-        print_versions(nonversionrange, nonversions)
+        print_versions(nonversionrange, nonversions, quote=True)
     if dateless:
         click.echo(f"{dateless:,d} datasets lack a date")
     if versionless:
@@ -875,6 +882,12 @@ def report(context: object, **kwargs):
     rv = 0
 
     try:
+
+        since = kwargs.get("since")
+        until = kwargs.get("until")
+        if since and until and since > until:
+            raise Exception("The --until value must be later than the --since value")
+
         config = config_setup(context)
         logger = get_pbench_logger("pbench-report-generator", config)
         cache_m = CacheManager(config, logger)
