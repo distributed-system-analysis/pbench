@@ -13,6 +13,7 @@ flask-sqlalchemy
 gunicorn
 humanfriendly
 humanize
+numpy<2.0 # Indirect: elasticsearch
 pquisby
 psycopg2
 pyesbulk>=2.0.1
