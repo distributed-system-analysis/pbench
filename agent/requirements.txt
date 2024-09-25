@@ -1,4 +1,4 @@
-bottle
+bottle<0.13.0
 cffi
 click>=8.0
 hiredis
